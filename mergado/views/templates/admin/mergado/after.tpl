@@ -104,7 +104,7 @@
                 {l s='Contact' mod='mergado'}
             </div>
 
-            {l s='Do not hesitate to contact us on'} <a href='mailto:prestashop@mergado.cz'>prestashop@mergado.cz</a> {l s='in case of any question.'}
+            {l s='Do not hesitate to contact us on' mod='mergado'} <a href='mailto:prestashop@mergado.cz'>prestashop@mergado.cz</a> {l s='in case of any question.' mod='mergado'}
         </div>
     </div>
 </div>
