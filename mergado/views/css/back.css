@@ -1,0 +1,92 @@
+/**
+ * NOTICE OF LICENSE
+ *
+ * This file is licenced under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the licence agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code
+ *
+ *  @author    www.mergado.cz
+ *  @copyright 2016 Mergado technologies, s. r. o.
+ *  @license   LICENSE.txt
+ */
+
+#mergadoController table{
+    width: 100%;
+}
+
+#mergadoController table thead th, #mergadoController table thead td{
+    background: #77b526;
+    color: #fff;
+    padding: 3px 5px;
+    border: 1px solid #4c7910;
+}
+
+#mergadoController table tbody th, #mergadoController table tbody td{    
+    padding: 3px 5px;
+    border: 1px solid #ccc;
+}
+
+#mergadoController #mergadoHeader{
+    background: #6ba222;    
+    margin: 10px 0;
+    color: #fff;
+    position: relative;
+}
+
+#mergadoController #mergadoHeader #mergadoLogo{
+    background: #333;
+    padding: 0 10px;    
+    padding: 10px;
+}
+
+#mergadoController #mergadoHeader #mergadoLogo a{
+    display: block;
+}
+
+#mergadoController #mergadoHeader #mergadoLogo a img{
+    max-height: 35px;
+}
+
+#mergadoController .info{
+    padding: 10px 300px 10px 10px;
+    font-size: 14px;
+}
+
+#mergadoController h2{
+    font-weight: bold;
+    color: #333;
+}
+
+#mergadoController .tabControl{
+    padding: 10px;
+}
+
+#mergadoController .tabControl a{
+    display: inline-block;
+    padding: 8px 16px;
+    margin-right: 4px;
+    border: 2px solid #fff;
+    color: #fff;
+    font-weight: bold;
+    font-size: 14px;
+    border-radius: 6px;
+}
+
+#mergadoController .tabControl a:hover, #mergadoController .tabControl a.active{
+    background: #fff;
+    color: #333;
+    text-decoration: none;
+}
+
+#mrmergado{
+    position: absolute;
+    right: 20px;
+    bottom: 0;
+    z-index: 50;
+}
+
+#mrmergado img{
+    max-height: 260px;
+}
