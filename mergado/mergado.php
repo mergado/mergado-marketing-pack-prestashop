@@ -30,7 +30,7 @@ class Mergado extends Module
         $this->version = '1.0.0';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
-
+        $this->module_key = '12cdb75588bb090637655d626c01c351';
         $this->controllerClass = 'AdminMergado';
         //$this->module_key = '';
 
