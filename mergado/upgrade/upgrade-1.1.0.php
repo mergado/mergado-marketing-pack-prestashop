@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE.
  *
@@ -12,7 +13,6 @@
  *  @copyright 2016 Mergado technologies, s. r. o.
  *  @license   LICENSE.txt
  */
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -22,12 +22,15 @@ if (!defined('_PS_VERSION_')) {
  * usefull when you modify your database, or register a new hook ...
  * Don't forget to create one file per version.
  */
-function upgrade_module_1_1_0()
-{
-    /*
-     * Do everything you want right there,
-     * You could add a column in one of your module's tables
-     */
+function upgrade_module_1_1_0($module) {
+
+    require_once(__DIR__ . '/../sql/update-1.1.0.php');
+    $module->uninstallOverrides();
+    $module->installOverrides();
+    
+    if(!$module->registerHook('displayFooter')){
+        return false;
+    }
 
     return true;
 }

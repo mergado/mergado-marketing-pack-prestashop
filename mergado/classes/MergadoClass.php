@@ -91,6 +91,11 @@ class MergadoClass extends ObjectModel
             $xml_new->startElement('DESCRIPTION');
             $xml_new->text($product['description']);
             $xml_new->endElement();
+            
+            // Product short description
+            $xml_new->startElement('DESCRIPTION_SHORT');
+            $xml_new->text($product['description_short']);
+            $xml_new->endElement();
 
             // Product delivery days
             $xml_new->startElement('DELIVERY_DAYS');
@@ -353,6 +358,7 @@ class MergadoClass extends ObjectModel
                         $combination['id_product'],
                         $combination['id_product_attribute']
                     ) > 0) ? 0 : 7,
+                    'description_short' => strip_tags($item->description_short[$lang]),
                     'description' => strip_tags($item->description[$lang]),
                     'ean' => $combination['ean13'],
                     'image' => $mainImage,
@@ -404,6 +410,7 @@ class MergadoClass extends ObjectModel
                 'category' => $category,
                 'condition' => $item->condition,
                 'delivery_days' => (ProductCore::getQuantity($item->id) > 0) ? 0 : 7,
+                'description_short' => strip_tags($item->description_short[$lang]),
                 'description' => strip_tags($item->description[$lang]),
                 'ean' => $item->ean13,
                 'image' => $mainImage,
@@ -501,7 +508,7 @@ class MergadoClass extends ObjectModel
 
     public static function getSettings($query)
     {
-        return Db::getInstance()->getRow('SELECT `value` FROM `' . _DB_PREFIX_ . 'mergado` WHERE `key` = "' . $query . '"');
+        return Db::getInstance()->getRow('SELECT `value` FROM `' . _DB_PREFIX_ . 'mergado` WHERE `key` = "' . pSQL($query) . '"');
     }
 
     public function heurekaVerify($apiKey, $order, $lang)

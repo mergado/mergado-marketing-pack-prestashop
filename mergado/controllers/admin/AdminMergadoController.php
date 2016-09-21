@@ -121,6 +121,16 @@ class AdminMergadoController extends ModuleAdminControllerCore
                         'type' => 'text',
                         'visibility' => Shop::CONTEXT_ALL,
                     ),
+                    'mergado_heureka_widget_cz' => array(
+                        'title' => $this->l('Heureka.cz - widget verified by customer'),
+                        'type' => 'text',
+                        'visibility' => Shop::CONTEXT_ALL,
+                    ),
+                    'mergado_heureka_widget_sk' => array(
+                        'title' => $this->l('Heureka.sk - widget verified by customer'),
+                        'type' => 'text',
+                        'visibility' => Shop::CONTEXT_ALL,
+                    ),
                 ),
                 'submit' => array('title' => $this->l('Save')),
             ),
@@ -156,9 +166,9 @@ class AdminMergadoController extends ModuleAdminControllerCore
     public function initContent()
     {
         $sql = 'SELECT `key` FROM `' . _DB_PREFIX_ . $this->table . '` WHERE `key` LIKE "';
-        $sql .= MergadoClass::$feedPrefix . '%" AND `value` = 1';
+        $sql .= pSQL(MergadoClass::$feedPrefix) . '%" AND `value` = 1';
         $feeds = Db::getInstance()->executeS($sql);
-
+        
         $langWithName = array();
         foreach ($feeds as $feed) {
             $iso = str_replace(MergadoClass::$feedPrefix, '', $feed['key']);
@@ -216,22 +226,22 @@ class AdminMergadoController extends ModuleAdminControllerCore
     public function postProcess()
     {
         $submitBtn = 'submitOptionsmergado';
-
-        if (Tools::getValue($submitBtn) == '') {
+        
+        if (Tools::getValue($submitBtn)) {
             foreach ($_POST as $key => $value) {
                 if ($key === $submitBtn) {
                     continue;
                 }
 
                 $exists = Db::getInstance()->getRow(
-                    'SELECT id FROM ' . _DB_PREFIX_ . $this->table . ' WHERE `key`="' . $key . '"'
+                    'SELECT id FROM ' . _DB_PREFIX_ . $this->table . ' WHERE `key`="' . pSQL($key) . '"'
                 );
                 if ($exists) {
-                    Db::getInstance()->update($this->table, array('value' => $value), '`key` = "' . $key . '"');
+                    Db::getInstance()->update($this->table, array('value' => pSQL($value)), '`key` = "' . pSQL($key) . '"');
                 } else {
                     Db::getInstance()->insert($this->table, array(
-                        'key' => $key,
-                        'value' => $value,
+                        'key' => pSQL($key),
+                        'value' => pSQL($value),
                     ));
                 }
             }
