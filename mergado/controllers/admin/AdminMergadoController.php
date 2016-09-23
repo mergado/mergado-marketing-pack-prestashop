@@ -122,13 +122,19 @@ class AdminMergadoController extends ModuleAdminControllerCore
                         'visibility' => Shop::CONTEXT_ALL,
                     ),
                     'mergado_heureka_widget_cz' => array(
-                        'title' => $this->l('Heureka.cz - widget verified by customer'),
-                        'type' => 'text',
+                        'title' => $this->l('Heureka.cz - widget'),
+                        'hint' => $this->l('You need conversion code to enable this feature'),
+                        'validation' => 'isBool',
+                        'cast' => 'intval',
+                        'type' => 'bool',
                         'visibility' => Shop::CONTEXT_ALL,
                     ),
                     'mergado_heureka_widget_sk' => array(
-                        'title' => $this->l('Heureka.sk - widget verified by customer'),
-                        'type' => 'text',
+                        'title' => $this->l('Heureka.sk - widget'),
+                        'hint' => $this->l('You need conversion code to enable this feature'),
+                        'validation' => 'isBool',
+                        'cast' => 'intval',
+                        'type' => 'bool',
                         'visibility' => Shop::CONTEXT_ALL,
                     ),
                 ),
@@ -227,7 +233,8 @@ class AdminMergadoController extends ModuleAdminControllerCore
     {
         $submitBtn = 'submitOptionsmergado';
         
-        if (Tools::getValue($submitBtn)) {
+        if (Tools::getValue($submitBtn) || Tools::getValue($submitBtn) == "") {
+
             foreach ($_POST as $key => $value) {
                 if ($key === $submitBtn) {
                     continue;
