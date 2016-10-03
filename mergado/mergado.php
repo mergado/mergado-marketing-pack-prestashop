@@ -61,7 +61,7 @@ class Mergado extends Module {
 
         $this->addTab();
 
-        return parent::install() && $this->registerHook('backOfficeHeader') && $this->registerHook('actionValidateOrder') && $this->registerHook('orderConfirmation') && $this->registerHook('hookDisplayFooter');
+        return parent::install() && $this->registerHook('backOfficeHeader') && $this->registerHook('actionValidateOrder') && $this->registerHook('orderConfirmation') && $this->registerHook('displayFooter');
     }
 
     public function uninstall() {

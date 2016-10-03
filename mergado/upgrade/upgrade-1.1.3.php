@@ -26,9 +26,5 @@ function upgrade_module_1_1_3($module) {
     
     $module->uninstallOverrides();
     
-    if(!$module->registerHook('displayFooter')){
-        return false;
-    }
-
-    return true;
+    return $module->registerHook('displayFooter');
 }
