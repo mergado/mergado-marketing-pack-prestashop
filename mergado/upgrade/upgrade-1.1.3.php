@@ -22,11 +22,9 @@ if (!defined('_PS_VERSION_')) {
  * usefull when you modify your database, or register a new hook ...
  * Don't forget to create one file per version.
  */
-function upgrade_module_1_1_0($module) {
-
-    require_once(__DIR__ . '/../sql/update-1.1.0.php');
+function upgrade_module_1_1_3($module) {
+    
     $module->uninstallOverrides();
-    $module->installOverrides();
     
     if(!$module->registerHook('displayFooter')){
         return false;

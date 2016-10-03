@@ -58,7 +58,7 @@
             _hrq.push(['setOrderId', conversionOrderId]);
         {/literal}
         {foreach from=$heurekaCzProducts item=product}
-            _hrq.push(['addProduct', {$product['name']|escape:'htmlall':'UTF-8'}, {$product['unitPrice']|escape:'htmlall':'UTF-8'}, {$product['qty']|escape:'htmlall':'UTF-8'}]);
+            _hrq.push(['addProduct', '{$product['name']|escape:'htmlall':'UTF-8'}', '{$product['unitPrice']|escape:'htmlall':'UTF-8'}', '{$product['qty']|escape:'htmlall':'UTF-8'}']);
         {/foreach}
         {literal} 
             _hrq.push(['trackOrder']);
@@ -86,7 +86,7 @@
             _hrq.push(['setOrderId', conversionOrderId]);
         {/literal}
         {foreach from=$heurekaSkProducts item=product}
-            _hrq.push(['addProduct', {$product['name']|escape:'htmlall':'UTF-8'}, {$product['unitPrice']|escape:'htmlall':'UTF-8'}, {$product['qty']|escape:'htmlall':'UTF-8'}]);
+            _hrq.push(['addProduct', '{$product['name']|escape:'htmlall':'UTF-8'}', '{$product['unitPrice']|escape:'htmlall':'UTF-8'}', '{$product['qty']|escape:'htmlall':'UTF-8'}']);
         {/foreach}
         {literal} 
             _hrq.push(['trackOrder']);

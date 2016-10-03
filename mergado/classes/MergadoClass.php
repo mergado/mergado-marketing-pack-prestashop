@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE.
  *
@@ -12,11 +13,9 @@
  *  @copyright 2016 Mergado technologies, s. r. o.
  *  @license   LICENSE.txt
  */
-
 require_once _PS_MODULE_DIR_ . 'mergado/classes/ZboziKonverze.php';
 
-class MergadoClass extends ObjectModel
-{
+class MergadoClass extends ObjectModel {
 
     public static $feedPrefix = 'mergado_feed_';
     protected $language;
@@ -33,8 +32,7 @@ class MergadoClass extends ObjectModel
         'primary' => 'id',
     );
 
-    public function __construct($id = null, $id_lang = null, $id_shop = null)
-    {
+    public function __construct($id = null, $id_lang = null, $id_shop = null) {
         $this->language = new Language();
         $this->currency = new Currency();
         $this->defaultLang = Configuration::get('PS_LANG_DEFAULT');
@@ -43,8 +41,7 @@ class MergadoClass extends ObjectModel
         parent::__construct($id, $id_lang, $id_shop);
     }
 
-    public function generateMergadoFeed($feedBase)
-    {
+    public function generateMergadoFeed($feedBase) {
         $base = explode('-', str_replace(self::$feedPrefix, '', $feedBase));
         $feedBase = $feedBase . '_' .
                 Tools::substr(hash('md5', $base[0] . '-' . $base[1] . Configuration::get('PS_SHOP_NAME')), 1, 11);
@@ -57,8 +54,7 @@ class MergadoClass extends ObjectModel
         return $xml;
     }
 
-    public function generateXML($products, $feedBase, $currency)
-    {
+    public function generateXML($products, $feedBase, $currency) {
         $out = _PS_MODULE_DIR_ . 'mergado/tmp/' . $feedBase . '.xml';
         $storage = _PS_MODULE_DIR_ . 'mergado/xml/' . $feedBase . '.xml';
 
@@ -90,6 +86,11 @@ class MergadoClass extends ObjectModel
             // Product description
             $xml_new->startElement('DESCRIPTION');
             $xml_new->text($product['description']);
+            $xml_new->endElement();
+
+            // Product short description
+            $xml_new->startElement('DESCRIPTION_SHORT');
+            $xml_new->text($product['description_short']);
             $xml_new->endElement();
 
             // Product delivery days
@@ -200,8 +201,7 @@ class MergadoClass extends ObjectModel
         return true;
     }
 
-    public function productsToFlat($productId = false, $lang = false)
-    {
+    public function productsToFlat($productId = false, $lang = false) {
         $flatProductList = array();
         $productsList = array();
 
@@ -230,8 +230,7 @@ class MergadoClass extends ObjectModel
         return $flatProductList;
     }
 
-    public function productBase($item, $lang)
-    {
+    public function productBase($item, $lang) {
         $accessories = ProductCore::getAccessoriesLight($lang, $item->id);
         $accessoriesExtended = array();
         if (!empty($accessories)) {
@@ -283,8 +282,7 @@ class MergadoClass extends ObjectModel
         $address->id_country = $id_country;
 
         $tax_manager = TaxManagerFactory::getManager(
-            $address,
-            Product::getIdTaxRulesGroupByIdProduct((int) $item->id, null)
+                        $address, Product::getIdTaxRulesGroupByIdProduct((int) $item->id, null)
         );
         $tax_calculator = $tax_manager->getTaxCalculator();
 
@@ -302,13 +300,7 @@ class MergadoClass extends ObjectModel
         if (!empty($combinations)) {
             foreach ($combinations as $combination) {
                 $sp = SpecificPrice::getSpecificPrice(
-                    $item->id,
-                    $combination['id_shop'],
-                    $this->currency->id,
-                    0,
-                    0,
-                    1,
-                    $combination['id_product_attribute']
+                                $item->id, $combination['id_shop'], $this->currency->id, 0, 0, 1, $combination['id_product_attribute']
                 );
                 $price = $item->price + $combination['price'] + $combination['unit_price_impact'];
 
@@ -331,7 +323,7 @@ class MergadoClass extends ObjectModel
 
 
                 $params = array_merge($params, $features);
-                
+
                 $itemgroup = array();
                 foreach ($combinations as $g) {
                     if ($g['id_product_attribute'] != $combination['id_product_attribute']) {
@@ -344,15 +336,14 @@ class MergadoClass extends ObjectModel
                     'item_id' => $combination['id_product'] . '-' . $combination['id_product_attribute'],
                     'accessory' => $accessoriesExtended,
                     'availability' => (ProductCore::getQuantity(
-                        $combination['id_product'],
-                        $combination['id_product_attribute']
+                            $combination['id_product'], $combination['id_product_attribute']
                     ) > 0) ? 'in stock' : 'out of stock',
                     'category' => $category,
                     'condition' => $item->condition,
                     'delivery_days' => (ProductCore::getQuantity(
-                        $combination['id_product'],
-                        $combination['id_product_attribute']
+                            $combination['id_product'], $combination['id_product_attribute']
                     ) > 0) ? 0 : 7,
+                    'description_short' => strip_tags($item->description_short[$lang]),
                     'description' => strip_tags($item->description[$lang]),
                     'ean' => $combination['ean13'],
                     'image' => $mainImage,
@@ -362,21 +353,13 @@ class MergadoClass extends ObjectModel
                     'params' => $params,
                     'producer' => $manufacturer->name,
                     'url' => $link->getProductLink(
-                        $item,
-                        null,
-                        null,
-                        null,
-                        $lang,
-                        null,
-                        $combination['id_product_attribute']
+                            $item, null, null, null, $lang, null, $combination['id_product_attribute']
                     ),
                     'price' => Tools::ps_round(
-                        $price,
-                        Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                            $price, Configuration::get('PS_PRICE_DISPLAY_PRECISION')
                     ),
                     'price_vat' => Tools::ps_round(
-                        $price * (1 + ($tax_calculator->taxes[0]->rate / 100)),
-                        Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                            $price * (1 + ($tax_calculator->taxes[0]->rate / 100)), Configuration::get('PS_PRICE_DISPLAY_PRECISION')
                     ),
                     'shipping_size' => $item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' .
                     Configuration::get('PS_DIMENSION_UNIT'),
@@ -404,6 +387,7 @@ class MergadoClass extends ObjectModel
                 'category' => $category,
                 'condition' => $item->condition,
                 'delivery_days' => (ProductCore::getQuantity($item->id) > 0) ? 0 : 7,
+                'description_short' => strip_tags($item->description_short[$lang]),
                 'description' => strip_tags($item->description[$lang]),
                 'ean' => $item->ean13,
                 'image' => $mainImage,
@@ -414,8 +398,7 @@ class MergadoClass extends ObjectModel
                 'url' => $link->getProductLink($item, null, null, null, $lang, null),
                 'price' => Tools::ps_round($price, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                 'price_vat' => Tools::ps_round(
-                    $price * (1 + ($tax_calculator->taxes[0]->rate / 100)),
-                    Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                        $price * (1 + ($tax_calculator->taxes[0]->rate / 100)), Configuration::get('PS_PRICE_DISPLAY_PRECISION')
                 ),
                 'shipping_size' => $item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' .
                 Configuration::get('PS_DIMENSION_UNIT'),
@@ -428,8 +411,7 @@ class MergadoClass extends ObjectModel
         return $productBase;
     }
 
-    public function getProductCombination($product, $lang)
-    {
+    public function getProductCombination($product, $lang) {
         $groups = array();
         $comb_array = array();
         $flatProductList = array();
@@ -471,7 +453,7 @@ class MergadoClass extends ObjectModel
                         $list .= $attribute[1] . ' ';
                         $attrs[$attribute[0]] = $attribute[1];
                     }
-                    
+
 
                     $list = rtrim($list, ', ');
 
@@ -499,13 +481,19 @@ class MergadoClass extends ObjectModel
         return $flatProductList;
     }
 
-    public static function getSettings($query)
-    {
-        return Db::getInstance()->getRow('SELECT `value` FROM `' . _DB_PREFIX_ . 'mergado` WHERE `key` = "' . $query . '"');
+    public static function getSettings($query) {
+        return Db::getInstance()->getValue('SELECT `value` FROM `' . _DB_PREFIX_ . 'mergado` WHERE `key` = "' . pSQL($query) . '"');
     }
 
-    public function heurekaVerify($apiKey, $order, $lang)
-    {
+    public static function getWholeSettings() {
+        $sql = new DbQuery();
+        $sql->select('*');
+        $sql->from('mergado');
+        
+        return Db::getInstance()->executeS($sql);
+    }
+
+    public function heurekaVerify($apiKey, $order, $lang) {
         $url = null;
 
         if ($lang === 'cs') {
@@ -545,8 +533,7 @@ class MergadoClass extends ObjectModel
         $this->sendRequest($url);
     }
 
-    private function sendRequest($url)
-    {
+    private function sendRequest($url) {
         $parsed = parse_url($url);
         $fp = fsockopen($parsed['host'], 80, $errno, $errstr, 5);
         if (!$fp) {
@@ -567,8 +554,7 @@ class MergadoClass extends ObjectModel
         }
     }
 
-    public function sendZboziKonverze($order, $lang)
-    {
+    public function sendZboziKonverze($order, $lang) {
         $active = self::getSettings('mergado_zbozi_konverze');
         $id = self::getSettings('mergado_zbozi_shop_id');
         $secret = self::getSettings('mergado_zbozi_secret');
@@ -623,4 +609,5 @@ class MergadoClass extends ObjectModel
             }
         }
     }
+
 }

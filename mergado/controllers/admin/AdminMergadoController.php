@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE.
  *
@@ -12,20 +13,18 @@
  *  @copyright 2016 Mergado technologies, s. r. o.
  *  @license   LICENSE.txt
  */
-
 require_once _PS_MODULE_DIR_ . 'mergado/classes/MergadoClass.php';
 
-class AdminMergadoController extends ModuleAdminControllerCore
-{
+class AdminMergadoController extends ModuleAdminControllerCore {
 
     protected $multishop;
     protected $multishopAllowed = false;
     protected $languages;
     protected $currencies;
     protected $modulePath;
+    protected $settingsValues;
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->bootstrap = true;
         $this->className = 'AdminMergado';
         $this->table = 'mergado';
@@ -35,16 +34,21 @@ class AdminMergadoController extends ModuleAdminControllerCore
         $this->currencies = new Currency();
         $this->modulePath = _PS_MODULE_DIR_ . 'mergado/';
 
+        $settingsTable = MergadoClass::getWholeSettings();
+        $settingsValues = array();
+        foreach ($settingsTable as $s) {
+            $this->settingsValues[$s['key']] = $s['value'];
+        }
+
         parent::__construct();
     }
 
-    public function init()
-    {
-        $feedSettings = array();
+    public function init() {
 
         $feedLang = array();
         foreach ($this->languages->getLanguages(true) as $lang) {
             foreach ($this->currencies->getCurrencies(false, true) as $currency) {
+
                 $feedLang = array_merge($feedLang, array(
                     MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'] => array(
                         'title' => $lang['name'] . ' - ' . $currency['iso_code'],
@@ -53,6 +57,7 @@ class AdminMergadoController extends ModuleAdminControllerCore
                         'cast' => 'intval',
                         'type' => 'bool',
                         'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues[MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code']]
                     ),
                 ));
             }
@@ -79,11 +84,13 @@ class AdminMergadoController extends ModuleAdminControllerCore
                         'cast' => 'intval',
                         'type' => 'bool',
                         'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues['mergado_heureka_overeno_zakazniky_cz']
                     ),
                     'mergado_heureka_overeno_zakazniky_kod_cz' => array(
                         'title' => $this->l('Heureka.cz verified by users code'),
                         'type' => 'text',
                         'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_cz']
                     ),
                     'mergado_heureka_overeno_zakazniky_sk' => array(
                         'title' => $this->l('Heureka.sk verified by users'),
@@ -91,11 +98,13 @@ class AdminMergadoController extends ModuleAdminControllerCore
                         'cast' => 'intval',
                         'type' => 'bool',
                         'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues['mergado_heureka_overeno_zakazniky_sk']
                     ),
                     'mergado_heureka_overeno_zakazniky_kod_sk' => array(
                         'title' => $this->l('Heureka.sk verified by users code'),
                         'type' => 'text',
                         'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_sk']
                     ),
                     'mergado_heureka_konverze_cz' => array(
                         'title' => $this->l('Heureka.cz track conversions'),
@@ -103,11 +112,13 @@ class AdminMergadoController extends ModuleAdminControllerCore
                         'cast' => 'intval',
                         'type' => 'bool',
                         'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues['mergado_heureka_konverze_cz']
                     ),
                     'mergado_heureka_konverze_cz_kod' => array(
                         'title' => $this->l('Heureka.cz conversion code'),
                         'type' => 'text',
                         'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues['mergado_heureka_konverze_cz_kod']
                     ),
                     'mergado_heureka_konverze_sk' => array(
                         'title' => $this->l('Heureka.sk track conversions'),
@@ -115,11 +126,31 @@ class AdminMergadoController extends ModuleAdminControllerCore
                         'cast' => 'intval',
                         'type' => 'bool',
                         'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues['mergado_heureka_konverze_sk']
                     ),
                     'mergado_heureka_konverze_sk_kod' => array(
                         'title' => $this->l('Heureka.sk conversion code'),
                         'type' => 'text',
                         'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues['mergado_heureka_konverze_sk_kod']
+                    ),
+                    'mergado_heureka_widget_cz' => array(
+                        'title' => $this->l('Heureka.cz - widget'),
+                        'hint' => $this->l('You need conversion code to enable this feature'),
+                        'validation' => 'isBool',
+                        'cast' => 'intval',
+                        'type' => 'bool',
+                        'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues['mergado_heureka_widget_cz']
+                    ),
+                    'mergado_heureka_widget_sk' => array(
+                        'title' => $this->l('Heureka.sk - widget'),
+                        'hint' => $this->l('You need conversion code to enable this feature'),
+                        'validation' => 'isBool',
+                        'cast' => 'intval',
+                        'type' => 'bool',
+                        'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues['mergado_heureka_widget_sk']
                     ),
                 ),
                 'submit' => array('title' => $this->l('Save')),
@@ -134,16 +165,19 @@ class AdminMergadoController extends ModuleAdminControllerCore
                         'cast' => 'intval',
                         'type' => 'bool',
                         'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues['mergado_zbozi_konverze']
                     ),
                     'mergado_zbozi_shop_id' => array(
                         'title' => $this->l('Zbozi shop ID'),
                         'type' => 'text',
                         'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues['mergado_zbozi_shop_id']
                     ),
                     'mergado_zbozi_secret' => array(
                         'title' => $this->l('Secret key'),
                         'type' => 'text',
                         'visibility' => Shop::CONTEXT_ALL,
+                        'defaultValue' => $this->settingsValues['mergado_zbozi_secret']
                     ),
                 ),
                 'submit' => array('title' => $this->l('Save')),
@@ -153,10 +187,9 @@ class AdminMergadoController extends ModuleAdminControllerCore
         parent::init();
     }
 
-    public function initContent()
-    {
+    public function initContent() {
         $sql = 'SELECT `key` FROM `' . _DB_PREFIX_ . $this->table . '` WHERE `key` LIKE "';
-        $sql .= MergadoClass::$feedPrefix . '%" AND `value` = 1';
+        $sql .= pSQL(MergadoClass::$feedPrefix) . '%" AND `value` = 1';
         $feeds = Db::getInstance()->executeS($sql);
 
         $langWithName = array();
@@ -167,7 +200,7 @@ class AdminMergadoController extends ModuleAdminControllerCore
             $langWithName[] = array(
                 'url' => $this->getCronUrl($feed['key']),
                 'name' => $this->languages->getLanguageByIETFCode(
-                    $this->languages->getLanguageCodeByIso($iso[0])
+                        $this->languages->getLanguageCodeByIso($iso[0])
                 )->name . ' - ' . $iso[1],
             );
         }
@@ -180,16 +213,14 @@ class AdminMergadoController extends ModuleAdminControllerCore
                 $name = explode('-', $tmpName);
                 $codedName = explode('_', $tmpName);
                 $code = Tools::strtoupper(
-                    '_' . Tools::substr(hash('md5', $codedName[0] . Configuration::get('PS_SHOP_NAME')), 1, 11)
+                                '_' . Tools::substr(hash('md5', $codedName[0] . Configuration::get('PS_SHOP_NAME')), 1, 11)
                 );
 
                 $xmlList[] = array(
                     'language' => str_replace(
-                        $code,
-                        '',
-                        $this->languages->getLanguageByIETFCode(
-                            $this->languages->getLanguageCodeByIso($name[0])
-                        )->name . ' - ' . Tools::strtoupper($name[1])
+                            $code, '', $this->languages->getLanguageByIETFCode(
+                                    $this->languages->getLanguageCodeByIso($name[0])
+                            )->name . ' - ' . Tools::strtoupper($name[1])
                     ),
                     'url' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . basename($filename),
                     'name' => basename($filename),
@@ -205,49 +236,47 @@ class AdminMergadoController extends ModuleAdminControllerCore
         ));
         $before = $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/before.tpl');
         $after = $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/after.tpl');
-        
+
         parent::initContent();
-        
+
         $this->context->smarty->assign(array(
             'content' => $before . $this->content . $after
         ));
     }
 
-    public function postProcess()
-    {
-        $submitBtn = 'submitOptionsmergado';
+    public function postProcess() {
 
-        if (Tools::getValue($submitBtn) == '') {
+        if (Tools::isSubmit('submitOptions' . $this->name)) {
+
+            unset($_POST['submitOptions' . $this->name]);
+
             foreach ($_POST as $key => $value) {
                 if ($key === $submitBtn) {
                     continue;
                 }
 
                 $exists = Db::getInstance()->getRow(
-                    'SELECT id FROM ' . _DB_PREFIX_ . $this->table . ' WHERE `key`="' . $key . '"'
+                        'SELECT id FROM ' . _DB_PREFIX_ . $this->table . ' WHERE `key`="' . pSQL($key) . '"'
                 );
                 if ($exists) {
-                    Db::getInstance()->update($this->table, array('value' => $value), '`key` = "' . $key . '"');
+                    Db::getInstance()->update($this->table, array('value' => pSQL($value)), '`key` = "' . pSQL($key) . '"');
                 } else {
                     Db::getInstance()->insert($this->table, array(
-                        'key' => $key,
-                        'value' => $value,
+                        'key' => pSQL($key),
+                        'value' => pSQL($value),
                     ));
                 }
             }
         }
-
-        parent::postProcess();
     }
 
-    public function getCronUrl($key)
-    {
+    public function getCronUrl($key) {
         return $this->baseUrl() . '/modules/' . $this->name . '/cron.php?feed=' . $key .
-            '&token=' . Tools::substr(Tools::encrypt('mergado/cron'), 0, 10);
+                '&token=' . Tools::substr(Tools::encrypt('mergado/cron'), 0, 10);
     }
 
-    public function baseUrl()
-    {
+    public function baseUrl() {
         return 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' . Tools::getShopDomain(false, true);
     }
+
 }
