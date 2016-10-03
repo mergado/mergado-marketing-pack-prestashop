@@ -606,6 +606,8 @@ class MergadoClass extends ObjectModel {
             } catch (ZboziKonverzeException $e) {
                 // handle errors
                 echo 'Error: ' . $e->getMessage();
+            } catch (Exception $e) {
+                echo 'Error: ' . $e->getMessage();
             }
         }
     }
