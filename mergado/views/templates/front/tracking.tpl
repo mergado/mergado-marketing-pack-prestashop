@@ -11,15 +11,14 @@
  *  @copyright 2016 Mergado technologies, s. r. o.
  *  @license   LICENSE.txt
  *}
-
-{addJsDef conversionOrderId=$conversionOrderId}
-
-{addJsDef conversionZboziShopId=$conversionZboziShopId}
-{addJsDef conversionZboziTotal=$conversionZboziTotal}
-
-{addJsDef heurekaCzCode=$heurekaCzCode}
-{addJsDef heurekaSkActive=$heurekaSkActive}
-{addJsDef heurekaSkCode=$heurekaSkCode}
+<script>
+    var conversionOrderId = '{$conversionOrderId}';
+    var conversionZboziShopId = '{$conversionZboziShopId}';
+    var conversionZboziTotal = '{$conversionZboziTotal}';
+    var heurekaCzCode = '{$heurekaCzCode}';
+    var heurekaSkActive = '{$heurekaSkActive}';
+    var heurekaSkCode = '{$heurekaSkCode}';
+</script>
 
 {if $conversionZboziActive == '1'}
     <script>
