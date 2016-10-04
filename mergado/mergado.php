@@ -242,8 +242,7 @@ class Mergado extends Module {
         $codeCz = MergadoClass::getSettings('mergado_heureka_widget_cz');
         $codeSk = MergadoClass::getSettings('mergado_heureka_widget_sk');
         
-
-        if ($iso_code == 'cs') {
+        if ($iso_code == 'cs' && $codeCz == '1') {
             $conversioncode = MergadoClass::getSettings('mergado_heureka_konverze_cz_kod');
             if ($conversioncode != '') {
 
@@ -255,7 +254,7 @@ class Mergado extends Module {
             }
         }
 
-        if ($iso_code == 'sk') {
+        if ($iso_code == 'sk' && $codeSk == '1') {
             $conversioncode = MergadoClass::getSettings('mergado_heureka_konverze_sk_kod');
             if ($conversioncode != '') {
                 $this->smarty->assign(array(
