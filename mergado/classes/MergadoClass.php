@@ -128,6 +128,7 @@ class MergadoClass extends ObjectModel {
             $xml_new->endElement();
 
             // Product URL
+            //$link->getproductLink($product['id_product'], $product['link_rewrite'], Tools::getValue('id_category'));
             $xml_new->startElement('URL');
             $xml_new->text($product['url']);
             $xml_new->endElement();
@@ -251,7 +252,7 @@ class MergadoClass extends ObjectModel {
         $cat_iter_id = $item->id_category_default;
 
         do {
-            $cat_tmp = new CategoryCore($cat_iter_id, $lang);
+            $cat_tmp = new Category($cat_iter_id, $lang);
             $category = $cat_tmp->name . ' | ' . $category;
             $cat_iter_id = $cat_tmp->id_parent;
         } while ($cat_iter_id != null && $cat_iter_id != Configuration::get('PS_ROOT_CATEGORY') && $cat_iter_id != Configuration::get('PS_HOME_CATEGORY'));
@@ -270,12 +271,9 @@ class MergadoClass extends ObjectModel {
 
         $manufacturer = new Manufacturer($item->id_manufacturer);
 
-        $link = new LinkCore();
+        $link = new Link();
 
-        $imagesList = $item->getImages($lang);
-        $images = array();
         $mainImage = null;
-
         $id_country = Configuration::get('PS_COUNTRY_DEFAULT');
 
         $address = new Address();
@@ -286,19 +284,24 @@ class MergadoClass extends ObjectModel {
         );
         $tax_calculator = $tax_manager->getTaxCalculator();
 
-        foreach ($imagesList as $img) {
-            $images[] = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
-                    $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
-            if ($img['cover'] != null) {
-                $mainImage = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
-                        $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
-            }
-        }
-
         $productBase = null;
+        $defaultCategory = new Category($item->id_category_default, $lang);
 
         if (!empty($combinations)) {
             foreach ($combinations as $combination) {
+                $img = new ImageCore();
+                $imagesList = $img->getImages($lang, $combination['id_product'], $combination['id_product_attribute']);
+                
+                $images = array();
+                foreach ($imagesList as $img) {
+                    $images[] = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
+                            $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
+                    if ($img['cover'] != null) {
+                        $mainImage = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
+                                $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
+                    }
+                }
+                
                 $sp = SpecificPrice::getSpecificPrice(
                                 $item->id, $combination['id_shop'], $this->currency->id, 0, 0, 1, $combination['id_product_attribute']
                 );
@@ -353,7 +356,7 @@ class MergadoClass extends ObjectModel {
                     'params' => $params,
                     'producer' => $manufacturer->name,
                     'url' => $link->getProductLink(
-                            $item, null, null, null, $lang, null, $combination['id_product_attribute']
+                            $item, null, $defaultCategory->name, null, $lang, null, $combination['id_product_attribute']
                     ),
                     'price' => Tools::ps_round(
                             $price, Configuration::get('PS_PRICE_DISPLAY_PRECISION')
@@ -369,6 +372,18 @@ class MergadoClass extends ObjectModel {
                 );
             }
         } else {
+
+            $imagesList = $item->getImages($lang);
+            $images = array();
+            foreach ($imagesList as $img) {
+                $images[] = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
+                        $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
+                if ($img['cover'] != null) {
+                    $mainImage = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
+                            $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
+                }
+            }
+
             $sp = SpecificPrice::getSpecificPrice($item->id, $item->id_shop_default, $this->currency->id, 0, 0, 1);
             $price = $item->price;
 
@@ -395,7 +410,7 @@ class MergadoClass extends ObjectModel {
                 'name_exact' => $item->name[$lang],
                 'params' => $features,
                 'producer' => $manufacturer->name,
-                'url' => $link->getProductLink($item, null, null, null, $lang, null),
+                'url' => $link->getProductLink($item, null, $defaultCategory->name, null, $lang, null),
                 'price' => Tools::ps_round($price, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                 'price_vat' => Tools::ps_round(
                         $price * (1 + ($tax_calculator->taxes[0]->rate / 100)), Configuration::get('PS_PRICE_DISPLAY_PRECISION')
@@ -489,7 +504,7 @@ class MergadoClass extends ObjectModel {
         $sql = new DbQuery();
         $sql->select('*');
         $sql->from('mergado');
-        
+
         return Db::getInstance()->executeS($sql);
     }
 
