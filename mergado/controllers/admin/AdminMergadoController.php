@@ -66,6 +66,7 @@ class AdminMergadoController extends ModuleAdminControllerCore {
         $feedSettings = array(
             'mergado_lang' => array(
                 'title' => $this->l('Export configuration'),
+                'class' => 'separate1',
                 'icon' => 'icon-cogs',
                 'description' => $this->l('Select languages for which you aim to export Mergado feed'),
                 'fields' => $feedLang,
@@ -76,6 +77,7 @@ class AdminMergadoController extends ModuleAdminControllerCore {
         $this->fields_options = array_merge($feedSettings, array(
             'heureka' => array(
                 'title' => $this->l('Heureka'),
+                'class' => 'separate6',
                 'icon' => 'icon-cogs',
                 'fields' => array(
                     'mergado_heureka_overeno_zakazniky_cz' => array(
@@ -157,6 +159,7 @@ class AdminMergadoController extends ModuleAdminControllerCore {
             ),
             'zbozi' => array(
                 'title' => $this->l('Zbozi'),
+                'class' => 'separate6',
                 'icon' => 'icon-cogs',
                 'fields' => array(
                     'mergado_zbozi_konverze' => array(
@@ -238,11 +241,12 @@ class AdminMergadoController extends ModuleAdminControllerCore {
             'moduleUrl' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/',
             'moduleVersion' => $version
         ));
+        
         $before = $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/before.tpl');
         $after = $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/after.tpl');
 
         parent::initContent();
-
+        
         $this->context->smarty->assign(array(
             'content' => $before . $this->content . $after
         ));

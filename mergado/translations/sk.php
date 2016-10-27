@@ -43,6 +43,7 @@ $_MODULE['<{mergado}prestashop>after_8d282a8bd2fe903679ba3011d408c26a'] = 'Licen
 $_MODULE['<{mergado}prestashop>after_bb078029764c1467ba3cdbd01e1a0acc'] = 'Použitie modulu Mergado marketing pack je len na vlastné riziko. Tvorca modulu, spoločnosť Mergado technologies, s. r. o. nenesie zodpovednosť za prípadné straty alebo vzniknuté škody v akejkoľvek podobe. Inštaláciou modulu do vášho e-shopu s týmto súhlasíte.';
 $_MODULE['<{mergado}prestashop>after_6cd3242ac53b12c55239d4a4dc3ea10f'] = 'Modul nie je možné meniť zásahom do zdrojových kódov či upravovať inak, než užívateľským nastavením v administrácii PrestaShopu.';
 $_MODULE['<{mergado}prestashop>after_c729e7a8c50d1617a6005d77d4434b3c'] = 'Používanie modulu Mergado marketing pack v rámci PrestaShop je zadarmo. Podporované verzie PrestaShop sú verzie 1.5.0.0 a novšie.';
+$_MODULE['<{mergado}prestashop>before_520b945c72932512a6acaeef911da0fa'] = 'Uložte svoje zmeny pred prechodom na ďalšiu stránku, alebo je stratíte. Chcete pokračovať?';
 $_MODULE['<{mergado}prestashop>before_58a69b7aa8c113c2b493387cf9edddd7'] = 'Získajte viac z cenových porovnávačov';
 $_MODULE['<{mergado}prestashop>before_c44d671c1616ccfa97d3c4e749b72276'] = 'Pomáhame e-shopom získať viac z Heureky, Zboží.cz a ďalších cenových porovnávačov. Kliknutím na záložky nižšie môžete modul nastaviť pre získanie Mergado produktového XML.';
 $_MODULE['<{mergado}prestashop>before_254f642527b45bc260048e30704edb39'] = 'Konfigurácia';

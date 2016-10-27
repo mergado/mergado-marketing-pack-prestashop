@@ -13,20 +13,62 @@
  */
 
 $(document).ready(function () {
+    
+    $('.separate1').wrap('<div class="mergado-tab" data-tab="1"></div>');
+    $('.separate6').wrap('<div class="mergado-tab" data-tab="6"></div>');
+    
+
     $('#mergadoController .mergado-tab').hide();
-    $('#mergadoController .mergado-tab').stop().first().show();
-    $('#mergadoController .tabControl a').first().addClass('active');
+    var currentTab = getUrlVars('mergadoTab');
 
-    $('#mergadoController .tabControl a').on('click', function (e) {
-        e.preventDefault();
+    if (currentTab !== undefined) {
+        $('#mergadoController .mergado-tab[data-tab=' + currentTab + ']').stop().show();
+        $('#mergadoController .tabControl a[data-tab=' + currentTab + ']').addClass('active');
 
-        var tabId = $(this).attr('data-tab');
-        $('#mergadoController .tabControl a').removeClass('active');
-        $('#mergadoController .mergado-tab').stop().hide();
+        if (currentTab == 1 || currentTab == 6) {
+            checkChanges = true;
+        } else {
+            checkChanges = false;
+        }
 
-        $('#mergadoController .tabControl a[data-tab=' + tabId + ']').addClass('active');
-        $('#mergadoController .mergado-tab[data-tab=' + tabId + ']').stop().fadeIn();
+    } else {
+        $('#mergadoController .mergado-tab').stop().first().show();
+        $('#mergadoController .tabControl a').first().addClass('active');
+        checkChanges = true;
+    }
 
-        return false;
-    });
+    
 });
+
+function getUrlVars(variable) {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+            function (m, key, value) {
+                vars[key] = value;
+            });
+    return vars[variable];
+
+}
+
+function removeURLParameter(url, parameter) {
+    //prefer to use l.search if you have a location/link object
+    var urlparts = url.split('?');
+    if (urlparts.length >= 2) {
+
+        var prefix = encodeURIComponent(parameter) + '=';
+        var pars = urlparts[1].split(/[&;]/g);
+
+        //reverse iteration as may be destructive
+        for (var i = pars.length; i-- > 0; ) {
+            //idiom for string.startsWith
+            if (pars[i].lastIndexOf(prefix, 0) !== -1) {
+                pars.splice(i, 1);
+            }
+        }
+
+        url = urlparts[0] + (pars.length > 0 ? '?' + pars.join('&') : "");
+        return url;
+    } else {
+        return url;
+    }
+}

@@ -12,6 +12,33 @@
 *  @license   LICENSE.txt
 *}
 
+<script>
+    var saveWarning = '{l s='Before you leave, save your changes or they will be lost. Continue?' mod='mergado'}';
+    var checkChanges = false;
+    var doNotRedirect = false;
+    $(document).ready(function () {
+        $('#mergadoController .tabControl a').on('click', function (e) {
+            e.preventDefault();
+            var tabId = $(this).attr('data-tab');
+            var tmpUrl = removeURLParameter(window.location.href, 'mergadoTab') + '&mergadoTab=' + tabId;
+            
+            if (checkChanges) {
+                if (!confirm(saveWarning)) {
+                    doNotRedirect = true;
+                } else {
+                    doNotRedirect = false;
+                }
+            }
+
+            if (!doNotRedirect) {
+                doNotRedirect = false;
+                window.location.href = tmpUrl;
+            }
+            return false;
+        });
+    });
+</script>
+
 <div id="mergadoController">
     <div id="mergadoHeader">
         <div id='mergadoLogo'>
@@ -26,7 +53,8 @@
             </p>
         </div>
         <div class="tabControl">
-            <a href="#" data-tab="1">{l s='Configuration' mod='mergado'}</a>
+            <a href="#" data-tab="1">{l s='Export configuration' mod='mergado'}</a>
+            <a href="#" data-tab="6">{l s='Advertising systems' mod='mergado'}</a>
             <a href="#" data-tab="2">{l s='Cron tasks' mod='mergado'}</a>
             <a href="#" data-tab="3">{l s='XML feeds' mod='mergado'}</a>
             <a href="#" data-tab="4">{l s='Support' mod='mergado'}</a>
@@ -37,5 +65,3 @@
             <img src="{$moduleUrl|escape:'htmlall':'UTF-8'}views/img/mrmergado.png" alt="Mergado" />
         </a>
     </div>
-
-    <div class='mergado-tab' data-tab='1'>

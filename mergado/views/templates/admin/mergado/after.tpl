@@ -12,7 +12,6 @@
 *  @license   LICENSE.txt
 *}
 
-</div>
 <div class='mergado-tab' data-tab='2'>
     <div id="mergadoCron">
         <div class="panel " id="mergado_fieldset_mergado_lang">
