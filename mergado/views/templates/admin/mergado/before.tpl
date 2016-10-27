@@ -29,7 +29,7 @@
             <a href="#" data-tab="1">{l s='Configuration' mod='mergado'}</a>
             <a href="#" data-tab="2">{l s='Cron tasks' mod='mergado'}</a>
             <a href="#" data-tab="3">{l s='XML feeds' mod='mergado'}</a>
-            <a href="#" data-tab="4">{l s='Contact us' mod='mergado'}</a>
+            <a href="#" data-tab="4">{l s='Support' mod='mergado'}</a>
             <a href="#" data-tab="5">{l s='Licence' mod='mergado'}</a>
         </div>
 

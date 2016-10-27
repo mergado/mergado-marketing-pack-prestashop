@@ -191,6 +191,9 @@ class AdminMergadoController extends ModuleAdminControllerCore {
         $sql = 'SELECT `key` FROM `' . _DB_PREFIX_ . $this->table . '` WHERE `key` LIKE "';
         $sql .= pSQL(MergadoClass::$feedPrefix) . '%" AND `value` = 1';
         $feeds = Db::getInstance()->executeS($sql);
+        
+        $mergadoModule = new Mergado();
+        $version = $mergadoModule->version;
 
         $langWithName = array();
         foreach ($feeds as $feed) {
@@ -233,6 +236,7 @@ class AdminMergadoController extends ModuleAdminControllerCore {
             'crons' => $langWithName,
             'xmls' => $xmlList,
             'moduleUrl' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/',
+            'moduleVersion' => $version
         ));
         $before = $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/before.tpl');
         $after = $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/after.tpl');
