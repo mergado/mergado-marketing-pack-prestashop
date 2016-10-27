@@ -72,6 +72,11 @@ class MergadoClass extends ObjectModel {
             $xml_new->startElement('ITEM_ID');
             $xml_new->text($product['item_id']);
             $xml_new->endElement();
+            
+            // Product ITEMGROUP
+            $xml_new->startElement('ITEMGROUP_ID');
+            $xml_new->text($product['itemgroup_id']);
+            $xml_new->endElement();
 
             // Product name
             $xml_new->startElement('NAME_EXACT');
@@ -286,6 +291,7 @@ class MergadoClass extends ObjectModel {
 
         $productBase = null;
         $defaultCategory = new Category($item->id_category_default, $lang);
+        $itemgroupBase = $item->id;        
 
         if (!empty($combinations)) {
             foreach ($combinations as $combination) {
@@ -326,7 +332,6 @@ class MergadoClass extends ObjectModel {
 
 
                 $params = array_merge($params, $features);
-
                 $itemgroup = array();
                 foreach ($combinations as $g) {
                     if ($g['id_product_attribute'] != $combination['id_product_attribute']) {
@@ -337,6 +342,7 @@ class MergadoClass extends ObjectModel {
                 $price = ToolsCore::convertPriceFull($price, $this->defaultCurrency, $this->currency);
                 $productBase[] = array(
                     'item_id' => $combination['id_product'] . '-' . $combination['id_product_attribute'],
+                    'itemgroup_id' => $itemgroupBase,
                     'accessory' => $accessoriesExtended,
                     'availability' => (ProductCore::getQuantity(
                             $combination['id_product'], $combination['id_product_attribute']
@@ -351,7 +357,6 @@ class MergadoClass extends ObjectModel {
                     'ean' => $combination['ean13'],
                     'image' => $mainImage,
                     'image_alternative' => $images,
-                    'itemgroup_id' => $itemgroup,
                     'name_exact' => $combination['name'],
                     'params' => $params,
                     'producer' => $manufacturer->name,
@@ -397,6 +402,7 @@ class MergadoClass extends ObjectModel {
 
             $productBase = array(
                 'item_id' => $item->id,
+                'itemgroup_id' => $itemgroupBase,
                 'accessory' => $accessoriesExtended,
                 'availability' => (ProductCore::getQuantity($item->id) > 0) ? 'in stock' : 'out of stock',
                 'category' => $category,
