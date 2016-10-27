@@ -63,6 +63,16 @@ class AdminMergadoController extends ModuleAdminControllerCore {
             }
         }
 
+        $feedLang = array_merge($feedLang, array(
+            'delivery_days' => array(
+                'title' => $this->l('Delivery days'),
+                'type' => 'text',
+                'hint' => $this->l('In how many days can you delivery the product when it is out of stock'),
+                'visibility' => Shop::CONTEXT_ALL,
+                'defaultValue' => $this->settingsValues['delivery_days']
+            )
+        ));
+
         $feedSettings = array(
             'mergado_lang' => array(
                 'title' => $this->l('Export configuration'),
@@ -71,7 +81,7 @@ class AdminMergadoController extends ModuleAdminControllerCore {
                 'description' => $this->l('Select languages for which you aim to export Mergado feed'),
                 'fields' => $feedLang,
                 'submit' => array('title' => $this->l('Save')),
-            ),
+            )
         );
 
         $this->fields_options = array_merge($feedSettings, array(
@@ -194,7 +204,7 @@ class AdminMergadoController extends ModuleAdminControllerCore {
         $sql = 'SELECT `key` FROM `' . _DB_PREFIX_ . $this->table . '` WHERE `key` LIKE "';
         $sql .= pSQL(MergadoClass::$feedPrefix) . '%" AND `value` = 1';
         $feeds = Db::getInstance()->executeS($sql);
-        
+
         $mergadoModule = new Mergado();
         $version = $mergadoModule->version;
 
@@ -241,12 +251,12 @@ class AdminMergadoController extends ModuleAdminControllerCore {
             'moduleUrl' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/',
             'moduleVersion' => $version
         ));
-        
+
         $before = $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/before.tpl');
         $after = $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/after.tpl');
 
         parent::initContent();
-        
+
         $this->context->smarty->assign(array(
             'content' => $before . $this->content . $after
         ));

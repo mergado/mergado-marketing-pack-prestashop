@@ -72,7 +72,7 @@ class MergadoClass extends ObjectModel {
             $xml_new->startElement('ITEM_ID');
             $xml_new->text($product['item_id']);
             $xml_new->endElement();
-            
+
             // Product ITEMGROUP
             $xml_new->startElement('ITEMGROUP_ID');
             $xml_new->text($product['itemgroup_id']);
@@ -291,13 +291,29 @@ class MergadoClass extends ObjectModel {
 
         $productBase = null;
         $defaultCategory = new Category($item->id_category_default, $lang);
-        $itemgroupBase = $item->id;        
+        $itemgroupBase = $item->id;
+
+        $whenOutOfStock = StockAvailableCore::outOfStock($item->id);
+
+        if ($whenOutOfStock == 2) {
+            $whenOutOfStock = Configuration::get('PS_ORDER_OUT_OF_STOCK');
+        }
 
         if (!empty($combinations)) {
             foreach ($combinations as $combination) {
+                $qty = ProductCore::getQuantity(
+                                $combination['id_product'], $combination['id_product_attribute']
+                );
+
+                $qtyDays = self::getSettings('delivery_days');
+
+                if ($qty == 0 && $whenOutOfStock == 0) {
+                    continue;
+                }
+
                 $img = new ImageCore();
                 $imagesList = $img->getImages($lang, $combination['id_product'], $combination['id_product_attribute']);
-                
+
                 $images = array();
                 foreach ($imagesList as $img) {
                     $images[] = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
@@ -307,7 +323,7 @@ class MergadoClass extends ObjectModel {
                                 $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
                     }
                 }
-                
+
                 $sp = SpecificPrice::getSpecificPrice(
                                 $item->id, $combination['id_shop'], $this->currency->id, 0, 0, 1, $combination['id_product_attribute']
                 );
@@ -349,9 +365,7 @@ class MergadoClass extends ObjectModel {
                     ) > 0) ? 'in stock' : 'out of stock',
                     'category' => $category,
                     'condition' => $item->condition,
-                    'delivery_days' => (ProductCore::getQuantity(
-                            $combination['id_product'], $combination['id_product_attribute']
-                    ) > 0) ? 0 : 7,
+                    'delivery_days' => ($qty > 0) ? 0 : $qtyDays,
                     'description_short' => strip_tags($item->description_short[$lang]),
                     'description' => strip_tags($item->description[$lang]),
                     'ean' => $combination['ean13'],
@@ -378,54 +392,60 @@ class MergadoClass extends ObjectModel {
             }
         } else {
 
-            $imagesList = $item->getImages($lang);
-            $images = array();
-            foreach ($imagesList as $img) {
-                $images[] = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
-                        $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
-                if ($img['cover'] != null) {
-                    $mainImage = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
+            $qty = ProductCore::getQuantity($item->id);
+            $qtyDays = self::getSettings('delivery_days');
+
+            if (!($qty == 0 && $whenOutOfStock == 0)) {
+
+                $imagesList = $item->getImages($lang);
+                $images = array();
+                foreach ($imagesList as $img) {
+                    $images[] = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
                             $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
+                    if ($img['cover'] != null) {
+                        $mainImage = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
+                                $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
+                    }
                 }
-            }
 
-            $sp = SpecificPrice::getSpecificPrice($item->id, $item->id_shop_default, $this->currency->id, 0, 0, 1);
-            $price = $item->price;
+                $sp = SpecificPrice::getSpecificPrice($item->id, $item->id_shop_default, $this->currency->id, 0, 0, 1);
+                $price = $item->price;
 
-            if (!empty($sp) && $sp && $sp['from_quantity'] <= 1) {
-                if ($sp['reduction_type'] === 'percentage') {
-                    $price += ($sp['price'] * ($price * $sp['reduction']));
-                } elseif ($sp['reduction_type'] === 'amount') {
-                    $price += ($sp['price'] * $sp['reduction']);
+                if (!empty($sp) && $sp && $sp['from_quantity'] <= 1) {
+                    if ($sp['reduction_type'] === 'percentage') {
+                        $price += ($sp['price'] * ($price * $sp['reduction']));
+                    } elseif ($sp['reduction_type'] === 'amount') {
+                        $price += ($sp['price'] * $sp['reduction']);
+                    }
                 }
-            }
 
-            $productBase = array(
-                'item_id' => $item->id,
-                'itemgroup_id' => $itemgroupBase,
-                'accessory' => $accessoriesExtended,
-                'availability' => (ProductCore::getQuantity($item->id) > 0) ? 'in stock' : 'out of stock',
-                'category' => $category,
-                'condition' => $item->condition,
-                'delivery_days' => (ProductCore::getQuantity($item->id) > 0) ? 0 : 7,
-                'description_short' => strip_tags($item->description_short[$lang]),
-                'description' => strip_tags($item->description[$lang]),
-                'ean' => $item->ean13,
-                'image' => $mainImage,
-                'image_alternative' => $images,
-                'name_exact' => $item->name[$lang],
-                'params' => $features,
-                'producer' => $manufacturer->name,
-                'url' => $link->getProductLink($item, null, $defaultCategory->name, null, $lang, null),
-                'price' => Tools::ps_round($price, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
-                'price_vat' => Tools::ps_round(
-                        $price * (1 + ($tax_calculator->taxes[0]->rate / 100)), Configuration::get('PS_PRICE_DISPLAY_PRECISION')
-                ),
-                'shipping_size' => $item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' .
-                Configuration::get('PS_DIMENSION_UNIT'),
-                'shipping_weight' => $item->weight . ' ' . Configuration::get('PS_WEIGHT_UNIT'),
-                'vat' => $tax_calculator->taxes[0]->rate,
-            );
+                $productBase = array(
+                    'item_id' => $item->id,
+                    'itemgroup_id' => $itemgroupBase,
+                    'accessory' => $accessoriesExtended,
+                    'availability' => (ProductCore::getQuantity($item->id) > 0) ? 'in stock' : 'out of stock',
+                    'category' => $category,
+                    'condition' => $item->condition,
+                    'delivery_days' => ($qty > 0) ? 0 : $qtyDays,
+                    'description_short' => strip_tags($item->description_short[$lang]),
+                    'description' => strip_tags($item->description[$lang]),
+                    'ean' => $item->ean13,
+                    'image' => $mainImage,
+                    'image_alternative' => $images,
+                    'name_exact' => $item->name[$lang],
+                    'params' => $features,
+                    'producer' => $manufacturer->name,
+                    'url' => $link->getProductLink($item, null, $defaultCategory->name, null, $lang, null),
+                    'price' => Tools::ps_round($price, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
+                    'price_vat' => Tools::ps_round(
+                            $price * (1 + ($tax_calculator->taxes[0]->rate / 100)), Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                    ),
+                    'shipping_size' => $item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' .
+                    Configuration::get('PS_DIMENSION_UNIT'),
+                    'shipping_weight' => $item->weight . ' ' . Configuration::get('PS_WEIGHT_UNIT'),
+                    'vat' => $tax_calculator->taxes[0]->rate,
+                );
+            }
         }
 
 
