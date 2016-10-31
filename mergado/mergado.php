@@ -26,12 +26,11 @@ class Mergado extends Module {
     public function __construct() {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.1.3';
+        $this->version = '1.2.0';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
         $this->controllerClass = 'AdminMergado';
-        //$this->module_key = '';
 
         /*
          * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.6)
