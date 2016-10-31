@@ -754,4 +754,29 @@ class MergadoClass extends ObjectModel {
         }
     }
 
+    public static function log($message) {
+
+        if (self::getSettings('mergado_dev_log')) {
+            $folder = __DIR__ . '/../log/';
+            $file = 'log.txt';
+
+            if (!file_exists($folder)) {
+                mkdir($folder, 0777, true);
+            }
+
+            $f = fopen($folder . $file, "a");
+            fwrite($f, date('d-m-Y H:i:s') . " " . $message . " |<\n");
+            fclose($f);
+        }
+    }
+
+    public static function deleteLog() {
+        $folder = __DIR__ . '/../log/';
+        $file = 'log.txt';
+        
+        if (file_exists($folder)) {
+            unlink($folder.$file);
+        }
+    }
+
 }

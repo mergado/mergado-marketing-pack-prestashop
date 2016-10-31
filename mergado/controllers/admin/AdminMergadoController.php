@@ -43,6 +43,74 @@ class AdminMergadoController extends ModuleAdminController {
         parent::__construct();
     }
 
+    public function formDevelopers() {
+        $this->fields_form = array(
+            'legend' => array(
+                'title' => $this->l('Support help'),
+                'icon' => 'icon-bug'
+            ),
+            'input' => array(
+                array(
+                    'type' => 'hidden',
+                    'name' => 'page'
+                ),
+                array(
+                    'name' => 'mergado_dev_log',
+                    'label' => $this->l('Enable log'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_dev_log_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_dev_log_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL
+                ),
+                array(
+                    'label' => $this->l('Delete log file on save'),
+                    'name' => 'mergado_del_log',
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_del_log_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_del_log_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                ),
+            ),
+            'submit' => array(
+                'title' => $this->l('Save')
+            )
+        );
+
+        $this->fields_value = array(
+            'mergado_dev_log' => $this->settingsValues['mergado_dev_log'],
+            'page' => 4
+        );
+
+
+        $this->show_toolbar = true;
+        $this->show_form_cancel_button = false;
+
+        return parent::renderForm();
+    }
+
     public function formExportSettings() {
 
         $options = array(
@@ -107,6 +175,14 @@ class AdminMergadoController extends ModuleAdminController {
             ),
             'input' => array_merge($feedLang, array(
                 array(
+                    'type' => 'hidden',
+                    'name' => 'clrCheckboxes'
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'page'
+                ),
+                array(
                     'type' => 'checkbox',
                     'label' => $this->l('Export visible in'),
                     'name' => 'what_to_export',
@@ -140,7 +216,9 @@ class AdminMergadoController extends ModuleAdminController {
         }
 
         $this->fields_value = array(
-            'delivery_days' => $this->settingsValues['delivery_days']
+            'delivery_days' => $this->settingsValues['delivery_days'],
+            'clrCheckboxes' => 1,
+            'page' => 1,
         );
 
         $this->fields_value = array_merge($this->fields_value, $optionsArray, $defaultValues);
@@ -158,6 +236,10 @@ class AdminMergadoController extends ModuleAdminController {
                 'icon' => 'icon-cogs'
             ),
             'input' => array(
+                array(
+                    'type' => 'hidden',
+                    'name' => 'page'
+                ),
                 array(
                     'name' => 'mergado_heureka_overeno_zakazniky_cz',
                     'label' => $this->l('Heureka.cz verified by users'),
@@ -343,21 +425,82 @@ class AdminMergadoController extends ModuleAdminController {
                         )
                     ),
                     'visibility' => Shop::CONTEXT_ALL,
-                    'defaultValue' => $this->settingsValues['mergado_zbozi_konverze']
                 ),
                 array(
                     'name' => 'mergado_zbozi_shop_id',
                     'label' => $this->l('Zbozi shop ID'),
                     'type' => 'text',
                     'visibility' => Shop::CONTEXT_ALL,
-                    'defaultValue' => $this->settingsValues['mergado_zbozi_shop_id']
                 ),
                 array(
                     'name' => 'mergado_zbozi_secret',
                     'label' => $this->l('Secret key'),
                     'type' => 'text',
                     'visibility' => Shop::CONTEXT_ALL,
-                    'defaultValue' => $this->settingsValues['mergado_zbozi_secret']
+                ),
+                array(
+                    'name' => 'mergado_sklik_konverze',
+                    'label' => $this->l('Sklik track conversions'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_sklik_konverze_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_sklik_konverze_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_sklik_konverze_kod',
+                    'label' => $this->l('Sklik conversion code'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_sklik_konverze_hodnota',
+                    'label' => $this->l('Sklik value'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_adwords_conversion',
+                    'label' => $this->l('Adwords conversions'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_adwords_conversion_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_adwords_conversion_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_adwords_conversion_code',
+                    'label' => $this->l('Adwords conversion code'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_adwords_conversion_label',
+                    'label' => $this->l('Adwords conversion label'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
                 ),
             ),
             'submit' => array(
@@ -379,7 +522,14 @@ class AdminMergadoController extends ModuleAdminController {
             'mergado_heureka_dostupnostni_feed' => $this->settingsValues['mergado_heureka_dostupnostni_feed'],
             'mergado_zbozi_konverze' => $this->settingsValues['mergado_zbozi_konverze'],
             'mergado_zbozi_shop_id' => $this->settingsValues['mergado_zbozi_shop_id'],
-            'mergado_zbozi_secret' => $this->settingsValues['mergado_zbozi_secret']
+            'mergado_zbozi_secret' => $this->settingsValues['mergado_zbozi_secret'],
+            'mergado_sklik_konverze' => $this->settingsValues['mergado_sklik_konverze'],
+            'mergado_sklik_konverze_kod' => $this->settingsValues['mergado_sklik_konverze_kod'],
+            'mergado_sklik_konverze_hodnota' => $this->settingsValues['mergado_sklik_konverze_hodnota'],
+            'mergado_adwords_conversion' => $this->settingsValues['mergado_adwords_conversion'],
+            'mergado_adwords_conversion_code' => $this->settingsValues['mergado_adwords_conversion_code'],
+            'mergado_adwords_conversion_label' => $this->settingsValues['mergado_adwords_conversion_label'],
+            'page' => 6,
         );
 
         $this->show_toolbar = true;
@@ -427,10 +577,10 @@ class AdminMergadoController extends ModuleAdminController {
                 $code = Tools::strtoupper(
                                 '_' . Tools::substr(hash('md5', $codedName[0] . Configuration::get('PS_SHOP_NAME')), 1, 11)
                 );
-                
-                if ($codedName[0] == 'stock') {                    
+
+                if ($codedName[0] == 'stock') {
                     $xmlList[] = array(
-                        'language' => 'stock',
+                        'language' => $this->l('Stock feed'),
                         'url' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . basename($filename),
                         'name' => basename($filename),
                         'date' => filemtime($filename),
@@ -464,10 +614,12 @@ class AdminMergadoController extends ModuleAdminController {
 
         $tab1 = $this->formExportSettings();
         $tab6 = $this->formAdSys();
+        $tab4 = $this->formDevelopers();
 
         $this->context->smarty->assign(array(
             'tab1' => $tab1,
             'tab6' => $tab6,
+            'tab4' => $tab4,
         ));
     }
 
@@ -476,13 +628,22 @@ class AdminMergadoController extends ModuleAdminController {
         if (Tools::isSubmit('submitAdd' . $this->name)) {
 
             unset($_POST['submitAdd' . $this->name]);
-            MergadoClass::clearSettings('what_to_export');
+
+            MergadoClass::log("Settings edit:\n" . json_encode($_POST) . "\n");
+
+            if (isset($_POST['clrCheckboxes'])) {
+                MergadoClass::clearSettings('what_to_export');
+            }
+            
+            if(isset($_POST['mergado_dev_log'])){
+                MergadoClass::deleteLog();
+            }
 
             foreach ($_POST as $key => $value) {
                 $this->saveData($key, $value);
             }
 
-            $this->setRedirectAfter(self::$currentIndex . '&token=' . $this->token . (Tools::isSubmit('submitFilter' . $this->list_id) ? '&submitFilter' . $this->list_id . '=' . (int) Tools::getValue('submitFilter' . $this->list_id) : ''));
+            $this->setRedirectAfter(self::$currentIndex . '&token=' . $this->token . (Tools::isSubmit('submitFilter' . $this->list_id) ? '&submitFilter' . $this->list_id . '=' . (int) Tools::getValue('submitFilter' . $this->list_id) : '') . '&mergadoTab=' . $_POST['page']);
         }
     }
 
