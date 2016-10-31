@@ -15,7 +15,7 @@
  */
 require_once _PS_MODULE_DIR_ . 'mergado/classes/MergadoClass.php';
 
-class AdminMergadoController extends ModuleAdminControllerCore {
+class AdminMergadoController extends ModuleAdminController {
 
     protected $multishop;
     protected $multishopAllowed = false;
@@ -43,161 +43,348 @@ class AdminMergadoController extends ModuleAdminControllerCore {
         parent::__construct();
     }
 
-    public function init() {
+    public function formExportSettings() {
+
+        $options = array(
+            array(
+                'id_option' => 'both',
+                'name' => $this->l('Everywhere')
+            ),
+            array(
+                'id_option' => 'catalog',
+                'name' => $this->l('Catalog')
+            ),
+            array(
+                'id_option' => 'search',
+                'name' => $this->l('Search')
+            )
+        );
 
         $feedLang = array();
+        $defaultValues = array();
         foreach ($this->languages->getLanguages(true) as $lang) {
             foreach ($this->currencies->getCurrencies(false, true) as $currency) {
 
                 $feedLang = array_merge($feedLang, array(
-                    MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'] => array(
-                        'title' => $lang['name'] . ' - ' . $currency['iso_code'],
+                    array(
+                        'label' => $lang['name'] . ' - ' . $currency['iso_code'],
                         'hint' => $this->l('Export to this language?'),
+                        'name' => MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'],
                         'validation' => 'isBool',
                         'cast' => 'intval',
-                        'type' => 'bool',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues[MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code']]
+                        'type' => 'switch',
+                        'is_bool' => true,
+                        'values' => array(
+                            array(
+                                'id' => MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'] . '_on',
+                                'value' => 1,
+                                'label' => $this->l('Yes')
+                            ),
+                            array(
+                                'id' => MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'] . '_off',
+                                'value' => 0,
+                                'label' => $this->l('No')
+                            )
+                        ),
+                        'visibility' => Shop::CONTEXT_ALL
                     ),
+                ));
+
+                $defaultValues = array_merge($defaultValues, array(
+                    MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'] => $this->settingsValues[MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code']]
                 ));
             }
         }
 
-        $feedLang = array_merge($feedLang, array(
-            'delivery_days' => array(
-                'title' => $this->l('Delivery days'),
-                'type' => 'text',
-                'hint' => $this->l('In how many days can you delivery the product when it is out of stock'),
-                'visibility' => Shop::CONTEXT_ALL,
-                'defaultValue' => $this->settingsValues['delivery_days']
-            )
-        ));
+        $this->fields_value = $defaultValues;
 
-        $feedSettings = array(
-            'mergado_lang' => array(
-                'title' => $this->l('Export configuration'),
-                'class' => 'separate1',
-                'icon' => 'icon-cogs',
-                'description' => $this->l('Select languages for which you aim to export Mergado feed'),
-                'fields' => $feedLang,
-                'submit' => array('title' => $this->l('Save')),
+
+
+        $this->fields_form = array(
+            'legend' => array(
+                'title' => $this->l('Export settings'),
+                'icon' => 'icon-flag'
+            ),
+            'input' => array_merge($feedLang, array(
+                array(
+                    'type' => 'checkbox',
+                    'label' => $this->l('Export visible in'),
+                    'name' => 'what_to_export',
+                    'values' => array(
+                        'query' => $options,
+                        'id' => 'id_option',
+                        'name' => 'name'),
+                    'hint' => $this->l('Choose which products will be exported by visibility.')
+                ),
+                array(
+                    'label' => $this->l('Delivery days'),
+                    'type' => 'text',
+                    'name' => 'delivery_days',
+                    'hint' => $this->l('In how many days can you delivery the product when it is out of stock'),
+                    'visibility' => Shop::CONTEXT_ALL
+                )
+            )),
+            'submit' => array(
+                'title' => $this->l('Save')
             )
         );
 
-        $this->fields_options = array_merge($feedSettings, array(
-            'heureka' => array(
-                'title' => $this->l('Heureka'),
-                'class' => 'separate6',
-                'icon' => 'icon-cogs',
-                'fields' => array(
-                    'mergado_heureka_overeno_zakazniky_cz' => array(
-                        'title' => $this->l('Heureka.cz verified by users'),
-                        'validation' => 'isBool',
-                        'cast' => 'intval',
-                        'type' => 'bool',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues['mergado_heureka_overeno_zakazniky_cz']
-                    ),
-                    'mergado_heureka_overeno_zakazniky_kod_cz' => array(
-                        'title' => $this->l('Heureka.cz verified by users code'),
-                        'type' => 'text',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_cz']
-                    ),
-                    'mergado_heureka_overeno_zakazniky_sk' => array(
-                        'title' => $this->l('Heureka.sk verified by users'),
-                        'validation' => 'isBool',
-                        'cast' => 'intval',
-                        'type' => 'bool',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues['mergado_heureka_overeno_zakazniky_sk']
-                    ),
-                    'mergado_heureka_overeno_zakazniky_kod_sk' => array(
-                        'title' => $this->l('Heureka.sk verified by users code'),
-                        'type' => 'text',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_sk']
-                    ),
-                    'mergado_heureka_konverze_cz' => array(
-                        'title' => $this->l('Heureka.cz track conversions'),
-                        'validation' => 'isBool',
-                        'cast' => 'intval',
-                        'type' => 'bool',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues['mergado_heureka_konverze_cz']
-                    ),
-                    'mergado_heureka_konverze_cz_kod' => array(
-                        'title' => $this->l('Heureka.cz conversion code'),
-                        'type' => 'text',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues['mergado_heureka_konverze_cz_kod']
-                    ),
-                    'mergado_heureka_konverze_sk' => array(
-                        'title' => $this->l('Heureka.sk track conversions'),
-                        'validation' => 'isBool',
-                        'cast' => 'intval',
-                        'type' => 'bool',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues['mergado_heureka_konverze_sk']
-                    ),
-                    'mergado_heureka_konverze_sk_kod' => array(
-                        'title' => $this->l('Heureka.sk conversion code'),
-                        'type' => 'text',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues['mergado_heureka_konverze_sk_kod']
-                    ),
-                    'mergado_heureka_widget_cz' => array(
-                        'title' => $this->l('Heureka.cz - widget'),
-                        'hint' => $this->l('You need conversion code to enable this feature'),
-                        'validation' => 'isBool',
-                        'cast' => 'intval',
-                        'type' => 'bool',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues['mergado_heureka_widget_cz']
-                    ),
-                    'mergado_heureka_widget_sk' => array(
-                        'title' => $this->l('Heureka.sk - widget'),
-                        'hint' => $this->l('You need conversion code to enable this feature'),
-                        'validation' => 'isBool',
-                        'cast' => 'intval',
-                        'type' => 'bool',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues['mergado_heureka_widget_sk']
-                    ),
-                ),
-                'submit' => array('title' => $this->l('Save')),
-            ),
-            'zbozi' => array(
-                'title' => $this->l('Zbozi'),
-                'class' => 'separate6',
-                'icon' => 'icon-cogs',
-                'fields' => array(
-                    'mergado_zbozi_konverze' => array(
-                        'title' => $this->l('Zbozi track conversions'),
-                        'validation' => 'isBool',
-                        'cast' => 'intval',
-                        'type' => 'bool',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues['mergado_zbozi_konverze']
-                    ),
-                    'mergado_zbozi_shop_id' => array(
-                        'title' => $this->l('Zbozi shop ID'),
-                        'type' => 'text',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues['mergado_zbozi_shop_id']
-                    ),
-                    'mergado_zbozi_secret' => array(
-                        'title' => $this->l('Secret key'),
-                        'type' => 'text',
-                        'visibility' => Shop::CONTEXT_ALL,
-                        'defaultValue' => $this->settingsValues['mergado_zbozi_secret']
-                    ),
-                ),
-                'submit' => array('title' => $this->l('Save')),
-            ),
-        ));
+        $optionsArray = array();
+        foreach ($options as $option) {
 
-        parent::init();
+            $optionsArray = array_merge(
+                    $optionsArray, array(
+                'what_to_export_' . $option['id_option'] => $this->settingsValues['what_to_export_' . $option['id_option']]
+                    )
+            );
+        }
+
+        $this->fields_value = array(
+            'delivery_days' => $this->settingsValues['delivery_days']
+        );
+
+        $this->fields_value = array_merge($this->fields_value, $optionsArray, $defaultValues);
+        $this->show_toolbar = true;
+        $this->show_form_cancel_button = false;
+
+        return parent::renderForm();
+    }
+
+    public function formAdSys() {
+
+        $this->fields_form = array(
+            'legend' => array(
+                'title' => $this->l('Advertisment systems'),
+                'icon' => 'icon-cogs'
+            ),
+            'input' => array(
+                array(
+                    'name' => 'mergado_heureka_overeno_zakazniky_cz',
+                    'label' => $this->l('Heureka.cz verified by users'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_heureka_overeno_zakazniky_cz_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_heureka_overeno_zakazniky_cz_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL
+                ),
+                array(
+                    'name' => 'mergado_heureka_overeno_zakazniky_kod_cz',
+                    'label' => $this->l('Heureka.cz verified by users code'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_heureka_overeno_zakazniky_sk',
+                    'label' => $this->l('Heureka.sk verified by users'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_heureka_overeno_zakazniky_sk_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_heureka_overeno_zakazniky_sk_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_heureka_overeno_zakazniky_kod_sk',
+                    'label' => $this->l('Heureka.sk verified by users code'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_heureka_konverze_cz',
+                    'label' => $this->l('Heureka.cz track conversions'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_heureka_konverze_cz_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_heureka_konverze_cz_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_heureka_konverze_cz_kod',
+                    'label' => $this->l('Heureka.cz conversion code'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_heureka_konverze_sk',
+                    'label' => $this->l('Heureka.sk track conversions'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_heureka_konverze_sk_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_heureka_konverze_sk_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_heureka_konverze_sk_kod',
+                    'label' => $this->l('Heureka.sk conversion code'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_heureka_widget_cz',
+                    'label' => $this->l('Heureka.cz - widget'),
+                    'hint' => $this->l('You need conversion code to enable this feature'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_heureka_widget_cz_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_heureka_widget_cz_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_heureka_widget_sk',
+                    'label' => $this->l('Heureka.sk - widget'),
+                    'hint' => $this->l('You need conversion code to enable this feature'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_heureka_widget_sk_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_heureka_widget_sk_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_heureka_dostupnostni_feed',
+                    'label' => $this->l('Heureka stock feed'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_heureka_dostupnostni_feed_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_heureka_dostupnostni_feed_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL
+                ),
+                array(
+                    'name' => 'mergado_zbozi_konverze',
+                    'label' => $this->l('Zbozi track conversions'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_zbozi_konverze_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_zbozi_konverze_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                    'defaultValue' => $this->settingsValues['mergado_zbozi_konverze']
+                ),
+                array(
+                    'name' => 'mergado_zbozi_shop_id',
+                    'label' => $this->l('Zbozi shop ID'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                    'defaultValue' => $this->settingsValues['mergado_zbozi_shop_id']
+                ),
+                array(
+                    'name' => 'mergado_zbozi_secret',
+                    'label' => $this->l('Secret key'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                    'defaultValue' => $this->settingsValues['mergado_zbozi_secret']
+                ),
+            ),
+            'submit' => array(
+                'title' => $this->l('Save')
+            )
+        );
+
+        $this->fields_value = array(
+            'mergado_heureka_overeno_zakazniky_cz' => $this->settingsValues['mergado_heureka_overeno_zakazniky_cz'],
+            'mergado_heureka_overeno_zakazniky_kod_cz' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_cz'],
+            'mergado_heureka_overeno_zakazniky_sk' => $this->settingsValues['mergado_heureka_overeno_zakazniky_sk'],
+            'mergado_heureka_overeno_zakazniky_kod_sk' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_sk'],
+            'mergado_heureka_konverze_cz' => $this->settingsValues['mergado_heureka_konverze_cz'],
+            'mergado_heureka_konverze_cz_kod' => $this->settingsValues['mergado_heureka_konverze_cz_kod'],
+            'mergado_heureka_konverze_sk' => $this->settingsValues['mergado_heureka_konverze_sk'],
+            'mergado_heureka_konverze_sk_kod' => $this->settingsValues['mergado_heureka_konverze_sk_kod'],
+            'mergado_heureka_widget_cz' => $this->settingsValues['mergado_heureka_widget_cz'],
+            'mergado_heureka_widget_sk' => $this->settingsValues['mergado_heureka_widget_sk'],
+            'mergado_heureka_dostupnostni_feed' => $this->settingsValues['mergado_heureka_dostupnostni_feed'],
+            'mergado_zbozi_konverze' => $this->settingsValues['mergado_zbozi_konverze'],
+            'mergado_zbozi_shop_id' => $this->settingsValues['mergado_zbozi_shop_id'],
+            'mergado_zbozi_secret' => $this->settingsValues['mergado_zbozi_secret']
+        );
+
+        $this->show_toolbar = true;
+        $this->show_form_cancel_button = false;
+        return parent::renderForm();
     }
 
     public function initContent() {
@@ -221,6 +408,14 @@ class AdminMergadoController extends ModuleAdminControllerCore {
             );
         }
 
+        $stockFeed = MergadoClass::getSettings('mergado_heureka_dostupnostni_feed');
+        if ($stockFeed) {
+            $langWithName[] = array(
+                'url' => $this->getCronUrl('stock'),
+                'name' => $this->l('Stock feed')
+            );
+        }
+
         $files = glob($this->modulePath . 'xml/*xml');
         $xmlList = array();
         if (is_array($files)) {
@@ -228,20 +423,30 @@ class AdminMergadoController extends ModuleAdminControllerCore {
                 $tmpName = str_replace(MergadoClass::$feedPrefix, '', basename($filename, '.xml'));
                 $name = explode('-', $tmpName);
                 $codedName = explode('_', $tmpName);
+
                 $code = Tools::strtoupper(
                                 '_' . Tools::substr(hash('md5', $codedName[0] . Configuration::get('PS_SHOP_NAME')), 1, 11)
                 );
-
-                $xmlList[] = array(
-                    'language' => str_replace(
-                            $code, '', $this->languages->getLanguageByIETFCode(
-                                    $this->languages->getLanguageCodeByIso($name[0])
-                            )->name . ' - ' . Tools::strtoupper($name[1])
-                    ),
-                    'url' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . basename($filename),
-                    'name' => basename($filename),
-                    'date' => filemtime($filename),
-                );
+                
+                if ($codedName[0] == 'stock') {                    
+                    $xmlList[] = array(
+                        'language' => 'stock',
+                        'url' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . basename($filename),
+                        'name' => basename($filename),
+                        'date' => filemtime($filename),
+                    );
+                } else {
+                    $xmlList[] = array(
+                        'language' => str_replace(
+                                $code, '', $this->languages->getLanguageByIETFCode(
+                                        $this->languages->getLanguageCodeByIso($name[0])
+                                )->name . ' - ' . Tools::strtoupper($name[1])
+                        ),
+                        'url' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . basename($filename),
+                        'name' => basename($filename),
+                        'date' => filemtime($filename),
+                    );
+                }
             }
         }
 
@@ -257,34 +462,41 @@ class AdminMergadoController extends ModuleAdminControllerCore {
 
         parent::initContent();
 
+        $tab1 = $this->formExportSettings();
+        $tab6 = $this->formAdSys();
+
         $this->context->smarty->assign(array(
-            'content' => $before . $this->content . $after
+            'tab1' => $tab1,
+            'tab6' => $tab6,
         ));
     }
 
     public function postProcess() {
 
-        if (Tools::isSubmit('submitOptions' . $this->name)) {
+        if (Tools::isSubmit('submitAdd' . $this->name)) {
 
-            unset($_POST['submitOptions' . $this->name]);
+            unset($_POST['submitAdd' . $this->name]);
+            MergadoClass::clearSettings('what_to_export');
 
             foreach ($_POST as $key => $value) {
-                if ($key === $submitBtn) {
-                    continue;
-                }
-
-                $exists = Db::getInstance()->getRow(
-                        'SELECT id FROM ' . _DB_PREFIX_ . $this->table . ' WHERE `key`="' . pSQL($key) . '"'
-                );
-                if ($exists) {
-                    Db::getInstance()->update($this->table, array('value' => pSQL($value)), '`key` = "' . pSQL($key) . '"');
-                } else {
-                    Db::getInstance()->insert($this->table, array(
-                        'key' => pSQL($key),
-                        'value' => pSQL($value),
-                    ));
-                }
+                $this->saveData($key, $value);
             }
+
+            $this->setRedirectAfter(self::$currentIndex . '&token=' . $this->token . (Tools::isSubmit('submitFilter' . $this->list_id) ? '&submitFilter' . $this->list_id . '=' . (int) Tools::getValue('submitFilter' . $this->list_id) : ''));
+        }
+    }
+
+    public function saveData($key, $value) {
+        $exists = Db::getInstance()->getRow(
+                'SELECT id FROM ' . _DB_PREFIX_ . $this->table . ' WHERE `key`="' . pSQL($key) . '"'
+        );
+        if ($exists) {
+            Db::getInstance()->update($this->table, array('value' => pSQL($value)), '`key` = "' . pSQL($key) . '"');
+        } else {
+            Db::getInstance()->insert($this->table, array(
+                'key' => pSQL($key),
+                'value' => pSQL($value),
+            ));
         }
     }
 

@@ -121,8 +121,6 @@
     </div>
 </div>
 
-
-
 <script>
     var moduleVersion = '{$moduleVersion}';
     $('.page-head .page-title').append(' (v. ' + moduleVersion + ')');

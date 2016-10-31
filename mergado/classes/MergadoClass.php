@@ -42,16 +42,81 @@ class MergadoClass extends ObjectModel {
     }
 
     public function generateMergadoFeed($feedBase) {
-        $base = explode('-', str_replace(self::$feedPrefix, '', $feedBase));
-        $feedBase = $feedBase . '_' .
-                Tools::substr(hash('md5', $base[0] . '-' . $base[1] . Configuration::get('PS_SHOP_NAME')), 1, 11);
-        $this->language = $this->language->getLanguageByIETFCode($this->language->getLanguageCodeByIso($base[0]));
-        $this->currency = new Currency($this->currency->getIdByIsoCode($base[1]));
 
-        $products = $this->productsToFlat(false, $this->language->id);
-        $xml = $this->generateXML($products, $feedBase, $this->currency);
+        if ($feedBase == 'stock') {
+            $xml = $this->generateStockXML($stockData, $feedBase);
+            return $xml;
+        } else {
+            $base = explode('-', str_replace(self::$feedPrefix, '', $feedBase));
+            $feedBase = $feedBase . '_' .
+                    Tools::substr(hash('md5', $base[0] . '-' . $base[1] . Configuration::get('PS_SHOP_NAME')), 1, 11);
+            $this->language = $this->language->getLanguageByIETFCode($this->language->getLanguageCodeByIso($base[0]));
+            $this->currency = new Currency($this->currency->getIdByIsoCode($base[1]));
 
-        return $xml;
+            $products = $this->productsToFlat(false, $this->language->id);
+            $xml = $this->generateXML($products, $feedBase, $this->currency);
+
+            return $xml;
+        }
+    }
+
+    public function generateStockXML($stockData, $feedBase) {
+
+        $productsList = Product::getProducts($this->defaultLang, 0, 0, 'id_product', 'ASC', false, true);
+
+
+        $out = _PS_MODULE_DIR_ . 'mergado/tmp/' . $feedBase . '.xml';
+        $storage = _PS_MODULE_DIR_ . 'mergado/xml/' . $feedBase . '.xml';
+
+        $xml_new = new XMLWriter();
+        $xml_new->openURI($out);
+        $xml_new->startDocument('1.0', 'UTF-8');
+        $xml_new->startElement('item_list');
+
+        foreach ($productsList as $product) {
+            $p = new ProductCore($product['id_product']);
+            $combinations = $this->getProductCombination($p, $lang);
+
+            if (count($combinations)) {
+                foreach ($combinations as $combination) {
+                    $qty = StockAvailableCore::getQuantityAvailableByProduct($combination['id_product'], $combination['id_product_attribute']);
+                    $xml_new->startElement('item');
+                    $xml_new->writeAttribute('id', $combination['id_product'] . '-' . $combination['id_product_attribute']);
+                    $xml_new->startElement('stock_quantity');
+                    $xml_new->text($qty);
+                    $xml_new->endElement();
+
+                    $xml_new->endElement();
+                }
+            } else {
+                $qty = StockAvailableCore::getQuantityAvailableByProduct($product['id_product']);
+
+                $xml_new->startElement('item');
+                $xml_new->writeAttribute('id', $product['id_product']);
+
+                $xml_new->startElement('stock_quantity');
+                $xml_new->text($qty);
+                $xml_new->endElement();
+
+                $xml_new->endElement();
+            }
+        }
+
+        $xml_new->endElement();
+        $xml_new->endDocument();
+        $xml_new->flush();
+        unset($xml_new);
+
+        if (!copy($out, $storage)) {
+            @unlink($out);
+            @unlink($storage);
+
+            return false;
+        } else {
+            unlink($out);
+        }
+
+        return true;
     }
 
     public function generateXML($products, $feedBase, $currency) {
@@ -223,6 +288,37 @@ class MergadoClass extends ObjectModel {
 
         foreach ($productsList as $productCore) {
             $product = new Product($productCore['id_product']);
+
+            $export_both = MergadoClass::getSettings('what_to_export_both');
+            $export_catalog = MergadoClass::getSettings('what_to_export_catalog');
+            $export_search = MergadoClass::getSettings('what_to_export_search');
+
+            $export = false;
+
+            if ($product->visibility == 'catalog' && $export_catalog == 'on') {
+                $export = true;
+            }
+
+            if ($product->visibility == 'search' && $export_search == 'on') {
+                $export = true;
+            }
+
+            if ($product->visibility == 'both' && $export_both == 'on') {
+                $export = true;
+            }
+
+            if (!(bool) $product->available_for_order) {
+                $export = false;
+            }
+
+            if (!(bool) $product->show_price) {
+                $export = false;
+            }
+
+            if (!$export) {
+                continue;
+            }
+
             $base = $this->productBase($product, $lang);
             if (array_key_exists('item_id', $base)) {
                 $flatProductList[] = $base;
@@ -532,6 +628,11 @@ class MergadoClass extends ObjectModel {
         $sql->from('mergado');
 
         return Db::getInstance()->executeS($sql);
+    }
+
+    public static function clearSettings($pattern) {
+        $sql = "DELETE FROM " . _DB_PREFIX_ . self::$definition['table'] . " WHERE `key` LIKE '%" . $pattern . "%'";
+        return Db::getInstance()->execute($sql);
     }
 
     public function heurekaVerify($apiKey, $order, $lang) {

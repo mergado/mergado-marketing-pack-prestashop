@@ -14,10 +14,6 @@
 
 $(document).ready(function () {
     
-    $('.separate1').wrap('<div class="mergado-tab" data-tab="1"></div>');
-    $('.separate6').wrap('<div class="mergado-tab" data-tab="6"></div>');
-    
-
     $('#mergadoController .mergado-tab').hide();
     var currentTab = getUrlVars('mergadoTab');
 
