@@ -150,6 +150,14 @@ class MergadoClass extends ObjectModel {
             $xml_new->startElement('ITEMGROUP_ID');
             $xml_new->text($product['itemgroup_id']);
             $xml_new->endElement();
+            
+            $xml_new->startElement('EAN');
+            $xml_new->text($product['ean']);
+            $xml_new->endElement();
+            
+            $xml_new->startElement('PRODUCTNO');
+            $xml_new->text($product['reference']);
+            $xml_new->endElement();
 
             // Product name
             $xml_new->startElement('NAME_EXACT');
@@ -341,6 +349,7 @@ class MergadoClass extends ObjectModel {
     }
 
     public function productBase($item, $lang) {
+        
         $accessories = ProductCore::getAccessoriesLight($lang, $item->id);
         $accessoriesExtended = array();
         if (!empty($accessories)) {
@@ -460,6 +469,7 @@ class MergadoClass extends ObjectModel {
                 }
 
                 $price = ToolsCore::convertPriceFull($price, $this->defaultCurrency, $this->currency);
+                      
                 $productBase[] = array(
                     'item_id' => $combination['id_product'] . '-' . $combination['id_product_attribute'],
                     'itemgroup_id' => $itemgroupBase,
@@ -472,7 +482,8 @@ class MergadoClass extends ObjectModel {
                     'delivery_days' => ($qty > 0) ? 0 : $qtyDays,
                     'description_short' => strip_tags($item->description_short[$lang]),
                     'description' => strip_tags($item->description[$lang]),
-                    'ean' => $combination['ean13'],
+                    'ean' => ($combination['ean13'] == "" ? $item->ean13 : $combination['ean13']),
+                    'reference' => ($combination['reference'] == "" ? $item->reference : $combination['reference']),
                     'image' => $mainImage,
                     'image_alternative' => $images,
                     'name_exact' => $combination['name'],
@@ -534,6 +545,7 @@ class MergadoClass extends ObjectModel {
                     'description_short' => strip_tags($item->description_short[$lang]),
                     'description' => strip_tags($item->description[$lang]),
                     'ean' => $item->ean13,
+                    'reference' => $item->reference,
                     'image' => $mainImage,
                     'image_alternative' => $images,
                     'name_exact' => $item->name[$lang],
