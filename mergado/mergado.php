@@ -26,7 +26,7 @@ class Mergado extends Module {
     public function __construct() {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.2.0';
+        $this->version = '1.2.1';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
@@ -270,7 +270,7 @@ class Mergado extends Module {
         $codeCz = MergadoClass::getSettings('mergado_heureka_widget_cz');
         $codeSk = MergadoClass::getSettings('mergado_heureka_widget_sk');
         
-        MergadoClass::log("Heureka widgety:\n".  json_encode(array('language' => $iso_code, 'codeCz' => $codeCz, 'codeSk' => $codeSk))."\n");
+        //MergadoClass::log("Heureka widgety:\n".  json_encode(array('language' => $iso_code, 'codeCz' => $codeCz, 'codeSk' => $codeSk))."\n");
         
         if ($iso_code == 'cs' && $codeCz == '1') {
             $conversioncode = MergadoClass::getSettings('mergado_heureka_konverze_cz_kod');

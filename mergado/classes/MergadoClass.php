@@ -80,25 +80,29 @@ class MergadoClass extends ObjectModel {
             if (count($combinations)) {
                 foreach ($combinations as $combination) {
                     $qty = StockAvailableCore::getQuantityAvailableByProduct($combination['id_product'], $combination['id_product_attribute']);
+
+                    if ($qty > 0) {
+                        $xml_new->startElement('item');
+                        $xml_new->writeAttribute('id', $combination['id_product'] . '-' . $combination['id_product_attribute']);
+                        $xml_new->startElement('stock_quantity');
+                        $xml_new->text($qty);
+                        $xml_new->endElement();
+
+                        $xml_new->endElement();
+                    }
+                }
+            } else {
+                $qty = StockAvailableCore::getQuantityAvailableByProduct($product['id_product']);
+                if ($qty > 0) {
                     $xml_new->startElement('item');
-                    $xml_new->writeAttribute('id', $combination['id_product'] . '-' . $combination['id_product_attribute']);
+                    $xml_new->writeAttribute('id', $product['id_product']);
+
                     $xml_new->startElement('stock_quantity');
                     $xml_new->text($qty);
                     $xml_new->endElement();
 
                     $xml_new->endElement();
                 }
-            } else {
-                $qty = StockAvailableCore::getQuantityAvailableByProduct($product['id_product']);
-
-                $xml_new->startElement('item');
-                $xml_new->writeAttribute('id', $product['id_product']);
-
-                $xml_new->startElement('stock_quantity');
-                $xml_new->text($qty);
-                $xml_new->endElement();
-
-                $xml_new->endElement();
             }
         }
 
@@ -773,9 +777,9 @@ class MergadoClass extends ObjectModel {
     public static function deleteLog() {
         $folder = __DIR__ . '/../log/';
         $file = 'log.txt';
-        
+
         if (file_exists($folder)) {
-            unlink($folder.$file);
+            unlink($folder . $file);
         }
     }
 

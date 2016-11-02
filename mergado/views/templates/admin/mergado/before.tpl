@@ -22,14 +22,6 @@
             var tabId = $(this).attr('data-tab');
             var tmpUrl = removeURLParameter(window.location.href, 'mergadoTab') + '&mergadoTab=' + tabId;
 
-            if (checkChanges) {
-                if (!confirm(saveWarning)) {
-                    doNotRedirect = true;
-                } else {
-                    doNotRedirect = false;
-                }
-            }
-
             if (!doNotRedirect) {
                 doNotRedirect = false;
                 window.location.href = tmpUrl;

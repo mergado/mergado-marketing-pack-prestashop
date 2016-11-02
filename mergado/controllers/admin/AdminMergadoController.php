@@ -44,7 +44,7 @@ class AdminMergadoController extends ModuleAdminController {
     }
 
     public function formDevelopers() {
-        $this->fields_form = array(
+        $fields_form[0]['form'] = array(
             'legend' => array(
                 'title' => $this->l('Support help'),
                 'icon' => 'icon-bug'
@@ -99,7 +99,8 @@ class AdminMergadoController extends ModuleAdminController {
             )
         );
 
-        $this->fields_value = array(
+
+        $fields_value = array(
             'mergado_dev_log' => $this->settingsValues['mergado_dev_log'],
             'page' => 4
         );
@@ -108,7 +109,35 @@ class AdminMergadoController extends ModuleAdminController {
         $this->show_toolbar = true;
         $this->show_form_cancel_button = false;
 
-        return parent::renderForm();
+
+
+        $helper = new HelperForm();
+
+        $helper->module = $this;
+        $helper->name_controller = $this->name;
+
+        $helper->tpl_vars = array('fields_value' => $fields_value);
+        $helper->default_form_language = $default_lang;
+        $helper->allow_employee_form_lang = $default_lang;
+
+        $helper->title = $this->displayName;
+        $helper->show_toolbar = true;
+        $helper->toolbar_scroll = true;
+        $helper->submit_action = 'submit' . $this->name;
+        $helper->toolbar_btn = array(
+            'save' =>
+            array(
+                'desc' => $this->l('Save'),
+                'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
+                '&token=' . Tools::getAdminTokenLite('AdminModules'),
+            ),
+            'back' => array(
+                'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                'desc' => $this->l('Back to list')
+            )
+        );
+
+        return $helper->generateForm($fields_form);
     }
 
     public function formExportSettings() {
@@ -164,16 +193,25 @@ class AdminMergadoController extends ModuleAdminController {
             }
         }
 
-        $this->fields_value = $defaultValues;
+        $fields_value = $defaultValues;
 
-
-
-        $this->fields_form = array(
+        $fields_form[0]['form'] = array(
             'legend' => array(
-                'title' => $this->l('Export settings'),
+                'title' => $this->l('Language & currency settings'),
                 'icon' => 'icon-flag'
             ),
-            'input' => array_merge($feedLang, array(
+            'input' => $feedLang,
+            'submit' => array(
+                'title' => $this->l('Save')
+            )
+        );
+
+        $fields_form[1]['form'] = array(
+            'legend' => array(
+                'title' => $this->l('Export settings'),
+                'icon' => 'icon-cogs'
+            ),
+            'input' => array(
                 array(
                     'type' => 'hidden',
                     'name' => 'clrCheckboxes'
@@ -199,7 +237,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'hint' => $this->l('In how many days can you delivery the product when it is out of stock'),
                     'visibility' => Shop::CONTEXT_ALL
                 )
-            )),
+            ),
             'submit' => array(
                 'title' => $this->l('Save')
             )
@@ -215,24 +253,46 @@ class AdminMergadoController extends ModuleAdminController {
             );
         }
 
-        $this->fields_value = array(
+        $fields_value = array(
             'delivery_days' => $this->settingsValues['delivery_days'],
             'clrCheckboxes' => 1,
             'page' => 1,
         );
 
-        $this->fields_value = array_merge($this->fields_value, $optionsArray, $defaultValues);
-        $this->show_toolbar = true;
-        $this->show_form_cancel_button = false;
+        $helper = new HelperForm();
 
-        return parent::renderForm();
+        $helper->module = $this;
+        $helper->name_controller = $this->name;
+
+        $helper->tpl_vars = array('fields_value' => array_merge($fields_value, $optionsArray, $defaultValues));
+        $helper->default_form_language = $default_lang;
+        $helper->allow_employee_form_lang = $default_lang;
+
+        $helper->title = $this->displayName;
+        $helper->show_toolbar = true;
+        $helper->toolbar_scroll = true;
+        $helper->submit_action = 'submit' . $this->name;
+        $helper->toolbar_btn = array(
+            'save' =>
+            array(
+                'desc' => $this->l('Save'),
+                'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
+                '&token=' . Tools::getAdminTokenLite('AdminModules'),
+            ),
+            'back' => array(
+                'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                'desc' => $this->l('Back to list')
+            )
+        );
+
+        return $helper->generateForm($fields_form);
     }
 
     public function formAdSys() {
 
-        $this->fields_form = array(
+        $fields_form[0]['form'] = array(
             'legend' => array(
-                'title' => $this->l('Advertisment systems'),
+                'title' => $this->l('Heureka'),
                 'icon' => 'icon-cogs'
             ),
             'input' => array(
@@ -406,6 +466,17 @@ class AdminMergadoController extends ModuleAdminController {
                     ),
                     'visibility' => Shop::CONTEXT_ALL
                 ),
+                'submit' => array(
+                    'title' => $this->l('Save')
+                )
+        ));
+
+        $fields_form[1]['form'] = array(
+            'legend' => array(
+                'title' => $this->l('Zbozi.cz'),
+                'icon' => 'icon-cogs'
+            ),
+            'input' => array(
                 array(
                     'name' => 'mergado_zbozi_konverze',
                     'label' => $this->l('Zbozi track conversions'),
@@ -438,6 +509,17 @@ class AdminMergadoController extends ModuleAdminController {
                     'type' => 'text',
                     'visibility' => Shop::CONTEXT_ALL,
                 ),
+                'submit' => array(
+                    'title' => $this->l('Save')
+                )
+        ));
+
+        $fields_form[2]['form'] = array(
+            'legend' => array(
+                'title' => $this->l('Sklik'),
+                'icon' => 'icon-cogs'
+            ),
+            'input' => array(
                 array(
                     'name' => 'mergado_sklik_konverze',
                     'label' => $this->l('Sklik track conversions'),
@@ -469,7 +551,19 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Sklik value'),
                     'type' => 'text',
                     'visibility' => Shop::CONTEXT_ALL,
-                ),
+                )
+                ,
+                'submit' => array(
+                    'title' => $this->l('Save')
+                )
+        ));
+
+        $fields_form[3]['form'] = array(
+            'legend' => array(
+                'title' => $this->l('Adwords'),
+                'icon' => 'icon-cogs'
+            ),
+            'input' => array(
                 array(
                     'name' => 'mergado_adwords_conversion',
                     'label' => $this->l('Adwords conversions'),
@@ -508,7 +602,7 @@ class AdminMergadoController extends ModuleAdminController {
             )
         );
 
-        $this->fields_value = array(
+        $fields_value = array(
             'mergado_heureka_overeno_zakazniky_cz' => $this->settingsValues['mergado_heureka_overeno_zakazniky_cz'],
             'mergado_heureka_overeno_zakazniky_kod_cz' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_cz'],
             'mergado_heureka_overeno_zakazniky_sk' => $this->settingsValues['mergado_heureka_overeno_zakazniky_sk'],
@@ -532,9 +626,33 @@ class AdminMergadoController extends ModuleAdminController {
             'page' => 6,
         );
 
-        $this->show_toolbar = true;
-        $this->show_form_cancel_button = false;
-        return parent::renderForm();
+        $helper = new HelperForm();
+
+        $helper->module = $this;
+        $helper->name_controller = $this->name;
+
+        $helper->tpl_vars = array('fields_value' => $fields_value);
+        $helper->default_form_language = $default_lang;
+        $helper->allow_employee_form_lang = $default_lang;
+
+        $helper->title = $this->displayName;
+        $helper->show_toolbar = true;
+        $helper->toolbar_scroll = true;
+        $helper->submit_action = 'submit' . $this->name;
+        $helper->toolbar_btn = array(
+            'save' =>
+            array(
+                'desc' => $this->l('Save'),
+                'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
+                '&token=' . Tools::getAdminTokenLite('AdminModules'),
+            ),
+            'back' => array(
+                'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                'desc' => $this->l('Back to list')
+            )
+        );
+
+        return $helper->generateForm($fields_form);
     }
 
     public function initContent() {
@@ -625,17 +743,16 @@ class AdminMergadoController extends ModuleAdminController {
 
     public function postProcess() {
 
-        if (Tools::isSubmit('submitAdd' . $this->name)) {
-
-            unset($_POST['submitAdd' . $this->name]);
+        if (Tools::isSubmit('submit' . $this->name)) {
+            unset($_POST['submit' . $this->name]);
 
             MergadoClass::log("Settings edit:\n" . json_encode($_POST) . "\n");
 
             if (isset($_POST['clrCheckboxes'])) {
                 MergadoClass::clearSettings('what_to_export');
             }
-            
-            if(isset($_POST['mergado_dev_log'])){
+
+            if (isset($_POST['mergado_dev_log']) && $_POST['mergado_dev_log'] == 'on') {
                 MergadoClass::deleteLog();
             }
 

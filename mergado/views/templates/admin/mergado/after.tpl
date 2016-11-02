@@ -83,7 +83,7 @@
                                 {$xml['language']|escape:'htmlall':'UTF-8'}
                             </th>
                             <td>
-                                {$xml['date']|date_format:'d.m.Y H:m:s'|escape:'htmlall':'UTF-8'}
+                                {$xml['date']|date_format:'d.m.Y H:i:s'|escape:'htmlall':'UTF-8'}
                             </td>
                             <td>
                                 <a href='{$xml['url']|escape:'htmlall':'UTF-8'}' target='_blank' title='{$xml['language']|escape:'htmlall':'UTF-8'}'>{$xml['url']|escape:'htmlall':'UTF-8'}</a>
