@@ -42,9 +42,11 @@ class MergadoClass extends ObjectModel {
     }
 
     public function generateMergadoFeed($feedBase) {
-
+        
         if ($feedBase == 'stock') {
             $xml = $this->generateStockXML($stockData, $feedBase);
+            MergadoClass::log("Stock feed generated:\n");
+            
             return $xml;
         } else {
             $base = explode('-', str_replace(self::$feedPrefix, '', $feedBase));
@@ -55,6 +57,8 @@ class MergadoClass extends ObjectModel {
 
             $products = $this->productsToFlat(false, $this->language->id);
             $xml = $this->generateXML($products, $feedBase, $this->currency);
+            
+            MergadoClass::log("Mergado feed generated:\n" . $feedBase);
 
             return $xml;
         }
