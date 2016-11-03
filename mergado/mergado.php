@@ -49,7 +49,7 @@ class Mergado extends Module {
         $this->confirmUninstall = $this->l('Are you sure to uninstall Mergado marketing pack module?');
 
         $this->ps_versions_compliancy = array('min' => '1.5', 'max' => _PS_VERSION_);
-        
+
         $this->_clearCache('*');
     }
 
@@ -62,7 +62,7 @@ class Mergado extends Module {
 
         $this->addTab();
 
-        return parent::install() && $this->registerHook('backOfficeHeader') && $this->registerHook('actionValidateOrder') && $this->registerHook('orderConfirmation') && $this->registerHook('displayFooter');
+        return parent::install() && $this->installUpdates() && $this->registerHook('backOfficeHeader') && $this->registerHook('actionValidateOrder') && $this->registerHook('orderConfirmation') && $this->registerHook('displayFooter');
     }
 
     public function uninstall() {
@@ -71,6 +71,12 @@ class Mergado extends Module {
         $this->removeTab();
 
         return parent::uninstall();
+    }
+
+    public function installUpdates() {
+        include __DIR__ . "/sql/update-1.2.2.php";
+
+        return true;
     }
 
     /**
@@ -166,11 +172,11 @@ class Mergado extends Module {
 
         /* Zbozi conversion */
         $sent = $mergado->sendZboziKonverze($params, 'cs');
-        
-        MergadoClass::log("Validate order:\n".  json_encode(array('verifiedCz' => $verifiedCz, 'verifiedSk' =>  $verifiedSk, 'conversionSent' => $sent))."\n");
+
+        MergadoClass::log("Validate order:\n" . json_encode(array('verifiedCz' => $verifiedCz, 'verifiedSk' => $verifiedSk, 'conversionSent' => $sent)) . "\n");
     }
 
-    public function hookOrderConfirmation($params) {        
+    public function hookOrderConfirmation($params) {
         $zboziActive = MergadoClass::getSettings('mergado_zbozi_konverze');
         $zboziId = MergadoClass::getSettings('mergado_zbozi_shop_id');
         $heurekaCzActive = MergadoClass::getSettings('mergado_heureka_konverze_cz');
@@ -186,12 +192,12 @@ class Mergado extends Module {
         $cartCz = new CartCore($params['objOrder']->id_cart, LanguageCore::getIdByIso('cs'));
         $cartSk = new CartCore($params['objOrder']->id_cart, LanguageCore::getIdByIso('sk'));
         $heurekaCzProducts = array();
-        $heurekaSkProducts = array();   
-        
-        if(!$sklikValue){
+        $heurekaSkProducts = array();
+
+        if (!$sklikValue) {
             $sklikValue = 0;
         }
-                        
+
         if ($cartCz && $heurekaCzActive) {
             foreach ($cartCz->getProducts() as $product) {
                 $exactName = $product['name'];
@@ -231,7 +237,7 @@ class Mergado extends Module {
         }
 
         $context = Context::getContext();
-        
+
         $data = array(
             'conversionZboziShopId' => $zboziId,
             'conversionZboziActive' => $zboziActive,
@@ -255,11 +261,11 @@ class Mergado extends Module {
             'currency' => $params['currencyObj'],
             'languageCode' => str_replace('-', '_', $context->language->language_code)
         );
-        
+
         $this->smarty->assign($data);
-        
-        MergadoClass::log("Order confirmation:\n".  json_encode($data)."\n");
-        
+
+        MergadoClass::log("Order confirmation:\n" . json_encode($data) . "\n");
+
         return $this->display(__FILE__, '/views/templates/front/tracking.tpl');
     }
 
@@ -269,9 +275,9 @@ class Mergado extends Module {
         $iso_code = Language::getIsoById((int) $cookie->id_lang);
         $codeCz = MergadoClass::getSettings('mergado_heureka_widget_cz');
         $codeSk = MergadoClass::getSettings('mergado_heureka_widget_sk');
-        
+
         //MergadoClass::log("Heureka widgety:\n".  json_encode(array('language' => $iso_code, 'codeCz' => $codeCz, 'codeSk' => $codeSk))."\n");
-        
+
         if ($iso_code == 'cs' && $codeCz == '1') {
             $conversioncode = MergadoClass::getSettings('mergado_heureka_konverze_cz_kod');
             if ($conversioncode != '') {

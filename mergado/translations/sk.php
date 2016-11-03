@@ -9,6 +9,7 @@ $_MODULE['<{mergado}prestashop>mergado_4c0fe8a91c39a7d34d7be9c8e7678f5f'] = 'Nep
 $_MODULE['<{mergado}prestashop>mergado_56c4daf4b1b3c5d0d627f55425f21e81'] = 'Nepodarilo sa modul z menu administrácie odstrániť.';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_85471b58d986a84cd31f52046f428827'] = 'Nastavení pro podporu';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_fcfac4ca066dd3085b03622e851ae313'] = 'Povolit logování';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_9637ed7600edce2e0caf0cfec75b2691'] = 'Tento kód pošlite podpore:';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_93cba07454f06a4a960172bbd6e2a435'] = 'Ano';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_bafd7322c6e97d25b6299b5d6fe8920b'] = 'Ne';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_53171caf554d3abfd670dda21e82fc60'] = 'Smazat log při uložení';

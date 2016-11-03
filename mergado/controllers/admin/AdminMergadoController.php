@@ -59,6 +59,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Enable log'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
+                    'desc' => $this->l('Send this to support:') . " " . MergadoClass::getLogLite(),
                     'type' => 'switch',
                     'values' => array(
                         array(
@@ -737,7 +738,7 @@ class AdminMergadoController extends ModuleAdminController {
         $this->context->smarty->assign(array(
             'tab1' => $tab1,
             'tab6' => $tab6,
-            'tab4' => $tab4,
+            'tab4' => $tab4
         ));
     }
 
@@ -752,7 +753,7 @@ class AdminMergadoController extends ModuleAdminController {
                 MergadoClass::clearSettings('what_to_export');
             }
 
-            if (isset($_POST['mergado_dev_log']) && $_POST['mergado_dev_log'] == 'on') {
+            if (isset($_POST['mergado_del_log']) && $_POST['mergado_del_log'] == '1') {
                 MergadoClass::deleteLog();
             }
 

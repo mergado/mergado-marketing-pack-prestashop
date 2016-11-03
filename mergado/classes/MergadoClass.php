@@ -42,11 +42,11 @@ class MergadoClass extends ObjectModel {
     }
 
     public function generateMergadoFeed($feedBase) {
-        
+
         if ($feedBase == 'stock') {
             $xml = $this->generateStockXML($stockData, $feedBase);
             MergadoClass::log("Stock feed generated:\n");
-            
+
             return $xml;
         } else {
             $base = explode('-', str_replace(self::$feedPrefix, '', $feedBase));
@@ -57,7 +57,7 @@ class MergadoClass extends ObjectModel {
 
             $products = $this->productsToFlat(false, $this->language->id);
             $xml = $this->generateXML($products, $feedBase, $this->currency);
-            
+
             MergadoClass::log("Mergado feed generated:\n" . $feedBase);
 
             return $xml;
@@ -150,11 +150,11 @@ class MergadoClass extends ObjectModel {
             $xml_new->startElement('ITEMGROUP_ID');
             $xml_new->text($product['itemgroup_id']);
             $xml_new->endElement();
-            
+
             $xml_new->startElement('EAN');
             $xml_new->text($product['ean']);
             $xml_new->endElement();
-            
+
             $xml_new->startElement('PRODUCTNO');
             $xml_new->text($product['reference']);
             $xml_new->endElement();
@@ -349,7 +349,7 @@ class MergadoClass extends ObjectModel {
     }
 
     public function productBase($item, $lang) {
-        
+
         $accessories = ProductCore::getAccessoriesLight($lang, $item->id);
         $accessoriesExtended = array();
         if (!empty($accessories)) {
@@ -469,7 +469,7 @@ class MergadoClass extends ObjectModel {
                 }
 
                 $price = ToolsCore::convertPriceFull($price, $this->defaultCurrency, $this->currency);
-                      
+
                 $productBase[] = array(
                     'item_id' => $combination['id_product'] . '-' . $combination['id_product_attribute'],
                     'itemgroup_id' => $itemgroupBase,
@@ -774,11 +774,20 @@ class MergadoClass extends ObjectModel {
         }
     }
 
+    public static function getLogLite() {
+
+        $token = Tools::getAdminTokenLite('Mergado');        
+        return $token;
+    }
+
     public static function log($message) {
 
         if (self::getSettings('mergado_dev_log')) {
+
+            $token = Tools::getAdminTokenLite('Mergado');
+
             $folder = __DIR__ . '/../log/';
-            $file = 'log.txt';
+            $file = 'log_' . $token . '.txt';
 
             if (!file_exists($folder)) {
                 mkdir($folder, 0777, true);
