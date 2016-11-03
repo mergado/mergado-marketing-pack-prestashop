@@ -420,7 +420,7 @@ class MergadoClass extends ObjectModel {
 
                 $qtyDays = self::getSettings('delivery_days');
 
-                if ($qty == 0 && $whenOutOfStock == 0) {
+                if ($qty > 0 && $whenOutOfStock == 0) {
                     continue;
                 }
 
@@ -510,7 +510,7 @@ class MergadoClass extends ObjectModel {
             $qty = ProductCore::getQuantity($item->id);
             $qtyDays = self::getSettings('delivery_days');
 
-            if (!($qty == 0 && $whenOutOfStock == 0)) {
+            if (!($qty > 0 && $whenOutOfStock == 0)) {
 
                 $imagesList = $item->getImages($lang);
                 $images = array();
