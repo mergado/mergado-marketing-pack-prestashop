@@ -417,10 +417,11 @@ class MergadoClass extends ObjectModel {
         $tax_manager = TaxManagerFactory::getManager(
                         $address, Product::getIdTaxRulesGroupByIdProduct((int) $item->id, null)
         );
+        
+         $tax_calculator = $tax_manager->getTaxCalculator();
 
         $context = Context::getContext();
-        $id_country_default = (int) Configuration::get('PS_COUNTRY_DEFAULT', null, null, $context->shop->id);
-
+        
         $productBase = null;
         $defaultCategory = new Category($item->id_category_default, $lang);
         $itemgroupBase = $item->id;
@@ -461,7 +462,7 @@ class MergadoClass extends ObjectModel {
                 $price_vat = Product::priceCalculation($context->shop->id, // ID shop
                                 $combination['id_product'], // ID Product
                                 $id_attribute['id_product_attribute'], // ID Product atribut                                              
-                                $id_country_default, // ID Country
+                                $id_country, // ID Country
                                 0, // ID State
                                 0, // ZIP Code
                                 $this->currency->id, // Id Currency
@@ -482,7 +483,7 @@ class MergadoClass extends ObjectModel {
                 $price_novat = Product::priceCalculation($context->shop->id, // ID shop
                                 $combination['id_product'], // ID Product
                                 $id_attribute['id_product_attribute'], // ID Product atribut                                              
-                                $id_country_default, // ID Country
+                                $id_country, // ID Country
                                 0, // ID State
                                 0, // ZIP Code
                                 $this->currency->id, // Id Currency
@@ -571,12 +572,12 @@ class MergadoClass extends ObjectModel {
                                 $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
                     }
                 }
-
+                
                 $specific_price = null;
                 $price_vat = Product::priceCalculation($context->shop->id, // ID shop
                                 $item->id, // ID Product
                                 null, // ID Product atribut                                              
-                                $id_country_default, // ID Country
+                                $id_country, // ID Country
                                 0, // ID State
                                 0, // ZIP Code
                                 $this->currency->id, // Id Currency
@@ -597,7 +598,7 @@ class MergadoClass extends ObjectModel {
                 $price_novat = Product::priceCalculation($context->shop->id, // ID shop
                                 $item->id, // ID Product
                                 null, // ID Product atribut                                              
-                                $id_country_default, // ID Country
+                                $id_country, // ID Country
                                 0, // ID State
                                 0, // ZIP Code
                                 $this->currency->id, // Id Currency
@@ -614,7 +615,6 @@ class MergadoClass extends ObjectModel {
                                 true, // Use customer price
                                 0, // ID Cart
                                 0);
-
 
                 $productBase = array(
                     'item_id' => $item->id,
