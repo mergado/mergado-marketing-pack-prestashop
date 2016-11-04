@@ -41,6 +41,10 @@ class AdminMergadoController extends ModuleAdminController {
         }
 
         parent::__construct();
+        
+        if(!Configuration::get('MERGADO_LOG_TOKEN')){
+            Configuration::updateValue('MERGADO_LOG_TOKEN', Tools::getAdminTokenLite('AdminMergadoLog'));
+        }
     }
 
     public function formDevelopers() {
