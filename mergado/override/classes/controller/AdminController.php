@@ -47,6 +47,7 @@ class AdminController extends AdminControllerCore {
             $doc->documentElement->appendChild($node);
 
             $updateXml = $doc->saveXml();
+            
 
             @file_put_contents(_PS_ROOT_DIR_ . Module::CACHE_FILE_MUST_HAVE_MODULES_LIST, $updateXml);
         }
@@ -76,7 +77,7 @@ class AdminController extends AdminControllerCore {
             
             if ($tryUpdate) {
                 $this->mergadoCopyFiles($tryUpdate['from'], $tryUpdate['to']);
-                $this->mergadoDeleteFiles($tryUpdate['delete']);
+                //$this->mergadoDeleteFiles($tryUpdate['delete']);
             }
         }
 
@@ -96,10 +97,11 @@ class AdminController extends AdminControllerCore {
     public function mergadoCopyFiles($from, $to) {
         
         foreach (array_diff(scandir($from), array('..', '.')) as $file) {
-            if (is_dir($from . $file))
-                $this->mergadoCopyFiles($from . $file, $to.'/'.$file);
+            if (is_dir($from .'/'. $file))
+                $this->mergadoCopyFiles($from .'/'. $file, $to.'/'.$file);
             else{
-                $copy = copy($from . $file, $to .'/'. $file);
+                $copy = copy($from .'/'. $file, $to .'/'. $file);
+                //echo $from .'/'. $file . ' > ' . $to .'/'. $file . ': '.$copy.'<br/><hr/>';
             }
         }
         mkdir($to);
