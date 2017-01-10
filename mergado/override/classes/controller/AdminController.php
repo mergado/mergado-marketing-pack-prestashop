@@ -72,7 +72,6 @@ class AdminController extends AdminControllerCore {
             require_once(_PS_MODULE_DIR_ . $mName . '/' . $mName . '.php');
             $mergado = new Mergado();
             $tryUpdate = $mergado->updateModule();
-            var_dump($tryUpdate);die;
             unset($mergado); 
             
             if ($tryUpdate) {
@@ -101,7 +100,6 @@ class AdminController extends AdminControllerCore {
                 $this->mergadoCopyFiles($from . $file, $to.'/'.$file);
             else{
                 $copy = copy($from . $file, $to .'/'. $file);
-                echo $from . $file . ' > ' . $to .'/'. $file . ': '.$copy.'<br/><hr/>';
             }
         }
         mkdir($to);
