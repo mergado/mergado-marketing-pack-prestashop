@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <id><![CDATA[]]></id>
+    <name>mergado</name>
+    <displayName><![CDATA[Mergado marketing pack]]></displayName>
+    <categoryName><![CDATA[]]></categoryName>
+    <description><![CDATA[Mergado marketing pack module helps you to export your products information to Mergado services.]]></description>
+    <author><![CDATA[www.mergado.cz]]></author>
+    <url><![CDATA[]]></url>
+    <img><![CDATA[]]></img>
+    <description_full><![CDATA[]]></description_full>
+    <additional_description><![CDATA[]]></additional_description>    
+    <tab><![CDATA[export]]></tab>
+    <version><![CDATA[1.1.1.1]]></version>
+    <compatibility><from><![CDATA[1.5.3.1]]></from><to><![CDATA[1.6.1.10]]></to></compatibility>
+    <price><EUR><![CDATA[0]]></EUR></price>
+    <badges><![CDATA[]]></badges>
+    <cover><![CDATA[]]></cover>
+</module>

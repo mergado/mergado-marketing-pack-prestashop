@@ -448,6 +448,10 @@ class MergadoClass extends ObjectModel {
                 $img = new ImageCore();
                 $imagesList = $img->getImages($lang, $combination['id_product'], $combination['id_product_attribute']);
 
+                if(empty($imagesList)){
+                    $imagesList = $img->getImages($lang, $combination['id_product']);                    
+                }
+
                 $images = array();
                 foreach ($imagesList as $img) {
                     $images[] = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .

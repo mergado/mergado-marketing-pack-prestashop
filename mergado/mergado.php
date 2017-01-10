@@ -22,11 +22,12 @@ require_once _PS_MODULE_DIR_ . 'mergado/classes/MergadoClass.php';
 class Mergado extends Module {
 
     protected $controllerClass;
-
+    private $gitLatestRelease = "https://api.github.com/repos/mergado/mergado-marketing-pack-prestashop/releases/latest";
+    
     public function __construct() {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.2.3';
+        $this->version = '1.2.4';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
@@ -135,6 +136,7 @@ class Mergado extends Module {
      */
     public function hookBackOfficeHeader() {
         if (Tools::getValue('controller') == $this->controllerClass) {
+            $this->context->controller->addJquery();
             $this->context->controller->addJS($this->_path . 'views/js/back.js');
 
             if (_PS_VERSION_ >= 1.5 && _PS_VERSION_ < 1.6) {
