@@ -23,11 +23,11 @@ class Mergado extends Module {
 
     protected $controllerClass;
     private $gitLatestRelease = "https://api.github.com/repos/mergado/mergado-marketing-pack-prestashop/releases/latest";
-    
+
     public function __construct() {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.2.4';
+        $this->version = '1.2.5';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
@@ -52,6 +52,83 @@ class Mergado extends Module {
         $this->ps_versions_compliancy = array('min' => '1.5', 'max' => _PS_VERSION_);
 
         $this->_clearCache('*');
+    }
+
+    public function getRepo() {
+        $ch = curl_init();
+        curl_setopt_array($ch, array(
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13',
+            CURLOPT_URL => $this->gitLatestRelease,
+        ));
+        $response = json_decode(curl_exec($ch));
+        curl_close($ch);
+
+        return $response;
+    }
+
+    public function getZipFile($url, $zipPath) {
+
+        mkdir($zipPath);
+        $zipFile = $zipPath . 'update.zip'; // Local Zip File Path
+        $zipResource = fopen($zipFile, "w+");
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_FILE, $zipResource);
+        $page = curl_exec($ch);
+
+        if (!$page) {
+            echo "Error :- " . curl_error($ch);
+        }
+        curl_close($ch);
+                
+        $zip = new ZipArchive;
+        $extractPath = $zipPath;        
+        if (!$zip->open($zipFile)) {
+            echo "Error :- Unable to open the Zip File";
+        }
+
+        $result = $zip->extractTo($extractPath);
+        $zip->close();
+
+        return $result;
+    }
+
+    public function updateModule() {
+
+        $response = $this->getRepo();
+        $version = $response->tag_name;
+        $zipUrl = $response->zipball_url;
+        $zipPath = _PS_MODULE_DIR_ . $this->name . '/upgrade/tmp/';
+
+        if ($version > $this->version) {
+            if ($this->getZipFile($zipUrl, $zipPath)) {
+                $dirname = '';
+                foreach (glob($zipPath . '*', GLOB_ONLYDIR) as $dir) {
+                    $dirname = basename($dir);
+                    break;
+                }
+
+                if ($dirname != '') {                    
+                    return array(
+                        'from' => $zipPath . $dirname . '/' . $this->name,
+                        'to' => _PS_MODULE_DIR_ . $this->name,
+                        'delete' => $zipPath
+                    );
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
