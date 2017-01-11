@@ -518,8 +518,45 @@ class AdminMergadoController extends ModuleAdminController {
                     'title' => $this->l('Save')
                 )
         ));
-
+        
         $fields_form[2]['form'] = array(
+            'legend' => array(
+                'title' => $this->l('Najnakup.sk'),
+                'icon' => 'icon-cogs'
+            ),
+            'input' => array(
+                array(
+                    'name' => 'mergado_najnakup_konverze',
+                    'label' => $this->l('Najnakup track conversions'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_najnakup_konverze_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_najnakup_konverze_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'mergado_najnakup_shop_id',
+                    'label' => $this->l('Najnakup shop ID'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                'submit' => array(
+                    'title' => $this->l('Save')
+                )
+        ));
+
+        $fields_form[3]['form'] = array(
             'legend' => array(
                 'title' => $this->l('Sklik'),
                 'icon' => 'icon-cogs'
@@ -563,7 +600,7 @@ class AdminMergadoController extends ModuleAdminController {
                 )
         ));
 
-        $fields_form[3]['form'] = array(
+        $fields_form[4]['form'] = array(
             'legend' => array(
                 'title' => $this->l('Adwords'),
                 'icon' => 'icon-cogs'
@@ -628,6 +665,8 @@ class AdminMergadoController extends ModuleAdminController {
             'mergado_adwords_conversion' => $this->settingsValues['mergado_adwords_conversion'],
             'mergado_adwords_conversion_code' => $this->settingsValues['mergado_adwords_conversion_code'],
             'mergado_adwords_conversion_label' => $this->settingsValues['mergado_adwords_conversion_label'],
+            'mergado_najnakup_konverze' => $this->settingsValues['mergado_najnakup_konverze'],
+            'mergado_najnakup_shop_id' => $this->settingsValues['mergado_najnakup_shop_id'],
             'page' => 6,
         );
 

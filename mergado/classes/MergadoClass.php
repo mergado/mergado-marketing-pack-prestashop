@@ -14,6 +14,7 @@
  *  @license   LICENSE.txt
  */
 require_once _PS_MODULE_DIR_ . 'mergado/classes/ZboziKonverze.php';
+require_once _PS_MODULE_DIR_ . 'mergado/classes/NajNakup.php';
 
 class MergadoClass extends ObjectModel {
 
@@ -152,6 +153,10 @@ class MergadoClass extends ObjectModel {
         $xml_new->openURI($out);
         $xml_new->startDocument('1.0', 'UTF-8');
         $xml_new->startElement('CHANNEL');
+
+        $xml_new->startElement('GENERATOR');
+        $xml_new->text('mergadomarketingpack');
+        $xml_new->endElement();
 
         foreach ($products as $product) {
 
@@ -417,11 +422,11 @@ class MergadoClass extends ObjectModel {
         $tax_manager = TaxManagerFactory::getManager(
                         $address, Product::getIdTaxRulesGroupByIdProduct((int) $item->id, null)
         );
-        
-         $tax_calculator = $tax_manager->getTaxCalculator();
+
+        $tax_calculator = $tax_manager->getTaxCalculator();
 
         $context = Context::getContext();
-        
+
         $productBase = null;
         $defaultCategory = new Category($item->id_category_default, $lang);
         $itemgroupBase = $item->id;
@@ -448,8 +453,8 @@ class MergadoClass extends ObjectModel {
                 $img = new ImageCore();
                 $imagesList = $img->getImages($lang, $combination['id_product'], $combination['id_product_attribute']);
 
-                if(empty($imagesList)){
-                    $imagesList = $img->getImages($lang, $combination['id_product']);                    
+                if (empty($imagesList)) {
+                    $imagesList = $img->getImages($lang, $combination['id_product']);
                 }
 
                 $images = array();
@@ -576,7 +581,7 @@ class MergadoClass extends ObjectModel {
                                 $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
                     }
                 }
-                
+
                 $specific_price = null;
                 $price_vat = Product::priceCalculation($context->shop->id, // ID shop
                                 $item->id, // ID Product
@@ -850,11 +855,39 @@ class MergadoClass extends ObjectModel {
                 ));
 
                 $zbozi->send();
+                return true;
             } catch (ZboziKonverzeException $e) {
-                // handle errors
                 echo 'Error: ' . $e->getMessage();
             } catch (Exception $e) {
                 echo 'Error: ' . $e->getMessage();
+            }
+        }
+
+        return false;
+    }
+
+    public function sendNajnakupValuation($order, $lang) {
+        $active = self::getSettings('mergado_najnakup_konverze');
+        $id = self::getSettings('mergado_najnakup_shop_id');
+
+        if ($active['value'] === '1') {
+
+            try {
+                $najNakup = new \Mergado\NajNakup\NajNakup();
+                $cart = new Cart($order['cart']->id, LanguageCore::getIdByIso($lang));
+                $products = $cart->getProducts();
+
+                foreach ($products as $product) {
+                    $pid = $product['id_product'];
+                    if ($product['id_product_attribute'] != '0') {
+                        $pid .= '-' . $product['id_product_attribute'];
+                    }
+                    $najNakup->addProduct($pid);
+                }
+
+                return $najnakup->sendNewOrder($id, $order['customer']->email, $order['order']->id);
+            } catch (Exception $e) {
+                return $e->getMessage();
             }
         }
     }
