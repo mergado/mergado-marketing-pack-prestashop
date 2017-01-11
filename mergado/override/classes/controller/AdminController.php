@@ -28,28 +28,11 @@ class AdminController extends AdminControllerCore {
 
     protected function initTabModuleList() {
         if (!$this->isFresh(Module::CACHE_FILE_MUST_HAVE_MODULES_LIST, 86400)) {
-
-            $mustHave = Tools::addonsRequest('must-have');
-            $mergadoXml = file_get_contents('https://raw.githubusercontent.com/mergado/mergado-marketing-pack-prestashop/master/mergado/config/mergado_update.xml');
-
-            $mergadoXml = file_get_contents(_PS_MODULE_DIR_ . '/mergado/config/mergado_update.xml');
-
-            $psXml = new \SimpleXMLElement($mustHave);
-            $mXml = new \SimpleXMLElement($mergadoXml);
-
-            $doc = new DOMDocument();
-            $doc->loadXML($psXml->asXml());
-
-            $mDoc = new DOMDocument();
-            $mDoc->loadXML($mXml->asXml());
-
-            $node = $doc->importNode($mDoc->documentElement, true);
-            $doc->documentElement->appendChild($node);
-
-            $updateXml = $doc->saveXml();
-            
-
-            @file_put_contents(_PS_ROOT_DIR_ . Module::CACHE_FILE_MUST_HAVE_MODULES_LIST, $updateXml);
+            if (file_exists(_PS_MODULE_DIR_ . 'mergado/mergado.php')) {
+                require_once(_PS_MODULE_DIR_ . 'mergado/mergado.php');
+                $mergado = new Mergado();
+                $mergado->updateVersionXml();
+            }
         }
 
         parent::initTabModuleList();
@@ -69,12 +52,12 @@ class AdminController extends AdminControllerCore {
         }
 
         if ($mName == 'mergado' && file_exists(_PS_MODULE_DIR_ . $mName . '/' . $mName . '.php')) {
-        
+
             require_once(_PS_MODULE_DIR_ . $mName . '/' . $mName . '.php');
             $mergado = new Mergado();
             $tryUpdate = $mergado->updateModule();
-            unset($mergado); 
-            
+            unset($mergado);
+
             if ($tryUpdate) {
                 $this->mergadoCopyFiles($tryUpdate['from'], $tryUpdate['to']);
                 //$this->mergadoDeleteFiles($tryUpdate['delete']);
@@ -95,12 +78,12 @@ class AdminController extends AdminControllerCore {
     }
 
     public function mergadoCopyFiles($from, $to) {
-        
+
         foreach (array_diff(scandir($from), array('..', '.')) as $file) {
-            if (is_dir($from .'/'. $file))
-                $this->mergadoCopyFiles($from .'/'. $file, $to.'/'.$file);
-            else{
-                $copy = copy($from .'/'. $file, $to .'/'. $file);
+            if (is_dir($from . '/' . $file))
+                $this->mergadoCopyFiles($from . '/' . $file, $to . '/' . $file);
+            else {
+                $copy = copy($from . '/' . $file, $to . '/' . $file);
                 //echo $from .'/'. $file . ' > ' . $to .'/'. $file . ': '.$copy.'<br/><hr/>';
             }
         }
