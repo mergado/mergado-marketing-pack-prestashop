@@ -15,6 +15,7 @@
  */
 require_once _PS_MODULE_DIR_ . 'mergado/classes/ZboziKonverze.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/NajNakup.php';
+require_once _PS_MODULE_DIR_ . 'mergado/classes/Pricemania.php';
 
 class MergadoClass extends ObjectModel {
 
@@ -890,6 +891,42 @@ class MergadoClass extends ObjectModel {
                 return $e->getMessage();
             }
         }
+    }
+
+    public function sendPricemaniaOverenyObchod($order, $lang) {
+        $active = self::getSettings('mergado_pricemania_overeny_obchod');
+        $id = self::getSettings('mergado_pricemania_shop_id');
+
+        if ($active['value'] === '1') {
+            try {
+                $pm = new Pricemania($id);
+                $cart = new Cart($order['cart']->id, LanguageCore::getIdByIso($lang));
+                $products = $cart->getProducts();
+
+                foreach ($products as $product) {
+                    $exactName = $product['name'];
+
+                    if (array_key_exists('attributes_small', $product) && $product['attributes_small'] != '') {
+                        $tmpName = array_reverse(explode(', ', $product['attributes_small']));
+                        $exactName .= ': ' . implode(' ', $tmpName);
+                    }                    
+
+                    $pm->addCartItem($exactName);
+                }
+                
+                $pm->setOrder(array(
+                    'email' => $order['customer']->email,
+                    'orderId' => $order['order']->id
+                ));
+
+                $pm->send();
+                return true;
+            } catch (Exception $e) {
+                echo 'Error: ' . $e->getMessage();
+            }
+        }
+
+        return false;
     }
 
     public static function getLogLite() {

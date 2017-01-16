@@ -42,6 +42,12 @@ $_MODULE['<{mergado}prestashop>adminmergadocontroller_3dc562578553be986288115900
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_ba079b9220a1367c37c6167075732f47'] = 'Zboží.cz měření konverzí';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_ed704e0bb1ab417303ad08e90c25f183'] = 'Zboží.cz shop ID';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_952bf87c967660b7bbd4e1eb08cefc92'] = 'Tajný klíč';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_dbf92ee115625d1a6fa8cef35b1f1430'] = 'Najnakup.sk';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_57511ae20c161b38cbc5e09829e2669b'] = 'Najnakup sledování konverzí';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_3a728b4fa5a2afa15f992ec176fdfc2f'] = 'Najnakup ID obchodu';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_d7f4f0aaec8534b4e7a8100ff9b8d227'] = 'Pricemania';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_f6a0dd07c1e8850a673c2341e791188e'] = 'Ověřený obchod';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_63a1adbf8853960d20d0ec5bf3ad0bf1'] = 'Pricemania ID obchodu';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_1e0c6d8cb48842c930315413ca402e17'] = 'Sklik';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_9e7ce6546c82e3a74dbdd4d9c8e4aab8'] = 'Sklik sledovat konverze';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_bccef3bb2d1c878595184a3faeb706e0'] = 'Sklik konverzní kód';
