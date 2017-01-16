@@ -323,7 +323,7 @@ class ZboziKonverze
      */
     protected function sendRequest($url)
     {
-        $encoded_json = Tools::json_encode(get_object_vars($this));
+        $encoded_json = Tools::jsonEncode(get_object_vars($this));
 
         // use key 'http' even if you send the request to https://...
         $options = array(
@@ -340,7 +340,7 @@ class ZboziKonverze
             throw new Exception('Unable to establish connection to ZboziKonverze service');
         }
 
-        $decoded_response = Tools::json_decode($response, true);
+        $decoded_response = Tools::jsonDecode($response, true);
         if ($decoded_response['status'] == 200) {
             return true;
         } else {

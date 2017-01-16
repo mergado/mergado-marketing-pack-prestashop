@@ -124,13 +124,6 @@ id=%ORDER_ID%&email=%EMAIL%%PRODUKTY%';
         if ($response === false) {
             throw new Exception('Unable to establish connection to service');
         }
-
-        $decoded_response = Tools::json_decode($response, true);
-        if ($decoded_response['status'] == 200) {
-            return true;
-        } else {
-            throw new Exception('Request was not accepted.');
-        }
     }
    
     /**
