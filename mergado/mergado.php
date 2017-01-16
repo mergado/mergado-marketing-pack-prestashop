@@ -272,8 +272,9 @@ class Mergado extends Module {
         }
 
         $zboziSent = $mergado->sendZboziKonverze($params, 'cs');
+        $pricemaniaSent = $mergado->sendPricemaniaOverenyObchod($params, 'sk');
         $najNakupSent = $mergado->sendNajnakupValuation($params, 'sk');
-        MergadoClass::log("Validate order:\n" . json_encode(array('verifiedCz' => $verifiedCz, 'verifiedSk' => $verifiedSk, 'conversionSent_Zbozi' => $zboziSent, 'conversionSent_NajNakup' => $najNakupSent)) . "\n");
+        MergadoClass::log("Validate order:\n" . json_encode(array('verifiedCz' => $verifiedCz, 'verifiedSk' => $verifiedSk, 'conversionSent_Zbozi' => $zboziSent, 'conversionSent_NajNakup' => $najNakupSent, 'conversionSent_Pricemania' => $pricemaniaSent)) . "\n");
     }
 
     public function hookOrderConfirmation($params) {

@@ -62,11 +62,7 @@ id=%ORDER_ID%&email=%EMAIL%%PRODUKTY%';
      */
     public function __construct($shopId)
     {
-        if ($this::isNullOrEmptyString($shopId)) {
-            throw new Exception('shopId si mandatory');
-        } else {
-            $this->shopId = $shopId;
-        }
+        $this->shopId = $shopId;
     }
 
     /**
@@ -144,17 +140,16 @@ id=%ORDER_ID%&email=%EMAIL%%PRODUKTY%';
      */
     public function send()
     {
-        $url = str_replace('%SHOP_ID%', $this->shopId, BASE_URL);
+        $url = str_replace('%SHOP_ID%', $this->shopId, self::BASE_URL);
         $url = str_replace('%ORDER_ID%', $this->orderId, $url);
         $url = str_replace('%EMAIL%', $this->email, $url);
 
         $produktyParam = "";
-        foreach ($this->produkt as $key => $value) {
+        foreach ($this->produkty as $key => $value) {
             $produktyParam .= '&produkt=' . $value;
         }
 
-        $url = str_replace('%PRODUKTY%', produktyParam, $url);
-
+        $url = str_replace('%PRODUKTY%', $produktyParam, $url);
         
         try {
             $status = $this->sendRequest($url);

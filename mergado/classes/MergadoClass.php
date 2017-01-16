@@ -812,7 +812,7 @@ class MergadoClass extends ObjectModel {
         $id = self::getSettings('mergado_zbozi_shop_id');
         $secret = self::getSettings('mergado_zbozi_secret');
 
-        if ($active['value'] === '1') {
+        if ($active === '1') {
             try {
                 $zbozi = new ZboziKonverze($id['value'], $secret['value']);
 
@@ -871,10 +871,11 @@ class MergadoClass extends ObjectModel {
         $active = self::getSettings('mergado_najnakup_konverze');
         $id = self::getSettings('mergado_najnakup_shop_id');
 
-        if ($active['value'] === '1') {
+        if ($active === '1') {
 
             try {
                 $najNakup = new \Mergado\NajNakup\NajNakup();
+
                 $cart = new Cart($order['cart']->id, LanguageCore::getIdByIso($lang));
                 $products = $cart->getProducts();
 
@@ -886,7 +887,7 @@ class MergadoClass extends ObjectModel {
                     $najNakup->addProduct($pid);
                 }
 
-                return $najnakup->sendNewOrder($id, $order['customer']->email, $order['order']->id);
+                return $najNakup->sendNewOrder($id, $order['customer']->email, $order['order']->id);
             } catch (Exception $e) {
                 return $e->getMessage();
             }
@@ -896,8 +897,8 @@ class MergadoClass extends ObjectModel {
     public function sendPricemaniaOverenyObchod($order, $lang) {
         $active = self::getSettings('mergado_pricemania_overeny_obchod');
         $id = self::getSettings('mergado_pricemania_shop_id');
-
-        if ($active['value'] === '1') {
+        
+        if ($active === '1') {
             try {
                 $pm = new Pricemania($id);
                 $cart = new Cart($order['cart']->id, LanguageCore::getIdByIso($lang));
@@ -911,7 +912,7 @@ class MergadoClass extends ObjectModel {
                         $exactName .= ': ' . implode(' ', $tmpName);
                     }                    
 
-                    $pm->addCartItem($exactName);
+                    $pm->addProduct($exactName);
                 }
                 
                 $pm->setOrder(array(
