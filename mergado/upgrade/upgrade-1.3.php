@@ -22,7 +22,7 @@ if (!defined('_PS_VERSION_')) {
  * usefull when you modify your database, or register a new hook ...
  * Don't forget to create one file per version.
  */
-function upgrade_module_1_3_0($module) {
+function upgrade_module_1_3($module) {
     
     $module->uninstallOverrides();
     $module->installOverrides();
