@@ -45,25 +45,30 @@ class MergadoClass extends ObjectModel {
 
     public function generateMergadoFeed($feedBase) {
 
-        if ($feedBase == 'stock') {
-            $feedBase .= '_' . Tools::getAdminTokenLite('AdminModules');
-            $xml = $this->generateStockXML($stockData, $feedBase);
-            MergadoClass::log("Stock feed generated\n");
+        try{            
+            if ($feedBase == 'stock') {
+                $feedBase .= '_' . Tools::getAdminTokenLite('AdminModules');
+                $xml = $this->generateStockXML($stockData, $feedBase);
+                MergadoClass::log("Stock feed generated\n");
 
-            return $xml;
-        } else {
-            $base = explode('-', str_replace(self::$feedPrefix, '', $feedBase));
-            $feedBase = $feedBase . '_' .
-                    Tools::substr(hash('md5', $base[0] . '-' . $base[1] . Configuration::get('PS_SHOP_NAME')), 1, 11);
-            $this->language = $this->language->getLanguageByIETFCode($this->language->getLanguageCodeByIso($base[0]));
-            $this->currency = new Currency($this->currency->getIdByIsoCode($base[1]));
+                return $xml;
+            } else {
+                $base = explode('-', str_replace(self::$feedPrefix, '', $feedBase));
+                $feedBase = $feedBase . '_' .
+                        Tools::substr(hash('md5', $base[0] . '-' . $base[1] . Configuration::get('PS_SHOP_NAME')), 1, 11);
+                $this->language = $this->language->getLanguageByIETFCode($this->language->getLanguageCodeByIso($base[0]));
+                $this->currency = new Currency($this->currency->getIdByIsoCode($base[1]));
 
-            $products = $this->productsToFlat(false, $this->language->id);
-            $xml = $this->generateXML($products, $feedBase, $this->currency);
+                $products = $this->productsToFlat(false, $this->language->id);
+                $xml = $this->generateXML($products, $feedBase, $this->currency);
 
-            MergadoClass::log("Mergado feed generated:\n" . $feedBase);
+                MergadoClass::log("Mergado feed generated:\n" . $feedBase);
 
-            return $xml;
+                return $xml;
+            }
+        }catch(Exception $e){
+            MergadoClass::log("Mergado feed generate ERROR:\n" . $e->getMessage());
+            return false;
         }
     }
 

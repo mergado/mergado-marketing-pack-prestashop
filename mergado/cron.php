@@ -40,7 +40,9 @@ require_once _PS_MODULE_DIR_.'mergado/classes/MergadoClass.php';
 
 $mergado = new MergadoClass();
 if ($mergado->generateMergadoFeed($feed)) {
-    die('OK');
+    echo '<div style="height: 16px; width: 16px; border-radius: 100%; background: green;display:inline-block;margin-right:4px;"></div> feed generated';
+    die();
 } else {
-    die('ERROR');
+    echo '<div style="height: 16px; width: 16px; border-radius: 100%; background: red;display:inline-block;margin-right:4px;"></div> error occured';
+    die();
 }
