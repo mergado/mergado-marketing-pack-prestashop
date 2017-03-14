@@ -13,7 +13,7 @@
  *  @license   LICENSE.txt
  */
 
-class CartItem
+class MergadoCartItem
 {
     /**
      * Item name.

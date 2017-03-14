@@ -2,7 +2,7 @@
 
 namespace Mergado\NajNakup;
 
-class NajNakup {
+class MergadoNajNakup {
 
     private $products = array();
 

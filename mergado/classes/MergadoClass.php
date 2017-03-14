@@ -13,9 +13,9 @@
  *  @copyright 2016 Mergado technologies, s. r. o.
  *  @license   LICENSE.txt
  */
-require_once _PS_MODULE_DIR_ . 'mergado/classes/ZboziKonverze.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/NajNakup.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/Pricemania.php';
+require_once _PS_MODULE_DIR_ . 'mergado/classes/MergadoZboziKonverze.php';
+require_once _PS_MODULE_DIR_ . 'mergado/classes/MergadoNajNakup.php';
+require_once _PS_MODULE_DIR_ . 'mergado/classes/MergadoPricemania.php';
 
 class MergadoClass extends ObjectModel {
 
@@ -879,7 +879,7 @@ class MergadoClass extends ObjectModel {
         if ($active === '1') {
 
             try {
-                $najNakup = new \Mergado\NajNakup\NajNakup();
+                $najNakup = new \Mergado\NajNakup\MergadoNajNakup();
 
                 $cart = new Cart($order['cart']->id, LanguageCore::getIdByIso($lang));
                 $products = $cart->getProducts();

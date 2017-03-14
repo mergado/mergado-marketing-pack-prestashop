@@ -61,7 +61,7 @@
  *
  * @author Zbozi.cz <zbozi@firma.seznam.cz>
  */
-require_once _PS_MODULE_DIR_.'mergado/classes/CartItem.php';
+require_once _PS_MODULE_DIR_.'mergado/classes/MergadoCartItem.php';
 
 class ZboziKonverze
 {
@@ -231,7 +231,7 @@ class ZboziKonverze
      */
     public function addProduct($productName)
     {
-        $item = new CartItem();
+        $item = new MergadoCartItem();
         $item->productName = $productName;
         $this->cart[] = $item;
     }
@@ -243,7 +243,7 @@ class ZboziKonverze
      */
     public function addProductItemId($itemId)
     {
-        $item = new CartItem();
+        $item = new MergadoCartItem();
         $item->itemId = $itemId;
         $this->cart[] = $item;
     }
@@ -259,7 +259,7 @@ class ZboziKonverze
      */
     public function addCartItem($cartItem)
     {
-        $item = new CartItem();
+        $item = new MergadoCartItem();
         if (array_key_exists('productName', $cartItem)) {
             $item->productName = $cartItem['productName'];
         }
