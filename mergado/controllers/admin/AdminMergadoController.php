@@ -63,8 +63,9 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Enable log'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
+                    'class' => 'switch15',
                     'desc' => $this->l('Send this to support:') . " " . MergadoClass::getLogLite(),
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
                     'values' => array(
                         array(
                             'id' => 'mergado_dev_log_on',
@@ -84,7 +85,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'name' => 'mergado_del_log',
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'class' => 'switch15',
                     'values' => array(
                         array(
                             'id' => 'mergado_del_log_on',
@@ -100,7 +102,8 @@ class AdminMergadoController extends ModuleAdminController {
                 ),
             ),
             'submit' => array(
-                'title' => $this->l('Save')
+                'title' => $this->l('Save'),
+                'name' => 'submit'.$this->name
             )
         );
 
@@ -129,18 +132,29 @@ class AdminMergadoController extends ModuleAdminController {
         $helper->show_toolbar = true;
         $helper->toolbar_scroll = true;
         $helper->submit_action = 'submit' . $this->name;
-        $helper->toolbar_btn = array(
-            'save' =>
-            array(
-                'desc' => $this->l('Save'),
-                'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
-                '&token=' . Tools::getAdminTokenLite('AdminModules'),
-            ),
-            'back' => array(
-                'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                'desc' => $this->l('Back to list')
-            )
-        );
+
+        if(version_compare(_PS_VERSION_, '1.6')<0){
+            $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
+            $helper->submit_action =  'save' . $this->name;
+            $helper->token = Tools::getValue('token');
+        }
+
+        if(version_compare(_PS_VERSION_, '1.6')<0){
+           
+        }else{
+            $helper->toolbar_btn = array(
+                'save' =>
+                array(
+                    'desc' => $this->l('Save'),
+                    'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
+                    '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                ),
+                'back' => array(
+                    'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                    'desc' => $this->l('Back to list')
+                )
+            );
+        }
 
         return $helper->generateForm($fields_form);
     }
@@ -174,7 +188,8 @@ class AdminMergadoController extends ModuleAdminController {
                         'name' => MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'],
                         'validation' => 'isBool',
                         'cast' => 'intval',
-                        'type' => 'switch',
+                        'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                        'class' => 'switch15',
                         'is_bool' => true,
                         'values' => array(
                             array(
@@ -207,7 +222,8 @@ class AdminMergadoController extends ModuleAdminController {
             ),
             'input' => $feedLang,
             'submit' => array(
-                'title' => $this->l('Save')
+                'title' => $this->l('Save'),
+                'name' => 'submit'.$this->name
             )
         );
 
@@ -244,7 +260,8 @@ class AdminMergadoController extends ModuleAdminController {
                 )
             ),
             'submit' => array(
-                'title' => $this->l('Save')
+                'title' => $this->l('Save'),
+                'name' => 'submit' . $this->name
             )
         );
 
@@ -277,19 +294,30 @@ class AdminMergadoController extends ModuleAdminController {
         $helper->show_toolbar = true;
         $helper->toolbar_scroll = true;
         $helper->submit_action = 'submit' . $this->name;
-        $helper->toolbar_btn = array(
-            'save' =>
-            array(
-                'desc' => $this->l('Save'),
-                'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
-                '&token=' . Tools::getAdminTokenLite('AdminModules'),
-            ),
-            'back' => array(
-                'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                'desc' => $this->l('Back to list')
-            )
-        );
 
+        if(version_compare(_PS_VERSION_, '1.6')<0){
+            $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
+            $helper->submit_action =  'save' . $this->name;
+            $helper->token = Tools::getValue('token');
+        }
+        
+        if(version_compare(_PS_VERSION_, '1.6')<0){
+           
+        }else{
+            $helper->toolbar_btn = array(
+                'save' =>
+                array(
+                    'desc' => $this->l('Save'),
+                    'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
+                    '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                ),
+                'back' => array(
+                    'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                    'desc' => $this->l('Back to list')
+                )
+            );
+        }
+        
         return $helper->generateForm($fields_form);
     }
 
@@ -310,7 +338,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Heureka.cz verified by users'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'class' => 'switch15',
                     'values' => array(
                         array(
                             'id' => 'mergado_heureka_overeno_zakazniky_cz_on',
@@ -336,7 +365,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Heureka.sk verified by users'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'class' => 'switch15',
                     'values' => array(
                         array(
                             'id' => 'mergado_heureka_overeno_zakazniky_sk_on',
@@ -362,7 +392,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Heureka.cz track conversions'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'class' => 'switch15',
                     'values' => array(
                         array(
                             'id' => 'mergado_heureka_konverze_cz_on',
@@ -388,7 +419,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Heureka.sk track conversions'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'class' => 'switch15',
                     'values' => array(
                         array(
                             'id' => 'mergado_heureka_konverze_sk_on',
@@ -415,7 +447,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'hint' => $this->l('You need conversion code to enable this feature'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'class' => 'switch15',
                     'values' => array(
                         array(
                             'id' => 'mergado_heureka_widget_cz_on',
@@ -436,7 +469,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'hint' => $this->l('You need conversion code to enable this feature'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'class' => 'switch15',
                     'values' => array(
                         array(
                             'id' => 'mergado_heureka_widget_sk_on',
@@ -456,7 +490,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Heureka stock feed'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'class' => 'switch15',
                     'values' => array(
                         array(
                             'id' => 'mergado_heureka_dostupnostni_feed_on',
@@ -472,7 +507,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'visibility' => Shop::CONTEXT_ALL
                 ),
                 'submit' => array(
-                    'title' => $this->l('Save')
+                    'title' => $this->l('Save'),
+                    'name' => 'submit'.$this->name
                 )
         ));
 
@@ -487,7 +523,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Zbozi track conversions'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'class' => 'switch15',
                     'values' => array(
                         array(
                             'id' => 'mergado_zbozi_konverze_on',
@@ -515,7 +552,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'visibility' => Shop::CONTEXT_ALL,
                 ),
                 'submit' => array(
-                    'title' => $this->l('Save')
+                    'title' => $this->l('Save'),
+                    'name' => 'submit'.$this->name
                 )
         ));
         
@@ -530,7 +568,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Najnakup track conversions'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'class' => 'switch15',
                     'values' => array(
                         array(
                             'id' => 'mergado_najnakup_konverze_on',
@@ -552,7 +591,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'visibility' => Shop::CONTEXT_ALL,
                 ),
                 'submit' => array(
-                    'title' => $this->l('Save')
+                    'title' => $this->l('Save'),
+                    'name' => 'submit'.$this->name
                 )
         ));
 
@@ -567,7 +607,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Overeny obchod'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'class' => 'switch15',
                     'values' => array(
                         array(
                             'id' => 'mergado_pricemania_overeny_obchod_on',
@@ -589,7 +630,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'visibility' => Shop::CONTEXT_ALL,
                 ),
                 'submit' => array(
-                    'title' => $this->l('Save')
+                    'title' => $this->l('Save'),
+                    'name' => 'submit'.$this->name
                 )
         ));
 
@@ -604,7 +646,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Sklik track conversions'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'class' => 'switch15',
                     'values' => array(
                         array(
                             'id' => 'mergado_sklik_konverze_on',
@@ -633,7 +676,8 @@ class AdminMergadoController extends ModuleAdminController {
                 )
                 ,
                 'submit' => array(
-                    'title' => $this->l('Save')
+                    'title' => $this->l('Save'),
+                    'name' => 'submit'.$this->name
                 )
         ));
 
@@ -648,7 +692,8 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Adwords conversions'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => 'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'class' => 'switch15',
                     'values' => array(
                         array(
                             'id' => 'mergado_adwords_conversion_on',
@@ -677,7 +722,8 @@ class AdminMergadoController extends ModuleAdminController {
                 ),
             ),
             'submit' => array(
-                'title' => $this->l('Save')
+                'title' => $this->l('Save'),
+                'name' => 'submit'.$this->name
             )
         );
 
@@ -722,18 +768,28 @@ class AdminMergadoController extends ModuleAdminController {
         $helper->show_toolbar = true;
         $helper->toolbar_scroll = true;
         $helper->submit_action = 'submit' . $this->name;
-        $helper->toolbar_btn = array(
-            'save' =>
-            array(
-                'desc' => $this->l('Save'),
-                'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
-                '&token=' . Tools::getAdminTokenLite('AdminModules'),
-            ),
-            'back' => array(
-                'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                'desc' => $this->l('Back to list')
-            )
-        );
+        if(version_compare(_PS_VERSION_, '1.6')<0){
+            $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
+            $helper->submit_action =  'save' . $this->name;
+            $helper->token = Tools::getValue('token');
+        }
+
+        if(version_compare(_PS_VERSION_, '1.6')<0){
+           
+        }else{
+            $helper->toolbar_btn = array(
+                'save' =>
+                array(
+                    'desc' => $this->l('Save'),
+                    'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
+                    '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                ),
+                'back' => array(
+                    'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                    'desc' => $this->l('Back to list')
+                )
+            );
+        }
 
         return $helper->generateForm($fields_form);
     }
@@ -842,6 +898,7 @@ class AdminMergadoController extends ModuleAdminController {
             foreach ($_POST as $key => $value) {
                 $this->saveData($key, $value);
             }
+
 
             $this->redirect_after = self::$currentIndex . '&token=' . $this->token . (Tools::isSubmit('submitFilter' . $this->list_id) ? '&submitFilter' . $this->list_id . '=' . (int) Tools::getValue('submitFilter' . $this->list_id) : '') . '&mergadoTab=' . $_POST['page'];
         }

@@ -136,3 +136,15 @@
 #mergadoController textarea{
     min-height: 120px;
 }
+
+label.switch15{
+    width: auto;
+    float: none;
+    margin-right: 15px;
+}
+
+#mergadoController .toolbarBox{
+    opacity: 0;
+    overflow: hidden;
+    height: 20px;
+}
