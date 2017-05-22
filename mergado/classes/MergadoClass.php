@@ -44,8 +44,11 @@ class MergadoClass extends ObjectModel {
     }
 
     public function generateMergadoFeed($feedBase) {
+        $products = array();
 
-        try{            
+        try {
+            $products = $this->productsToFlat(false, $this->language->id);
+
             if ($feedBase == 'stock') {
                 $feedBase .= '_' . Tools::getAdminTokenLite('AdminModules');
                 $xml = $this->generateStockXML($stockData, $feedBase);
@@ -61,12 +64,17 @@ class MergadoClass extends ObjectModel {
 
                 $products = $this->productsToFlat(false, $this->language->id);
                 $xml = $this->generateXML($products, $feedBase, $this->currency);
-
                 MergadoClass::log("Mergado feed generated:\n" . $feedBase);
+
+                if (MergadoClass::getSettings('static_feed') === "1") {
+                    $staticProducts = $this->productsToFlat(false, intval(Configuration::get('PS_LANG_DEFAULT')));
+                    $xml = $this->generateStaticXML($staticProducts);
+                    MergadoClass::log("Mergado static feed generated");
+                }
 
                 return $xml;
             }
-        }catch(Exception $e){
+        } catch (Exception $e) {
             MergadoClass::log("Mergado feed generate ERROR:\n" . $e->getMessage());
             return false;
         }
@@ -316,6 +324,57 @@ class MergadoClass extends ObjectModel {
         return true;
     }
 
+    public function generateStaticXML($products) {
+        $out = _PS_MODULE_DIR_ . 'mergado/tmp/static_feed.xml';
+        $storage = _PS_MODULE_DIR_ . 'mergado/xml/static_feed.xml';
+
+        $xml_new = new XMLWriter();
+        $xml_new->openURI($out);
+        $xml_new->startDocument('1.0', 'UTF-8');
+        $xml_new->startElement('PRODUCTS');
+
+        $xml_new->startElement('DATE');
+        $xml_new->text(date('d-m-Y'));
+        $xml_new->endElement();
+
+        foreach ($products as $product) {
+
+            // START ITEM
+            $xml_new->startElement('ITEM');
+
+            // Product ID
+            $xml_new->startElement('ITEM_ID');
+            $xml_new->text($product['item_id']);
+            $xml_new->endElement();
+
+            // Product price
+            $xml_new->startElement('MERGADO_COST');
+            $xml_new->text($product['wholesale_price']);
+            $xml_new->endElement();
+
+
+            // END ITEM
+            $xml_new->endElement();
+        }
+
+        $xml_new->endElement();
+        $xml_new->endDocument();
+        $xml_new->flush();
+
+        unset($xml_new);
+
+        if (!copy($out, $storage)) {
+            @unlink($out);
+            @unlink($storage);
+
+            return false;
+        } else {
+            unlink($out);
+        }
+
+        return true;
+    }
+
     public function productsToFlat($productId = false, $lang = false) {
         $flatProductList = array();
         $productsList = array();
@@ -443,7 +502,6 @@ class MergadoClass extends ObjectModel {
             $whenOutOfStock = Configuration::get('PS_ORDER_OUT_OF_STOCK');
         }
 
-
         if (!empty($combinations)) {
             foreach ($combinations as $combination) {
                 $qty = ProductCore::getQuantity(
@@ -467,6 +525,7 @@ class MergadoClass extends ObjectModel {
                 foreach ($imagesList as $img) {
                     $images[] = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
                             $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
+
                     if ($img['cover'] != null) {
                         $mainImage = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
                                 $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
@@ -474,9 +533,10 @@ class MergadoClass extends ObjectModel {
                 }
 
                 $specific_price = null;
+
                 $price_vat = Product::priceCalculation($context->shop->id, // ID shop
                                 $combination['id_product'], // ID Product
-                                $id_attribute['id_product_attribute'], // ID Product atribut                                              
+                                $combination['id_product_attribute'], // ID Product atribut                                              
                                 $id_country, // ID Country
                                 0, // ID State
                                 0, // ZIP Code
@@ -497,7 +557,7 @@ class MergadoClass extends ObjectModel {
 
                 $price_novat = Product::priceCalculation($context->shop->id, // ID shop
                                 $combination['id_product'], // ID Product
-                                $id_attribute['id_product_attribute'], // ID Product atribut                                              
+                                $combination['id_product_attribute'], // ID Product atribut                                              
                                 $id_country, // ID Country
                                 0, // ID State
                                 0, // ZIP Code
@@ -536,6 +596,7 @@ class MergadoClass extends ObjectModel {
                 }
 
                 $price = ToolsCore::convertPriceFull($price, $this->defaultCurrency, $this->currency);
+                $images = array_diff($images, array($mainImage));
 
                 $productBase[] = array(
                     'item_id' => $combination['id_product'] . '-' . $combination['id_product_attribute'],
@@ -561,6 +622,7 @@ class MergadoClass extends ObjectModel {
                     ),
                     'price' => Tools::ps_round($price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
+                    'wholesale_price' => $combination['wholesale_price'] != 0 ? $combination['wholesale_price'] : $item->wholesale_price,
                     'shipping_size' => $item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' .
                     Configuration::get('PS_DIMENSION_UNIT'),
                     'shipping_weight' => ($item->weight + $combination['weight']) . ' ' .
@@ -631,6 +693,8 @@ class MergadoClass extends ObjectModel {
                                 0, // ID Cart
                                 0);
 
+                $images = array_diff($images, array($mainImage));
+
                 $productBase = array(
                     'item_id' => $item->id,
                     'itemgroup_id' => $itemgroupBase,
@@ -651,6 +715,7 @@ class MergadoClass extends ObjectModel {
                     'url' => $link->getProductLink($item, null, $defaultCategory->name, null, $lang, null),
                     'price' => Tools::ps_round($price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
+                    'wholesale_price' => $item->wholesale_price,
                     'shipping_size' => $item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' .
                     Configuration::get('PS_DIMENSION_UNIT'),
                     'shipping_weight' => $item->weight . ' ' . Configuration::get('PS_WEIGHT_UNIT'),
@@ -672,6 +737,7 @@ class MergadoClass extends ObjectModel {
         if (is_array($combinations) && count($combinations) > 0) {
             if (is_array($combinations)) {
                 foreach ($combinations as $combination) {
+
                     $comb_array[$combination['id_product_attribute']]['id_product_attribute'] = $combination['id_product_attribute'];
                     $comb_array[$combination['id_product_attribute']]['unit_price_impact'] = $combination['unit_price_impact'];
                     $comb_array[$combination['id_product_attribute']]['price'] = $combination['price'];
@@ -682,6 +748,7 @@ class MergadoClass extends ObjectModel {
                     $comb_array[$combination['id_product_attribute']]['weight'] = $combination['weight'];
                     $comb_array[$combination['id_product_attribute']]['reference'] = $combination['reference'];
                     $comb_array[$combination['id_product_attribute']]['id_shop'] = $combination['id_shop'];
+                    $comb_array[$combination['id_product_attribute']]['wholesale_price'] = $combination['wholesale_price'];
                     $comb_array[$combination['id_product_attribute']]['attributes'][] = array(
                         $combination['group_name'],
                         $combination['attribute_name'],
@@ -724,6 +791,7 @@ class MergadoClass extends ObjectModel {
                         'weight' => $comb_array[$id_product_attribute]['weight'],
                         'unit_price_impact' => $comb_array[$id_product_attribute]['unit_price_impact'],
                         'minimal_quantity' => $comb_array[$id_product_attribute]['minimal_quantity'],
+                        'wholesale_price' => $comb_array[$id_product_attribute]['wholesale_price'],
                         'id_shop' => $comb_array[$id_product_attribute]['id_shop'],
                         'attrs' => $attrs
                     );
@@ -902,7 +970,7 @@ class MergadoClass extends ObjectModel {
     public function sendPricemaniaOverenyObchod($order, $lang) {
         $active = self::getSettings('mergado_pricemania_overeny_obchod');
         $id = self::getSettings('mergado_pricemania_shop_id');
-        
+
         if ($active === '1') {
             try {
                 $pm = new Pricemania($id);
@@ -915,11 +983,11 @@ class MergadoClass extends ObjectModel {
                     if (array_key_exists('attributes_small', $product) && $product['attributes_small'] != '') {
                         $tmpName = array_reverse(explode(', ', $product['attributes_small']));
                         $exactName .= ': ' . implode(' ', $tmpName);
-                    }                    
+                    }
 
                     $pm->addProduct($exactName);
                 }
-                
+
                 $pm->setOrder(array(
                     'email' => $order['customer']->email,
                     'orderId' => $order['order']->id

@@ -34,13 +34,18 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {foreach from=$crons item=cron}
+                        {foreach from=$crons item=cron name=cronEach}
                             <tr>
                                 <th>
                                     {$cron['name']|escape:'htmlall':'UTF-8'}
+                                    {if $smarty.foreach.cronEach.first && $staticFeed == "1"}
+                                        + {l s='Mergado static XML' mod='mergado'}
+                                    {/if}
                                 </th>
                                 <td>
-                                    <a href="{$cron['url']|escape:'htmlall':'UTF-8'}" title="{$cron['name']|escape:'htmlall':'UTF-8'}">{$cron['url']|escape:'htmlall':'UTF-8'}</a>
+                                    <a href="{$cron['url']|escape:'htmlall':'UTF-8'}" title="{$cron['name']|escape:'htmlall':'UTF-8'}">
+                                        {$cron['url']|escape:'htmlall':'UTF-8'}
+                                    </a>
                                 </td>
                             </tr>
                         {/foreach}
@@ -106,7 +111,7 @@
             {l s='Do not hesitate to contact us on' mod='mergado'} <a href='mailto:prestashop@mergado.cz'>prestashop@mergado.cz</a> {l s='in case of any question.' mod='mergado'}
         </div>
     </div>
-        
+
     {$tab4}
 </div>
 <div class='mergado-tab' data-tab='5'>

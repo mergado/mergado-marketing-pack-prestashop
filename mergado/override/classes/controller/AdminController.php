@@ -51,8 +51,12 @@ class AdminController extends AdminControllerCore {
             $mName = 'mergado';
         }
 
-        if ($mName == 'mergado' && file_exists(_PS_MODULE_DIR_ . $mName . '/' . $mName . '.php')) {
+        $checkRequest = Tools::getValue('check');
+        if ($checkRequest && $checkRequest == '1') {
+            $mName = 'mergado';
+        }
 
+        if ($mName == 'mergado' && file_exists(_PS_MODULE_DIR_ . $mName . '/' . $mName . '.php')) {
             require_once(_PS_MODULE_DIR_ . $mName . '/' . $mName . '.php');
             $mergado = new Mergado();
             $tryUpdate = $mergado->updateModule();

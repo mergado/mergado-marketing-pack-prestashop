@@ -41,8 +41,8 @@ class AdminMergadoController extends ModuleAdminController {
         }
 
         parent::__construct();
-        
-        if(!Configuration::get('MERGADO_LOG_TOKEN')){
+
+        if (!Configuration::get('MERGADO_LOG_TOKEN')) {
             Configuration::updateValue('MERGADO_LOG_TOKEN', Tools::getAdminTokenLite('AdminMergadoLog'));
         }
     }
@@ -65,7 +65,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'cast' => 'intval',
                     'class' => 'switch15',
                     'desc' => $this->l('Send this to support:') . " " . MergadoClass::getLogLite(),
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'values' => array(
                         array(
                             'id' => 'mergado_dev_log_on',
@@ -85,7 +85,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'name' => 'mergado_del_log',
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'class' => 'switch15',
                     'values' => array(
                         array(
@@ -103,7 +103,7 @@ class AdminMergadoController extends ModuleAdminController {
             ),
             'submit' => array(
                 'title' => $this->l('Save'),
-                'name' => 'submit'.$this->name
+                'name' => 'submit' . $this->name
             )
         );
 
@@ -133,15 +133,15 @@ class AdminMergadoController extends ModuleAdminController {
         $helper->toolbar_scroll = true;
         $helper->submit_action = 'submit' . $this->name;
 
-        if(version_compare(_PS_VERSION_, '1.6')<0){
+        if (version_compare(_PS_VERSION_, '1.6') < 0) {
             $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
-            $helper->submit_action =  'save' . $this->name;
+            $helper->submit_action = 'save' . $this->name;
             $helper->token = Tools::getValue('token');
         }
 
-        if(version_compare(_PS_VERSION_, '1.6')<0){
-           
-        }else{
+        if (version_compare(_PS_VERSION_, '1.6') < 0) {
+            
+        } else {
             $helper->toolbar_btn = array(
                 'save' =>
                 array(
@@ -188,7 +188,7 @@ class AdminMergadoController extends ModuleAdminController {
                         'name' => MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'],
                         'validation' => 'isBool',
                         'cast' => 'intval',
-                        'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                        'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                         'class' => 'switch15',
                         'is_bool' => true,
                         'values' => array(
@@ -223,11 +223,46 @@ class AdminMergadoController extends ModuleAdminController {
             'input' => $feedLang,
             'submit' => array(
                 'title' => $this->l('Save'),
-                'name' => 'submit'.$this->name
+                'name' => 'submit' . $this->name
             )
         );
 
         $fields_form[1]['form'] = array(
+            'legend' => array(
+                'title' => $this->l('Mergado static feed'),
+                'icon' => 'icon-flag'
+            ),
+            'input' => array(
+                array(
+                    'label' => $this->l('Export static feed?'),
+                    'name' => 'static_feed',
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
+                    'class' => 'switch15',
+                    'is_bool' => true,
+                    'values' => array(
+                        array(
+                            'id' => 'static_feed_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'static_feed_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL
+                ),
+            ),
+            'submit' => array(
+                'title' => $this->l('Save'),
+                'name' => 'submit' . $this->name
+            )
+        );
+
+        $fields_form[2]['form'] = array(
             'legend' => array(
                 'title' => $this->l('Export settings'),
                 'icon' => 'icon-cogs'
@@ -277,6 +312,7 @@ class AdminMergadoController extends ModuleAdminController {
 
         $fields_value = array(
             'delivery_days' => $this->settingsValues['delivery_days'],
+            'static_feed' => $this->settingsValues['static_feed'],
             'clrCheckboxes' => 1,
             'page' => 1,
         );
@@ -295,15 +331,15 @@ class AdminMergadoController extends ModuleAdminController {
         $helper->toolbar_scroll = true;
         $helper->submit_action = 'submit' . $this->name;
 
-        if(version_compare(_PS_VERSION_, '1.6')<0){
+        if (version_compare(_PS_VERSION_, '1.6') < 0) {
             $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
-            $helper->submit_action =  'save' . $this->name;
+            $helper->submit_action = 'save' . $this->name;
             $helper->token = Tools::getValue('token');
         }
-        
-        if(version_compare(_PS_VERSION_, '1.6')<0){
-           
-        }else{
+
+        if (version_compare(_PS_VERSION_, '1.6') < 0) {
+            
+        } else {
             $helper->toolbar_btn = array(
                 'save' =>
                 array(
@@ -317,7 +353,7 @@ class AdminMergadoController extends ModuleAdminController {
                 )
             );
         }
-        
+
         return $helper->generateForm($fields_form);
     }
 
@@ -338,7 +374,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Heureka.cz verified by users'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'class' => 'switch15',
                     'values' => array(
                         array(
@@ -365,7 +401,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Heureka.sk verified by users'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'class' => 'switch15',
                     'values' => array(
                         array(
@@ -392,7 +428,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Heureka.cz track conversions'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'class' => 'switch15',
                     'values' => array(
                         array(
@@ -419,7 +455,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Heureka.sk track conversions'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'class' => 'switch15',
                     'values' => array(
                         array(
@@ -447,7 +483,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'hint' => $this->l('You need conversion code to enable this feature'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'class' => 'switch15',
                     'values' => array(
                         array(
@@ -469,7 +505,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'hint' => $this->l('You need conversion code to enable this feature'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'class' => 'switch15',
                     'values' => array(
                         array(
@@ -490,7 +526,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Heureka stock feed'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'class' => 'switch15',
                     'values' => array(
                         array(
@@ -508,7 +544,7 @@ class AdminMergadoController extends ModuleAdminController {
                 ),
                 'submit' => array(
                     'title' => $this->l('Save'),
-                    'name' => 'submit'.$this->name
+                    'name' => 'submit' . $this->name
                 )
         ));
 
@@ -523,7 +559,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Zbozi track conversions'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'class' => 'switch15',
                     'values' => array(
                         array(
@@ -553,10 +589,10 @@ class AdminMergadoController extends ModuleAdminController {
                 ),
                 'submit' => array(
                     'title' => $this->l('Save'),
-                    'name' => 'submit'.$this->name
+                    'name' => 'submit' . $this->name
                 )
         ));
-        
+
         $fields_form[2]['form'] = array(
             'legend' => array(
                 'title' => $this->l('Najnakup.sk'),
@@ -568,7 +604,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Najnakup track conversions'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'class' => 'switch15',
                     'values' => array(
                         array(
@@ -592,7 +628,7 @@ class AdminMergadoController extends ModuleAdminController {
                 ),
                 'submit' => array(
                     'title' => $this->l('Save'),
-                    'name' => 'submit'.$this->name
+                    'name' => 'submit' . $this->name
                 )
         ));
 
@@ -607,7 +643,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Overeny obchod'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'class' => 'switch15',
                     'values' => array(
                         array(
@@ -631,7 +667,7 @@ class AdminMergadoController extends ModuleAdminController {
                 ),
                 'submit' => array(
                     'title' => $this->l('Save'),
-                    'name' => 'submit'.$this->name
+                    'name' => 'submit' . $this->name
                 )
         ));
 
@@ -646,7 +682,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Sklik track conversions'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'class' => 'switch15',
                     'values' => array(
                         array(
@@ -673,11 +709,37 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Sklik value'),
                     'type' => 'text',
                     'visibility' => Shop::CONTEXT_ALL,
-                )
-                ,
+                ),
+                array(
+                    'name' => 'seznam_retargeting',
+                    'label' => $this->l('Sklik retargting'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
+                    'class' => 'switch15',
+                    'values' => array(
+                        array(
+                            'id' => 'seznam_retargeting_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'seznam_retargeting_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'seznam_retargeting_id',
+                    'label' => $this->l('Sklik retargeting ID'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
                 'submit' => array(
                     'title' => $this->l('Save'),
-                    'name' => 'submit'.$this->name
+                    'name' => 'submit' . $this->name
                 )
         ));
 
@@ -692,7 +754,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'label' => $this->l('Adwords conversions'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, '1.6')<0) ?'radio' :'switch',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
                     'class' => 'switch15',
                     'values' => array(
                         array(
@@ -720,10 +782,123 @@ class AdminMergadoController extends ModuleAdminController {
                     'type' => 'text',
                     'visibility' => Shop::CONTEXT_ALL,
                 ),
+                array(
+                    'name' => 'adwords_remarketing',
+                    'label' => $this->l('Adwords remarketing'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
+                    'class' => 'switch15',
+                    'values' => array(
+                        array(
+                            'id' => 'adwords_remarketing_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'adwords_remarketing_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'adwords_remarketing_id',
+                    'label' => $this->l('Adwords remarketing ID'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
             ),
             'submit' => array(
                 'title' => $this->l('Save'),
-                'name' => 'submit'.$this->name
+                'name' => 'submit' . $this->name
+            )
+        );
+        
+        $fields_form[6]['form'] = array(
+            'legend' => array(
+                'title' => $this->l('Facebook pixel'),
+                'icon' => 'icon-cogs'
+            ),
+            'input' => array(
+                array(
+                    'name' => 'fb_pixel',
+                    'label' => $this->l('Facebook pixel'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
+                    'class' => 'switch15',
+                    'values' => array(
+                        array(
+                            'id' => 'fb_pixel_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'fb_pixel_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'fb_pixel_code',
+                    'label' => $this->l('Facebook pixel ID'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+            ),
+            'submit' => array(
+                'title' => $this->l('Save'),
+                'name' => 'submit' . $this->name
+            )
+        );
+        
+        $fields_form[7]['form'] = array(
+            'legend' => array(
+                'title' => $this->l('Etarget'),
+                'icon' => 'icon-cogs'
+            ),
+            'input' => array(
+                array(
+                    'name' => 'etarget',
+                    'label' => $this->l('ETARGET'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
+                    'class' => 'switch15',
+                    'values' => array(
+                        array(
+                            'id' => 'etarget_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'etarget_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'etarget_id',
+                    'label' => $this->l('ETARGET ID'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'etarget_hash',
+                    'label' => $this->l('Hash'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+            ),
+            'submit' => array(
+                'title' => $this->l('Save'),
+                'name' => 'submit' . $this->name
             )
         );
 
@@ -752,6 +927,15 @@ class AdminMergadoController extends ModuleAdminController {
             'mergado_najnakup_shop_id' => $this->settingsValues['mergado_najnakup_shop_id'],
             'mergado_pricemania_overeny_obchod' => $this->settingsValues['mergado_pricemania_overeny_obchod'],
             'mergado_pricemania_shop_id' => $this->settingsValues['mergado_pricemania_shop_id'],
+            'fb_pixel' => $this->settingsValues['fb_pixel'],
+            'fb_pixel_code' => $this->settingsValues['fb_pixel_code'],
+            'adwords_remarketing' => $this->settingsValues['adwords_remarketing'],
+            'adwords_remarketing_id' => $this->settingsValues['adwords_remarketing_id'],
+            'seznam_retargeting' => $this->settingsValues['seznam_retargeting'],
+            'seznam_retargeting_id' => $this->settingsValues['seznam_retargeting_id'],
+            'etarget' => $this->settingsValues['etarget'],
+            'etarget_id' => $this->settingsValues['etarget_id'],
+            'etarget_hash' => $this->settingsValues['etarget_hash'],
             'page' => 6,
         );
 
@@ -768,15 +952,15 @@ class AdminMergadoController extends ModuleAdminController {
         $helper->show_toolbar = true;
         $helper->toolbar_scroll = true;
         $helper->submit_action = 'submit' . $this->name;
-        if(version_compare(_PS_VERSION_, '1.6')<0){
+        if (version_compare(_PS_VERSION_, '1.6') < 0) {
             $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
-            $helper->submit_action =  'save' . $this->name;
+            $helper->submit_action = 'save' . $this->name;
             $helper->token = Tools::getValue('token');
         }
 
-        if(version_compare(_PS_VERSION_, '1.6')<0){
-           
-        }else{
+        if (version_compare(_PS_VERSION_, '1.6') < 0) {
+            
+        } else {
             $helper->toolbar_btn = array(
                 'save' =>
                 array(
@@ -842,6 +1026,13 @@ class AdminMergadoController extends ModuleAdminController {
                         'name' => basename($filename),
                         'date' => filemtime($filename),
                     );
+                } else if ($codedName[0] == 'static') {
+                    $xmlList[] = array(
+                        'language' => $this->l('Mergado static feed'),
+                        'url' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . basename($filename),
+                        'name' => basename($filename),
+                        'date' => filemtime($filename),
+                    );
                 } else {
                     $xmlList[] = array(
                         'language' => str_replace(
@@ -876,7 +1067,8 @@ class AdminMergadoController extends ModuleAdminController {
         $this->context->smarty->assign(array(
             'tab1' => $tab1,
             'tab6' => $tab6,
-            'tab4' => $tab4
+            'tab4' => $tab4,
+            'staticFeed' => MergadoClass::getSettings('static_feed')
         ));
     }
 
@@ -926,5 +1118,4 @@ class AdminMergadoController extends ModuleAdminController {
     public function baseUrl() {
         return 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' . Tools::getShopDomain(false, true);
     }
-
 }

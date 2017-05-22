@@ -108,7 +108,7 @@
 {if $sklik == '1' && $sklikCode && $sklikCode != ''}
     <!-- Měřící kód Sklik.cz -->
     <iframe width="119" height="22" frameborder="0" scrolling="no" src="http://out.sklik.cz/conversion?c={$sklikCode}&color=ffffff&v={$sklikValue}"></iframe>
-{/if}
+    {/if}
 
 {if $adwords == '1' && $adwordsCode && $adwordsCode != '' && $adwordsLabel && $adwordsLabel != ''}    
     <script type="text/javascript">
@@ -116,11 +116,11 @@
         /* <![CDATA[ */
         var google_conversion_id = {$adwordsCode};
         var google_conversion_label = "{$adwordsLabel}";
-        
+
         var google_conversion_language = "{$languageCode}";
         var google_conversion_value = {$total};
         var google_conversion_currency = "{$currency->iso_code}";
-        
+
         var google_conversion_format = "1";
         var google_conversion_color = "666666";
         var google_remarketing_only = "false";
@@ -131,4 +131,17 @@
     <img height=1 width=1 border=0 
          src="//www.googleadservices.com/pagead/conversion/{$adwordsCode}/?value={$total}&amp;currency_code={$currency->iso_code}&amp;label={$adwordsLabel}&amp;guid=ON&amp;script=0">
     </noscript>
+{/if}
+
+{if $fbPixel == 1}
+    <script>
+        $(function () {
+            fbq('track', 'Purchase', {
+                content_ids: [{$fbPixelProducts|json_encode}],
+                content_type: 'product',
+                value: {$total},
+                currency: '{$currency->iso_code}'
+            });
+        });
+    </script>
 {/if}

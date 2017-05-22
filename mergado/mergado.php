@@ -27,7 +27,7 @@ class Mergado extends Module {
     public function __construct() {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.3.3';
+        $this->version = '1.4.0';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
@@ -290,6 +290,7 @@ class Mergado extends Module {
         $adwords = MergadoClass::getSettings('mergado_adwords_conversion');
         $adwordsCode = MergadoClass::getSettings('mergado_adwords_conversion_code');
         $adwordsLabel = MergadoClass::getSettings('mergado_adwords_conversion_label');
+        $cart = new CartCore($params['objOrder']->id_cart);
         $cartCz = new CartCore($params['objOrder']->id_cart, LanguageCore::getIdByIso('cs'));
         $cartSk = new CartCore($params['objOrder']->id_cart, LanguageCore::getIdByIso('sk'));
         $heurekaCzProducts = array();
@@ -337,6 +338,14 @@ class Mergado extends Module {
             }
         }
 
+        $fbPixel = MergadoClass::getSettings('fb_pixel');
+        $fbProducts = array();
+        if ($fbPixel) {
+            foreach ($cart->getProducts() as $product) {
+                $fbProducts[] = $product['id_product'];
+            }
+        }
+
         $context = Context::getContext();
 
         $data = array(
@@ -360,24 +369,29 @@ class Mergado extends Module {
             'adwordsLabel' => $adwordsLabel,
             'total' => $params['total_to_pay'],
             'currency' => $params['currencyObj'],
-            'languageCode' => str_replace('-', '_', $context->language->language_code)
+            'languageCode' => str_replace('-', '_', $context->language->language_code),
+            'fbPixel' => $fbPixel,
+            'fbPixelProducts' => $fbProducts,
         );
 
         $this->smarty->assign($data);
 
         MergadoClass::log("Order confirmation:\n" . json_encode($data) . "\n");
-
         return $this->display(__FILE__, '/views/templates/front/tracking.tpl');
     }
 
-    public function hookDisplayFooter() {
+    public function hookDisplayFooter($params) {
 
         global $cookie;
         $iso_code = Language::getIsoById((int) $cookie->id_lang);
         $codeCz = MergadoClass::getSettings('mergado_heureka_widget_cz');
         $codeSk = MergadoClass::getSettings('mergado_heureka_widget_sk');
+        $fbPixel = MergadoClass::getSettings('fb_pixel');
+        $adWordsRemarketing = MergadoClass::getSettings('adwords_remarketing');
+        $sklikRetargeting = MergadoClass::getSettings('seznam_retargeting');
+        $etarget = MergadoClass::getSettings('etarget');
 
-        //MergadoClass::log("Heureka widgety:\n".  json_encode(array('language' => $iso_code, 'codeCz' => $codeCz, 'codeSk' => $codeSk))."\n");
+        $display = "";
 
         if ($iso_code == 'cs' && $codeCz == '1') {
             $conversioncode = MergadoClass::getSettings('mergado_heureka_konverze_cz_kod');
@@ -387,7 +401,7 @@ class Mergado extends Module {
                     'conversionKey' => $conversioncode
                 ));
 
-                return $this->display(__FILE__, '/views/templates/front/heureka_widget_cz.tpl');
+                $display .= $this->display(__FILE__, '/views/templates/front/heureka_widget_cz.tpl');
             }
         }
 
@@ -398,9 +412,62 @@ class Mergado extends Module {
                     'conversionKey' => $conversioncode
                 ));
 
-                return $this->display(__FILE__, '/views/templates/front/heureka_widget_sk.tpl');
+                $display .= $this->display(__FILE__, '/views/templates/front/heureka_widget_sk.tpl');
             }
         }
+
+        if ($fbPixel == '1') {
+            $fbPixelCode = MergadoClass::getSettings('fb_pixel_code');
+
+            if ($fbPixelCode != '') {
+                $this->smarty->assign(array(
+                    'fbPixelCode' => $fbPixelCode,
+                    'searchQuery' => Tools::getValue('search_query'),
+                ));
+
+                $display .= $this->display(__FILE__, '/views/templates/front/fbpixel.tpl');
+            }
+        }
+
+        if ($adWordsRemarketing == '1') {
+            $adWordsRemarketingId = MergadoClass::getSettings('adwords_remarketing_id');
+
+            if ($adWordsRemarketingId != '') {
+                $this->smarty->assign(array(
+                    'adwords_remarketing_id' => $adWordsRemarketingId,
+                ));
+
+                $display .= $this->display(__FILE__, '/views/templates/front/adwords.tpl');
+            }
+        }
+
+        if ($sklikRetargeting == '1') {
+            $sklikRetargetingId = MergadoClass::getSettings('seznam_retargeting_id');
+
+            if ($sklikRetargetingId != '') {
+                $this->smarty->assign(array(
+                    'seznam_retargeting_id' => $sklikRetargetingId,
+                ));
+
+                $display .= $this->display(__FILE__, '/views/templates/front/sklik.tpl');
+            }
+        }
+
+        if ($etarget == '1') {
+            $etargetId = MergadoClass::getSettings('etarget_id');
+            $etargetHash = MergadoClass::getSettings('etarget_hash');
+
+            if ($etargetId != '') {
+                $this->smarty->assign(array(
+                    'etarget_id' => $etargetId,
+                    'etarget_hash' => $etargetHash,
+                ));
+
+                $display .= $this->display(__FILE__, '/views/templates/front/etarget.tpl');
+            }
+        }
+
+        return $display;
     }
 
 }
