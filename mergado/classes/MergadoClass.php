@@ -887,7 +887,7 @@ class MergadoClass extends ObjectModel {
 
         if ($active === '1') {
             try {
-                $zbozi = new ZboziKonverze($id['value'], $secret['value']);
+                $zbozi = new MergadoZboziKonverze($id['value'], $secret['value']);
 
                 // testovací režim
                 // $zbozi->useSandbox(true);

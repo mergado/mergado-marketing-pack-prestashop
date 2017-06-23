@@ -63,7 +63,7 @@
  */
 require_once _PS_MODULE_DIR_.'mergado/classes/MergadoCartItem.php';
 
-class ZboziKonverze
+class MergadoZboziKonverze
 {
     /**
      * Endpoint URL.
