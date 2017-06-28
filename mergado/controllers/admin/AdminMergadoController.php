@@ -50,7 +50,7 @@ class AdminMergadoController extends ModuleAdminController {
     public function formDevelopers() {
         $fields_form[0]['form'] = array(
             'legend' => array(
-                'title' => $this->l('Support help'),
+                'title' => $this->l('Help'),
                 'icon' => 'icon-bug'
             ),
             'input' => array(
@@ -81,7 +81,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'visibility' => Shop::CONTEXT_ALL
                 ),
                 array(
-                    'label' => $this->l('Delete log file on save'),
+                    'label' => $this->l('Delete log file when saving'),
                     'name' => 'mergado_del_log',
                     'validation' => 'isBool',
                     'cast' => 'intval',
@@ -229,12 +229,12 @@ class AdminMergadoController extends ModuleAdminController {
 
         $fields_form[1]['form'] = array(
             'legend' => array(
-                'title' => $this->l('Mergado static feed'),
+                'title' => $this->l('Mergado\'s static feed'),
                 'icon' => 'icon-flag'
             ),
             'input' => array(
                 array(
-                    'label' => $this->l('Export static feed?'),
+                    'label' => $this->l('Export Mergado\'s static feed?'),
                     'name' => 'static_feed',
                     'validation' => 'isBool',
                     'cast' => 'intval',
@@ -640,7 +640,7 @@ class AdminMergadoController extends ModuleAdminController {
             'input' => array(
                 array(
                     'name' => 'mergado_pricemania_overeny_obchod',
-                    'label' => $this->l('Overeny obchod'),
+                    'label' => $this->l('Verified shop'),
                     'validation' => 'isBool',
                     'cast' => 'intval',
                     'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',

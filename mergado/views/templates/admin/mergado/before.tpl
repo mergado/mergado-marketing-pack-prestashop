@@ -39,7 +39,7 @@
     <div class="info">
         <h2>{l s='Earn more on price comparator sites' mod='mergado'}</h2>
         <p>
-            {l s='We help to shop owners to get more from Heureka, Zbozi.cz and other price comparator sites. Follow 3 buttons below this text to configure XML feeds, setup cron tasks and get your XML feeds for Mergado services.' mod='mergado'}
+            {l s='We help to shop owners to get more from Heureka, Zbozi.cz and other price comparator sites. Follow 3 buttons below in this text to configure XML feeds, setup cron tasks and get your XML feeds for Mergado services.' mod='mergado'}
         </p>
     </div>
     <div class="tabControl">
