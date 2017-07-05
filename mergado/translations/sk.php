@@ -20,6 +20,8 @@ $_MODULE['<{mergado}prestashop>adminmergadocontroller_c32516babc5b6c47eb8ce1bfc2
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_13348442cc6a27032d2b4aa28b75a5d3'] = 'Vyhľadávanie';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_781e1964432ab853a81acdc71ebd912d'] = 'Exportovať do tohto jazyka?';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_aa6a8c59c35d4b25ea3a662117ca9d59'] = 'Jazyk a mena exportu';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_a67aa14ab4c1bba19c6dd5acfc668826'] = 'Mergádov feed s kategóriami';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_ea439f7509dffdd9ce6d67bd31d95b19'] = 'Exportovať Mergadovy kategórie?';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_0c5aab039d78e5ef530f2f02743a9034'] = 'Mergadov štatický feed';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_de2e535e0d9a5ed7cdc383ff6c26d006'] = 'Export Mergadovho štatického feedu?';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_5e8268284c6ab3c978076edc5b3c3849'] = 'Nastavenie exportu';
@@ -71,11 +73,11 @@ $_MODULE['<{mergado}prestashop>adminmergadocontroller_fae8a9257e154175da4193dbf6
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_a7a66b17f577a3f52a2269d2c0eb9149'] = 'Dostupnostný feed';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_657d8b13f5eaea54e63e77337e63b563'] = 'Mergadov štatický feed';
 $_MODULE['<{mergado}prestashop>after_7c390de21db1d26ec281ded0d16f782c'] = 'Zoznam cron';
+$_MODULE['<{mergado}prestashop>after_57e524a2ca7ecf26b8600290d35b8ab3'] = 'Nemáte žiadny aktívny cron';
 $_MODULE['<{mergado}prestashop>after_0fb62b8f62b294643616311b7d778513'] = 'Nezabudnite nastaviť nasledujúce URL adresy pre spúšťanie cronu';
 $_MODULE['<{mergado}prestashop>after_a80425472d94ae02c836da5b6f205b7b'] = 'Feed';
 $_MODULE['<{mergado}prestashop>after_0ee80c26200aac48102c0225f716a262'] = 'Cron URL';
 $_MODULE['<{mergado}prestashop>after_cd3a392194f8fdb6256e26f3850902e3'] = 'Mergadovo statické XML';
-$_MODULE['<{mergado}prestashop>after_57e524a2ca7ecf26b8600290d35b8ab3'] = 'Nemáte žiadny aktívny cron';
 $_MODULE['<{mergado}prestashop>after_9dcab388236a7ee5a4597a72481a9871'] = 'Zoznam XML';
 $_MODULE['<{mergado}prestashop>after_f0e661bf3515cc398719b24a3f32c161'] = 'Nastavte adresy XML exportov nižšie do Vášho účtu v službe Mergado (www.mergado.cz)';
 $_MODULE['<{mergado}prestashop>after_2e57a5e4cfc4babee6620ca92ef603ee'] = 'Posledná zmena';
