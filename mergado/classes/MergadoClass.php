@@ -20,6 +20,7 @@ require_once _PS_MODULE_DIR_ . 'mergado/classes/MergadoPricemania.php';
 class MergadoClass extends ObjectModel {
 
     public static $feedPrefix = 'mergado_feed_';
+    public static $feedCategoryPrefix = 'category_mergado_feed_';
     protected $language;
     protected $defaultLang;
     protected $defaultCurrency;
@@ -47,12 +48,26 @@ class MergadoClass extends ObjectModel {
         $products = array();
 
         try {
-            $products = $this->productsToFlat(false, $this->language->id);
+            $generateCategory = substr($feedBase, 0, 8) === "category";
 
             if ($feedBase == 'stock') {
                 $feedBase .= '_' . Tools::getAdminTokenLite('AdminModules');
                 $xml = $this->generateStockXML($stockData, $feedBase);
                 MergadoClass::log("Stock feed generated\n");
+
+                return $xml;
+            } elseif ($generateCategory) {
+                $base = explode('-', str_replace(self::$feedCategoryPrefix, '', $feedBase));
+                $feedBase = $feedBase . '_' .
+                        Tools::substr(hash('md5', $base[0] . '-' . $base[1] . Configuration::get('PS_SHOP_NAME')), 1, 11);
+
+                $this->language = $this->language->getLanguageByIETFCode($this->language->getLanguageCodeByIso($base[0]));
+                $this->currency = new Currency($this->currency->getIdByIsoCode($base[1]));
+
+                $categories = CategoryCore::getSimpleCategories($this->language->id);
+                $xml = $this->generateCategoriesXML($categories, $feedBase, $this->currency, $this->language);
+
+                MergadoClass::log("Mergado category feed generated:\n" . $feedBase);
 
                 return $xml;
             } else {
@@ -140,6 +155,123 @@ class MergadoClass extends ObjectModel {
                     }
                 }
             }
+        }
+
+        $xml_new->endElement();
+        $xml_new->endDocument();
+        $xml_new->flush();
+        unset($xml_new);
+
+        if (!copy($out, $storage)) {
+            @unlink($out);
+            @unlink($storage);
+
+            return false;
+        } else {
+            unlink($out);
+        }
+
+        return true;
+    }
+
+    public function generateCategoriesXML($categories, $feedBase, $currency, $lang) {
+        $out = _PS_MODULE_DIR_ . 'mergado/tmp/' . $feedBase . '.xml';
+        $storage = _PS_MODULE_DIR_ . 'mergado/xml/' . $feedBase . '.xml';
+
+        $xml_new = new XMLWriter();
+        $xml_new->openURI($out);
+        $xml_new->startDocument('1.0', 'UTF-8');
+        $xml_new->startElement('CHANNEL');
+        $xml_new->writeAttribute('xmlns', 'http://www.mergado.com/ns/1.4');
+
+        $xml_new->startElement('LINK');
+        $xml_new->text('http://www.mergadoshop.com/');
+        $xml_new->endElement();
+
+        $xml_new->startElement('GENERATOR');
+        $xml_new->text('mergado.prestashop.modulemergadoxml.2_64');
+        $xml_new->endElement();
+
+        $link = new LinkCore();
+
+        foreach ($categories as $cat) {
+            if ($cat['id_category'] == 1 || $cat['id_category'] == 2) {
+                continue;
+            }
+
+            $category = new CategoryCore($cat['id_category'], $lang->id);
+            $categoryLink = $link->getCategoryLink($category, $category->link_rewrite, $lang->id);
+            $context = new Context();
+            $context->cart = new Cart();
+            $context->employee = new Employee();
+            $products = $this->getProducts($category, $lang->id, 0, 10);
+
+            $cheapest = (float) isset($products[0]) ? $products[0]['price'] : 0;
+            $expensive = 0;
+
+            $breadcrumbs = $category->getParentsCategories($lang->id);
+            $categorytext = "";
+            foreach (array_reverse($breadcrumbs) as $crumb) {
+                if ($crumb['id_category'] == 1 || $crumb['id_category'] == 2) {
+                    continue;
+                }
+            
+                $categorytext .= $crumb['name'];
+                $categorytext .= ' | ';
+            }
+            
+            $categorytext = substr($categorytext, 0, -3);
+
+            foreach ($products as $product) {
+                $price = (float) $product['price'];
+
+                if ($price > $expensive) {
+                    $expensive = $price;
+                }
+
+                if ($price < $cheapest) {
+                    $cheapest = $price;
+                }
+            }
+
+
+            // START ITEM
+            $xml_new->startElement('ITEM');
+
+            $xml_new->startElement('CATEGORY_NAME');
+            $xml_new->text('<![CDATA[' . $category->name . ']]');
+            $xml_new->endElement();
+
+            $xml_new->startElement('CATEGORY');
+            $xml_new->text('<![CDATA[' . $categorytext . ']]'); //TODO
+            $xml_new->endElement();
+
+            $xml_new->startElement('CATEGORY_ID');
+            $xml_new->text($category->id);
+            $xml_new->endElement();
+
+            $xml_new->startElement('CATEGORY_URL');
+            $xml_new->text('<![CDATA[' . $categoryLink . ']]');
+            $xml_new->endElement();
+
+            $xml_new->startElement('CATEGORY_QUANTITY');
+            $xml_new->text('<![CDATA[' . count($products) . ']]');
+            $xml_new->endElement();
+
+            $xml_new->startElement('CATEGORY_DESCRIPTION');
+            $xml_new->text('<![CDATA[' . $category->description . ']]');
+            $xml_new->endElement();
+
+            $xml_new->startElement('CATEGORY_MIN_PRICE_VAT');
+            $xml_new->text('<![CDATA[' . $cheapest . ']]');
+            $xml_new->endElement();
+
+            $xml_new->startElement('CATEGORY_MAX_PRICE_VAT');
+            $xml_new->text('<![CDATA[' . $expensive . ']]');
+            $xml_new->endElement();
+
+            // END ITEM
+            $xml_new->endElement();
         }
 
         $xml_new->endElement();
@@ -595,7 +727,7 @@ class MergadoClass extends ObjectModel {
                     }
                 }
 
-                $price = ToolsCore::convertPriceFull($price, $this->defaultCurrency, $this->currency);
+                //$price = ToolsCore::convertPriceFull($price, $this->defaultCurrency, $this->currency);
                 $images = array_diff($images, array($mainImage));
 
                 $productBase[] = array(
@@ -1039,6 +1171,308 @@ class MergadoClass extends ObjectModel {
                 }
             }
         }
+    }
+
+    public function getProducts($category, $id_lang, $p, $n, $order_by = null, $order_way = null, $get_total = false, $active = true, $random = false, $random_number_products = 1, Context $context = null) {
+        if (!$context) {
+            $context = Context::getContext();
+        }
+
+        $id_supplier = (int) Tools::getValue('id_supplier');
+
+        /** Return only the number of products */
+        if ($get_total) {
+            $sql = 'SELECT COUNT(cp.`id_product`) AS total
+					FROM `' . _DB_PREFIX_ . 'product` p
+					' . Shop::addSqlAssociation('product', 'p') . '
+					LEFT JOIN `' . _DB_PREFIX_ . 'category_product` cp ON p.`id_product` = cp.`id_product`
+					WHERE cp.`id_category` = ' . (int) $this->id .
+                    ($active ? ' AND product_shop.`active` = 1' : '') .
+                    ($id_supplier ? 'AND p.id_supplier = ' . (int) $id_supplier : '');
+
+            return (int) Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($sql);
+        }
+
+        if ($p < 1) {
+            $p = 1;
+        }
+
+        /** Tools::strtolower is a fix for all modules which are now using lowercase values for 'orderBy' parameter */
+        $order_by = Validate::isOrderBy($order_by) ? Tools::strtolower($order_by) : 'position';
+        $order_way = Validate::isOrderWay($order_way) ? Tools::strtoupper($order_way) : 'ASC';
+
+        $order_by_prefix = false;
+        if ($order_by == 'id_product' || $order_by == 'date_add' || $order_by == 'date_upd') {
+            $order_by_prefix = 'p';
+        } elseif ($order_by == 'name') {
+            $order_by_prefix = 'pl';
+        } elseif ($order_by == 'manufacturer' || $order_by == 'manufacturer_name') {
+            $order_by_prefix = 'm';
+            $order_by = 'name';
+        } elseif ($order_by == 'position') {
+            $order_by_prefix = 'cp';
+        }
+
+        if ($order_by == 'price') {
+            $order_by = 'orderprice';
+        }
+
+        $nb_days_new_product = Configuration::get('PS_NB_DAYS_NEW_PRODUCT');
+        if (!Validate::isUnsignedInt($nb_days_new_product)) {
+            $nb_days_new_product = 20;
+        }
+
+        $sql = 'SELECT p.*, product_shop.*, stock.out_of_stock, IFNULL(stock.quantity, 0) AS quantity' . (Combination::isFeatureActive() ? ', IFNULL(product_attribute_shop.id_product_attribute, 0) AS id_product_attribute,
+					product_attribute_shop.minimal_quantity AS product_attribute_minimal_quantity' : '') . ', pl.`description`, pl.`description_short`, pl.`available_now`,
+					pl.`available_later`, pl.`link_rewrite`, pl.`meta_description`, pl.`meta_keywords`, pl.`meta_title`, pl.`name`, image_shop.`id_image` id_image,
+					il.`legend` as legend, m.`name` AS manufacturer_name, cl.`name` AS category_default,
+					DATEDIFF(product_shop.`date_add`, DATE_SUB("' . date('Y-m-d') . ' 00:00:00",
+					INTERVAL ' . (int) $nb_days_new_product . ' DAY)) > 0 AS new, product_shop.price AS orderprice
+				FROM `' . _DB_PREFIX_ . 'category_product` cp
+				LEFT JOIN `' . _DB_PREFIX_ . 'product` p
+					ON p.`id_product` = cp.`id_product`
+				' . Shop::addSqlAssociation('product', 'p') .
+                (Combination::isFeatureActive() ? ' LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_shop` product_attribute_shop
+				ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop=' . (int) $context->shop->id . ')' : '') . '
+				' . Product::sqlStock('p', 0) . '
+				LEFT JOIN `' . _DB_PREFIX_ . 'category_lang` cl
+					ON (product_shop.`id_category_default` = cl.`id_category`
+					AND cl.`id_lang` = ' . (int) $id_lang . Shop::addSqlRestrictionOnLang('cl') . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl
+					ON (p.`id_product` = pl.`id_product`
+					AND pl.`id_lang` = ' . (int) $id_lang . Shop::addSqlRestrictionOnLang('pl') . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'image_shop` image_shop
+					ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop=' . (int) $context->shop->id . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'image_lang` il
+					ON (image_shop.`id_image` = il.`id_image`
+					AND il.`id_lang` = ' . (int) $id_lang . ')
+				LEFT JOIN `' . _DB_PREFIX_ . 'manufacturer` m
+					ON m.`id_manufacturer` = p.`id_manufacturer`
+				WHERE product_shop.`id_shop` = ' . (int) $context->shop->id . '
+					AND cp.`id_category` = ' . (int) $category->id
+                . ($active ? ' AND product_shop.`active` = 1' : '')
+                . ($id_supplier ? ' AND p.id_supplier = ' . (int) $id_supplier : '');
+
+        if ($random === true) {
+            $sql .= ' ORDER BY RAND() LIMIT ' . (int) $random_number_products;
+        } else {
+            $sql .= ' ORDER BY ' . (!empty($order_by_prefix) ? $order_by_prefix . '.' : '') . '`' . bqSQL($order_by) . '` ' . pSQL($order_way) . '
+			LIMIT ' . (((int) $p - 1) * (int) $n) . ',' . (int) $n;
+        }
+
+        $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql, true, false);
+
+        if (!$result) {
+            return array();
+        }
+
+        if ($order_by == 'orderprice') {
+            Tools::orderbyPrice($result, $order_way);
+        }
+
+        /** Modify SQL result */
+        return $this->getProductsProperties($id_lang, $result);
+    }
+
+    public function getProductsProperties($id_lang, $query_result) {
+        $results_array = array();
+
+        if (is_array($query_result)) {
+            foreach ($query_result as $row) {
+                if ($row2 = $this->getProductProperties($id_lang, $row)) {
+                    $results_array[] = $row2;
+                }
+            }
+        }
+
+        return $results_array;
+    }
+
+    public function getProductProperties($id_lang, $row, Context $context = null) {
+        if (!$row['id_product']) {
+            return false;
+        }
+
+        if ($context == null) {
+            $context = Context::getContext();
+        }
+
+        $id_product_attribute = $row['id_product_attribute'] = (!empty($row['id_product_attribute']) ? (int) $row['id_product_attribute'] : null);
+
+        // Product::getDefaultAttribute is only called if id_product_attribute is missing from the SQL query at the origin of it:
+        // consider adding it in order to avoid unnecessary queries
+        $row['allow_oosp'] = Product::isAvailableWhenOutOfStock($row['out_of_stock']);
+        if (Combination::isFeatureActive() && $id_product_attribute === null && ((isset($row['cache_default_attribute']) && ($ipa_default = $row['cache_default_attribute']) !== null) || ($ipa_default = Product::getDefaultAttribute($row['id_product'], !$row['allow_oosp'])))) {
+            $id_product_attribute = $row['id_product_attribute'] = $ipa_default;
+        }
+        if (!Combination::isFeatureActive() || !isset($row['id_product_attribute'])) {
+            $id_product_attribute = $row['id_product_attribute'] = 0;
+        }
+
+        // Tax
+        $usetax = Tax::excludeTaxeOption();
+
+        $cache_key = $row['id_product'] . '-' . $id_product_attribute . '-' . $id_lang . '-' . (int) $usetax;
+
+        // Datas
+        $row['category'] = Category::getLinkRewrite((int) $row['id_category_default'], (int) $id_lang);
+        $row['link'] = $context->link->getProductLink((int) $row['id_product'], $row['link_rewrite'], $row['category'], $row['ean13']);
+
+        $row['attribute_price'] = 0;
+        if ($id_product_attribute) {
+            $row['attribute_price'] = (float) Product::getProductAttributePrice($id_product_attribute);
+        }
+
+        $row['price_tax_exc'] = $this->getPriceStatic(
+                (int) $row['id_product'], false, $id_product_attribute, (Product::$_taxCalculationMethod == PS_TAX_EXC ? 2 : 6)
+        );
+
+        if (Product::$_taxCalculationMethod == PS_TAX_EXC) {
+            $row['price_tax_exc'] = Tools::ps_round($row['price_tax_exc'], 2);
+            $row['price'] = $this->getPriceStatic(
+                    (int) $row['id_product'], true, $id_product_attribute, 6
+            );
+            $row['price_without_reduction'] = $this->getPriceStatic(
+                    (int) $row['id_product'], false, $id_product_attribute, 2, null, false, false
+            );
+        } else {
+            $row['price'] = Tools::ps_round(
+                            $this->getPriceStatic(
+                                    (int) $row['id_product'], true, $id_product_attribute, 6
+                            ), (int) Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+            );
+            $row['price_without_reduction'] = $this->getPriceStatic(
+                    (int) $row['id_product'], true, $id_product_attribute, 6, null, false, false
+            );
+        }
+
+        $row['reduction'] = $this->getPriceStatic(
+                (int) $row['id_product'], (bool) $usetax, $id_product_attribute, 6, null, true, true, 1, true, null, null, null, $specific_prices
+        );
+
+        $row['specific_prices'] = $specific_prices;
+
+        $row['quantity'] = Product::getQuantity(
+                        (int) $row['id_product'], 0, isset($row['cache_is_pack']) ? $row['cache_is_pack'] : null
+        );
+
+        $row['quantity_all_versions'] = $row['quantity'];
+
+        if ($row['id_product_attribute']) {
+            $row['quantity'] = Product::getQuantity(
+                            (int) $row['id_product'], $id_product_attribute, isset($row['cache_is_pack']) ? $row['cache_is_pack'] : null
+            );
+        }
+
+        $row['id_image'] = Product::defineProductImage($row, $id_lang);
+        $row['features'] = Product::getFrontFeaturesStatic((int) $id_lang, $row['id_product']);
+
+        $row['attachments'] = array();
+        if (!isset($row['cache_has_attachments']) || $row['cache_has_attachments']) {
+            $row['attachments'] = Product::getAttachmentsStatic((int) $id_lang, $row['id_product']);
+        }
+
+        $row['virtual'] = ((!isset($row['is_virtual']) || $row['is_virtual']) ? 1 : 0);
+
+        // Pack management
+        $row['pack'] = (!isset($row['cache_is_pack']) ? Pack::isPack($row['id_product']) : (int) $row['cache_is_pack']);
+        $row['packItems'] = $row['pack'] ? Pack::getItemTable($row['id_product'], $id_lang) : array();
+        $row['nopackprice'] = $row['pack'] ? Pack::noPackPrice($row['id_product']) : 0;
+        if ($row['pack'] && !Pack::isInStock($row['id_product'])) {
+            $row['quantity'] = 0;
+        }
+
+        $row['customization_required'] = false;
+        if (isset($row['customizable']) && $row['customizable'] && Customization::isFeatureActive()) {
+            if (count(Product::getRequiredCustomizableFieldsStatic((int) $row['id_product']))) {
+                $row['customization_required'] = true;
+            }
+        }
+
+        $row = Product::getTaxesInformations($row, $context);
+        return $row;
+    }
+
+    public function getPriceStatic($id_product, $usetax = true, $id_product_attribute = null, $decimals = 6, $divisor = null, $only_reduc = false, $usereduc = true, $quantity = 1, $force_associated_tax = false, $id_customer = null, $id_cart = null, $id_address = null, &$specific_price_output = null, $with_ecotax = true, $use_group_reduction = true, Context $context = null, $use_customer_price = true) {
+        if (!$context) {
+            $context = Context::getContext();
+        }
+
+        $cur_cart = $context->cart;
+
+        if ($divisor !== null) {
+            Tools::displayParameterAsDeprecated('divisor');
+        }
+
+        if (!Validate::isBool($usetax) || !Validate::isUnsignedId($id_product)) {
+            die(Tools::displayError());
+        }
+
+        // Initializations
+        $id_group = null;
+        if ($id_customer) {
+            $id_group = Customer::getDefaultGroupId((int) $id_customer);
+        }
+        if (!$id_group) {
+            $id_group = (int) Group::getCurrent()->id;
+        }
+
+        $cart_quantity = 0;
+        if ((int) $id_cart) {
+            $cache_id = '$this->getPriceStatic_' . (int) $id_product . '-' . (int) $id_cart;
+            if (!Cache::isStored($cache_id) || ($cart_quantity = Cache::retrieve($cache_id) != (int) $quantity)) {
+                $sql = 'SELECT SUM(`quantity`)
+				FROM `' . _DB_PREFIX_ . 'cart_product`
+				WHERE `id_product` = ' . (int) $id_product . '
+				AND `id_cart` = ' . (int) $id_cart;
+                $cart_quantity = (int) Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($sql);
+                Cache::store($cache_id, $cart_quantity);
+            } else {
+                $cart_quantity = Cache::retrieve($cache_id);
+            }
+        }
+
+        $id_currency = Validate::isLoadedObject($context->currency) ? (int) $context->currency->id : (int) Configuration::get('PS_CURRENCY_DEFAULT');
+
+        // retrieve address informations
+        $id_country = (int) $context->country->id;
+        $id_state = 0;
+        $zipcode = 0;
+
+        if (!$id_address && Validate::isLoadedObject($cur_cart)) {
+            $id_address = $cur_cart->{Configuration::get('PS_TAX_ADDRESS_TYPE')};
+        }
+
+        if ($id_address) {
+            $address_infos = Address::getCountryAndState($id_address);
+            if ($address_infos['id_country']) {
+                $id_country = (int) $address_infos['id_country'];
+                $id_state = (int) $address_infos['id_state'];
+                $zipcode = $address_infos['postcode'];
+            }
+        } elseif (isset($context->customer->geoloc_id_country)) {
+            $id_country = (int) $context->customer->geoloc_id_country;
+            $id_state = (int) $context->customer->id_state;
+            $zipcode = $context->customer->postcode;
+        }
+
+        if (Tax::excludeTaxeOption()) {
+            $usetax = false;
+        }
+
+        if ($usetax != false && !empty($address_infos['vat_number']) && $address_infos['id_country'] != Configuration::get('VATNUMBER_COUNTRY') && Configuration::get('VATNUMBER_MANAGEMENT')) {
+            $usetax = false;
+        }
+
+        if (is_null($id_customer) && Validate::isLoadedObject($context->customer)) {
+            $id_customer = $context->customer->id;
+        }
+
+        $return = Product::priceCalculation(
+                        $context->shop->id, $id_product, $id_product_attribute, $id_country, $id_state, $zipcode, $id_currency, $id_group, $quantity, $usetax, $decimals, $only_reduc, $usereduc, $with_ecotax, $specific_price_output, $use_group_reduction, $id_customer, $use_customer_price, $id_cart, $cart_quantity
+        );
+
+        return $return;
     }
 
 }

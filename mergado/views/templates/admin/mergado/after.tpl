@@ -20,8 +20,16 @@
                 {l s='Cron list' mod='mergado'}
             </div>
 
-            {if !empty($crons)}
+            {if empty($crons) && empty($categoryCron)}
+                <div class="alert alert-info">{l s='You have no active cron' mod='mergado'}</div>
+            {/if}
+
+            {if !empty($crons) || !empty($categoryCron)}
                 <div class="alert alert-warning">{l s='Do not forget to add following cron links to cron tasks' mod='mergado'}</div>
+            {/if}
+
+            {if !empty($crons)}
+                <h4>{l s='Data feed' mod='mergado'}</h4>
                 <table id="mergadoCronList">
                     <thead>
                         <tr>
@@ -51,8 +59,37 @@
                         {/foreach}
                     </tbody>
                 </table>
-            {else}
-                <div class="alert alert-info">{l s='You have no active cron' mod='mergado'}</div>
+            {/if}
+
+            {if !empty($categoryCron)}
+                <br/>
+                <h4>{l s='Category feed' mod='mergado'}</h4>
+                <table id="mergadoCronList">
+                    <thead>
+                        <tr>
+                            <th>
+                                {l s='Feed' mod='mergado'}
+                            </th>
+                            <th>
+                                {l s='Cron URL' mod='mergado'}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {foreach from=$categoryCron item=cron name=cronEach}
+                            <tr>
+                                <th>
+                                    {$cron['name']|escape:'htmlall':'UTF-8'}
+                                </th>
+                                <td>
+                                    <a href="{$cron['url']|escape:'htmlall':'UTF-8'}" title="{$cron['name']|escape:'htmlall':'UTF-8'}">
+                                        {$cron['url']|escape:'htmlall':'UTF-8'}
+                                    </a>
+                                </td>
+                            </tr>
+                        {/foreach}
+                    </tbody>
+                </table>            
             {/if}
 
         </div>

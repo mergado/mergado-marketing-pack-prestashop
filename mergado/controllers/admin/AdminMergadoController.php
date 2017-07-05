@@ -229,6 +229,41 @@ class AdminMergadoController extends ModuleAdminController {
 
         $fields_form[1]['form'] = array(
             'legend' => array(
+                'title' => $this->l('Mergado\'s category feed'),
+                'icon' => 'icon-flag'
+            ),
+            'input' => array(
+                array(
+                    'label' => $this->l('Export Mergado\'s category feed?'),
+                    'name' => 'category_feed',
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
+                    'class' => 'switch15',
+                    'is_bool' => true,
+                    'values' => array(
+                        array(
+                            'id' => 'category_feed_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'category_feed_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL
+                ),
+            ),
+            'submit' => array(
+                'title' => $this->l('Save'),
+                'name' => 'submit' . $this->name
+            )
+        );
+
+        $fields_form[2]['form'] = array(
+            'legend' => array(
                 'title' => $this->l('Mergado\'s static feed'),
                 'icon' => 'icon-flag'
             ),
@@ -262,7 +297,7 @@ class AdminMergadoController extends ModuleAdminController {
             )
         );
 
-        $fields_form[2]['form'] = array(
+        $fields_form[3]['form'] = array(
             'legend' => array(
                 'title' => $this->l('Export settings'),
                 'icon' => 'icon-cogs'
@@ -313,6 +348,7 @@ class AdminMergadoController extends ModuleAdminController {
         $fields_value = array(
             'delivery_days' => $this->settingsValues['delivery_days'],
             'static_feed' => $this->settingsValues['static_feed'],
+            'category_feed' => $this->settingsValues['category_feed'],
             'clrCheckboxes' => 1,
             'page' => 1,
         );
@@ -815,7 +851,7 @@ class AdminMergadoController extends ModuleAdminController {
                 'name' => 'submit' . $this->name
             )
         );
-        
+
         $fields_form[6]['form'] = array(
             'legend' => array(
                 'title' => $this->l('Facebook pixel'),
@@ -855,7 +891,7 @@ class AdminMergadoController extends ModuleAdminController {
                 'name' => 'submit' . $this->name
             )
         );
-        
+
         $fields_form[7]['form'] = array(
             'legend' => array(
                 'title' => $this->l('Etarget'),
@@ -986,6 +1022,8 @@ class AdminMergadoController extends ModuleAdminController {
         $mergadoModule = new Mergado();
         $version = $mergadoModule->version;
 
+        $categoryFeed = MergadoClass::getSettings('category_feed');
+        $categoryCron = array();
         $langWithName = array();
         foreach ($feeds as $feed) {
             $iso = str_replace(MergadoClass::$feedPrefix, '', $feed['key']);
@@ -995,8 +1033,16 @@ class AdminMergadoController extends ModuleAdminController {
                 'url' => $this->getCronUrl($feed['key']),
                 'name' => $this->languages->getLanguageByIETFCode(
                         $this->languages->getLanguageCodeByIso($iso[0])
-                )->name . ' - ' . $iso[1],
+                )->name . ' - ' . $iso[1]
             );
+
+            if ($categoryFeed == "1") {
+                $categoryCron[] = array(
+                    'url' => $this->getCronUrl('category_' . $feed['key']),
+                    'name' => $this->languages->getLanguageByIETFCode(
+                            $this->languages->getLanguageCodeByIso($iso[0])
+                    )->name . ' - ' . $iso[1]);
+            }
         }
 
         $stockFeed = MergadoClass::getSettings('mergado_heureka_dostupnostni_feed');
@@ -1006,6 +1052,8 @@ class AdminMergadoController extends ModuleAdminController {
                 'name' => $this->l('Stock feed')
             );
         }
+
+
 
         $files = glob($this->modulePath . 'xml/*xml');
         $xmlList = array();
@@ -1050,6 +1098,7 @@ class AdminMergadoController extends ModuleAdminController {
 
         $this->context->smarty->assign(array(
             'crons' => $langWithName,
+            'categoryCron' => $categoryCron,
             'xmls' => $xmlList,
             'moduleUrl' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/',
             'moduleVersion' => $version
@@ -1068,7 +1117,8 @@ class AdminMergadoController extends ModuleAdminController {
             'tab1' => $tab1,
             'tab6' => $tab6,
             'tab4' => $tab4,
-            'staticFeed' => MergadoClass::getSettings('static_feed')
+            'staticFeed' => MergadoClass::getSettings('static_feed'),
+            'categoryFeed' => MergadoClass::getSettings('category_feed'),
         ));
     }
 
@@ -1118,4 +1168,5 @@ class AdminMergadoController extends ModuleAdminController {
     public function baseUrl() {
         return 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' . Tools::getShopDomain(false, true);
     }
+
 }
