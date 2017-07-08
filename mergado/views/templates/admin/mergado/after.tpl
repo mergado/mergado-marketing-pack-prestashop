@@ -104,36 +104,59 @@
             </div>
 
             <div class="alert alert-warning">{l s='Insert following XML links to your account on www.mergado.cz' mod='mergado'}</div>
-            <table id="mergadoCronList">
-                <thead>
-                    <tr>
-                        <th>
-                            {l s='Feed' mod='mergado'}
-                        </th>
-                        <th>
-                            {l s='Last change' mod='mergado'}
-                        </th>
-                        <th>
-                            {l s='XML URL' mod='mergado'}
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {foreach from=$xmls item=xml}
+
+            {foreach from=$xmls item=xmlArray key=k}
+
+                <h4>
+                    {if $k == 'category'}
+                        {l s='Mergado\'s category XML' mod='mergado'}
+                    {/if}
+
+                    {if $k == 'stock'}
+                        {l s='Mergado\'s stock XML' mod='mergado'}
+                    {/if}
+
+                    {if $k == 'static'}
+                        {l s='Mergado\'s static XML' mod='mergado'}
+                    {/if}
+
+                    {if $k == 'base'}
+                        {l s='Mergado\'s data XML' mod='mergado'}
+                    {/if}
+
+                </h4>                
+                <table id="mergadoCronList">
+                    <thead>
                         <tr>
                             <th>
-                                {$xml['language']|escape:'htmlall':'UTF-8'}
+                                {l s='Feed' mod='mergado'}
                             </th>
-                            <td>
-                                {$xml['date']|date_format:'d.m.Y H:i:s'|escape:'htmlall':'UTF-8'}
-                            </td>
-                            <td>
-                                <a href='{$xml['url']|escape:'htmlall':'UTF-8'}' target='_blank' title='{$xml['language']|escape:'htmlall':'UTF-8'}'>{$xml['url']|escape:'htmlall':'UTF-8'}</a>
-                            </td>
+                            <th>
+                                {l s='Last change' mod='mergado'}
+                            </th>
+                            <th>
+                                {l s='XML URL' mod='mergado'}
+                            </th>
                         </tr>
-                    {/foreach}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {foreach from=$xmlArray item=xml}
+                            <tr>
+                                <th>
+                                    {$xml['language']|escape:'htmlall':'UTF-8'}
+                                </th>
+                                <td>
+                                    {$xml['date']|date_format:'d.m.Y H:i:s'|escape:'htmlall':'UTF-8'}
+                                </td>
+                                <td>
+                                    <a href='{$xml['url']|escape:'htmlall':'UTF-8'}' target='_blank' title='{$xml['language']|escape:'htmlall':'UTF-8'}'>{$xml['url']|escape:'htmlall':'UTF-8'}</a>
+                                </td>
+                            </tr>
+                        {/foreach}
+                    </tbody>
+                </table>
+                <br/><br/>
+            {/foreach}
         </div>
     </div>
 </div>

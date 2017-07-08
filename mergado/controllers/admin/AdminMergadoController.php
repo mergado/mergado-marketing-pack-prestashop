@@ -1026,7 +1026,8 @@ class AdminMergadoController extends ModuleAdminController {
         $categoryCron = array();
         $langWithName = array();
         foreach ($feeds as $feed) {
-            $iso = str_replace(MergadoClass::$feedPrefix, '', $feed['key']);
+            $iso = str_replace('category_', '', $feed['key']);
+            $iso = str_replace(MergadoClass::$feedPrefix, '', $iso);
             $iso = explode('-', $iso);
 
             $langWithName[] = array(
@@ -1053,40 +1054,51 @@ class AdminMergadoController extends ModuleAdminController {
             );
         }
 
-
-
         $files = glob($this->modulePath . 'xml/*xml');
         $xmlList = array();
         if (is_array($files)) {
             foreach ($files as $filename) {
                 $tmpName = str_replace(MergadoClass::$feedPrefix, '', basename($filename, '.xml'));
-                $name = explode('-', $tmpName);
-                $codedName = explode('_', $tmpName);
 
+                $name = explode('-', $tmpName);
+                $name[1] = explode('_', $name[1]);
+                $codedName = explode('_', $tmpName);
                 $code = Tools::strtoupper(
                                 '_' . Tools::substr(hash('md5', $codedName[0] . Configuration::get('PS_SHOP_NAME')), 1, 11)
                 );
 
                 if ($codedName[0] == 'stock') {
-                    $xmlList[] = array(
+                    $xmlList['stock'][] = array(
                         'language' => $this->l('Stock feed'),
                         'url' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . basename($filename),
                         'name' => basename($filename),
                         'date' => filemtime($filename),
                     );
                 } else if ($codedName[0] == 'static') {
-                    $xmlList[] = array(
+                    $xmlList['static'][] = array(
                         'language' => $this->l('Mergado static feed'),
                         'url' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . basename($filename),
                         'name' => basename($filename),
                         'date' => filemtime($filename),
                     );
-                } else {
-                    $xmlList[] = array(
+                } else if ($codedName[0] == 'category') {                      
+                    $name[0] = str_replace('category_', '', $name[0]);                    
+                    $xmlList['category'][] = array(
                         'language' => str_replace(
                                 $code, '', $this->languages->getLanguageByIETFCode(
                                         $this->languages->getLanguageCodeByIso($name[0])
-                                )->name . ' - ' . Tools::strtoupper($name[1])
+                                )->name . ' - ' . Tools::strtoupper($name[1][0])
+                        ),
+                        'url' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . basename($filename),
+                        'name' => basename($filename),
+                        'date' => filemtime($filename),
+                    );
+                } else {
+                    $xmlList['base'][] = array(
+                        'language' => str_replace(
+                                $code, '', $this->languages->getLanguageByIETFCode(
+                                        $this->languages->getLanguageCodeByIso($name[0])
+                                )->name . ' - ' . Tools::strtoupper($name[1][0])
                         ),
                         'url' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . basename($filename),
                         'name' => basename($filename),
