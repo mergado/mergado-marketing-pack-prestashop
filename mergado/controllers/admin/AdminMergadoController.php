@@ -1081,8 +1081,8 @@ class AdminMergadoController extends ModuleAdminController {
                         'name' => basename($filename),
                         'date' => filemtime($filename),
                     );
-                } else if ($codedName[0] == 'category') {                      
-                    $name[0] = str_replace('category_', '', $name[0]);                    
+                } else if ($codedName[0] == 'category') {
+                    $name[0] = str_replace('category_', '', $name[0]);
                     $xmlList['category'][] = array(
                         'language' => str_replace(
                                 $code, '', $this->languages->getLanguageByIETFCode(
@@ -1108,10 +1108,28 @@ class AdminMergadoController extends ModuleAdminController {
             }
         }
 
+        $newXml = array();
+
+        if (isset($xmlList['base'])) {
+            $newXml['base'] = $xmlList['base'];
+        }
+
+        if (isset($xmlList['static'])) {
+            $newXml['static'] = $xmlList['static'];
+        }
+
+        if (isset($xmlList['stock'])) {
+            $newXml['stock'] = $xmlList['stock'];
+        }
+
+        if (isset($xmlList['category'])) {
+            $newXml['category'] = $xmlList['category'];
+        }
+
         $this->context->smarty->assign(array(
             'crons' => $langWithName,
             'categoryCron' => $categoryCron,
-            'xmls' => $xmlList,
+            'xmls' => $newXml,
             'moduleUrl' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/',
             'moduleVersion' => $version
         ));
