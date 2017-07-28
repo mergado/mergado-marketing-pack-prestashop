@@ -243,7 +243,7 @@ class MergadoClass extends ObjectModel {
             $xml_new->endElement();
 
             $xml_new->startElement('CATEGORY');
-            $xml_new->text('<![CDATA[' . $categorytext . ']]'); //TODO
+            $xml_new->text($categorytext); //TODO
             $xml_new->endElement();
 
             $xml_new->startElement('CATEGORY_ID');
@@ -251,23 +251,23 @@ class MergadoClass extends ObjectModel {
             $xml_new->endElement();
 
             $xml_new->startElement('CATEGORY_URL');
-            $xml_new->text('<![CDATA[' . $categoryLink . ']]');
+            $xml_new->text($categoryLink);
             $xml_new->endElement();
 
             $xml_new->startElement('CATEGORY_QUANTITY');
-            $xml_new->text('<![CDATA[' . count($products) . ']]');
+            $xml_new->text(count($products));
             $xml_new->endElement();
 
             $xml_new->startElement('CATEGORY_DESCRIPTION');
-            $xml_new->text('<![CDATA[' . $category->description . ']]');
+            $xml_new->text('<![[' . $category->description . ']]');
             $xml_new->endElement();
 
             $xml_new->startElement('CATEGORY_MIN_PRICE_VAT');
-            $xml_new->text('<![CDATA[' . $cheapest . ']]');
+            $xml_new->text($cheapest);
             $xml_new->endElement();
 
             $xml_new->startElement('CATEGORY_MAX_PRICE_VAT');
-            $xml_new->text('<![CDATA[' . $expensive . ']]');
+            $xml_new->text($expensive);
             $xml_new->endElement();
 
             // END ITEM

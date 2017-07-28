@@ -415,7 +415,7 @@ class Mergado extends Module {
                 $display .= $this->display(__FILE__, '/views/templates/front/heureka_widget_sk.tpl');
             }
         }
-
+        
         if ($fbPixel == '1') {
             $fbPixelCode = MergadoClass::getSettings('fb_pixel_code');
 
