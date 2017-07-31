@@ -243,7 +243,7 @@ class MergadoClass extends ObjectModel {
             $xml_new->endElement();
 
             $xml_new->startElement('CATEGORY');
-            $xml_new->text($categorytext); //TODO
+            $xml_new->text('<![CDATA[' . $categorytext . ']]');
             $xml_new->endElement();
 
             $xml_new->startElement('CATEGORY_ID');
@@ -259,7 +259,7 @@ class MergadoClass extends ObjectModel {
             $xml_new->endElement();
 
             $xml_new->startElement('CATEGORY_DESCRIPTION');
-            $xml_new->text('<![[' . $category->description . ']]');
+            $xml_new->text('<![CDATA[' . $category->description . ']]');
             $xml_new->endElement();
 
             $xml_new->startElement('CATEGORY_MIN_PRICE_VAT');
