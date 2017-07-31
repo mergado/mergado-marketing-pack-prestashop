@@ -182,7 +182,7 @@ class MergadoClass extends ObjectModel {
         $xml_new->openURI($out);
         $xml_new->startDocument('1.0', 'UTF-8');
         $xml_new->startElement('CHANNEL');
-        $xml_new->writeAttribute('xmlns', 'http://www.mergado.com/ns/1.4');
+        $xml_new->writeAttribute('xmlns', 'http://www.mergado.com/ns/1.4/category');
 
         $xml_new->startElement('LINK');
         $xml_new->text('http://www.mergadoshop.com/');
