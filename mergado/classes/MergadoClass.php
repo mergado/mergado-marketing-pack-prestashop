@@ -749,9 +749,7 @@ class MergadoClass extends ObjectModel {
                     'name_exact' => $combination['name'],
                     'params' => $params,
                     'producer' => $manufacturer->name,
-                    'url' => $link->getProductLink(
-                            $item, null, $defaultCategory->name, null, $lang, null, $combination['id_product_attribute']
-                    ),
+                    'url' => $link->getProductLink($item, null, $defaultCategory->name, null, $lang, null, $combination['id_product_attribute'], false, false, true),
                     'price' => Tools::ps_round($price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'wholesale_price' => $combination['wholesale_price'] != 0 ? $combination['wholesale_price'] : $item->wholesale_price,
