@@ -986,6 +986,7 @@ class MergadoClass extends ObjectModel {
             $url .= '&orderid=' . urlencode($order['order']->id);
         }
 
+        MergadoClass::log("Heureka verify Order ID: " . $order['cart']->id);
         $this->sendRequest($url);
     }
 
@@ -993,6 +994,7 @@ class MergadoClass extends ObjectModel {
         $parsed = parse_url($url);
         $fp = fsockopen($parsed['host'], 80, $errno, $errstr, 5);
         if (!$fp) {
+            MergadoClass::log("Heureka verify ERROR: " . json_encode(array('errNo' => $errno, 'errStr' => $errstr)));
             throw new Exception($errstr . ' (' . $errno . ')');
         } else {
             $return = '';
@@ -1005,7 +1007,8 @@ class MergadoClass extends ObjectModel {
             }
             fclose($fp);
             $returnParsed = explode("\r\n\r\n", $return);
-
+            
+            MergadoClass::log("Heureka verify RETURN: " . json_encode(array('return' => $returnParsed)));
             return empty($returnParsed[1]) ? '' : trim($returnParsed[1]);
         }
     }
@@ -1017,7 +1020,7 @@ class MergadoClass extends ObjectModel {
 
         if ($active === '1') {
             try {
-                $zbozi = new MergadoZboziKonverze($id['value'], $secret['value']);
+                $zbozi = new MergadoZboziKonverze($id, $secret);
 
                 // testovací režim
                 // $zbozi->useSandbox(true);
