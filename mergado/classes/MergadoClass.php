@@ -951,7 +951,7 @@ class MergadoClass extends ObjectModel {
 
     public function heurekaVerify($apiKey, $order, $lang) {
         $url = null;
-
+        
         if ($lang === 'cs') {
             $url = self::HEUREKA_URL;
         }
@@ -961,7 +961,7 @@ class MergadoClass extends ObjectModel {
         }
 
         $url .= '?id=' . $apiKey;
-        $url .= '?email=' . urlencode($order['customer']->email);
+        $url .= '&email=' . urlencode($order['customer']->email);
 
         $cart = new Cart($order['cart']->id, LanguageCore::getIdByIso($lang));
         $products = $cart->getProducts();
@@ -982,7 +982,7 @@ class MergadoClass extends ObjectModel {
             }
         }
 
-        if (isset($this->orderId)) {
+        if (isset($order['order']->id)) {
             $url .= '&orderid=' . urlencode($order['order']->id);
         }
 
