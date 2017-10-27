@@ -27,7 +27,7 @@ class Mergado extends Module {
     public function __construct() {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.5.3';
+        $this->version = '1.5.4';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
@@ -162,7 +162,7 @@ class Mergado extends Module {
 
         $this->addTab();
 
-        return parent::install() && $this->installUpdates() && $this->registerHook('backOfficeHeader') && $this->registerHook('actionValidateOrder') && $this->registerHook('orderConfirmation') && $this->registerHook('displayFooter');
+        return parent::install() && $this->installUpdates() && $this->registerHook('backOfficeHeader') && $this->registerHook('actionValidateOrder') && $this->registerHook('orderConfirmation') && $this->registerHook('displayFooter') && $this->registerHook('displayProductFooter') && $this->registerHook('displayShoppingCartFooter');
     }
 
     public function uninstall() {
@@ -242,6 +242,56 @@ class Mergado extends Module {
                 $this->context->controller->addCSS($this->_path . 'views/css/back15.css');
             } else {
                 $this->context->controller->addCSS($this->_path . 'views/css/back.css');
+            }
+        }
+    }
+
+    public function hookDisplayFooterProduct($params) {
+        $adWordsRemarketing = MergadoClass::getSettings('adwords_remarketing');
+
+        if ($adWordsRemarketing == '1') {
+            $adWordsRemarketingId = MergadoClass::getSettings('adwords_remarketing_id');
+
+            if ($adWordsRemarketingId != '') {
+                $this->smarty->assign(array(
+                    'adwords_remarketing_id' => $adWordsRemarketingId,
+                    'page_type' => 'product',
+                    'prodid' => $params['product']->id
+                ));
+
+                return $this->display(__FILE__, '/views/templates/front/remarketingtag.tpl');
+            }
+        }
+    }
+
+    public function hookDisplayShoppingCartFooter($params) {
+        $adWordsRemarketing = MergadoClass::getSettings('adwords_remarketing');
+
+        $prodid = "";
+        foreach ($params['products'] as $product) {
+            $prodid .= "'" . $product['id_product'];
+
+            if(isset($product['id_product_attribute']) && $product['id_product_attribute'] != "") {
+                $prodid .= '-';
+                $prodid .= $product['id_product_attribute'];
+            }
+            
+            $prodid .= "',";
+        }
+        
+        $prodid = "[" . substr($prodid, 0, -1) . "]";
+        
+        if ($adWordsRemarketing == '1') {
+            $adWordsRemarketingId = MergadoClass::getSettings('adwords_remarketing_id');
+
+            if ($adWordsRemarketingId != '') {
+                $this->smarty->assign(array(
+                    'adwords_remarketing_id' => $adWordsRemarketingId,
+                    'page_type' => 'cart',
+                    'prodid' => $prodid
+                ));
+
+                return $this->display(__FILE__, '/views/templates/front/remarketingtag.tpl');
             }
         }
     }
@@ -415,7 +465,7 @@ class Mergado extends Module {
                 $display .= $this->display(__FILE__, '/views/templates/front/heureka_widget_sk.tpl');
             }
         }
-        
+
         if ($fbPixel == '1') {
             $fbPixelCode = MergadoClass::getSettings('fb_pixel_code');
 
