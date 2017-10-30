@@ -24,5 +24,5 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_1_5_4($module) {    
     Tools::clearCache();
-    return $module->registerHook('displayProductFooter') && $this->registerHook('displayShoppingCartFooter');
+    return $module->registerHook('displayProductFooter') && $module->registerHook('displayShoppingCartFooter');
 }
