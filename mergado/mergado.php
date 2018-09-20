@@ -27,7 +27,7 @@ class Mergado extends Module {
     public function __construct() {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.5.6';
+        $this->version = '1.6.0';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
@@ -49,7 +49,7 @@ class Mergado extends Module {
 
         $this->confirmUninstall = $this->l('Are you sure to uninstall Mergado marketing pack module?');
 
-        $this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.6.1.18');
+        $this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.7.4.2');
 
         $this->_clearCache('*');
     }
@@ -162,7 +162,7 @@ class Mergado extends Module {
 
         $this->addTab();
 
-        return parent::install() && $this->installUpdates() && $this->registerHook('backOfficeHeader') && $this->registerHook('actionValidateOrder') && $this->registerHook('orderConfirmation') && $this->registerHook('displayFooter') && $this->registerHook('displayProductFooter') && $this->registerHook('displayShoppingCartFooter');
+        return parent::install() && $this->installUpdates() && $this->registerHook('backOfficeHeader') && $this->registerHook('actionValidateOrder') && $this->registerHook('orderConfirmation') && $this->registerHook('displayFooter') && $this->registerHook('displayProductFooter') && $this->registerHook('displayShoppingCartFooter') && $this->registerHook('displayHeader');
     }
 
     public function uninstall() {
@@ -514,6 +514,56 @@ class Mergado extends Module {
                 ));
 
                 $display .= $this->display(__FILE__, '/views/templates/front/etarget.tpl');
+            }
+        }
+
+
+    }
+
+    public function hookDisplayHeader($params)
+    {
+        global $cookie;
+
+        $display = "";
+        $glami = MergadoClass::getSettings('glami_active');
+        $categoryId = Tools::getValue('id_category');
+        $productId = Tools::getValue('id_product');
+
+        if($categoryId) {
+            $category = new CategoryCore($categoryId, (int)ContextCore::getContext()->language->id);
+            $nb = 10;
+            $products_tmp = $category->getProducts((int)Context::getContext()->language->id, 1, ($nb ? $nb : 10));
+
+            $products = array();
+            foreach ($products_tmp as $product) {
+                $products['ids'][] = "'" . $product['id_product'] . "'";
+                $products['name'][] = "'". $product['name'] . "'";
+            }
+
+            $this->smarty->assign(array(
+                'glami_pixel_category' => $category,
+                'glami_pixel_productIds' => implode(',', $products['ids']),
+                'glami_pixel_productNames' => implode(',', $products['name'])
+            ));
+        }
+
+        if($productId) {
+            $product = new ProductCore($productId, false, (int)ContextCore::getContext()->language->id);
+
+            $this->smarty->assign(array(
+                'glami_pixel_product' => $product
+            ));
+        }
+
+        if($glami == '1') {
+            $glamiPixel = MergadoClass::getSettings('glami_pixel_code');
+
+            if ($glamiPixel != '') {
+                $this->smarty->assign(array(
+                    'glami_pixel_code' => $glamiPixel,
+                ));
+
+                $display .= $this->display(__FILE__, '/views/templates/front/glami.tpl');
             }
         }
 

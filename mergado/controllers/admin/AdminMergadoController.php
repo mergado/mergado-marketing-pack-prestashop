@@ -938,6 +938,46 @@ class AdminMergadoController extends ModuleAdminController {
             )
         );
 
+        $fields_form[8]['form'] = array(
+            'legend' => array(
+                'title' => $this->l('Glami pixel'),
+                'icon' => 'icon-cogs'
+            ),
+            'input' => array(
+                array(
+                    'name' => 'glami_active',
+                    'label' => $this->l('Active'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
+                    'class' => 'switch15',
+                    'values' => array(
+                        array(
+                            'id' => 'glami_active_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'glami_active_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
+                    'name' => 'glami_pixel_code',
+                    'label' => $this->l('Glami Pixel'),
+                    'type' => 'text',
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+            ),
+            'submit' => array(
+                'title' => $this->l('Save'),
+                'name' => 'submit' . $this->name
+            )
+        );
+
         $fields_value = array(
             'mergado_heureka_overeno_zakazniky_cz' => $this->settingsValues['mergado_heureka_overeno_zakazniky_cz'],
             'mergado_heureka_overeno_zakazniky_kod_cz' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_cz'],
@@ -972,6 +1012,8 @@ class AdminMergadoController extends ModuleAdminController {
             'etarget' => $this->settingsValues['etarget'],
             'etarget_id' => $this->settingsValues['etarget_id'],
             'etarget_hash' => $this->settingsValues['etarget_hash'],
+            'glami_active' => $this->settingsValues['glami_active'],
+            'glami_pixel_code' => $this->settingsValues['glami_pixel_code'],
             'page' => 6,
         );
 
