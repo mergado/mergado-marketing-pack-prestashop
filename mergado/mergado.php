@@ -162,7 +162,7 @@ class Mergado extends Module {
 
         $this->addTab();
 
-        return parent::install() && $this->installUpdates() && $this->registerHook('backOfficeHeader') && $this->registerHook('actionValidateOrder') && $this->registerHook('orderConfirmation') && $this->registerHook('displayFooter') && $this->registerHook('displayProductFooter') && $this->registerHook('displayShoppingCartFooter') && $this->registerHook('displayHeader');
+        return parent::install() && $this->installUpdates() && $this->registerHook('backOfficeHeader') && $this->registerHook('actionValidateOrder') && $this->registerHook('orderConfirmation') && $this->registerHook('displayFooter') && $this->registerHook('displayProductFooter') && $this->registerHook('displayShoppingCartFooter') && $this->registerHook('displayHeader') && $this->registerHook('displayOrderConfirmation');
     }
 
     public function uninstall() {
@@ -517,13 +517,18 @@ class Mergado extends Module {
             }
         }
 
+        $currency = new CurrencyCore($cookie->id_currency);
+        $this->smarty->assign(array(
+            'currencySign' => $currency->sign,
+        ));
 
+        $display .= $this->display(__FILE__, '/views/templates/front/footer.tpl');
+
+        return $display;
     }
 
     public function hookDisplayHeader($params)
     {
-        global $cookie;
-
         $display = "";
         $glami = MergadoClass::getSettings('glami_active');
         $categoryId = Tools::getValue('id_category');
@@ -536,7 +541,7 @@ class Mergado extends Module {
 
             $products = array();
             foreach ($products_tmp as $product) {
-                $products['ids'][] = "'" . $product['id_product'] . "'";
+                $products['ids'][] = "'" . $product['id_product'].'-'.$product['id_product_attribute'] . "'";
                 $products['name'][] = "'". $product['name'] . "'";
             }
 
@@ -567,7 +572,30 @@ class Mergado extends Module {
             }
         }
 
+        $this->context->controller->addJS($this->_path . 'views/js/glami.js');
+
         return $display;
+    }
+
+    public function hookDisplayOrderConfirmation($data) {
+        $order = new OrderCore($data['objOrder']->id);
+        $products_tmp = $order->getProducts();
+
+        $products = array();
+        foreach ($products_tmp as $product) {
+            $products['ids'][] = "'" . $product['id_product'] . '-' . $product['product_attribute_id'] . "'";
+            $products['name'][] = "'". $product['product_name'] . "'";
+        }
+
+        $this->smarty->assign(array(
+            'glami_pixel_orderId' => $data['objOrder']->id,
+            'glami_pixel_value' => $data['total_to_pay'],
+            'glami_pixel_currency' => $data['currencyObj']->iso_code,
+            'glami_pixel_productIds' => implode(',', $products['ids']),
+            'glami_pixel_productNames' => implode(',', $products['name'])
+        ));
+
+        return $this->display(__FILE__, '/views/templates/front/glami_purchase.tpl');
     }
 
 }

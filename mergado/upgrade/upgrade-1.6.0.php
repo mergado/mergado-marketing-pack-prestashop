@@ -24,5 +24,5 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_1_6_0($module) {
     Tools::clearCache();
-    return $module->registerHook('displayHeader');;
+    return $module->registerHook('displayHeader') && $module->registerHook('displayOrderConfirmation');
 }

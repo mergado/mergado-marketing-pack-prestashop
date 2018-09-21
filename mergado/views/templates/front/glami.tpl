@@ -7,7 +7,7 @@
         glami('create', '{$glami_pixel_code}', 'cz');
         glami('track', 'PageView');
 
-        {if $glami_pixel_category}
+        {if isset($glami_pixel_category) && $glami_pixel_category}
             glami('track', 'ViewContent', {
                 content_type: 'category',
                 item_ids: [{$glami_pixel_productIds}],
@@ -17,7 +17,7 @@
             });
         {/if}
 
-        {if $glami_pixel_product}
+        {if isset($glami_pixel_product) && $glami_pixel_product}
             glami('track', 'ViewContent', {
                 content_type: 'product',
                 item_ids: ['{$glami_pixel_product->id}'],
