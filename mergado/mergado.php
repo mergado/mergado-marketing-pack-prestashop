@@ -49,7 +49,7 @@ class Mergado extends Module {
 
         $this->confirmUninstall = $this->l('Are you sure to uninstall Mergado marketing pack module?');
 
-        $this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.7.4.2');
+        $this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.6.1.20');
 
         $this->_clearCache('*');
     }
