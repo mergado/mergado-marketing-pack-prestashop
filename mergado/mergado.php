@@ -9,9 +9,9 @@
  *
  * You must not modify, adapt or create derivative works of this source code
  *
- *  @author    www.mergado.cz
- *  @copyright 2016 Mergado technologies, s. r. o.
- *  @license   LICENSE.txt
+ * @author    www.mergado.cz
+ * @copyright 2016 Mergado technologies, s. r. o.
+ * @license   LICENSE.txt
  */
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -19,12 +19,14 @@ if (!defined('_PS_VERSION_')) {
 
 require_once _PS_MODULE_DIR_ . 'mergado/classes/MergadoClass.php';
 
-class Mergado extends Module {
+class Mergado extends Module
+{
 
     protected $controllerClass;
     private $gitLatestRelease = "https://api.github.com/repos/mergado/mergado-marketing-pack-prestashop/releases/latest";
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->name = 'mergado';
         $this->tab = 'export';
         $this->version = '1.6.0';
@@ -54,7 +56,8 @@ class Mergado extends Module {
         $this->_clearCache('*');
     }
 
-    public function getRepo() {
+    public function getRepo()
+    {
         $ch = curl_init();
         curl_setopt_array($ch, array(
             CURLOPT_RETURNTRANSFER => true,
@@ -68,7 +71,8 @@ class Mergado extends Module {
         return $response;
     }
 
-    public function getZipFile($url, $zipPath) {
+    public function getZipFile($url, $zipPath)
+    {
 
         mkdir($zipPath);
         $zipFile = $zipPath . 'update.zip'; // Local Zip File Path
@@ -103,7 +107,8 @@ class Mergado extends Module {
         return $result;
     }
 
-    public function updateModule() {
+    public function updateModule()
+    {
 
         $response = $this->getRepo();
         $version = $response->tag_name;
@@ -131,33 +136,37 @@ class Mergado extends Module {
         return false;
     }
 
-    public function updateVersionXml() {
+    public function updateVersionXml()
+    {
         $mustHave = Tools::addonsRequest('must-have');
         $mergadoXml = file_get_contents('https://raw.githubusercontent.com/mergado/mergado-marketing-pack-prestashop/master/mergado/config/mergado_update.xml');
-        $mergadoXml = file_get_contents(_PS_MODULE_DIR_ . '/mergado/config/mergado_update.xml');
+        //$mergadoXml = file_get_contents(_PS_MODULE_DIR_ . '/mergado/config/mergado_update.xml');
 
-        $psXml = new \SimpleXMLElement($mustHave);
-        $mXml = new \SimpleXMLElement($mergadoXml);
+        if ($mustHave && $mergadoXml) {
+            $psXml = new \SimpleXMLElement($mustHave);
+            $mXml = new \SimpleXMLElement($mergadoXml);
 
-        $doc = new DOMDocument();
-        $doc->loadXML($psXml->asXml());
+            $doc = new DOMDocument();
+            $doc->loadXML($psXml->asXml());
 
-        $mDoc = new DOMDocument();
-        $mDoc->loadXML($mXml->asXml());
+            $mDoc = new DOMDocument();
+            $mDoc->loadXML($mXml->asXml());
 
-        $node = $doc->importNode($mDoc->documentElement, true);
-        $doc->documentElement->appendChild($node);
+            $node = $doc->importNode($mDoc->documentElement, true);
+            $doc->documentElement->appendChild($node);
 
-        $updateXml = $doc->saveXml();
+            $updateXml = $doc->saveXml();
 
-        @file_put_contents(_PS_ROOT_DIR_ . Module::CACHE_FILE_MUST_HAVE_MODULES_LIST, $updateXml);
+            @file_put_contents(_PS_ROOT_DIR_ . Module::CACHE_FILE_MUST_HAVE_MODULES_LIST, $updateXml);
+        }
     }
 
     /**
      * Don't forget to create update methods if needed:
      * http://doc.prestashop.com/display/PS16/Enabling+the+Auto-Update.
      */
-    public function install() {
+    public function install()
+    {
         include dirname(__FILE__) . '/sql/install.php';
 
         $this->addTab();
@@ -165,7 +174,8 @@ class Mergado extends Module {
         return parent::install() && $this->installUpdates() && $this->registerHook('backOfficeHeader') && $this->registerHook('actionValidateOrder') && $this->registerHook('orderConfirmation') && $this->registerHook('displayFooter') && $this->registerHook('displayProductFooter') && $this->registerHook('displayShoppingCartFooter') && $this->registerHook('displayHeader') && $this->registerHook('displayOrderConfirmation');
     }
 
-    public function uninstall() {
+    public function uninstall()
+    {
         include dirname(__FILE__) . '/sql/uninstall.php';
 
         $this->removeTab();
@@ -173,7 +183,8 @@ class Mergado extends Module {
         return parent::uninstall();
     }
 
-    public function installUpdates() {
+    public function installUpdates()
+    {
         include __DIR__ . "/sql/update-1.2.2.php";
 
         return true;
@@ -182,16 +193,18 @@ class Mergado extends Module {
     /**
      * Load the configuration form.
      */
-    public function getContent() {
+    public function getContent()
+    {
         return $this->renderForm();
     }
 
     /**
      * Create the form that will be displayed in the configuration of your module.
      */
-    protected function renderForm() {
+    protected function renderForm()
+    {
         $id = Tab::getIdFromClassName($this->controllerClass);
-        $token = Tools::getAdminToken($this->controllerClass . $id . (int) $this->context->employee->id);
+        $token = Tools::getAdminToken($this->controllerClass . $id . (int)$this->context->employee->id);
         Tools::redirectAdmin('index.php?controller=' . $this->controllerClass . '&token=' . $token);
         die;
     }
@@ -199,12 +212,13 @@ class Mergado extends Module {
     /**
      * Add item into menu.
      */
-    protected function addTab() {
+    protected function addTab()
+    {
         $id_parent = Tab::getIdFromClassName('AdminCatalog');
         if (!$id_parent) {
             throw new RuntimeException(
-            sprintf($this->l('Failed to add the module into the main BO menu.')) . ' : '
-            . Db::getInstance()->getMsgError()
+                sprintf($this->l('Failed to add the module into the main BO menu.')) . ' : '
+                . Db::getInstance()->getMsgError()
             );
         }
 
@@ -224,7 +238,8 @@ class Mergado extends Module {
         }
     }
 
-    protected function removeTab() {
+    protected function removeTab()
+    {
         if (!Tab::getInstanceFromClassName($this->controllerClass)->delete()) {
             throw new RuntimeException($this->l('Failed to remove the module from the main BO menu.'));
         }
@@ -233,7 +248,8 @@ class Mergado extends Module {
     /**
      * Add the CSS & JavaScript files you want to be loaded in the BO.
      */
-    public function hookBackOfficeHeader() {
+    public function hookBackOfficeHeader()
+    {
         if (Tools::getValue('controller') == $this->controllerClass) {
             $this->context->controller->addJquery();
             $this->context->controller->addJS($this->_path . 'views/js/back.js');
@@ -246,7 +262,8 @@ class Mergado extends Module {
         }
     }
 
-    public function hookDisplayFooterProduct($params) {
+    public function hookDisplayFooterProduct($params)
+    {
         $adWordsRemarketing = MergadoClass::getSettings('adwords_remarketing');
 
         if ($adWordsRemarketing == '1') {
@@ -264,23 +281,24 @@ class Mergado extends Module {
         }
     }
 
-    public function hookDisplayShoppingCartFooter($params) {
+    public function hookDisplayShoppingCartFooter($params)
+    {
         $adWordsRemarketing = MergadoClass::getSettings('adwords_remarketing');
 
         $prodid = "";
         foreach ($params['products'] as $product) {
             $prodid .= "'" . $product['id_product'];
 
-            if(isset($product['id_product_attribute']) && $product['id_product_attribute'] != "") {
+            if (isset($product['id_product_attribute']) && $product['id_product_attribute'] != "") {
                 $prodid .= '-';
                 $prodid .= $product['id_product_attribute'];
             }
-            
+
             $prodid .= "',";
         }
-        
+
         $prodid = "[" . substr($prodid, 0, -1) . "]";
-        
+
         if ($adWordsRemarketing == '1') {
             $adWordsRemarketingId = MergadoClass::getSettings('adwords_remarketing_id');
 
@@ -299,7 +317,8 @@ class Mergado extends Module {
     /**
      * Verified by users.
      */
-    public function hookActionValidateOrder($params) {
+    public function hookActionValidateOrder($params)
+    {
         $verifiedCz = MergadoClass::getSettings('mergado_heureka_overeno_zakazniky_cz');
         $verifiedSk = MergadoClass::getSettings('mergado_heureka_overeno_zakazniky_sk');
         $mergado = new MergadoClass();
@@ -327,7 +346,8 @@ class Mergado extends Module {
         MergadoClass::log("Validate order:\n" . json_encode(array('verifiedCz' => $verifiedCz, 'verifiedSk' => $verifiedSk, 'conversionSent_Zbozi' => $zboziSent, 'conversionSent_NajNakup' => $najNakupSent, 'conversionSent_Pricemania' => $pricemaniaSent)) . "\n");
     }
 
-    public function hookOrderConfirmation($params) {
+    public function hookOrderConfirmation($params)
+    {
         $zboziActive = MergadoClass::getSettings('mergado_zbozi_konverze');
         $zboziId = MergadoClass::getSettings('mergado_zbozi_shop_id');
         $heurekaCzActive = MergadoClass::getSettings('mergado_heureka_konverze_cz');
@@ -363,7 +383,7 @@ class Mergado extends Module {
                     'name' => $exactName,
                     'qty' => $product['quantity'],
                     'unitPrice' => Tools::ps_round(
-                            $product['price_wt'], Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                        $product['price_wt'], Configuration::get('PS_PRICE_DISPLAY_PRECISION')
                     ),
                 );
             }
@@ -382,7 +402,7 @@ class Mergado extends Module {
                     'name' => $exactName,
                     'qty' => $product['quantity'],
                     'unitPrice' => Tools::ps_round(
-                            $product['price_wt'], Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                        $product['price_wt'], Configuration::get('PS_PRICE_DISPLAY_PRECISION')
                     ),
                 );
             }
@@ -402,7 +422,7 @@ class Mergado extends Module {
             'conversionZboziShopId' => $zboziId,
             'conversionZboziActive' => $zboziActive,
             'conversionZboziTotal' => number_format(
-                    $params['objOrder']->total_paid, Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                $params['objOrder']->total_paid, Configuration::get('PS_PRICE_DISPLAY_PRECISION')
             ),
             'conversionOrderId' => $params['objOrder']->id,
             'heurekaCzActive' => $heurekaCzActive,
@@ -430,10 +450,11 @@ class Mergado extends Module {
         return $this->display(__FILE__, '/views/templates/front/tracking.tpl');
     }
 
-    public function hookDisplayFooter($params) {
+    public function hookDisplayFooter($params)
+    {
 
         global $cookie;
-        $iso_code = Language::getIsoById((int) $cookie->id_lang);
+        $iso_code = Language::getIsoById((int)$cookie->id_lang);
         $codeCz = MergadoClass::getSettings('mergado_heureka_widget_cz');
         $codeSk = MergadoClass::getSettings('mergado_heureka_widget_sk');
         $fbPixel = MergadoClass::getSettings('fb_pixel');
@@ -534,15 +555,15 @@ class Mergado extends Module {
         $categoryId = Tools::getValue('id_category');
         $productId = Tools::getValue('id_product');
 
-        if($categoryId) {
+        if ($categoryId) {
             $category = new CategoryCore($categoryId, (int)ContextCore::getContext()->language->id);
             $nb = 10;
             $products_tmp = $category->getProducts((int)Context::getContext()->language->id, 1, ($nb ? $nb : 10));
 
             $products = array();
             foreach ($products_tmp as $product) {
-                $products['ids'][] = "'" . $product['id_product'].'-'.$product['id_product_attribute'] . "'";
-                $products['name'][] = "'". $product['name'] . "'";
+                $products['ids'][] = "'" . $product['id_product'] . '-' . $product['id_product_attribute'] . "'";
+                $products['name'][] = "'" . $product['name'] . "'";
             }
 
             $this->smarty->assign(array(
@@ -552,7 +573,7 @@ class Mergado extends Module {
             ));
         }
 
-        if($productId) {
+        if ($productId) {
             $product = new ProductCore($productId, false, (int)ContextCore::getContext()->language->id);
 
             $this->smarty->assign(array(
@@ -560,7 +581,7 @@ class Mergado extends Module {
             ));
         }
 
-        if($glami == '1') {
+        if ($glami == '1') {
             $glamiPixel = MergadoClass::getSettings('glami_pixel_code');
 
             if ($glamiPixel != '') {
@@ -577,14 +598,15 @@ class Mergado extends Module {
         return $display;
     }
 
-    public function hookDisplayOrderConfirmation($data) {
+    public function hookDisplayOrderConfirmation($data)
+    {
         $order = new OrderCore($data['objOrder']->id);
         $products_tmp = $order->getProducts();
 
         $products = array();
         foreach ($products_tmp as $product) {
             $products['ids'][] = "'" . $product['id_product'] . '-' . $product['product_attribute_id'] . "'";
-            $products['name'][] = "'". $product['product_name'] . "'";
+            $products['name'][] = "'" . $product['product_name'] . "'";
         }
 
         $this->smarty->assign(array(
