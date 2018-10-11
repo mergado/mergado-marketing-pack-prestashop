@@ -29,16 +29,16 @@ class Mergado extends Module
     {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.6.1';
+        $this->version = '1.6.2';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
         $this->controllerClass = 'AdminMergado';
 
         /*
-         * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.6)
+         * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.7)
          */
-        if (_PS_VERSION_ >= 1.5 && _PS_VERSION_ < 1.6) {
+        if (_PS_VERSION_ >= 1.5 && _PS_VERSION_ < 1.7) {
             $this->bootstrap = false;
         } else {
             $this->bootstrap = true;
@@ -51,7 +51,7 @@ class Mergado extends Module
 
         $this->confirmUninstall = $this->l('Are you sure to uninstall Mergado marketing pack module?');
 
-        $this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.6.1.20');
+        $this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.7.4.3');
 
         $this->_clearCache('*');
     }
@@ -254,7 +254,7 @@ class Mergado extends Module
             $this->context->controller->addJquery();
             $this->context->controller->addJS($this->_path . 'views/js/back.js');
 
-            if (_PS_VERSION_ >= 1.5 && _PS_VERSION_ < 1.6) {
+            if (_PS_VERSION_ >= 1.5 && _PS_VERSION_ < 1.7) {
                 $this->context->controller->addCSS($this->_path . 'views/css/back15.css');
             } else {
                 $this->context->controller->addCSS($this->_path . 'views/css/back.css');

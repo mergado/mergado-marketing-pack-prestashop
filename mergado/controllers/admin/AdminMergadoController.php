@@ -128,7 +128,10 @@ class AdminMergadoController extends ModuleAdminController {
         $helper->default_form_language = $default_lang;
         $helper->allow_employee_form_lang = $default_lang;
 
-        $helper->title = $this->displayName;
+        if(isset($this->displayName)){
+            $helper->title = $this->displayName;
+        }
+
         $helper->show_toolbar = true;
         $helper->toolbar_scroll = true;
         $helper->submit_action = 'submit' . $this->name;
@@ -337,12 +340,13 @@ class AdminMergadoController extends ModuleAdminController {
 
         $optionsArray = array();
         foreach ($options as $option) {
-
-            $optionsArray = array_merge(
+            if(isset( $this->settingsValues['what_to_export_' . $option['id_option']])) {
+                $optionsArray = array_merge(
                     $optionsArray, array(
-                'what_to_export_' . $option['id_option'] => $this->settingsValues['what_to_export_' . $option['id_option']]
+                        'what_to_export_' . $option['id_option'] => $this->settingsValues['what_to_export_' . $option['id_option']]
                     )
-            );
+                );
+            }
         }
 
         $fields_value = array(
@@ -359,10 +363,14 @@ class AdminMergadoController extends ModuleAdminController {
         $helper->name_controller = $this->name;
 
         $helper->tpl_vars = array('fields_value' => array_merge($fields_value, $optionsArray, $defaultValues));
-        $helper->default_form_language = $default_lang;
-        $helper->allow_employee_form_lang = $default_lang;
+        if(isset($default_lang)) {
+            $helper->default_form_language = $default_lang;
+            $helper->allow_employee_form_lang = $default_lang;
+        }
 
-        $helper->title = $this->displayName;
+        if(isset($this->displayName)) {
+            $helper->title = $this->displayName;
+        }
         $helper->show_toolbar = true;
         $helper->toolbar_scroll = true;
         $helper->submit_action = 'submit' . $this->name;
@@ -978,44 +986,55 @@ class AdminMergadoController extends ModuleAdminController {
             )
         );
 
-        $fields_value = array(
-            'mergado_heureka_overeno_zakazniky_cz' => $this->settingsValues['mergado_heureka_overeno_zakazniky_cz'],
-            'mergado_heureka_overeno_zakazniky_kod_cz' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_cz'],
-            'mergado_heureka_overeno_zakazniky_sk' => $this->settingsValues['mergado_heureka_overeno_zakazniky_sk'],
-            'mergado_heureka_overeno_zakazniky_kod_sk' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_sk'],
-            'mergado_heureka_konverze_cz' => $this->settingsValues['mergado_heureka_konverze_cz'],
-            'mergado_heureka_konverze_cz_kod' => $this->settingsValues['mergado_heureka_konverze_cz_kod'],
-            'mergado_heureka_konverze_sk' => $this->settingsValues['mergado_heureka_konverze_sk'],
-            'mergado_heureka_konverze_sk_kod' => $this->settingsValues['mergado_heureka_konverze_sk_kod'],
-            'mergado_heureka_widget_cz' => $this->settingsValues['mergado_heureka_widget_cz'],
-            'mergado_heureka_widget_sk' => $this->settingsValues['mergado_heureka_widget_sk'],
-            'mergado_heureka_dostupnostni_feed' => $this->settingsValues['mergado_heureka_dostupnostni_feed'],
-            'mergado_zbozi_konverze' => $this->settingsValues['mergado_zbozi_konverze'],
-            'mergado_zbozi_shop_id' => $this->settingsValues['mergado_zbozi_shop_id'],
-            'mergado_zbozi_secret' => $this->settingsValues['mergado_zbozi_secret'],
-            'mergado_sklik_konverze' => $this->settingsValues['mergado_sklik_konverze'],
-            'mergado_sklik_konverze_kod' => $this->settingsValues['mergado_sklik_konverze_kod'],
-            'mergado_sklik_konverze_hodnota' => $this->settingsValues['mergado_sklik_konverze_hodnota'],
-            'mergado_adwords_conversion' => $this->settingsValues['mergado_adwords_conversion'],
-            'mergado_adwords_conversion_code' => $this->settingsValues['mergado_adwords_conversion_code'],
-            'mergado_adwords_conversion_label' => $this->settingsValues['mergado_adwords_conversion_label'],
-            'mergado_najnakup_konverze' => $this->settingsValues['mergado_najnakup_konverze'],
-            'mergado_najnakup_shop_id' => $this->settingsValues['mergado_najnakup_shop_id'],
-            'mergado_pricemania_overeny_obchod' => $this->settingsValues['mergado_pricemania_overeny_obchod'],
-            'mergado_pricemania_shop_id' => $this->settingsValues['mergado_pricemania_shop_id'],
-            'fb_pixel' => $this->settingsValues['fb_pixel'],
-            'fb_pixel_code' => $this->settingsValues['fb_pixel_code'],
-            'adwords_remarketing' => $this->settingsValues['adwords_remarketing'],
-            'adwords_remarketing_id' => $this->settingsValues['adwords_remarketing_id'],
-            'seznam_retargeting' => $this->settingsValues['seznam_retargeting'],
-            'seznam_retargeting_id' => $this->settingsValues['seznam_retargeting_id'],
-            'etarget' => $this->settingsValues['etarget'],
-            'etarget_id' => $this->settingsValues['etarget_id'],
-            'etarget_hash' => $this->settingsValues['etarget_hash'],
-            'glami_active' => $this->settingsValues['glami_active'],
-            'glami_pixel_code' => $this->settingsValues['glami_pixel_code'],
-            'page' => 6,
-        );
+//        $fields_value = array(
+//            'mergado_heureka_overeno_zakazniky_cz' => $this->settingsValues['mergado_heureka_overeno_zakazniky_cz'],
+//            'mergado_heureka_overeno_zakazniky_kod_cz' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_cz'],
+//            'mergado_heureka_overeno_zakazniky_sk' => $this->settingsValues['mergado_heureka_overeno_zakazniky_sk'],
+//            'mergado_heureka_overeno_zakazniky_kod_sk' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_sk'],
+//            'mergado_heureka_konverze_cz' => $this->settingsValues['mergado_heureka_konverze_cz'],
+//            'mergado_heureka_konverze_cz_kod' => $this->settingsValues['mergado_heureka_konverze_cz_kod'],
+//            'mergado_heureka_konverze_sk' => $this->settingsValues['mergado_heureka_konverze_sk'],
+//            'mergado_heureka_konverze_sk_kod' => $this->settingsValues['mergado_heureka_konverze_sk_kod'],
+//            'mergado_heureka_widget_cz' => $this->settingsValues['mergado_heureka_widget_cz'],
+//            'mergado_heureka_widget_sk' => $this->settingsValues['mergado_heureka_widget_sk'],
+//            'mergado_heureka_dostupnostni_feed' => $this->settingsValues['mergado_heureka_dostupnostni_feed'],
+//            'mergado_zbozi_konverze' => $this->settingsValues['mergado_zbozi_konverze'],
+//            'mergado_zbozi_shop_id' => $this->settingsValues['mergado_zbozi_shop_id'],
+//            'mergado_zbozi_secret' => $this->settingsValues['mergado_zbozi_secret'],
+//            'mergado_sklik_konverze' => $this->settingsValues['mergado_sklik_konverze'],
+//            'mergado_sklik_konverze_kod' => $this->settingsValues['mergado_sklik_konverze_kod'],
+//            'mergado_sklik_konverze_hodnota' => $this->settingsValues['mergado_sklik_konverze_hodnota'],
+//            'mergado_adwords_conversion' => $this->settingsValues['mergado_adwords_conversion'],
+//            'mergado_adwords_conversion_code' => $this->settingsValues['mergado_adwords_conversion_code'],
+//            'mergado_adwords_conversion_label' => $this->settingsValues['mergado_adwords_conversion_label'],
+//            'mergado_najnakup_konverze' => $this->settingsValues['mergado_najnakup_konverze'],
+//            'mergado_najnakup_shop_id' => $this->settingsValues['mergado_najnakup_shop_id'],
+//            'mergado_pricemania_overeny_obchod' => $this->settingsValues['mergado_pricemania_overeny_obchod'],
+//            'mergado_pricemania_shop_id' => $this->settingsValues['mergado_pricemania_shop_id'],
+//            'fb_pixel' => $this->settingsValues['fb_pixel'],
+//            'fb_pixel_code' => $this->settingsValues['fb_pixel_code'],
+//            'adwords_remarketing' => $this->settingsValues['adwords_remarketing'],
+//            'adwords_remarketing_id' => $this->settingsValues['adwords_remarketing_id'],
+//            'seznam_retargeting' => $this->settingsValues['seznam_retargeting'],
+//            'seznam_retargeting_id' => $this->settingsValues['seznam_retargeting_id'],
+//            'etarget' => $this->settingsValues['etarget'],
+//            'etarget_id' => $this->settingsValues['etarget_id'],
+//            'etarget_hash' => $this->settingsValues['etarget_hash'],
+//            'glami_active' => $this->settingsValues['glami_active'],
+//            'glami_pixel_code' => $this->settingsValues['glami_pixel_code'],
+//            'page' => 6,
+//        );
+
+        //Notice fix
+
+        $fields_value = [];
+
+        foreach($this->settingsValues as $key => $value) {
+            $fields_value[$key] = $value;
+        }
+        $fields_value['page'] = 6;
+
+
 
         $helper = new HelperForm();
 
@@ -1023,10 +1042,16 @@ class AdminMergadoController extends ModuleAdminController {
         $helper->name_controller = $this->name;
 
         $helper->tpl_vars = array('fields_value' => $fields_value);
-        $helper->default_form_language = $default_lang;
-        $helper->allow_employee_form_lang = $default_lang;
 
-        $helper->title = $this->displayName;
+        if(isset($default_lang)){
+            $helper->default_form_language = $default_lang;
+            $helper->allow_employee_form_lang = $default_lang;
+        }
+
+        if (isset($this->displayName)) {
+            $helper->title = $this->displayName;
+        }
+
         $helper->show_toolbar = true;
         $helper->toolbar_scroll = true;
         $helper->submit_action = 'submit' . $this->name;

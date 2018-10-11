@@ -215,11 +215,11 @@ class MergadoClass extends ObjectModel {
                 if ($crumb['id_category'] == 1 || $crumb['id_category'] == 2) {
                     continue;
                 }
-            
+
                 $categorytext .= $crumb['name'];
                 $categorytext .= ' | ';
             }
-            
+
             $categorytext = substr($categorytext, 0, -3);
 
             foreach ($products as $product) {
@@ -1321,7 +1321,12 @@ class MergadoClass extends ObjectModel {
 
         $row['attribute_price'] = 0;
         if ($id_product_attribute) {
-            $row['attribute_price'] = (float) Product::getProductAttributePrice($id_product_attribute);
+
+            if(_PS_VERSION_ < 1.7) {
+                $row['attribute_price'] = (float) Product::getProductAttributePrice($id_product_attribute);
+            } else {
+                $row['attribute_price'] = (float) Combination::getPrice($id_product_attribute);
+            }
         }
 
         $row['price_tax_exc'] = $this->getPriceStatic(
@@ -1378,7 +1383,10 @@ class MergadoClass extends ObjectModel {
         // Pack management
         $row['pack'] = (!isset($row['cache_is_pack']) ? Pack::isPack($row['id_product']) : (int) $row['cache_is_pack']);
         $row['packItems'] = $row['pack'] ? Pack::getItemTable($row['id_product'], $id_lang) : array();
+
+        // BARGL ERROR -> this way
         $row['nopackprice'] = $row['pack'] ? Pack::noPackPrice($row['id_product']) : 0;
+
         if ($row['pack'] && !Pack::isInStock($row['id_product'])) {
             $row['quantity'] = 0;
         }
