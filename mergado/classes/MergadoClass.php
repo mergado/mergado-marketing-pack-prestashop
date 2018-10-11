@@ -1023,7 +1023,7 @@ class MergadoClass extends ObjectModel {
                 $zbozi = new MergadoZboziKonverze($id, $secret);
 
                 // testovací režim
-                // $zbozi->useSandbox(true);
+                 $zbozi->useSandbox(true);
 
                 $cart = new Cart($order['cart']->id, LanguageCore::getIdByIso($lang));
                 $products = $cart->getProducts();
@@ -1048,7 +1048,6 @@ class MergadoClass extends ObjectModel {
                         'quantity' => $product['quantity'],
                     ));
                 }
-
                 $carrier = new CarrierCore($order['order']->id_carrier);
                 $zbozi->setOrder(array(
                     'email' => $order['customer']->email,
@@ -1060,6 +1059,7 @@ class MergadoClass extends ObjectModel {
                     'paymentType' => $order['order']->payment,
                     'totalPrice' => $order['order']->total_paid,
                 ));
+
 
                 $zbozi->send();
                 return true;
@@ -1074,6 +1074,7 @@ class MergadoClass extends ObjectModel {
     }
 
     public function sendNajnakupValuation($order, $lang) {
+
         $active = self::getSettings('mergado_najnakup_konverze');
         $id = self::getSettings('mergado_najnakup_shop_id');
 
@@ -1109,7 +1110,6 @@ class MergadoClass extends ObjectModel {
                 $pm = new Pricemania($id);
                 $cart = new Cart($order['cart']->id, LanguageCore::getIdByIso($lang));
                 $products = $cart->getProducts();
-
                 foreach ($products as $product) {
                     $exactName = $product['name'];
 
@@ -1117,6 +1117,7 @@ class MergadoClass extends ObjectModel {
                         $tmpName = array_reverse(explode(', ', $product['attributes_small']));
                         $exactName .= ': ' . implode(' ', $tmpName);
                     }
+
 
                     $pm->addProduct($exactName);
                 }

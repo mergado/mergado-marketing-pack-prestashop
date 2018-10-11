@@ -36,7 +36,7 @@
                 t.parentNode.insertBefore(c, t)
             })(window, document, "script", "https://www.zbozi.cz/conversion/js/conv.js", "zbozi", conversionZboziShopId);
             // zapnutí testovacího režimu
-            // zbozi("useSandbox");
+            zbozi("useSandbox");
             // nastavení informací o objednávce
             zbozi("setOrder", {
                 "orderId": conversionOrderId,
