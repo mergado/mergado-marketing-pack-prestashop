@@ -1023,7 +1023,7 @@ class MergadoClass extends ObjectModel {
                 $zbozi = new MergadoZboziKonverze($id, $secret);
 
                 // testovací režim
-                 $zbozi->useSandbox(true);
+//                 $zbozi->useSandbox(true);
 
                 $cart = new Cart($order['cart']->id, LanguageCore::getIdByIso($lang));
                 $products = $cart->getProducts();
@@ -1386,6 +1386,10 @@ class MergadoClass extends ObjectModel {
         $row['packItems'] = $row['pack'] ? Pack::getItemTable($row['id_product'], $id_lang) : array();
 
         // BARGL ERROR -> this way
+//        var_dump($row['pack']);
+//        var_dump($row['id_product']);
+//        var_dump($row);
+
         $row['nopackprice'] = $row['pack'] ? Pack::noPackPrice($row['id_product']) : 0;
 
         if ($row['pack'] && !Pack::isInStock($row['id_product'])) {
