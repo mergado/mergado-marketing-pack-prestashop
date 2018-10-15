@@ -1384,14 +1384,6 @@ class MergadoClass extends ObjectModel {
         // Pack management
         $row['pack'] = (!isset($row['cache_is_pack']) ? Pack::isPack($row['id_product']) : (int) $row['cache_is_pack']);
         $row['packItems'] = $row['pack'] ? Pack::getItemTable($row['id_product'], $id_lang) : array();
-
-        // BARGL ERROR -> this way
-//        var_dump($row['pack']);
-//        var_dump($row['id_product']);
-//        var_dump($row);
-
-        $row['nopackprice'] = $row['pack'] ? Pack::noPackPrice($row['id_product']) : 0;
-
         if ($row['pack'] && !Pack::isInStock($row['id_product'])) {
             $row['quantity'] = 0;
         }
