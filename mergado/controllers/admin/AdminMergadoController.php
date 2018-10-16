@@ -23,6 +23,7 @@ class AdminMergadoController extends ModuleAdminController {
     protected $currencies;
     protected $modulePath;
     protected $settingsValues;
+    protected $defaultLang;
 
     public function __construct() {
         $this->bootstrap = true;
@@ -33,6 +34,7 @@ class AdminMergadoController extends ModuleAdminController {
         $this->languages = new Language();
         $this->currencies = new Currency();
         $this->modulePath = _PS_MODULE_DIR_ . 'mergado/';
+        $this->defaultLang = Configuration::get('PS_LANG_DEFAULT');
 
         $settingsTable = MergadoClass::getWholeSettings();
         $settingsValues = array();
@@ -125,8 +127,8 @@ class AdminMergadoController extends ModuleAdminController {
         $helper->name_controller = $this->name;
 
         $helper->tpl_vars = array('fields_value' => $fields_value);
-        $helper->default_form_language = $default_lang;
-        $helper->allow_employee_form_lang = $default_lang;
+        $helper->default_form_language = $this->defaultLang;
+        $helper->allow_employee_form_lang = $this->defaultLang;
 
         if(isset($this->displayName)){
             $helper->title = $this->displayName;
@@ -363,9 +365,9 @@ class AdminMergadoController extends ModuleAdminController {
         $helper->name_controller = $this->name;
 
         $helper->tpl_vars = array('fields_value' => array_merge($fields_value, $optionsArray, $defaultValues));
-        if(isset($default_lang)) {
-            $helper->default_form_language = $default_lang;
-            $helper->allow_employee_form_lang = $default_lang;
+        if(isset($this->defaultLang)) {
+            $helper->default_form_language = $this->defaultLang;
+            $helper->allow_employee_form_lang = $this->defaultLang;
         }
 
         if(isset($this->displayName)) {
@@ -986,47 +988,6 @@ class AdminMergadoController extends ModuleAdminController {
             )
         );
 
-//        $fields_value = array(
-//            'mergado_heureka_overeno_zakazniky_cz' => $this->settingsValues['mergado_heureka_overeno_zakazniky_cz'],
-//            'mergado_heureka_overeno_zakazniky_kod_cz' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_cz'],
-//            'mergado_heureka_overeno_zakazniky_sk' => $this->settingsValues['mergado_heureka_overeno_zakazniky_sk'],
-//            'mergado_heureka_overeno_zakazniky_kod_sk' => $this->settingsValues['mergado_heureka_overeno_zakazniky_kod_sk'],
-//            'mergado_heureka_konverze_cz' => $this->settingsValues['mergado_heureka_konverze_cz'],
-//            'mergado_heureka_konverze_cz_kod' => $this->settingsValues['mergado_heureka_konverze_cz_kod'],
-//            'mergado_heureka_konverze_sk' => $this->settingsValues['mergado_heureka_konverze_sk'],
-//            'mergado_heureka_konverze_sk_kod' => $this->settingsValues['mergado_heureka_konverze_sk_kod'],
-//            'mergado_heureka_widget_cz' => $this->settingsValues['mergado_heureka_widget_cz'],
-//            'mergado_heureka_widget_sk' => $this->settingsValues['mergado_heureka_widget_sk'],
-//            'mergado_heureka_dostupnostni_feed' => $this->settingsValues['mergado_heureka_dostupnostni_feed'],
-//            'mergado_zbozi_konverze' => $this->settingsValues['mergado_zbozi_konverze'],
-//            'mergado_zbozi_shop_id' => $this->settingsValues['mergado_zbozi_shop_id'],
-//            'mergado_zbozi_secret' => $this->settingsValues['mergado_zbozi_secret'],
-//            'mergado_sklik_konverze' => $this->settingsValues['mergado_sklik_konverze'],
-//            'mergado_sklik_konverze_kod' => $this->settingsValues['mergado_sklik_konverze_kod'],
-//            'mergado_sklik_konverze_hodnota' => $this->settingsValues['mergado_sklik_konverze_hodnota'],
-//            'mergado_adwords_conversion' => $this->settingsValues['mergado_adwords_conversion'],
-//            'mergado_adwords_conversion_code' => $this->settingsValues['mergado_adwords_conversion_code'],
-//            'mergado_adwords_conversion_label' => $this->settingsValues['mergado_adwords_conversion_label'],
-//            'mergado_najnakup_konverze' => $this->settingsValues['mergado_najnakup_konverze'],
-//            'mergado_najnakup_shop_id' => $this->settingsValues['mergado_najnakup_shop_id'],
-//            'mergado_pricemania_overeny_obchod' => $this->settingsValues['mergado_pricemania_overeny_obchod'],
-//            'mergado_pricemania_shop_id' => $this->settingsValues['mergado_pricemania_shop_id'],
-//            'fb_pixel' => $this->settingsValues['fb_pixel'],
-//            'fb_pixel_code' => $this->settingsValues['fb_pixel_code'],
-//            'adwords_remarketing' => $this->settingsValues['adwords_remarketing'],
-//            'adwords_remarketing_id' => $this->settingsValues['adwords_remarketing_id'],
-//            'seznam_retargeting' => $this->settingsValues['seznam_retargeting'],
-//            'seznam_retargeting_id' => $this->settingsValues['seznam_retargeting_id'],
-//            'etarget' => $this->settingsValues['etarget'],
-//            'etarget_id' => $this->settingsValues['etarget_id'],
-//            'etarget_hash' => $this->settingsValues['etarget_hash'],
-//            'glami_active' => $this->settingsValues['glami_active'],
-//            'glami_pixel_code' => $this->settingsValues['glami_pixel_code'],
-//            'page' => 6,
-//        );
-
-        //Notice fix
-
         $fields_value = [];
 
         foreach($this->settingsValues as $key => $value) {
@@ -1043,9 +1004,9 @@ class AdminMergadoController extends ModuleAdminController {
 
         $helper->tpl_vars = array('fields_value' => $fields_value);
 
-        if(isset($default_lang)){
-            $helper->default_form_language = $default_lang;
-            $helper->allow_employee_form_lang = $default_lang;
+        if(isset($this->defaultLang)){
+            $helper->default_form_language = $this->defaultLang;
+            $helper->allow_employee_form_lang = $this->defaultLang;
         }
 
         if (isset($this->displayName)) {
@@ -1088,6 +1049,18 @@ class AdminMergadoController extends ModuleAdminController {
 
         $mergadoModule = new Mergado();
         $version = $mergadoModule->version;
+        $remoteVersion = null;
+
+        if (Cache::isStored(Mergado::MERGADO_UPDATE_CACHE_ID)) {
+            $remoteVersion = Cache::retrieve(Mergado::MERGADO_UPDATE_CACHE_ID);
+        } else {
+            $remoteVersion = Tools::file_get_contents(Mergado::MERGADO_UPDATE);
+            if($remoteVersion) {
+                $xml = simplexml_load_string($remoteVersion) or die("Error: Cannot create object");
+                $remoteVersion = (string)$xml->version;
+                Cache::store(Mergado::MERGADO_UPDATE_CACHE_ID, $remoteVersion);
+            }
+        }
 
         $categoryFeed = MergadoClass::getSettings('category_feed');
         $categoryCron = array();
@@ -1198,7 +1171,8 @@ class AdminMergadoController extends ModuleAdminController {
             'categoryCron' => $categoryCron,
             'xmls' => $newXml,
             'moduleUrl' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/',
-            'moduleVersion' => $version
+            'moduleVersion' => $version,
+            'remoteVersion' => $remoteVersion
         ));
 
         $before = $this->context->smarty->fetch(_PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/before.tpl');

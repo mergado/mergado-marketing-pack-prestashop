@@ -194,5 +194,11 @@
 
 <script>
     var moduleVersion = '{$moduleVersion}';
-    $('.page-head .page-title').append(' (v. ' + moduleVersion + ')');
+    var remoteVersion = '{$remoteVersion}';
+    var updateAvailable = '{l s="New version available" mod="mergado"}';
+    $('.page-head .page-title').append(' v.' + moduleVersion + '');
+
+    {if $moduleVersion < $remoteVersion}
+        $('.page-head .page-title').append('<br><small>' + updateAvailable + ' ' + remoteVersion + '</small>');
+    {/if}
 </script>

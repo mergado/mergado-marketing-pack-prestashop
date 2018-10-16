@@ -23,13 +23,16 @@ class Mergado extends Module
 {
 
     protected $controllerClass;
-    private $gitLatestRelease = "https://api.github.com/repos/mergado/mergado-marketing-pack-prestashop/releases/latest";
+
+    const MERGADO_LATEST_RELEASE = "https://api.github.com/repos/mergado/mergado-marketing-pack-prestashop/releases/latest";
+    const MERGADO_UPDATE = 'https://raw.githubusercontent.com/mergado/mergado-marketing-pack-prestashop/master/mergado/config/mergado_update.xml';
+    const MERGADO_UPDATE_CACHE_ID = 'mergado_remote_version';
 
     public function __construct()
     {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.6.2';
+        $this->version = '1.6.0';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
@@ -63,7 +66,7 @@ class Mergado extends Module
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13',
-            CURLOPT_URL => $this->gitLatestRelease,
+            CURLOPT_URL => self::MERGADO_LATEST_RELEASE,
         ));
         $response = json_decode(curl_exec($ch));
         curl_close($ch);
@@ -136,14 +139,16 @@ class Mergado extends Module
         return false;
     }
 
-    public function updateVersionXml()
+    public function updateVersionXml($addons = null)
     {
-        $mustHave = Tools::addonsRequest('must-have');
-        $mergadoXml = file_get_contents('https://raw.githubusercontent.com/mergado/mergado-marketing-pack-prestashop/master/mergado/config/mergado_update.xml');
-        //$mergadoXml = file_get_contents(_PS_MODULE_DIR_ . '/mergado/config/mergado_update.xml');
+        if (_PS_VERSION_ < 1.7) {
+            $addons = Tools::addonsRequest('must-have');
+        }
 
-        if ($mustHave && $mergadoXml) {
-            $psXml = new \SimpleXMLElement($mustHave);
+        $mergadoXml = Tools::file_get_contents(self::MERGADO_UPDATE);
+
+        if ($addons && $mergadoXml) {
+            $psXml = new \SimpleXMLElement($addons);
             $mXml = new \SimpleXMLElement($mergadoXml);
 
             $doc = new DOMDocument();
@@ -156,6 +161,10 @@ class Mergado extends Module
             $doc->documentElement->appendChild($node);
 
             $updateXml = $doc->saveXml();
+
+            if (_PS_VERSION_ >= 1.7) {
+                return $updateXml;
+            }
 
             @file_put_contents(_PS_ROOT_DIR_ . Module::CACHE_FILE_MUST_HAVE_MODULES_LIST, $updateXml);
         }
@@ -345,7 +354,7 @@ class Mergado extends Module
 
         try {
             $pricemaniaSent = $mergado->sendPricemaniaOverenyObchod($params, 'sk');
-        }  catch (Exception $e) {
+        } catch (Exception $e) {
             echo 'Error: ' . $e->getMessage();
         }
 
@@ -555,7 +564,7 @@ class Mergado extends Module
         $adwords = MergadoClass::getSettings('mergado_adwords_conversion');
         $adwordsCode = MergadoClass::getSettings('mergado_adwords_conversion_code');
         $adwordsLabel = MergadoClass::getSettings('mergado_adwords_conversion_label');
-        if(_PS_VERSION_ < 1.7) {
+        if (_PS_VERSION_ < 1.7) {
             $cart = new CartCore($params['objOrder']->id_cart);
             $cartCz = new CartCore($params['objOrder']->id_cart, LanguageCore::getIdByIso('cs'));
             $cartSk = new CartCore($params['objOrder']->id_cart, LanguageCore::getIdByIso('sk'));
@@ -620,7 +629,7 @@ class Mergado extends Module
 
         $context = Context::getContext();
 
-        if(_PS_VERSION_ < 1.7) {
+        if (_PS_VERSION_ < 1.7) {
             $data = array(
                 'conversionZboziShopId' => $zboziId,
                 'conversionZboziActive' => $zboziActive,
