@@ -32,7 +32,7 @@ class Mergado extends Module
     {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.6.0';
+        $this->version = '1.6.2';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
@@ -263,7 +263,7 @@ class Mergado extends Module
             $this->context->controller->addJquery();
             $this->context->controller->addJS($this->_path . 'views/js/back.js');
 
-            if (_PS_VERSION_ >= 1.5 && _PS_VERSION_ < 1.7) {
+            if (_PS_VERSION_ < 1.6) {
                 $this->context->controller->addCSS($this->_path . 'views/css/back15.css');
             } else {
                 $this->context->controller->addCSS($this->_path . 'views/css/back.css');
