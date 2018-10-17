@@ -109,5 +109,5 @@ $_MODULE['<{mergado}prestashop>before_db5eb84117d06047c97c9a0191b5fffe'] = 'Podp
 $_MODULE['<{mergado}prestashop>before_8d282a8bd2fe903679ba3011d408c26a'] = 'Licence';
 $_MODULE['<{mergado}prestashop>before_eed52b99ee686d051fae51351ede0a3d'] = 'Audit zdarma';
 $_MODULE['<{mergado}prestashop>before_6ffb73386fb57e0c0e2cef0e3e33e61a'] = 'Nová verze modulu je dostupná, stáhnete ji na stránkách Mergado:';
-$_MODULE['<{mergado}prestashop>before_2fb494c66a1769a32f9348185de0e0fe'] = 'https://www.mergado.cz/';
+$_MODULE['<{mergado}prestashop>before_2fb494c66a1769a32f9348185de0e0fe'] = 'https://www.mergado.cz/shopsystems/prestashop';
 $_MODULE['<{mergado}prestashop>before_2665800f89a1716df529343270555ee8'] = 'Stáhnout aktualizaci';
