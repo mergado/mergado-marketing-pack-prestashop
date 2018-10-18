@@ -33,7 +33,7 @@
 <div id="mergadoHeader">
     <div id='mergadoLogo'>
         <a href='http://www.mergado.cz' title='Mergado' target='_blank'>
-            <img src="{$moduleUrl|escape:'htmlall':'UTF-8'}views/img/logo.png" alt="Mergado" />
+            <img src="{$moduleUrl|escape:'htmlall':'UTF-8'}views/img/logo.png" alt="Mergado"/>
         </a>
     </div>
     <div class="info">
@@ -52,6 +52,12 @@
     </div>
 
     <a href="http://www.mergado.cz/audit-xml" title="{l s='Free audit' mod='mergado'}" target="_blank" id='mrmergado'>
-        <img src="{$moduleUrl|escape:'htmlall':'UTF-8'}views/img/mrmergado.png" alt="Mergado" />
+        <img src="{$moduleUrl|escape:'htmlall':'UTF-8'}views/img/mrmergado.png" alt="Mergado"/>
     </a>
 </div>
+
+{if $moduleVersion < $remoteVersion}
+<div class="alert alert-info">
+    {l s="New version of module is available, download it on Mergado website:" mod='mergado'} <strong><a href="{l s='https:://mergado.cz' mod='mergado'}" title="{l s='Download upgrade' mod='mergado'}" target="_blank">{l s='Download upgrade' mod='mergado'} {$remoteVersion}</a></strong>
+</div>
+{/if}

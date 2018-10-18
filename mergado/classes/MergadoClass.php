@@ -9,15 +9,16 @@
  *
  * You must not modify, adapt or create derivative works of this source code
  *
- *  @author    www.mergado.cz
- *  @copyright 2016 Mergado technologies, s. r. o.
- *  @license   LICENSE.txt
+ * @author    www.mergado.cz
+ * @copyright 2016 Mergado technologies, s. r. o.
+ * @license   LICENSE.txt
  */
 require_once _PS_MODULE_DIR_ . 'mergado/classes/MergadoZboziKonverze.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/MergadoNajNakup.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/MergadoPricemania.php';
 
-class MergadoClass extends ObjectModel {
+class MergadoClass extends ObjectModel
+{
 
     public static $feedPrefix = 'mergado_feed_';
     public static $feedCategoryPrefix = 'category_mergado_feed_';
@@ -35,7 +36,8 @@ class MergadoClass extends ObjectModel {
         'primary' => 'id',
     );
 
-    public function __construct($id = null, $id_lang = null, $id_shop = null) {
+    public function __construct($id = null, $id_lang = null, $id_shop = null)
+    {
         $this->language = new Language();
         $this->currency = new Currency();
         $this->defaultLang = Configuration::get('PS_LANG_DEFAULT');
@@ -44,27 +46,27 @@ class MergadoClass extends ObjectModel {
         parent::__construct($id, $id_lang, $id_shop);
     }
 
-    public function generateMergadoFeed($feedBase) {
+    public function generateMergadoFeed($feedBase)
+    {
         $products = array();
-
         try {
             $generateCategory = substr($feedBase, 0, 8) === "category";
 
             if ($feedBase == 'stock') {
                 $feedBase .= '_' . Tools::getAdminTokenLite('AdminModules');
-                $xml = $this->generateStockXML($stockData, $feedBase);
+                $xml = $this->generateStockXML($feedBase);
                 MergadoClass::log("Stock feed generated\n");
 
                 return $xml;
             } elseif ($generateCategory) {
                 $base = explode('-', str_replace(self::$feedCategoryPrefix, '', $feedBase));
                 $feedBase = $feedBase . '_' .
-                        Tools::substr(hash('md5', $base[0] . '-' . $base[1] . Configuration::get('PS_SHOP_NAME')), 1, 11);
+                    Tools::substr(hash('md5', $base[0] . '-' . $base[1] . Configuration::get('PS_SHOP_NAME')), 1, 11);
 
                 $this->language = $this->language->getLanguageByIETFCode($this->language->getLanguageCodeByIso($base[0]));
                 $this->currency = new Currency($this->currency->getIdByIsoCode($base[1]));
 
-                $categories = CategoryCore::getSimpleCategories($this->language->id);
+                $categories = Category::getSimpleCategories($this->language->id);
                 $xml = $this->generateCategoriesXML($categories, $feedBase, $this->currency, $this->language);
 
                 MergadoClass::log("Mergado category feed generated:\n" . $feedBase);
@@ -73,10 +75,9 @@ class MergadoClass extends ObjectModel {
             } else {
                 $base = explode('-', str_replace(self::$feedPrefix, '', $feedBase));
                 $feedBase = $feedBase . '_' .
-                        Tools::substr(hash('md5', $base[0] . '-' . $base[1] . Configuration::get('PS_SHOP_NAME')), 1, 11);
+                    Tools::substr(hash('md5', $base[0] . '-' . $base[1] . Configuration::get('PS_SHOP_NAME')), 1, 11);
                 $this->language = $this->language->getLanguageByIETFCode($this->language->getLanguageCodeByIso($base[0]));
                 $this->currency = new Currency($this->currency->getIdByIsoCode($base[1]));
-
                 $products = $this->productsToFlat(false, $this->language->id);
                 $xml = $this->generateXML($products, $feedBase, $this->currency);
                 MergadoClass::log("Mergado feed generated:\n" . $feedBase);
@@ -95,10 +96,10 @@ class MergadoClass extends ObjectModel {
         }
     }
 
-    public function generateStockXML($stockData, $feedBase) {
+    public function generateStockXML($feedBase)
+    {
 
         $productsList = Product::getProducts($this->defaultLang, 0, 0, 'id_product', 'ASC', false, true);
-
 
         $out = _PS_MODULE_DIR_ . 'mergado/tmp/' . $feedBase . '.xml';
         $storage = _PS_MODULE_DIR_ . 'mergado/xml/' . $feedBase . '.xml';
@@ -108,19 +109,19 @@ class MergadoClass extends ObjectModel {
         $xml_new->startDocument('1.0', 'UTF-8');
         $xml_new->startElement('item_list');
 
-        $whenOutOfStock = StockAvailableCore::outOfStock($product->id);
-
-        if ($whenOutOfStock == 2) {
-            $whenOutOfStock = Configuration::get('PS_ORDER_OUT_OF_STOCK');
-        }
 
         foreach ($productsList as $product) {
-            $p = new ProductCore($product['id_product']);
-            $combinations = $this->getProductCombination($p, $lang);
+            $p = new Product($product['id_product']);
+            $combinations = $this->getProductCombination($p, $this->defaultLang);
+            $whenOutOfStock = StockAvailable::outOfStock($p->id);
+
+            if ($whenOutOfStock == 2) {
+                $whenOutOfStock = Configuration::get('PS_ORDER_OUT_OF_STOCK');
+            }
 
             if (count($combinations)) {
                 foreach ($combinations as $combination) {
-                    $qty = StockAvailableCore::getQuantityAvailableByProduct($combination['id_product'], $combination['id_product_attribute']);
+                    $qty = StockAvailable::getQuantityAvailableByProduct($combination['id_product'], $combination['id_product_attribute']);
 
                     if ($qty <= 0 && $whenOutOfStock == 0) {
                         continue;
@@ -138,7 +139,7 @@ class MergadoClass extends ObjectModel {
                 }
             } else {
 
-                $qty = StockAvailableCore::getQuantityAvailableByProduct($product['id_product']);
+                $qty = StockAvailable::getQuantityAvailableByProduct($product['id_product']);
 
                 if ($qty <= 0 && $whenOutOfStock == 0) {
                     // skip
@@ -174,7 +175,8 @@ class MergadoClass extends ObjectModel {
         return true;
     }
 
-    public function generateCategoriesXML($categories, $feedBase, $currency, $lang) {
+    public function generateCategoriesXML($categories, $feedBase, $currency, $lang)
+    {
         $out = _PS_MODULE_DIR_ . 'mergado/tmp/' . $feedBase . '.xml';
         $storage = _PS_MODULE_DIR_ . 'mergado/xml/' . $feedBase . '.xml';
 
@@ -192,21 +194,21 @@ class MergadoClass extends ObjectModel {
         $xml_new->text('mergado.prestashop.modulemergadoxml.2_64');
         $xml_new->endElement();
 
-        $link = new LinkCore();
+        $link = new Link();
 
         foreach ($categories as $cat) {
             if ($cat['id_category'] == 1 || $cat['id_category'] == 2) {
                 continue;
             }
 
-            $category = new CategoryCore($cat['id_category'], $lang->id);
+            $category = new Category($cat['id_category'], $lang->id);
             $categoryLink = $link->getCategoryLink($category, $category->link_rewrite, $lang->id);
             $context = new Context();
             $context->cart = new Cart();
             $context->employee = new Employee();
             $products = $this->getProducts($category, $lang->id, 0, 10);
 
-            $cheapest = (float) isset($products[0]) ? $products[0]['price'] : 0;
+            $cheapest = (float)isset($products[0]) ? $products[0]['price'] : 0;
             $expensive = 0;
 
             $breadcrumbs = $category->getParentsCategories($lang->id);
@@ -215,15 +217,15 @@ class MergadoClass extends ObjectModel {
                 if ($crumb['id_category'] == 1 || $crumb['id_category'] == 2) {
                     continue;
                 }
-            
+
                 $categorytext .= $crumb['name'];
                 $categorytext .= ' | ';
             }
-            
+
             $categorytext = substr($categorytext, 0, -3);
 
             foreach ($products as $product) {
-                $price = (float) $product['price'];
+                $price = (float)$product['price'];
 
                 if ($price > $expensive) {
                     $expensive = $price;
@@ -291,7 +293,8 @@ class MergadoClass extends ObjectModel {
         return true;
     }
 
-    public function generateXML($products, $feedBase, $currency) {
+    public function generateXML($products, $feedBase, $currency)
+    {
         $out = _PS_MODULE_DIR_ . 'mergado/tmp/' . $feedBase . '.xml';
         $storage = _PS_MODULE_DIR_ . 'mergado/xml/' . $feedBase . '.xml';
 
@@ -456,7 +459,8 @@ class MergadoClass extends ObjectModel {
         return true;
     }
 
-    public function generateStaticXML($products) {
+    public function generateStaticXML($products)
+    {
         $out = _PS_MODULE_DIR_ . 'mergado/tmp/static_feed.xml';
         $storage = _PS_MODULE_DIR_ . 'mergado/xml/static_feed.xml';
 
@@ -507,14 +511,14 @@ class MergadoClass extends ObjectModel {
         return true;
     }
 
-    public function productsToFlat($productId = false, $lang = false) {
+    public function productsToFlat($productId = false, $lang = false)
+    {
         $flatProductList = array();
         $productsList = array();
 
         if (!$lang) {
             $lang = $this->defaultLang;
         }
-
         if ($productId) {
             $productsList = $this->getProduct($lang, $productId);
         } else {
@@ -542,11 +546,11 @@ class MergadoClass extends ObjectModel {
                 $export = true;
             }
 
-            if (!(bool) $product->available_for_order) {
+            if (!(bool)$product->available_for_order) {
                 $export = false;
             }
 
-            if (!(bool) $product->show_price) {
+            if (!(bool)$product->show_price) {
                 $export = false;
             }
 
@@ -567,9 +571,10 @@ class MergadoClass extends ObjectModel {
         return $flatProductList;
     }
 
-    public function productBase($item, $lang) {
+    public function productBase($item, $lang)
+    {
 
-        $accessories = ProductCore::getAccessoriesLight($lang, $item->id);
+        $accessories = Product::getAccessoriesLight($lang, $item->id);
         $accessoriesExtended = array();
         if (!empty($accessories)) {
             foreach ($accessories as $accessory) {
@@ -617,7 +622,7 @@ class MergadoClass extends ObjectModel {
         $address->id_country = $id_country;
 
         $tax_manager = TaxManagerFactory::getManager(
-                        $address, Product::getIdTaxRulesGroupByIdProduct((int) $item->id, null)
+            $address, Product::getIdTaxRulesGroupByIdProduct((int)$item->id, null)
         );
 
         $tax_calculator = $tax_manager->getTaxCalculator();
@@ -628,7 +633,7 @@ class MergadoClass extends ObjectModel {
         $defaultCategory = new Category($item->id_category_default, $lang);
         $itemgroupBase = $item->id;
 
-        $whenOutOfStock = StockAvailableCore::outOfStock($item->id);
+        $whenOutOfStock = StockAvailable::outOfStock($item->id);
 
         if ($whenOutOfStock == 2) {
             $whenOutOfStock = Configuration::get('PS_ORDER_OUT_OF_STOCK');
@@ -636,8 +641,8 @@ class MergadoClass extends ObjectModel {
 
         if (!empty($combinations)) {
             foreach ($combinations as $combination) {
-                $qty = ProductCore::getQuantity(
-                                $combination['id_product'], $combination['id_product_attribute']
+                $qty = Product::getQuantity(
+                    $combination['id_product'], $combination['id_product_attribute']
                 );
 
                 $qtyDays = self::getSettings('delivery_days');
@@ -646,7 +651,7 @@ class MergadoClass extends ObjectModel {
                     continue;
                 }
 
-                $img = new ImageCore();
+                $img = new Image();
                 $imagesList = $img->getImages($lang, $combination['id_product'], $combination['id_product_attribute']);
 
                 if (empty($imagesList)) {
@@ -656,57 +661,57 @@ class MergadoClass extends ObjectModel {
                 $images = array();
                 foreach ($imagesList as $img) {
                     $images[] = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
-                            $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
+                        $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
 
                     if ($img['cover'] != null) {
                         $mainImage = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
-                                $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
+                            $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
                     }
                 }
 
                 $specific_price = null;
 
                 $price_vat = Product::priceCalculation($context->shop->id, // ID shop
-                                $combination['id_product'], // ID Product
-                                $combination['id_product_attribute'], // ID Product atribut                                              
-                                $id_country, // ID Country
-                                0, // ID State
-                                0, // ZIP Code
-                                $this->currency->id, // Id Currency
-                                1, // ID Group
-                                1, // Quantity
-                                true, // Použít daň
-                                6, // Počet desetinných míst
-                                false, // Only reduct
-                                true, // Use reduct
-                                true, // With ekotax
-                                $specific_price, // Specific price
-                                true, // Use group reduction
-                                0, // ID customer
-                                true, // Use customer price
-                                0, // ID Cart
-                                0);
+                    $combination['id_product'], // ID Product
+                    $combination['id_product_attribute'], // ID Product atribut
+                    $id_country, // ID Country
+                    0, // ID State
+                    0, // ZIP Code
+                    $this->currency->id, // Id Currency
+                    1, // ID Group
+                    1, // Quantity
+                    true, // Použít daň
+                    6, // Počet desetinných míst
+                    false, // Only reduct
+                    true, // Use reduct
+                    true, // With ekotax
+                    $specific_price, // Specific price
+                    true, // Use group reduction
+                    0, // ID customer
+                    true, // Use customer price
+                    0, // ID Cart
+                    0);
 
                 $price_novat = Product::priceCalculation($context->shop->id, // ID shop
-                                $combination['id_product'], // ID Product
-                                $combination['id_product_attribute'], // ID Product atribut                                              
-                                $id_country, // ID Country
-                                0, // ID State
-                                0, // ZIP Code
-                                $this->currency->id, // Id Currency
-                                1, // ID Group
-                                1, // Quantity
-                                false, // Použít daň
-                                6, // Počet desetinných míst
-                                false, // Only reduct
-                                true, // Use reduct
-                                true, // With ekotax
-                                $specific_price, // Specific price
-                                true, // Use group reduction
-                                0, // ID customer
-                                true, // Use customer price
-                                0, // ID Cart
-                                0);
+                    $combination['id_product'], // ID Product
+                    $combination['id_product_attribute'], // ID Product atribut
+                    $id_country, // ID Country
+                    0, // ID State
+                    0, // ZIP Code
+                    $this->currency->id, // Id Currency
+                    1, // ID Group
+                    1, // Quantity
+                    false, // Použít daň
+                    6, // Počet desetinných míst
+                    false, // Only reduct
+                    true, // Use reduct
+                    true, // With ekotax
+                    $specific_price, // Specific price
+                    true, // Use group reduction
+                    0, // ID customer
+                    true, // Use customer price
+                    0, // ID Cart
+                    0);
 
 
                 $params = array();
@@ -734,9 +739,9 @@ class MergadoClass extends ObjectModel {
                     'item_id' => $combination['id_product'] . '-' . $combination['id_product_attribute'],
                     'itemgroup_id' => $itemgroupBase,
                     'accessory' => $accessoriesExtended,
-                    'availability' => (ProductCore::getQuantity(
+                    'availability' => (Product::getQuantity(
                             $combination['id_product'], $combination['id_product_attribute']
-                    ) > 0) ? 'in stock' : 'out of stock',
+                        ) > 0) ? 'in stock' : 'out of stock',
                     'category' => $category,
                     'condition' => $item->condition,
                     'delivery_days' => ($qty > 0) ? 0 : $qtyDays,
@@ -754,15 +759,15 @@ class MergadoClass extends ObjectModel {
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'wholesale_price' => $combination['wholesale_price'] != 0 ? $combination['wholesale_price'] : $item->wholesale_price,
                     'shipping_size' => $item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' .
-                    Configuration::get('PS_DIMENSION_UNIT'),
+                        Configuration::get('PS_DIMENSION_UNIT'),
                     'shipping_weight' => ($item->weight + $combination['weight']) . ' ' .
-                    Configuration::get('PS_WEIGHT_UNIT'),
+                        Configuration::get('PS_WEIGHT_UNIT'),
                     'vat' => $tax_calculator->taxes[0]->rate,
                 );
             }
         } else {
 
-            $qty = ProductCore::getQuantity($item->id);
+            $qty = Product::getQuantity($item->id);
             $qtyDays = self::getSettings('delivery_days');
 
             if ($qty <= 0 && $whenOutOfStock == 0) {
@@ -773,55 +778,55 @@ class MergadoClass extends ObjectModel {
                 $images = array();
                 foreach ($imagesList as $img) {
                     $images[] = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
-                            $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
+                        $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
                     if ($img['cover'] != null) {
                         $mainImage = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
-                                $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
+                            $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
                     }
                 }
 
                 $specific_price = null;
                 $price_vat = Product::priceCalculation($context->shop->id, // ID shop
-                                $item->id, // ID Product
-                                null, // ID Product atribut                                              
-                                $id_country, // ID Country
-                                0, // ID State
-                                0, // ZIP Code
-                                $this->currency->id, // Id Currency
-                                1, // ID Group
-                                1, // Quantity
-                                true, // Použít daň
-                                6, // Počet desetinných míst
-                                false, // Only reduct
-                                true, // Use reduct
-                                true, // With ekotax
-                                $specific_price, // Specific price
-                                true, // Use group reduction
-                                0, // ID customer
-                                true, // Use customer price
-                                0, // ID Cart
-                                0);
+                    $item->id, // ID Product
+                    null, // ID Product atribut
+                    $id_country, // ID Country
+                    0, // ID State
+                    0, // ZIP Code
+                    $this->currency->id, // Id Currency
+                    1, // ID Group
+                    1, // Quantity
+                    true, // Použít daň
+                    6, // Počet desetinných míst
+                    false, // Only reduct
+                    true, // Use reduct
+                    true, // With ekotax
+                    $specific_price, // Specific price
+                    true, // Use group reduction
+                    0, // ID customer
+                    true, // Use customer price
+                    0, // ID Cart
+                    0);
 
                 $price_novat = Product::priceCalculation($context->shop->id, // ID shop
-                                $item->id, // ID Product
-                                null, // ID Product atribut                                              
-                                $id_country, // ID Country
-                                0, // ID State
-                                0, // ZIP Code
-                                $this->currency->id, // Id Currency
-                                1, // ID Group
-                                1, // Quantity
-                                false, // Použít daň
-                                6, // Počet desetinných míst
-                                false, // Only reduct
-                                true, // Use reduct
-                                true, // With ekotax
-                                $specific_price, // Specific price
-                                true, // Use group reduction
-                                0, // ID customer
-                                true, // Use customer price
-                                0, // ID Cart
-                                0);
+                    $item->id, // ID Product
+                    null, // ID Product atribut
+                    $id_country, // ID Country
+                    0, // ID State
+                    0, // ZIP Code
+                    $this->currency->id, // Id Currency
+                    1, // ID Group
+                    1, // Quantity
+                    false, // Použít daň
+                    6, // Počet desetinných míst
+                    false, // Only reduct
+                    true, // Use reduct
+                    true, // With ekotax
+                    $specific_price, // Specific price
+                    true, // Use group reduction
+                    0, // ID customer
+                    true, // Use customer price
+                    0, // ID Cart
+                    0);
 
                 $images = array_diff($images, array($mainImage));
 
@@ -829,7 +834,7 @@ class MergadoClass extends ObjectModel {
                     'item_id' => $item->id,
                     'itemgroup_id' => $itemgroupBase,
                     'accessory' => $accessoriesExtended,
-                    'availability' => (ProductCore::getQuantity($item->id) > 0) ? 'in stock' : 'out of stock',
+                    'availability' => (Product::getQuantity($item->id) > 0) ? 'in stock' : 'out of stock',
                     'category' => $category,
                     'condition' => $item->condition,
                     'delivery_days' => ($qty > 0) ? 0 : $qtyDays,
@@ -847,7 +852,7 @@ class MergadoClass extends ObjectModel {
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'wholesale_price' => $item->wholesale_price,
                     'shipping_size' => $item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' .
-                    Configuration::get('PS_DIMENSION_UNIT'),
+                        Configuration::get('PS_DIMENSION_UNIT'),
                     'shipping_weight' => $item->weight . ' ' . Configuration::get('PS_WEIGHT_UNIT'),
                     'vat' => $tax_calculator->taxes[0]->rate,
                 );
@@ -857,7 +862,8 @@ class MergadoClass extends ObjectModel {
         return $productBase;
     }
 
-    public function getProductCombination($product, $lang) {
+    public function getProductCombination($product, $lang)
+    {
         $groups = array();
         $comb_array = array();
         $flatProductList = array();
@@ -908,7 +914,6 @@ class MergadoClass extends ObjectModel {
 
                     $comb_array[$id_product_attribute]['attributes'] = $list;
                     $comb_array[$id_product_attribute]['name'] = $list;
-
                     $flatProductList[] = array(
                         'id_product_attribute' => $id_product_attribute,
                         'id_product' => $combination['id_product'],
@@ -932,11 +937,13 @@ class MergadoClass extends ObjectModel {
         return $flatProductList;
     }
 
-    public static function getSettings($query) {
+    public static function getSettings($query)
+    {
         return Db::getInstance()->getValue('SELECT `value` FROM `' . _DB_PREFIX_ . 'mergado` WHERE `key` = "' . pSQL($query) . '"');
     }
 
-    public static function getWholeSettings() {
+    public static function getWholeSettings()
+    {
         $sql = new DbQuery();
         $sql->select('*');
         $sql->from('mergado');
@@ -944,14 +951,16 @@ class MergadoClass extends ObjectModel {
         return Db::getInstance()->executeS($sql);
     }
 
-    public static function clearSettings($pattern) {
+    public static function clearSettings($pattern)
+    {
         $sql = "DELETE FROM " . _DB_PREFIX_ . self::$definition['table'] . " WHERE `key` LIKE '%" . $pattern . "%'";
         return Db::getInstance()->execute($sql);
     }
 
-    public function heurekaVerify($apiKey, $order, $lang) {
+    public function heurekaVerify($apiKey, $order, $lang)
+    {
         $url = null;
-        
+
         if ($lang === 'cs') {
             $url = self::HEUREKA_URL;
         }
@@ -963,7 +972,7 @@ class MergadoClass extends ObjectModel {
         $url .= '?id=' . $apiKey;
         $url .= '&email=' . urlencode($order['customer']->email);
 
-        $cart = new Cart($order['cart']->id, LanguageCore::getIdByIso($lang));
+        $cart = new Cart($order['cart']->id, Language::getIdByIso($lang));
         $products = $cart->getProducts();
 
         foreach ($products as $product) {
@@ -990,7 +999,8 @@ class MergadoClass extends ObjectModel {
         $this->sendRequest($url);
     }
 
-    private function sendRequest($url) {
+    private function sendRequest($url)
+    {
         $parsed = parse_url($url);
         $fp = fsockopen($parsed['host'], 80, $errno, $errstr, 5);
         if (!$fp) {
@@ -999,21 +1009,22 @@ class MergadoClass extends ObjectModel {
         } else {
             $return = '';
             $out = 'GET ' . $parsed['path'] . '?' . $parsed['query'] . " HTTP/1.1\r\n" .
-                    'Host: ' . $parsed['host'] . "\r\n" .
-                    "Connection: Close\r\n\r\n";
+                'Host: ' . $parsed['host'] . "\r\n" .
+                "Connection: Close\r\n\r\n";
             fputs($fp, $out);
             while (!feof($fp)) {
                 $return .= fgets($fp, 128);
             }
             fclose($fp);
             $returnParsed = explode("\r\n\r\n", $return);
-            
+
             MergadoClass::log("Heureka verify RETURN: " . json_encode(array('return' => $returnParsed)));
             return empty($returnParsed[1]) ? '' : trim($returnParsed[1]);
         }
     }
 
-    public function sendZboziKonverze($order, $lang) {
+    public function sendZboziKonverze($order, $lang)
+    {
         $active = self::getSettings('mergado_zbozi_konverze');
         $id = self::getSettings('mergado_zbozi_shop_id');
         $secret = self::getSettings('mergado_zbozi_secret');
@@ -1023,9 +1034,9 @@ class MergadoClass extends ObjectModel {
                 $zbozi = new MergadoZboziKonverze($id, $secret);
 
                 // testovací režim
-                // $zbozi->useSandbox(true);
+//                 $zbozi->useSandbox(true);
 
-                $cart = new Cart($order['cart']->id, LanguageCore::getIdByIso($lang));
+                $cart = new Cart($order['cart']->id, Language::getIdByIso($lang));
                 $products = $cart->getProducts();
 
                 foreach ($products as $product) {
@@ -1048,18 +1059,19 @@ class MergadoClass extends ObjectModel {
                         'quantity' => $product['quantity'],
                     ));
                 }
+                $carrier = new Carrier($order['order']->id_carrier);
 
-                $carrier = new CarrierCore($order['order']->id_carrier);
                 $zbozi->setOrder(array(
                     'email' => $order['customer']->email,
                     'deliveryType' => $carrier->name,
-                    'deliveryPrice' => (string) $order['order']->total_shipping,
+                    'deliveryPrice' => (string)$order['order']->total_shipping,
                     'deliveryDate' => $order['order']->delivery_date,
                     'orderId' => $order['order']->id,
                     'otherCosts' => '0',
                     'paymentType' => $order['order']->payment,
                     'totalPrice' => $order['order']->total_paid,
                 ));
+
 
                 $zbozi->send();
                 return true;
@@ -1073,7 +1085,9 @@ class MergadoClass extends ObjectModel {
         return false;
     }
 
-    public function sendNajnakupValuation($order, $lang) {
+    public function sendNajnakupValuation($order, $lang)
+    {
+
         $active = self::getSettings('mergado_najnakup_konverze');
         $id = self::getSettings('mergado_najnakup_shop_id');
 
@@ -1082,7 +1096,7 @@ class MergadoClass extends ObjectModel {
             try {
                 $najNakup = new \Mergado\NajNakup\MergadoNajNakup();
 
-                $cart = new Cart($order['cart']->id, LanguageCore::getIdByIso($lang));
+                $cart = new Cart($order['cart']->id, Language::getIdByIso($lang));
                 $products = $cart->getProducts();
 
                 foreach ($products as $product) {
@@ -1100,16 +1114,16 @@ class MergadoClass extends ObjectModel {
         }
     }
 
-    public function sendPricemaniaOverenyObchod($order, $lang) {
+    public function sendPricemaniaOverenyObchod($order, $lang)
+    {
         $active = self::getSettings('mergado_pricemania_overeny_obchod');
         $id = self::getSettings('mergado_pricemania_shop_id');
 
         if ($active === '1') {
             try {
                 $pm = new Pricemania($id);
-                $cart = new Cart($order['cart']->id, LanguageCore::getIdByIso($lang));
+                $cart = new Cart($order['cart']->id, Language::getIdByIso($lang));
                 $products = $cart->getProducts();
-
                 foreach ($products as $product) {
                     $exactName = $product['name'];
 
@@ -1117,6 +1131,7 @@ class MergadoClass extends ObjectModel {
                         $tmpName = array_reverse(explode(', ', $product['attributes_small']));
                         $exactName .= ': ' . implode(' ', $tmpName);
                     }
+
 
                     $pm->addProduct($exactName);
                 }
@@ -1136,13 +1151,15 @@ class MergadoClass extends ObjectModel {
         return false;
     }
 
-    public static function getLogLite() {
+    public static function getLogLite()
+    {
 
         $token = Configuration::get('MERGADO_LOG_TOKEN');
         return $token;
     }
 
-    public static function log($message) {
+    public static function log($message)
+    {
 
         if (self::getSettings('mergado_dev_log')) {
 
@@ -1161,7 +1178,8 @@ class MergadoClass extends ObjectModel {
         }
     }
 
-    public static function deleteLog() {
+    public static function deleteLog()
+    {
         $folder = __DIR__ . '/../log/';
 
         if (file_exists($folder)) {
@@ -1174,12 +1192,13 @@ class MergadoClass extends ObjectModel {
         }
     }
 
-    public function getProducts($category, $id_lang, $p, $n, $order_by = null, $order_way = null, $get_total = false, $active = true, $random = false, $random_number_products = 1, Context $context = null) {
+    public function getProducts($category, $id_lang, $p, $n, $order_by = null, $order_way = null, $get_total = false, $active = true, $random = false, $random_number_products = 1, Context $context = null)
+    {
         if (!$context) {
             $context = Context::getContext();
         }
 
-        $id_supplier = (int) Tools::getValue('id_supplier');
+        $id_supplier = (int)Tools::getValue('id_supplier');
 
         /** Return only the number of products */
         if ($get_total) {
@@ -1187,11 +1206,11 @@ class MergadoClass extends ObjectModel {
 					FROM `' . _DB_PREFIX_ . 'product` p
 					' . Shop::addSqlAssociation('product', 'p') . '
 					LEFT JOIN `' . _DB_PREFIX_ . 'category_product` cp ON p.`id_product` = cp.`id_product`
-					WHERE cp.`id_category` = ' . (int) $this->id .
-                    ($active ? ' AND product_shop.`active` = 1' : '') .
-                    ($id_supplier ? 'AND p.id_supplier = ' . (int) $id_supplier : '');
+					WHERE cp.`id_category` = ' . (int)$this->id .
+                ($active ? ' AND product_shop.`active` = 1' : '') .
+                ($id_supplier ? 'AND p.id_supplier = ' . (int)$id_supplier : '');
 
-            return (int) Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($sql);
+            return (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($sql);
         }
 
         if ($p < 1) {
@@ -1225,44 +1244,57 @@ class MergadoClass extends ObjectModel {
 
         $sql = 'SELECT p.*, product_shop.*, stock.out_of_stock, IFNULL(stock.quantity, 0) AS quantity' . (Combination::isFeatureActive() ? ', IFNULL(product_attribute_shop.id_product_attribute, 0) AS id_product_attribute,
 					product_attribute_shop.minimal_quantity AS product_attribute_minimal_quantity' : '') . ', pl.`description`, pl.`description_short`, pl.`available_now`,
-					pl.`available_later`, pl.`link_rewrite`, pl.`meta_description`, pl.`meta_keywords`, pl.`meta_title`, pl.`name`, image_shop.`id_image` id_image,
-					il.`legend` as legend, m.`name` AS manufacturer_name, cl.`name` AS category_default,
+					pl.`available_later`, pl.`link_rewrite`, pl.`meta_description`, pl.`meta_keywords`, pl.`meta_title`, pl.`name`,';
+
+        if (_PS_VERSION_ >= 1.6) {
+            $sql .= 'image_shop.`id_image` id_image,il.`legend` as legend,';
+        }
+
+        $sql .= 'm.`name` AS manufacturer_name, cl.`name` AS category_default,
 					DATEDIFF(product_shop.`date_add`, DATE_SUB("' . date('Y-m-d') . ' 00:00:00",
-					INTERVAL ' . (int) $nb_days_new_product . ' DAY)) > 0 AS new, product_shop.price AS orderprice
+					INTERVAL ' . (int)$nb_days_new_product . ' DAY)) > 0 AS new, product_shop.price AS orderprice
 				FROM `' . _DB_PREFIX_ . 'category_product` cp
 				LEFT JOIN `' . _DB_PREFIX_ . 'product` p
 					ON p.`id_product` = cp.`id_product`
-				' . Shop::addSqlAssociation('product', 'p') .
-                (Combination::isFeatureActive() ? ' LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_shop` product_attribute_shop
-				ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop=' . (int) $context->shop->id . ')' : '') . '
-				' . Product::sqlStock('p', 0) . '
-				LEFT JOIN `' . _DB_PREFIX_ . 'category_lang` cl
+				' . Shop::addSqlAssociation('product', 'p');
+
+        if (_PS_VERSION_ < 1.6) {
+            $sql .= (Combination::isFeatureActive() ? ' LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_shop` product_attribute_shop ON (product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop=' . (int)$context->shop->id . ')' : '') . '
+				' . Product::sqlStock('p', 0);
+        } else {
+            $sql .= (Combination::isFeatureActive() ? ' LEFT JOIN `' . _DB_PREFIX_ . 'product_attribute_shop` product_attribute_shop ON (p.`id_product` = product_attribute_shop.`id_product` AND product_attribute_shop.`default_on` = 1 AND product_attribute_shop.id_shop=' . (int)$context->shop->id . ')' : '') . '
+				' . Product::sqlStock('p', 0);
+        }
+
+        $sql .= ' LEFT JOIN `' . _DB_PREFIX_ . 'category_lang` cl
 					ON (product_shop.`id_category_default` = cl.`id_category`
-					AND cl.`id_lang` = ' . (int) $id_lang . Shop::addSqlRestrictionOnLang('cl') . ')
+					AND cl.`id_lang` = ' . (int)$id_lang . Shop::addSqlRestrictionOnLang('cl') . ')
 				LEFT JOIN `' . _DB_PREFIX_ . 'product_lang` pl
 					ON (p.`id_product` = pl.`id_product`
-					AND pl.`id_lang` = ' . (int) $id_lang . Shop::addSqlRestrictionOnLang('pl') . ')
-				LEFT JOIN `' . _DB_PREFIX_ . 'image_shop` image_shop
-					ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop=' . (int) $context->shop->id . ')
-				LEFT JOIN `' . _DB_PREFIX_ . 'image_lang` il
-					ON (image_shop.`id_image` = il.`id_image`
-					AND il.`id_lang` = ' . (int) $id_lang . ')
-				LEFT JOIN `' . _DB_PREFIX_ . 'manufacturer` m
+					AND pl.`id_lang` = ' . (int)$id_lang . Shop::addSqlRestrictionOnLang('pl') . ')';
+
+        if (_PS_VERSION_ >= 1.6) {
+            $sql .= 'LEFT JOIN `' . _DB_PREFIX_ . 'image_shop` image_shop
+					ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop=' . (int)$context->shop->id . ') 
+					LEFT JOIN `' . _DB_PREFIX_ . 'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = ' . (int)$id_lang . ')';
+        }
+
+
+        $sql .= 'LEFT JOIN `' . _DB_PREFIX_ . 'manufacturer` m
 					ON m.`id_manufacturer` = p.`id_manufacturer`
-				WHERE product_shop.`id_shop` = ' . (int) $context->shop->id . '
-					AND cp.`id_category` = ' . (int) $category->id
-                . ($active ? ' AND product_shop.`active` = 1' : '')
-                . ($id_supplier ? ' AND p.id_supplier = ' . (int) $id_supplier : '');
+				WHERE product_shop.`id_shop` = ' . (int)$context->shop->id . '
+					AND cp.`id_category` = ' . (int)$category->id
+            . ($active ? ' AND product_shop.`active` = 1' : '')
+            . ($id_supplier ? ' AND p.id_supplier = ' . (int)$id_supplier : '');
 
         if ($random === true) {
-            $sql .= ' ORDER BY RAND() LIMIT ' . (int) $random_number_products;
+            $sql .= ' ORDER BY RAND() LIMIT ' . (int)$random_number_products;
         } else {
             $sql .= ' ORDER BY ' . (!empty($order_by_prefix) ? $order_by_prefix . '.' : '') . '`' . bqSQL($order_by) . '` ' . pSQL($order_way) . '
-			LIMIT ' . (((int) $p - 1) * (int) $n) . ',' . (int) $n;
+			LIMIT ' . (((int)$p - 1) * (int)$n) . ',' . (int)$n;
         }
 
         $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS($sql, true, false);
-
         if (!$result) {
             return array();
         }
@@ -1275,7 +1307,8 @@ class MergadoClass extends ObjectModel {
         return $this->getProductsProperties($id_lang, $result);
     }
 
-    public function getProductsProperties($id_lang, $query_result) {
+    public function getProductsProperties($id_lang, $query_result)
+    {
         $results_array = array();
 
         if (is_array($query_result)) {
@@ -1289,7 +1322,8 @@ class MergadoClass extends ObjectModel {
         return $results_array;
     }
 
-    public function getProductProperties($id_lang, $row, Context $context = null) {
+    public function getProductProperties($id_lang, $row, Context $context = null)
+    {
         if (!$row['id_product']) {
             return false;
         }
@@ -1298,7 +1332,7 @@ class MergadoClass extends ObjectModel {
             $context = Context::getContext();
         }
 
-        $id_product_attribute = $row['id_product_attribute'] = (!empty($row['id_product_attribute']) ? (int) $row['id_product_attribute'] : null);
+        $id_product_attribute = $row['id_product_attribute'] = (!empty($row['id_product_attribute']) ? (int)$row['id_product_attribute'] : null);
 
         // Product::getDefaultAttribute is only called if id_product_attribute is missing from the SQL query at the origin of it:
         // consider adding it in order to avoid unnecessary queries
@@ -1313,79 +1347,83 @@ class MergadoClass extends ObjectModel {
         // Tax
         $usetax = Tax::excludeTaxeOption();
 
-        $cache_key = $row['id_product'] . '-' . $id_product_attribute . '-' . $id_lang . '-' . (int) $usetax;
+        $cache_key = $row['id_product'] . '-' . $id_product_attribute . '-' . $id_lang . '-' . (int)$usetax;
 
         // Datas
-        $row['category'] = Category::getLinkRewrite((int) $row['id_category_default'], (int) $id_lang);
-        $row['link'] = $context->link->getProductLink((int) $row['id_product'], $row['link_rewrite'], $row['category'], $row['ean13']);
+        $row['category'] = Category::getLinkRewrite((int)$row['id_category_default'], (int)$id_lang);
+        $row['link'] = $context->link->getProductLink((int)$row['id_product'], $row['link_rewrite'], $row['category'], $row['ean13']);
 
         $row['attribute_price'] = 0;
         if ($id_product_attribute) {
-            $row['attribute_price'] = (float) Product::getProductAttributePrice($id_product_attribute);
+
+            if (_PS_VERSION_ < 1.7) {
+                $row['attribute_price'] = (float)Product::getProductAttributePrice($id_product_attribute);
+            } else {
+                $row['attribute_price'] = (float)Combination::getPrice($id_product_attribute);
+            }
         }
 
         $row['price_tax_exc'] = $this->getPriceStatic(
-                (int) $row['id_product'], false, $id_product_attribute, (Product::$_taxCalculationMethod == PS_TAX_EXC ? 2 : 6)
+            (int)$row['id_product'], false, $id_product_attribute, (Product::$_taxCalculationMethod == PS_TAX_EXC ? 2 : 6)
         );
 
         if (Product::$_taxCalculationMethod == PS_TAX_EXC) {
             $row['price_tax_exc'] = Tools::ps_round($row['price_tax_exc'], 2);
             $row['price'] = $this->getPriceStatic(
-                    (int) $row['id_product'], true, $id_product_attribute, 6
+                (int)$row['id_product'], true, $id_product_attribute, 6
             );
             $row['price_without_reduction'] = $this->getPriceStatic(
-                    (int) $row['id_product'], false, $id_product_attribute, 2, null, false, false
+                (int)$row['id_product'], false, $id_product_attribute, 2, null, false, false
             );
         } else {
             $row['price'] = Tools::ps_round(
-                            $this->getPriceStatic(
-                                    (int) $row['id_product'], true, $id_product_attribute, 6
-                            ), (int) Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                $this->getPriceStatic(
+                    (int)$row['id_product'], true, $id_product_attribute, 6
+                ), (int)Configuration::get('PS_PRICE_DISPLAY_PRECISION')
             );
             $row['price_without_reduction'] = $this->getPriceStatic(
-                    (int) $row['id_product'], true, $id_product_attribute, 6, null, false, false
+                (int)$row['id_product'], true, $id_product_attribute, 6, null, false, false
             );
         }
 
         $row['reduction'] = $this->getPriceStatic(
-                (int) $row['id_product'], (bool) $usetax, $id_product_attribute, 6, null, true, true, 1, true, null, null, null, $specific_prices
+            (int)$row['id_product'], (bool)$usetax, $id_product_attribute, 6, null, true, true, 1, true, null, null, null, $specific_prices
         );
 
         $row['specific_prices'] = $specific_prices;
 
         $row['quantity'] = Product::getQuantity(
-                        (int) $row['id_product'], 0, isset($row['cache_is_pack']) ? $row['cache_is_pack'] : null
+            (int)$row['id_product'], 0, isset($row['cache_is_pack']) ? $row['cache_is_pack'] : null
         );
 
         $row['quantity_all_versions'] = $row['quantity'];
 
         if ($row['id_product_attribute']) {
             $row['quantity'] = Product::getQuantity(
-                            (int) $row['id_product'], $id_product_attribute, isset($row['cache_is_pack']) ? $row['cache_is_pack'] : null
+                (int)$row['id_product'], $id_product_attribute, isset($row['cache_is_pack']) ? $row['cache_is_pack'] : null
             );
         }
 
         $row['id_image'] = Product::defineProductImage($row, $id_lang);
-        $row['features'] = Product::getFrontFeaturesStatic((int) $id_lang, $row['id_product']);
+        $row['features'] = Product::getFrontFeaturesStatic((int)$id_lang, $row['id_product']);
 
         $row['attachments'] = array();
         if (!isset($row['cache_has_attachments']) || $row['cache_has_attachments']) {
-            $row['attachments'] = Product::getAttachmentsStatic((int) $id_lang, $row['id_product']);
+            $row['attachments'] = Product::getAttachmentsStatic((int)$id_lang, $row['id_product']);
         }
 
         $row['virtual'] = ((!isset($row['is_virtual']) || $row['is_virtual']) ? 1 : 0);
 
         // Pack management
-        $row['pack'] = (!isset($row['cache_is_pack']) ? Pack::isPack($row['id_product']) : (int) $row['cache_is_pack']);
+        $row['pack'] = (!isset($row['cache_is_pack']) ? Pack::isPack($row['id_product']) : (int)$row['cache_is_pack']);
         $row['packItems'] = $row['pack'] ? Pack::getItemTable($row['id_product'], $id_lang) : array();
-        $row['nopackprice'] = $row['pack'] ? Pack::noPackPrice($row['id_product']) : 0;
         if ($row['pack'] && !Pack::isInStock($row['id_product'])) {
             $row['quantity'] = 0;
         }
 
         $row['customization_required'] = false;
         if (isset($row['customizable']) && $row['customizable'] && Customization::isFeatureActive()) {
-            if (count(Product::getRequiredCustomizableFieldsStatic((int) $row['id_product']))) {
+            if (count(Product::getRequiredCustomizableFieldsStatic((int)$row['id_product']))) {
                 $row['customization_required'] = true;
             }
         }
@@ -1394,7 +1432,8 @@ class MergadoClass extends ObjectModel {
         return $row;
     }
 
-    public function getPriceStatic($id_product, $usetax = true, $id_product_attribute = null, $decimals = 6, $divisor = null, $only_reduc = false, $usereduc = true, $quantity = 1, $force_associated_tax = false, $id_customer = null, $id_cart = null, $id_address = null, &$specific_price_output = null, $with_ecotax = true, $use_group_reduction = true, Context $context = null, $use_customer_price = true) {
+    public function getPriceStatic($id_product, $usetax = true, $id_product_attribute = null, $decimals = 6, $divisor = null, $only_reduc = false, $usereduc = true, $quantity = 1, $force_associated_tax = false, $id_customer = null, $id_cart = null, $id_address = null, &$specific_price_output = null, $with_ecotax = true, $use_group_reduction = true, Context $context = null, $use_customer_price = true)
+    {
         if (!$context) {
             $context = Context::getContext();
         }
@@ -1412,31 +1451,31 @@ class MergadoClass extends ObjectModel {
         // Initializations
         $id_group = null;
         if ($id_customer) {
-            $id_group = Customer::getDefaultGroupId((int) $id_customer);
+            $id_group = Customer::getDefaultGroupId((int)$id_customer);
         }
         if (!$id_group) {
-            $id_group = (int) Group::getCurrent()->id;
+            $id_group = (int)Group::getCurrent()->id;
         }
 
         $cart_quantity = 0;
-        if ((int) $id_cart) {
-            $cache_id = '$this->getPriceStatic_' . (int) $id_product . '-' . (int) $id_cart;
-            if (!Cache::isStored($cache_id) || ($cart_quantity = Cache::retrieve($cache_id) != (int) $quantity)) {
+        if ((int)$id_cart) {
+            $cache_id = '$this->getPriceStatic_' . (int)$id_product . '-' . (int)$id_cart;
+            if (!Cache::isStored($cache_id) || ($cart_quantity = Cache::retrieve($cache_id) != (int)$quantity)) {
                 $sql = 'SELECT SUM(`quantity`)
 				FROM `' . _DB_PREFIX_ . 'cart_product`
-				WHERE `id_product` = ' . (int) $id_product . '
-				AND `id_cart` = ' . (int) $id_cart;
-                $cart_quantity = (int) Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($sql);
+				WHERE `id_product` = ' . (int)$id_product . '
+				AND `id_cart` = ' . (int)$id_cart;
+                $cart_quantity = (int)Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($sql);
                 Cache::store($cache_id, $cart_quantity);
             } else {
                 $cart_quantity = Cache::retrieve($cache_id);
             }
         }
 
-        $id_currency = Validate::isLoadedObject($context->currency) ? (int) $context->currency->id : (int) Configuration::get('PS_CURRENCY_DEFAULT');
+        $id_currency = Validate::isLoadedObject($context->currency) ? (int)$context->currency->id : (int)Configuration::get('PS_CURRENCY_DEFAULT');
 
         // retrieve address informations
-        $id_country = (int) $context->country->id;
+        $id_country = (int)$context->country->id;
         $id_state = 0;
         $zipcode = 0;
 
@@ -1447,13 +1486,13 @@ class MergadoClass extends ObjectModel {
         if ($id_address) {
             $address_infos = Address::getCountryAndState($id_address);
             if ($address_infos['id_country']) {
-                $id_country = (int) $address_infos['id_country'];
-                $id_state = (int) $address_infos['id_state'];
+                $id_country = (int)$address_infos['id_country'];
+                $id_state = (int)$address_infos['id_state'];
                 $zipcode = $address_infos['postcode'];
             }
         } elseif (isset($context->customer->geoloc_id_country)) {
-            $id_country = (int) $context->customer->geoloc_id_country;
-            $id_state = (int) $context->customer->id_state;
+            $id_country = (int)$context->customer->geoloc_id_country;
+            $id_state = (int)$context->customer->id_state;
             $zipcode = $context->customer->postcode;
         }
 
@@ -1470,7 +1509,7 @@ class MergadoClass extends ObjectModel {
         }
 
         $return = Product::priceCalculation(
-                        $context->shop->id, $id_product, $id_product_attribute, $id_country, $id_state, $zipcode, $id_currency, $id_group, $quantity, $usetax, $decimals, $only_reduc, $usereduc, $with_ecotax, $specific_price_output, $use_group_reduction, $id_customer, $use_customer_price, $id_cart, $cart_quantity
+            $context->shop->id, $id_product, $id_product_attribute, $id_country, $id_state, $zipcode, $id_currency, $id_group, $quantity, $usetax, $decimals, $only_reduc, $usereduc, $with_ecotax, $specific_price_output, $use_group_reduction, $id_customer, $use_customer_price, $id_cart, $cart_quantity
         );
 
         return $return;

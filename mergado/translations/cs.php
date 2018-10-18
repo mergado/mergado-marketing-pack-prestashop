@@ -70,6 +70,9 @@ $_MODULE['<{mergado}prestashop>adminmergadocontroller_07ab77844e266d6accd46aeca3
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_b344e998c5d0d6acac5ab2c92a75d1a6'] = 'ETARGET';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_72052e15a483f7102f063d4f8cce850e'] = 'ETARGET ID';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_fae8a9257e154175da4193dbf6552ef6'] = 'Hash';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_e1ef8648962b08d5ab4e242c13ec6c0f'] = 'Glami pixel';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_4d3d769b812b6faa6b76e1a8abaece2d'] = 'Aktivní';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_c15e053815188bcc3711a1a28375e395'] = 'Glami pixel';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_a7a66b17f577a3f52a2269d2c0eb9149'] = 'Dostupnostní feed';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_657d8b13f5eaea54e63e77337e63b563'] = 'Mergadovo statistické XML';
 $_MODULE['<{mergado}prestashop>after_7c390de21db1d26ec281ded0d16f782c'] = 'Seznam cronů';
@@ -105,3 +108,6 @@ $_MODULE['<{mergado}prestashop>before_644f79066ef385b5f5305f10b198faf6'] = 'XML 
 $_MODULE['<{mergado}prestashop>before_db5eb84117d06047c97c9a0191b5fffe'] = 'Podpora';
 $_MODULE['<{mergado}prestashop>before_8d282a8bd2fe903679ba3011d408c26a'] = 'Licence';
 $_MODULE['<{mergado}prestashop>before_eed52b99ee686d051fae51351ede0a3d'] = 'Audit zdarma';
+$_MODULE['<{mergado}prestashop>before_6ffb73386fb57e0c0e2cef0e3e33e61a'] = 'Nová verze modulu je dostupná, stáhnete ji na stránkách Mergado:';
+$_MODULE['<{mergado}prestashop>before_2fb494c66a1769a32f9348185de0e0fe'] = 'https://www.mergado.cz/shopsystems/prestashop';
+$_MODULE['<{mergado}prestashop>before_2665800f89a1716df529343270555ee8'] = 'Stáhnout aktualizaci';

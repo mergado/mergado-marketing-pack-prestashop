@@ -46,8 +46,10 @@
                             <tr>
                                 <th>
                                     {$cron['name']|escape:'htmlall':'UTF-8'}
-                                    {if $smarty.foreach.cronEach.first && $staticFeed == "1"}
-                                        + {l s='Mergado static XML' mod='mergado'}
+                                    {if isset($staticFeed)}
+                                        {if $smarty.foreach.cronEach.first && $staticFeed == "1"}
+                                            + {l s='Mergado static XML' mod='mergado'}
+                                        {/if}
                                     {/if}
                                 </th>
                                 <td>
@@ -172,7 +174,9 @@
         </div>
     </div>
 
-    {$tab4}
+    {if isset($tab4)}
+        {$tab4}
+    {/if}
 </div>
 <div class='mergado-tab' data-tab='5'>
     <div id="mergadoCron">
@@ -190,5 +194,11 @@
 
 <script>
     var moduleVersion = '{$moduleVersion}';
-    $('.page-head .page-title').append(' (v. ' + moduleVersion + ')');
+    var remoteVersion = '{$remoteVersion}';
+    var updateAvailable = '{l s="New version available" mod="mergado"}';
+    $('.page-head .page-title').append(' v.' + moduleVersion + '');
+
+    {if $moduleVersion < $remoteVersion}
+        $('.page-head .page-title').append('<br><small>' + updateAvailable + ' ' + remoteVersion + '</small>');
+    {/if}
 </script>

@@ -23,22 +23,25 @@ class Mergado extends Module
 {
 
     protected $controllerClass;
-    private $gitLatestRelease = "https://api.github.com/repos/mergado/mergado-marketing-pack-prestashop/releases/latest";
+
+    const MERGADO_LATEST_RELEASE = "https://api.github.com/repos/mergado/mergado-marketing-pack-prestashop/releases/latest";
+    const MERGADO_UPDATE = 'https://raw.githubusercontent.com/mergado/mergado-marketing-pack-prestashop/master/mergado/config/mergado_update.xml';
+    const MERGADO_UPDATE_CACHE_ID = 'mergado_remote_version';
 
     public function __construct()
     {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.6.1';
+        $this->version = '1.6.2';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
         $this->controllerClass = 'AdminMergado';
 
         /*
-         * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.6)
+         * Set $this->bootstrap to true if your module is compliant with bootstrap (PrestaShop 1.7)
          */
-        if (_PS_VERSION_ >= 1.5 && _PS_VERSION_ < 1.6) {
+        if (_PS_VERSION_ >= 1.5 && _PS_VERSION_ < 1.7) {
             $this->bootstrap = false;
         } else {
             $this->bootstrap = true;
@@ -51,7 +54,7 @@ class Mergado extends Module
 
         $this->confirmUninstall = $this->l('Are you sure to uninstall Mergado marketing pack module?');
 
-        $this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.6.1.20');
+        $this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.7.4.3');
 
         $this->_clearCache('*');
     }
@@ -63,7 +66,7 @@ class Mergado extends Module
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13',
-            CURLOPT_URL => $this->gitLatestRelease,
+            CURLOPT_URL => self::MERGADO_LATEST_RELEASE,
         ));
         $response = json_decode(curl_exec($ch));
         curl_close($ch);
@@ -136,14 +139,16 @@ class Mergado extends Module
         return false;
     }
 
-    public function updateVersionXml()
+    public function updateVersionXml($addons = null)
     {
-        $mustHave = Tools::addonsRequest('must-have');
-        $mergadoXml = file_get_contents('https://raw.githubusercontent.com/mergado/mergado-marketing-pack-prestashop/master/mergado/config/mergado_update.xml');
-        //$mergadoXml = file_get_contents(_PS_MODULE_DIR_ . '/mergado/config/mergado_update.xml');
+        if (_PS_VERSION_ < 1.7) {
+            $addons = Tools::addonsRequest('must-have');
+        }
 
-        if ($mustHave && $mergadoXml) {
-            $psXml = new \SimpleXMLElement($mustHave);
+        $mergadoXml = Tools::file_get_contents(self::MERGADO_UPDATE);
+
+        if ($addons && $mergadoXml) {
+            $psXml = new \SimpleXMLElement($addons);
             $mXml = new \SimpleXMLElement($mergadoXml);
 
             $doc = new DOMDocument();
@@ -156,6 +161,10 @@ class Mergado extends Module
             $doc->documentElement->appendChild($node);
 
             $updateXml = $doc->saveXml();
+
+            if (_PS_VERSION_ >= 1.7) {
+                return $updateXml;
+            }
 
             @file_put_contents(_PS_ROOT_DIR_ . Module::CACHE_FILE_MUST_HAVE_MODULES_LIST, $updateXml);
         }
@@ -254,7 +263,7 @@ class Mergado extends Module
             $this->context->controller->addJquery();
             $this->context->controller->addJS($this->_path . 'views/js/back.js');
 
-            if (_PS_VERSION_ >= 1.5 && _PS_VERSION_ < 1.6) {
+            if (_PS_VERSION_ < 1.6) {
                 $this->context->controller->addCSS($this->_path . 'views/css/back15.css');
             } else {
                 $this->context->controller->addCSS($this->_path . 'views/css/back.css');
@@ -341,113 +350,15 @@ class Mergado extends Module
         }
 
         $zboziSent = $mergado->sendZboziKonverze($params, 'cs');
-        $pricemaniaSent = $mergado->sendPricemaniaOverenyObchod($params, 'sk');
         $najNakupSent = $mergado->sendNajnakupValuation($params, 'sk');
+
+        try {
+            $pricemaniaSent = $mergado->sendPricemaniaOverenyObchod($params, 'sk');
+        } catch (Exception $e) {
+            echo 'Error: ' . $e->getMessage();
+        }
+
         MergadoClass::log("Validate order:\n" . json_encode(array('verifiedCz' => $verifiedCz, 'verifiedSk' => $verifiedSk, 'conversionSent_Zbozi' => $zboziSent, 'conversionSent_NajNakup' => $najNakupSent, 'conversionSent_Pricemania' => $pricemaniaSent)) . "\n");
-    }
-
-    public function hookOrderConfirmation($params)
-    {
-        $zboziActive = MergadoClass::getSettings('mergado_zbozi_konverze');
-        $zboziId = MergadoClass::getSettings('mergado_zbozi_shop_id');
-        $heurekaCzActive = MergadoClass::getSettings('mergado_heureka_konverze_cz');
-        $heurekaCzCode = MergadoClass::getSettings('mergado_heureka_konverze_cz_kod');
-        $heurekaSkActive = MergadoClass::getSettings('mergado_heureka_konverze_sk');
-        $heurekaSkCode = MergadoClass::getSettings('mergado_heureka_konverze_sk');
-        $sklik = MergadoClass::getSettings('mergado_sklik_konverze');
-        $sklikCode = MergadoClass::getSettings('mergado_sklik_konverze_kod');
-        $sklikValue = MergadoClass::getSettings('mergado_sklik_konverze_hodnota');
-        $adwords = MergadoClass::getSettings('mergado_adwords_conversion');
-        $adwordsCode = MergadoClass::getSettings('mergado_adwords_conversion_code');
-        $adwordsLabel = MergadoClass::getSettings('mergado_adwords_conversion_label');
-        $cart = new CartCore($params['objOrder']->id_cart);
-        $cartCz = new CartCore($params['objOrder']->id_cart, LanguageCore::getIdByIso('cs'));
-        $cartSk = new CartCore($params['objOrder']->id_cart, LanguageCore::getIdByIso('sk'));
-        $heurekaCzProducts = array();
-        $heurekaSkProducts = array();
-
-        if (!$sklikValue) {
-            $sklikValue = 0;
-        }
-
-        if ($cartCz && $heurekaCzActive) {
-            foreach ($cartCz->getProducts() as $product) {
-                $exactName = $product['name'];
-
-                if (array_key_exists('attributes_small', $product) && $product['attributes_small'] != '') {
-                    $tmpName = array_reverse(explode(', ', $product['attributes_small']));
-                    $exactName .= ': ' . implode(' ', $tmpName);
-                }
-
-                $heurekaCzProducts[] = array(
-                    'name' => $exactName,
-                    'qty' => $product['quantity'],
-                    'unitPrice' => Tools::ps_round(
-                        $product['price_wt'], Configuration::get('PS_PRICE_DISPLAY_PRECISION')
-                    ),
-                );
-            }
-        }
-
-        if ($cartSk && $heurekaSkActive) {
-            foreach ($cartSk->getProducts() as $product) {
-                $exactName = $product['name'];
-
-                if (array_key_exists('attributes_small', $product) && $product['attributes_small'] != '') {
-                    $tmpName = array_reverse(explode(', ', $product['attributes_small']));
-                    $exactName .= ': ' . implode(' ', $tmpName);
-                }
-
-                $heurekaSkProducts[] = array(
-                    'name' => $exactName,
-                    'qty' => $product['quantity'],
-                    'unitPrice' => Tools::ps_round(
-                        $product['price_wt'], Configuration::get('PS_PRICE_DISPLAY_PRECISION')
-                    ),
-                );
-            }
-        }
-
-        $fbPixel = MergadoClass::getSettings('fb_pixel');
-        $fbProducts = array();
-        if ($fbPixel) {
-            foreach ($cart->getProducts() as $product) {
-                $fbProducts[] = $product['id_product'];
-            }
-        }
-
-        $context = Context::getContext();
-
-        $data = array(
-            'conversionZboziShopId' => $zboziId,
-            'conversionZboziActive' => $zboziActive,
-            'conversionZboziTotal' => number_format(
-                $params['objOrder']->total_paid, Configuration::get('PS_PRICE_DISPLAY_PRECISION')
-            ),
-            'conversionOrderId' => $params['objOrder']->id,
-            'heurekaCzActive' => $heurekaCzActive,
-            'heurekaCzCode' => $heurekaCzCode,
-            'heurekaSkActive' => $heurekaSkActive,
-            'heurekaSkCode' => $heurekaSkCode,
-            'heurekaCzProducts' => $heurekaCzProducts,
-            'heurekaSkProducts' => $heurekaSkProducts,
-            'sklik' => $sklik,
-            'sklikCode' => $sklikCode,
-            'sklikValue' => $sklikValue,
-            'adwords' => $adwords,
-            'adwordsCode' => $adwordsCode,
-            'adwordsLabel' => $adwordsLabel,
-            'total' => $params['total_to_pay'],
-            'currency' => $params['currencyObj'],
-            'languageCode' => str_replace('-', '_', $context->language->language_code),
-            'fbPixel' => $fbPixel,
-            'fbPixelProducts' => $fbProducts,
-        );
-
-        $this->smarty->assign($data);
-
-        MergadoClass::log("Order confirmation:\n" . json_encode($data) . "\n");
-        return $this->display(__FILE__, '/views/templates/front/tracking.tpl');
     }
 
     public function hookDisplayFooter($params)
@@ -598,9 +509,23 @@ class Mergado extends Module
         return $display;
     }
 
-    public function hookDisplayOrderConfirmation($data)
+    public function hookDisplayOrderConfirmation($params)
     {
-        $order = new OrderCore($data['objOrder']->id);
+
+        /**
+         * PS 1.7+ changes
+         *
+         * objOrder => 'order'
+         * id => id_cart
+         *
+         */
+
+        if (_PS_VERSION_ < 1.7) {
+            $order = new OrderCore($params['objOrder']->id);
+        } else {
+            $order = new OrderCore($params['order']->id_cart);
+        }
+
         $products_tmp = $order->getProducts();
 
         $products = array();
@@ -609,15 +534,158 @@ class Mergado extends Module
             $products['name'][] = "'" . $product['product_name'] . "'";
         }
 
-        $this->smarty->assign(array(
-            'glami_pixel_orderId' => $data['objOrder']->id,
-            'glami_pixel_value' => $data['total_to_pay'],
-            'glami_pixel_currency' => $data['currencyObj']->iso_code,
-            'glami_pixel_productIds' => implode(',', $products['ids']),
-            'glami_pixel_productNames' => implode(',', $products['name'])
-        ));
+        if (_PS_VERSION_ < 1.7) {
+            $this->smarty->assign(array(
+                'glami_pixel_orderId' => $params['objOrder']->id,
+                'glami_pixel_value' => $params['total_to_pay'],
+                'glami_pixel_currency' => $params['currencyObj']->iso_code,
+                'glami_pixel_productIds' => implode(',', $products['ids']),
+                'glami_pixel_productNames' => implode(',', $products['name'])
+            ));
+        } else {
+            $this->smarty->assign(array(
+                'glami_pixel_orderId' => $params['order']->id_cart,
+                'glami_pixel_value' => $params['order']->total_paid,
+                'glami_pixel_currency' => CurrencyCore::getCurrency($params['order']->id_currency),
+                'glami_pixel_productIds' => implode(',', $products['ids']),
+                'glami_pixel_productNames' => implode(',', $products['name'])
+            ));
+        }
 
-        return $this->display(__FILE__, '/views/templates/front/glami_purchase.tpl');
+        $zboziActive = MergadoClass::getSettings('mergado_zbozi_konverze');
+        $zboziId = MergadoClass::getSettings('mergado_zbozi_shop_id');
+        $heurekaCzActive = MergadoClass::getSettings('mergado_heureka_konverze_cz');
+        $heurekaCzCode = MergadoClass::getSettings('mergado_heureka_konverze_cz_kod');
+        $heurekaSkActive = MergadoClass::getSettings('mergado_heureka_konverze_sk');
+        $heurekaSkCode = MergadoClass::getSettings('mergado_heureka_konverze_sk');
+        $sklik = MergadoClass::getSettings('mergado_sklik_konverze');
+        $sklikCode = MergadoClass::getSettings('mergado_sklik_konverze_kod');
+        $sklikValue = MergadoClass::getSettings('mergado_sklik_konverze_hodnota');
+        $adwords = MergadoClass::getSettings('mergado_adwords_conversion');
+        $adwordsCode = MergadoClass::getSettings('mergado_adwords_conversion_code');
+        $adwordsLabel = MergadoClass::getSettings('mergado_adwords_conversion_label');
+        if (_PS_VERSION_ < 1.7) {
+            $cart = new CartCore($params['objOrder']->id_cart);
+            $cartCz = new CartCore($params['objOrder']->id_cart, LanguageCore::getIdByIso('cs'));
+            $cartSk = new CartCore($params['objOrder']->id_cart, LanguageCore::getIdByIso('sk'));
+        } else {
+
+            $cart = new CartCore($params['order']->id_cart);
+            $cartCz = new CartCore($params['order']->id_cart, LanguageCore::getIdByIso('cs'));
+            $cartSk = new CartCore($params['order']->id_cart, LanguageCore::getIdByIso('sk'));
+        }
+        $heurekaCzProducts = array();
+        $heurekaSkProducts = array();
+
+        if (!$sklikValue) {
+            $sklikValue = 0;
+        }
+
+        if ($cartCz && $heurekaCzActive) {
+            foreach ($cartCz->getProducts() as $product) {
+                $exactName = $product['name'];
+
+                if (array_key_exists('attributes_small', $product) && $product['attributes_small'] != '') {
+                    $tmpName = array_reverse(explode(', ', $product['attributes_small']));
+                    $exactName .= ': ' . implode(' ', $tmpName);
+                }
+
+                $heurekaCzProducts[] = array(
+                    'name' => $exactName,
+                    'qty' => $product['quantity'],
+                    'unitPrice' => Tools::ps_round(
+                        $product['price_wt'], Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                    ),
+                );
+            }
+        }
+
+        if ($cartSk && $heurekaSkActive) {
+            foreach ($cartSk->getProducts() as $product) {
+                $exactName = $product['name'];
+
+                if (array_key_exists('attributes_small', $product) && $product['attributes_small'] != '') {
+                    $tmpName = array_reverse(explode(', ', $product['attributes_small']));
+                    $exactName .= ': ' . implode(' ', $tmpName);
+                }
+
+                $heurekaSkProducts[] = array(
+                    'name' => $exactName,
+                    'qty' => $product['quantity'],
+                    'unitPrice' => Tools::ps_round(
+                        $product['price_wt'], Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                    ),
+                );
+            }
+        }
+
+        $fbPixel = MergadoClass::getSettings('fb_pixel');
+        $fbProducts = array();
+        if ($fbPixel) {
+            foreach ($cart->getProducts() as $product) {
+                $fbProducts[] = $product['id_product'];
+            }
+        }
+
+        $context = Context::getContext();
+
+        if (_PS_VERSION_ < 1.7) {
+            $data = array(
+                'conversionZboziShopId' => $zboziId,
+                'conversionZboziActive' => $zboziActive,
+                'conversionZboziTotal' => number_format(
+                    $params['objOrder']->total_paid, Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                ),
+                'conversionOrderId' => $params['objOrder']->id,
+                'heurekaCzActive' => $heurekaCzActive,
+                'heurekaCzCode' => $heurekaCzCode,
+                'heurekaSkActive' => $heurekaSkActive,
+                'heurekaSkCode' => $heurekaSkCode,
+                'heurekaCzProducts' => $heurekaCzProducts,
+                'heurekaSkProducts' => $heurekaSkProducts,
+                'sklik' => $sklik,
+                'sklikCode' => $sklikCode,
+                'sklikValue' => $sklikValue,
+                'adwords' => $adwords,
+                'adwordsCode' => $adwordsCode,
+                'adwordsLabel' => $adwordsLabel,
+                'total' => $params['total_to_pay'],
+                'currency' => $params['currencyObj'],
+                'languageCode' => str_replace('-', '_', $context->language->language_code),
+                'fbPixel' => $fbPixel,
+                'fbPixelProducts' => $fbProducts,
+            );
+        } else {
+            $data = array(
+                'conversionZboziShopId' => $zboziId,
+                'conversionZboziActive' => $zboziActive,
+                'conversionZboziTotal' => number_format(
+                    $params['order']->total_paid, Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                ),
+                'conversionOrderId' => $params['order']->id_cart,
+                'heurekaCzActive' => $heurekaCzActive,
+                'heurekaCzCode' => $heurekaCzCode,
+                'heurekaSkActive' => $heurekaSkActive,
+                'heurekaSkCode' => $heurekaSkCode,
+                'heurekaCzProducts' => $heurekaCzProducts,
+                'heurekaSkProducts' => $heurekaSkProducts,
+                'sklik' => $sklik,
+                'sklikCode' => $sklikCode,
+                'sklikValue' => $sklikValue,
+                'adwords' => $adwords,
+                'adwordsCode' => $adwordsCode,
+                'adwordsLabel' => $adwordsLabel,
+                'total' => $params['total_paid'],
+                'currency' => CurrencyCore::getCurrency($params['order']->id_currency),
+                'languageCode' => str_replace('-', '_', $context->language->language_code),
+                'fbPixel' => $fbPixel,
+                'fbPixelProducts' => $fbProducts,
+            );
+        }
+
+        $this->smarty->assign($data);
+
+        MergadoClass::log("Order confirmation:\n" . json_encode($data) . "\n");
+        return $this->display(__FILE__, '/views/templates/front/tracking.tpl') . $this->display(__FILE__, '/views/templates/front/glami_purchase.tpl');
     }
-
 }
