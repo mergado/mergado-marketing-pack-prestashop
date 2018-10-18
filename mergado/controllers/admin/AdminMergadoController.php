@@ -111,15 +111,13 @@ class AdminMergadoController extends ModuleAdminController {
 
 
         $fields_value = array(
-            'mergado_dev_log' => $this->settingsValues['mergado_dev_log'],
+            'mergado_dev_log' => isset($this->settingsValues['mergado_dev_log']) ? $this->settingsValues['mergado_dev_log'] : false,
             'page' => 4
         );
 
 
         $this->show_toolbar = true;
         $this->show_form_cancel_button = false;
-
-
 
         $helper = new HelperForm();
 
@@ -1099,7 +1097,6 @@ class AdminMergadoController extends ModuleAdminController {
         if (is_array($files)) {
             foreach ($files as $filename) {
                 $tmpName = str_replace(MergadoClass::$feedPrefix, '', basename($filename, '.xml'));
-
                 $name = explode('-', $tmpName);
                 $name[1] = explode('_', $name[1]);
                 $codedName = explode('_', $tmpName);
