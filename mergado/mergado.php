@@ -32,7 +32,7 @@ class Mergado extends Module
     {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.6.3';
+        $this->version = '1.6.4';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
@@ -54,7 +54,7 @@ class Mergado extends Module
 
         $this->confirmUninstall = $this->l('Are you sure to uninstall Mergado marketing pack module?');
 
-        $this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.7.4.3');
+        $this->ps_versions_compliancy = array('min' => '1.5', 'max' => '1.7.9.99');
 
         $this->_clearCache('*');
     }

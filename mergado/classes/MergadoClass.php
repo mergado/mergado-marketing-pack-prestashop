@@ -632,6 +632,12 @@ class MergadoClass extends ObjectModel
 
         $productBase = null;
         $defaultCategory = new Category($item->id_category_default, $lang);
+
+
+        $defaultCategoryName = $defaultCategory->name;
+        if (_PS_VERSION_ >= 1.7) {
+            $defaultCategoryName = Tools::str2url($defaultCategoryName);
+        }
         $itemgroupBase = $item->id;
 
         $whenOutOfStock = StockAvailable::outOfStock($item->id);
@@ -736,6 +742,7 @@ class MergadoClass extends ObjectModel
                 //$price = ToolsCore::convertPriceFull($price, $this->defaultCurrency, $this->currency);
                 $images = array_diff($images, array($mainImage));
 
+
                 $productBase[] = array(
                     'item_id' => $combination['id_product'] . '-' . $combination['id_product_attribute'],
                     'itemgroup_id' => $itemgroupBase,
@@ -755,7 +762,7 @@ class MergadoClass extends ObjectModel
                     'name_exact' => $combination['name'],
                     'params' => $params,
                     'producer' => $manufacturer->name,
-                    'url' => $link->getProductLink($item, null, $defaultCategory->name, null, $lang, null, $combination['id_product_attribute'], false, false, true),
+                    'url' => $link->getProductLink($item, null, $defaultCategoryName, null, $lang, null, $combination['id_product_attribute'], false, false, true),
                     'price' => Tools::ps_round($price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'wholesale_price' => $combination['wholesale_price'] != 0 ? $combination['wholesale_price'] : $item->wholesale_price,
@@ -848,7 +855,7 @@ class MergadoClass extends ObjectModel
                     'name_exact' => $item->name[$lang],
                     'params' => $features,
                     'producer' => $manufacturer->name,
-                    'url' => $link->getProductLink($item, null, $defaultCategory->name, null, $lang, null),
+                    'url' => $link->getProductLink($item, null, $defaultCategoryName, null, $lang, null),
                     'price' => Tools::ps_round($price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'wholesale_price' => $item->wholesale_price,
