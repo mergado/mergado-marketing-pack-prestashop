@@ -44,6 +44,7 @@ $_MODULE['<{mergado}prestashop>adminmergadocontroller_d30ffd7af373b646df23b97bb1
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_6d2280074d071d635893301cd701b46c'] = 'Heureka dostupnostní feed';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_3dc562578553be9862881159004f0017'] = 'Zbozi.cz';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_ba079b9220a1367c37c6167075732f47'] = 'Zboží.cz měření konverzí';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_31236c4e53a1676786e8238bfb4805d3'] = 'Povolit standardní měření konverzí';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_ed704e0bb1ab417303ad08e90c25f183'] = 'Zboží.cz shop ID';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_952bf87c967660b7bbd4e1eb08cefc92'] = 'Tajný klíč';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_dbf92ee115625d1a6fa8cef35b1f1430'] = 'Najnakup.sk';
