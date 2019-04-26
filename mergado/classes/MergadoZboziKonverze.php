@@ -1,17 +1,5 @@
 <?php
-/**
- * NOTICE OF LICENSE.
- *
- * This file is licenced under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the licence agreement.
- *
- * You must not modify, adapt or create derivative works of this source code
- *
- *  @author    www.mergado.cz
- *  @copyright 2016 Mergado technologies, s. r. o.
- *  @license   LICENSE.txt
- */
+
 
 /**
  * Provides access to ZboziKonverze service.
@@ -21,18 +9,16 @@
  * \code
  * try {
  *     // Initialize
- *     $zbozi = new ZboziKonverze(1234567890, "fedcba9876543210123456789abcdef");
+ *     $zbozi = new ZboziKonverze(ID PROVOZOVNY, "TAJNY KLIC");
  *
  *     // Set order details
  *     $zbozi->setOrder(array(
- *         "deliveryType" => "Česká pošta (do ruky)",
- *         "deliveryDate" => "2016-02-29",
- *         "deliveryPrice" => 80,
+ *         "orderId" => "CISLO OBJEDNAVKY",
  *         "email" => "email@example.com",
- *         "orderId" => "2016-007896",
+ *         "deliveryType" => "CESKA_POSTA",
+ *         "deliveryPrice" => 80,
  *         "otherCosts" => 20,
  *         "paymentType" => "dobírka",
- *         "totalPrice" => 7500.50  //1×5000.50 + 4×600 + 80 + 20
  *     ));
  *
  *     // Add bought items
@@ -53,150 +39,131 @@
  *     // Finally send request
  *     $zbozi->send();
  *
- * } catch (Exception $e) {
- *     // Error should be handled
- *     print "Error: " . $e->getMessage();
+ * } catch (ZboziKonverzeException $e) {
+ *     // Error should be handled according to your preference
+ *     error_log("Chyba konverze: " . $e->getMessage());
  * }
  * \endcode
  *
  * @author Zbozi.cz <zbozi@firma.seznam.cz>
  */
-require_once _PS_MODULE_DIR_.'mergado/classes/MergadoCartItem.php';
+class ZboziKonverze {
 
-class MergadoZboziKonverze
-{
     /**
-     * Endpoint URL.
+     * Endpoint URL
      *
      * @var string BASE_URL
      */
     const BASE_URL = 'https://%%DOMAIN%%/action/%%SHOP_ID%%/conversion/backend';
 
     /**
-     * Private identifier of request creator.
+     * Private identifier of request creator
      *
-     * @var string
+     * @var string $PRIVATE_KEY
      */
     public $PRIVATE_KEY;
 
     /**
-     * Public identifier of request creator.
+     * Public identifier of request creator
      *
-     * @var string
+     * @var string $SHOP_ID
      */
     public $SHOP_ID;
 
     /**
-     * Identifier of this order.
+     * Identifier of this order
      *
-     * @var string
+     * @var string $orderId
      */
     public $orderId;
 
     /**
-     * Customer email.
+     * Customer email
+     * Should not be set unless customer allows to do so.
      *
-     * @var string
+     * @var string $email
      */
     public $email;
 
     /**
-     * How the order will be transfered to the customer.
+     * How the order will be transfered to the customer
      *
-     * @var string
+     * @var string $deliveryType
      */
     public $deliveryType;
 
     /**
-     * Promised day of delivery.
+     * Cost of delivery (in CZK)
      *
-     * @var string
-     */
-    public $deliveryDate;
-
-    /**
-     * Cost of delivery (in CZK).
-     *
-     * @var float
+     * @var float $deliveryPrice
      */
     public $deliveryPrice;
 
     /**
-     * How the order was paid.
+     * How the order was paid
      *
-     * @var string
+     * @var string $paymentType
      */
     public $paymentType;
 
     /**
-     * Other fees (in CZK).
+     * Other fees (in CZK)
      *
-     * @var string
+     * @var string $otherCosts
      */
     public $otherCosts;
 
     /**
-     * Total price of this order (in CZK).
+     * Array of CartItem
      *
-     * @var float
-     */
-    public $totalPrice;
-
-    /**
-     * Array of CartItem.
-     *
-     * @var array
+     * @var array $cart
      */
     public $cart = array();
 
     /**
-     * Determine URL where the request will be send to.
+     * Determine URL where the request will be send to
      *
-     * @var bool
+     * @var boolean $sandbox
      */
     private $sandbox;
 
     /**
      * Set if sandbox URL will be used.
      *
-     * @param bool $val
+     * @param boolean $val
      */
-    public function useSandbox($val)
-    {
+    public function useSandbox($val) {
         $this->sandbox = $val;
     }
 
     /**
-     * Check if string is not empty.
+     * Check if string is not empty
      *
      * @param string $question String to test
-     *
-     * @return bool
+     * @return boolean
      */
-    private static function isNullOrEmptyString($question)
-    {
-        return !isset($question) || trim($question) === '';
+    private static function isNullOrEmptyString($question) {
+        return (!isset($question) || trim($question)==='');
     }
 
     /**
-     * Initialize ZboziKonverze service.
+     * Initialize ZboziKonverze service
      *
-     * @param string $shopId     Shop identifier
+     * @param string $shopId Shop identifier
      * @param string $privateKey Shop private key
-     *
-     * @throws Exception can be thrown if \p $privateKey and/or \p $shopId
-     *                   is missing or invalid.
+     * @throws ZboziKonverzeException can be thrown if \p $privateKey and/or \p $shopId
+     * is missing or invalid.
      */
     public function __construct($shopId, $privateKey)
     {
         if ($this::isNullOrEmptyString($shopId)) {
-            throw new Exception('shopId si mandatory');
+            throw new ZboziKonverzeException('shopId si mandatory');
         } else {
             $this->SHOP_ID = $shopId;
         }
 
         if ($this::isNullOrEmptyString($privateKey)) {
-            throw new Exception('privateKey si mandatory');
+            throw new ZboziKonverzeException('privateKey si mandatory');
         } else {
             $this->PRIVATE_KEY = $privateKey;
         }
@@ -205,7 +172,7 @@ class MergadoZboziKonverze
     }
 
     /**
-     * Sets customer email.
+     * Sets customer email
      *
      * @param string $email Customer email address
      */
@@ -215,7 +182,7 @@ class MergadoZboziKonverze
     }
 
     /**
-     * Adds order ID.
+     * Adds order ID
      *
      * @param int $orderId Order identifier
      */
@@ -225,25 +192,25 @@ class MergadoZboziKonverze
     }
 
     /**
-     * Adds ordered product using name.
+     * Adds ordered product using name
      *
      * @param string $productName Ordered product name
      */
     public function addProduct($productName)
     {
-        $item = new MergadoCartItem();
+        $item = new CartItem();
         $item->productName = $productName;
         $this->cart[] = $item;
     }
 
     /**
-     * Adds ordered product using item ID.
+     * Adds ordered product using item ID
      *
      * @param string $itemId Ordered product item ID
      */
     public function addProductItemId($itemId)
     {
-        $item = new MergadoCartItem();
+        $item = new CartItem();
         $item->itemId = $itemId;
         $this->cart[] = $item;
     }
@@ -253,37 +220,27 @@ class MergadoZboziKonverze
      * \p productName ,
      * \p itemId ,
      * \p unitPrice ,
-     * \p quantity.
+     * \p quantity
      *
      * @param array $cartItem Array of various CartItem attributes
      */
     public function addCartItem($cartItem)
     {
-        $item = new MergadoCartItem();
-        if (array_key_exists('productName', $cartItem)) {
-            $item->productName = $cartItem['productName'];
+        $item = new CartItem();
+        if (array_key_exists("productName", $cartItem)) {
+            $item->productName = $cartItem["productName"];
         }
-        if (array_key_exists('itemId', $cartItem)) {
-            $item->itemId = $cartItem['itemId'];
+        if (array_key_exists("itemId", $cartItem)) {
+            $item->itemId = $cartItem["itemId"];
         }
-        if (array_key_exists('unitPrice', $cartItem)) {
-            $item->unitPrice = $cartItem['unitPrice'];
+        if (array_key_exists("unitPrice", $cartItem)) {
+            $item->unitPrice = $cartItem["unitPrice"];
         }
-        if (array_key_exists('quantity', $cartItem)) {
-            $item->quantity = $cartItem['quantity'];
+        if (array_key_exists("quantity", $cartItem)) {
+            $item->quantity = $cartItem["quantity"];
         }
 
         $this->cart[] = $item;
-    }
-
-    /**
-     * Adds total price (in CZK).
-     *
-     * @param float $totalPrice Total price of the order
-     */
-    public function addTotalPrice($totalPrice)
-    {
-        $this->totalPrice = $totalPrice;
     }
 
     /**
@@ -291,89 +248,102 @@ class MergadoZboziKonverze
      * \p email ,
      * \p deliveryType ,
      * \p deliveryPrice ,
-     * \p deliveryDate ,
      * \p orderId ,
      * \p otherCosts ,
      * \p paymentType ,
-     * \p totalPrice.
      *
      * @param array $orderAttributes Array of various order attributes
      */
-    public function setOrder($orderAttributes)
-    {
-        $this->email = $orderAttributes['email'];
-        $this->deliveryType = $orderAttributes['deliveryType'];
-        $this->deliveryPrice = $orderAttributes['deliveryPrice'];
-        $this->deliveryDate = $orderAttributes['deliveryDate'];
-        $this->orderId = $orderAttributes['orderId'];
-        $this->otherCosts = $orderAttributes['otherCosts'];
-        $this->paymentType = $orderAttributes['paymentType'];
-        $this->totalPrice = $orderAttributes['totalPrice'];
+    public function setOrder($orderAttributes) {
+        if (array_key_exists("email", $orderAttributes) && $orderAttributes["email"]) {
+            $this->email = $orderAttributes["email"];
+        }
+        $this->deliveryType = $orderAttributes["deliveryType"];
+        $this->deliveryPrice = $orderAttributes["deliveryPrice"];
+        $this->orderId = $orderAttributes["orderId"];
+        $this->otherCosts = $orderAttributes["otherCosts"];
+        $this->paymentType = $orderAttributes["paymentType"];
     }
 
+
     /**
-     * Creates HTTP request and returns response body.
+     * Creates HTTP request and returns response body
      *
      * @param string $url URL
-     *
-     * @return bool true if everything is perfect else throws exception
-     *
-     * @throws Exception can be thrown if connection to Zbozi.cz
-     *                   server cannot be established.
+     * @return boolean true if everything is perfect else throws exception
+     * @throws ZboziKonverzeException can be thrown if connection to Zbozi.cz
+     * server cannot be established.
      */
     protected function sendRequest($url)
     {
-        $encoded_json = Tools::jsonEncode(get_object_vars($this));
+        $encoded_json = json_encode(get_object_vars($this));
 
-        // use key 'http' even if you send the request to https://...
-        $options = array(
-            'http' => array(
-                'header' => 'Content-type: application/json',
-                'method' => 'POST',
-                'content' => $encoded_json,
-            ),
-        );
-        $context = stream_context_create($options);
-        $response = Tools::file_get_contents($url, false, $context);
+        if (extension_loaded('curl'))
+        {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3 /* seconds */);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $encoded_json);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+            $response = curl_exec($ch);
 
-        if ($response === false) {
-            throw new Exception('Unable to establish connection to ZboziKonverze service');
+            if ($response === false) {
+                throw new ZboziKonverzeException('Unable to establish connection to ZboziKonverze service: ' . curl_error($ch));
+            }
+        }
+        else
+        {
+            // use key 'http' even if you send the request to https://...
+            $options = array(
+                'http' => array(
+                    'header'  => "Content-type: application/json",
+                    'method'  => 'POST',
+                    'content' => $encoded_json,
+                ),
+            );
+            $context  = stream_context_create($options);
+            $response = file_get_contents($url, false, $context);
+
+            if ($response === false) {
+                throw new ZboziKonverzeException('Unable to establish connection to ZboziKonverze service');
+            }
         }
 
-        $decoded_response = Tools::jsonDecode($response, true);
-        if ($decoded_response['status'] == 200) {
+        $decoded_response = json_decode($response, true);
+        if ((int)($decoded_response["status"] / 100) === 2) {
             return true;
         } else {
-            throw new Exception('Request was not accepted.');
+            throw new ZboziKonverzeException('Request was not accepted: ' . $decoded_response['statusMessage']);
         }
     }
 
     /**
-     * Returns endpoint URL.
+     * Returns endpoint URL
      *
      * @return string URL where the request will be called
      */
     private function getUrl()
     {
         $url = $this::BASE_URL;
-        $url = str_replace('%%SHOP_ID%%', $this->SHOP_ID, $url);
+        $url = str_replace("%%SHOP_ID%%", $this->SHOP_ID, $url);
 
         if ($this->sandbox) {
-            $url = str_replace('%%DOMAIN%%', 'sandbox.zbozi.cz', $url);
+            $url = str_replace("%%DOMAIN%%", "sandbox.zbozi.cz", $url);
         } else {
-            $url = str_replace('%%DOMAIN%%', 'www.zbozi.cz', $url);
+            $url = str_replace("%%DOMAIN%%", "www.zbozi.cz", $url);
         }
 
         return $url;
     }
 
     /**
-     * Sends request to ZboziKonverze service and checks for valid response.
+     * Sends request to ZboziKonverze service and checks for valid response
      *
-     * @return bool true if everything is perfect else throws exception
-     *
-     * @throws Exception can be thrown if connection to Zbozi.cz
-     *                   server cannot be established or mandatory values are missing.
+     * @return boolean true if everything is perfect else throws exception
+     * @throws ZboziKonverzeException can be thrown if connection to Zbozi.cz
+     * server cannot be established or mandatory values are missing.
      */
     public function send()
     {
@@ -382,10 +352,45 @@ class MergadoZboziKonverze
         // send request and check for valid response
         try {
             $status = $this->sendRequest($url);
-
             return $status;
         } catch (Exception $e) {
-            throw new Exception($e->getMessage());
+            throw new ZboziKonverzeException($e->getMessage());
         }
     }
-}
+
+};
+
+class CartItem {
+    /**
+     * Item name
+     *
+     * @var string $productName
+     */
+    public $productName;
+
+    /**
+     * Item identifier
+     *
+     * @var string $itemId
+     */
+    public $itemId;
+
+    /**
+     * Price per one item (in CZK)
+     *
+     * @var float $unitPrice
+     */
+    public $unitPrice;
+
+    /**
+     * Number of items ordered
+     *
+     * @var int $quantity
+     */
+    public $quantity;
+};
+
+/**
+ * Thrown when an service returns an exception
+ */
+class ZboziKonverzeException extends Exception {};
