@@ -9,13 +9,14 @@
  *
  * You must not modify, adapt or create derivative works of this source code
  *
- *  @author    www.mergado.cz
- *  @copyright 2016 Mergado technologies, s. r. o.
- *  @license   LICENSE.txt
+ * @author    www.mergado.cz
+ * @copyright 2016 Mergado technologies, s. r. o.
+ * @license   LICENSE.txt
  */
 require_once _PS_MODULE_DIR_ . 'mergado/classes/MergadoClass.php';
 
-class AdminMergadoController extends ModuleAdminController {
+class AdminMergadoController extends ModuleAdminController
+{
 
     protected $multishop;
     protected $multishopAllowed = false;
@@ -25,7 +26,8 @@ class AdminMergadoController extends ModuleAdminController {
     protected $settingsValues;
     protected $defaultLang;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->bootstrap = true;
         $this->className = 'AdminMergado';
         $this->table = 'mergado';
@@ -49,7 +51,8 @@ class AdminMergadoController extends ModuleAdminController {
         }
     }
 
-    public function formDevelopers() {
+    public function formDevelopers()
+    {
         $fields_form[0]['form'] = array(
             'legend' => array(
                 'title' => $this->l('Help'),
@@ -128,7 +131,7 @@ class AdminMergadoController extends ModuleAdminController {
         $helper->default_form_language = $this->defaultLang;
         $helper->allow_employee_form_lang = $this->defaultLang;
 
-        if(isset($this->displayName)){
+        if (isset($this->displayName)) {
             $helper->title = $this->displayName;
         }
 
@@ -143,15 +146,15 @@ class AdminMergadoController extends ModuleAdminController {
         }
 
         if (version_compare(_PS_VERSION_, '1.6') < 0) {
-            
+
         } else {
             $helper->toolbar_btn = array(
                 'save' =>
-                array(
-                    'desc' => $this->l('Save'),
-                    'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
-                    '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                ),
+                    array(
+                        'desc' => $this->l('Save'),
+                        'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
+                            '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                    ),
                 'back' => array(
                     'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
                     'desc' => $this->l('Back to list')
@@ -162,7 +165,8 @@ class AdminMergadoController extends ModuleAdminController {
         return $helper->generateForm($fields_form);
     }
 
-    public function formExportSettings() {
+    public function formExportSettings()
+    {
 
         $options = array(
             array(
@@ -210,9 +214,11 @@ class AdminMergadoController extends ModuleAdminController {
                     ),
                 ));
 
-                $defaultValues = array_merge($defaultValues, array(
-                    MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'] => $this->settingsValues[MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code']]
-                ));
+                if (isset($this->settingsValues[MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code']])) {
+                    $defaultValues = array_merge($defaultValues, array(
+                        MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'] => $this->settingsValues[MergadoClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code']]
+                    ));
+                }
             }
         }
 
@@ -340,7 +346,7 @@ class AdminMergadoController extends ModuleAdminController {
 
         $optionsArray = array();
         foreach ($options as $option) {
-            if(isset( $this->settingsValues['what_to_export_' . $option['id_option']])) {
+            if (isset($this->settingsValues['what_to_export_' . $option['id_option']])) {
                 $optionsArray = array_merge(
                     $optionsArray, array(
                         'what_to_export_' . $option['id_option'] => $this->settingsValues['what_to_export_' . $option['id_option']]
@@ -350,9 +356,9 @@ class AdminMergadoController extends ModuleAdminController {
         }
 
         $fields_value = array(
-            'delivery_days' => $this->settingsValues['delivery_days'],
-            'static_feed' => $this->settingsValues['static_feed'],
-            'category_feed' => $this->settingsValues['category_feed'],
+            'delivery_days' => isset($this->settingsValues['delivery_days']) ? $this->settingsValues['delivery_days'] : null,
+            'static_feed' => isset($this->settingsValues['static_feed']) ? $this->settingsValues['static_feed'] : null,
+            'category_feed' => isset($this->settingsValues['category_feed']) ? $this->settingsValues['category_feed'] : null,
             'clrCheckboxes' => 1,
             'page' => 1,
         );
@@ -363,12 +369,12 @@ class AdminMergadoController extends ModuleAdminController {
         $helper->name_controller = $this->name;
 
         $helper->tpl_vars = array('fields_value' => array_merge($fields_value, $optionsArray, $defaultValues));
-        if(isset($this->defaultLang)) {
+        if (isset($this->defaultLang)) {
             $helper->default_form_language = $this->defaultLang;
             $helper->allow_employee_form_lang = $this->defaultLang;
         }
 
-        if(isset($this->displayName)) {
+        if (isset($this->displayName)) {
             $helper->title = $this->displayName;
         }
         $helper->show_toolbar = true;
@@ -382,15 +388,15 @@ class AdminMergadoController extends ModuleAdminController {
         }
 
         if (version_compare(_PS_VERSION_, '1.6') < 0) {
-            
+
         } else {
             $helper->toolbar_btn = array(
                 'save' =>
-                array(
-                    'desc' => $this->l('Save'),
-                    'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
-                    '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                ),
+                    array(
+                        'desc' => $this->l('Save'),
+                        'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
+                            '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                    ),
                 'back' => array(
                     'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
                     'desc' => $this->l('Back to list')
@@ -401,7 +407,8 @@ class AdminMergadoController extends ModuleAdminController {
         return $helper->generateForm($fields_form);
     }
 
-    public function formAdSys() {
+    public function formAdSys()
+    {
 
         $fields_form[0]['form'] = array(
             'legend' => array(
@@ -590,7 +597,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'title' => $this->l('Save'),
                     'name' => 'submit' . $this->name
                 )
-        ));
+            ));
 
         $fields_form[1]['form'] = array(
             'legend' => array(
@@ -620,6 +627,27 @@ class AdminMergadoController extends ModuleAdminController {
                     'visibility' => Shop::CONTEXT_ALL,
                 ),
                 array(
+                    'name' => 'mergado_zbozi_advanced_konverze',
+                    'label' => $this->l('Standard conversion measuring'),
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => (version_compare(_PS_VERSION_, '1.6') < 0) ? 'radio' : 'switch',
+                    'class' => 'switch15',
+                    'values' => array(
+                        array(
+                            'id' => 'mergado_zbozi_advanced_konverze_on',
+                            'value' => 1,
+                            'label' => $this->l('Yes')
+                        ),
+                        array(
+                            'id' => 'mergado_zbozi_advanced_konverze_off',
+                            'value' => 0,
+                            'label' => $this->l('No')
+                        )
+                    ),
+                    'visibility' => Shop::CONTEXT_ALL,
+                ),
+                array(
                     'name' => 'mergado_zbozi_shop_id',
                     'label' => $this->l('Zbozi shop ID'),
                     'type' => 'text',
@@ -635,7 +663,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'title' => $this->l('Save'),
                     'name' => 'submit' . $this->name
                 )
-        ));
+            ));
 
         $fields_form[2]['form'] = array(
             'legend' => array(
@@ -674,7 +702,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'title' => $this->l('Save'),
                     'name' => 'submit' . $this->name
                 )
-        ));
+            ));
 
         $fields_form[3]['form'] = array(
             'legend' => array(
@@ -713,7 +741,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'title' => $this->l('Save'),
                     'name' => 'submit' . $this->name
                 )
-        ));
+            ));
 
         $fields_form[4]['form'] = array(
             'legend' => array(
@@ -785,7 +813,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'title' => $this->l('Save'),
                     'name' => 'submit' . $this->name
                 )
-        ));
+            ));
 
         $fields_form[5]['form'] = array(
             'legend' => array(
@@ -988,11 +1016,10 @@ class AdminMergadoController extends ModuleAdminController {
 
         $fields_value = [];
 
-        foreach($this->settingsValues as $key => $value) {
+        foreach ($this->settingsValues as $key => $value) {
             $fields_value[$key] = $value;
         }
         $fields_value['page'] = 6;
-
 
 
         $helper = new HelperForm();
@@ -1002,7 +1029,7 @@ class AdminMergadoController extends ModuleAdminController {
 
         $helper->tpl_vars = array('fields_value' => $fields_value);
 
-        if(isset($this->defaultLang)){
+        if (isset($this->defaultLang)) {
             $helper->default_form_language = $this->defaultLang;
             $helper->allow_employee_form_lang = $this->defaultLang;
         }
@@ -1021,15 +1048,15 @@ class AdminMergadoController extends ModuleAdminController {
         }
 
         if (version_compare(_PS_VERSION_, '1.6') < 0) {
-            
+
         } else {
             $helper->toolbar_btn = array(
                 'save' =>
-                array(
-                    'desc' => $this->l('Save'),
-                    'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
-                    '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                ),
+                    array(
+                        'desc' => $this->l('Save'),
+                        'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
+                            '&token=' . Tools::getAdminTokenLite('AdminModules'),
+                    ),
                 'back' => array(
                     'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
                     'desc' => $this->l('Back to list')
@@ -1040,7 +1067,8 @@ class AdminMergadoController extends ModuleAdminController {
         return $helper->generateForm($fields_form);
     }
 
-    public function initContent() {
+    public function initContent()
+    {
         $sql = 'SELECT `key` FROM `' . _DB_PREFIX_ . $this->table . '` WHERE `key` LIKE "';
         $sql .= pSQL(MergadoClass::$feedPrefix) . '%" AND `value` = 1';
         $feeds = Db::getInstance()->executeS($sql);
@@ -1053,7 +1081,7 @@ class AdminMergadoController extends ModuleAdminController {
             $remoteVersion = Cache::retrieve(Mergado::MERGADO_UPDATE_CACHE_ID);
         } else {
             $remoteVersion = Tools::file_get_contents(Mergado::MERGADO_UPDATE);
-            if($remoteVersion) {
+            if ($remoteVersion) {
                 $xml = simplexml_load_string($remoteVersion) or die("Error: Cannot create object");
                 $remoteVersion = (string)$xml->version;
                 Cache::store(Mergado::MERGADO_UPDATE_CACHE_ID, $remoteVersion);
@@ -1072,7 +1100,7 @@ class AdminMergadoController extends ModuleAdminController {
                 'url' => $this->getCronUrl($feed['key']),
                 'name' => $this->languages->getLanguageByIETFCode(
                         $this->languages->getLanguageCodeByIso($iso[0])
-                )->name . ' - ' . $iso[1]
+                    )->name . ' - ' . $iso[1]
             );
 
             if ($categoryFeed == "1") {
@@ -1080,7 +1108,7 @@ class AdminMergadoController extends ModuleAdminController {
                     'url' => $this->getCronUrl('category_' . $feed['key']),
                     'name' => $this->languages->getLanguageByIETFCode(
                             $this->languages->getLanguageCodeByIso($iso[0])
-                    )->name . ' - ' . $iso[1]);
+                        )->name . ' - ' . $iso[1]);
             }
         }
 
@@ -1101,7 +1129,7 @@ class AdminMergadoController extends ModuleAdminController {
                 $name[1] = explode('_', $name[1]);
                 $codedName = explode('_', $tmpName);
                 $code = Tools::strtoupper(
-                                '_' . Tools::substr(hash('md5', $codedName[0] . Configuration::get('PS_SHOP_NAME')), 1, 11)
+                    '_' . Tools::substr(hash('md5', $codedName[0] . Configuration::get('PS_SHOP_NAME')), 1, 11)
                 );
 
                 if ($codedName[0] == 'stock') {
@@ -1122,9 +1150,9 @@ class AdminMergadoController extends ModuleAdminController {
                     $name[0] = str_replace('category_', '', $name[0]);
                     $xmlList['category'][] = array(
                         'language' => str_replace(
-                                $code, '', $this->languages->getLanguageByIETFCode(
-                                        $this->languages->getLanguageCodeByIso($name[0])
-                                )->name . ' - ' . Tools::strtoupper($name[1][0])
+                            $code, '', $this->languages->getLanguageByIETFCode(
+                                $this->languages->getLanguageCodeByIso($name[0])
+                            )->name . ' - ' . Tools::strtoupper($name[1][0])
                         ),
                         'url' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . basename($filename),
                         'name' => basename($filename),
@@ -1133,9 +1161,9 @@ class AdminMergadoController extends ModuleAdminController {
                 } else {
                     $xmlList['base'][] = array(
                         'language' => str_replace(
-                                $code, '', $this->languages->getLanguageByIETFCode(
-                                        $this->languages->getLanguageCodeByIso($name[0])
-                                )->name . ' - ' . Tools::strtoupper($name[1][0])
+                            $code, '', $this->languages->getLanguageByIETFCode(
+                                $this->languages->getLanguageCodeByIso($name[0])
+                            )->name . ' - ' . Tools::strtoupper($name[1][0])
                         ),
                         'url' => $this->baseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . basename($filename),
                         'name' => basename($filename),
@@ -1190,7 +1218,8 @@ class AdminMergadoController extends ModuleAdminController {
         ));
     }
 
-    public function postProcess() {
+    public function postProcess()
+    {
 
         if (Tools::isSubmit('submit' . $this->name)) {
             unset($_POST['submit' . $this->name]);
@@ -1210,13 +1239,14 @@ class AdminMergadoController extends ModuleAdminController {
             }
 
 
-            $this->redirect_after = self::$currentIndex . '&token=' . $this->token . (Tools::isSubmit('submitFilter' . $this->list_id) ? '&submitFilter' . $this->list_id . '=' . (int) Tools::getValue('submitFilter' . $this->list_id) : '') . '&mergadoTab=' . $_POST['page'];
+            $this->redirect_after = self::$currentIndex . '&token=' . $this->token . (Tools::isSubmit('submitFilter' . $this->list_id) ? '&submitFilter' . $this->list_id . '=' . (int)Tools::getValue('submitFilter' . $this->list_id) : '') . '&mergadoTab=' . $_POST['page'];
         }
     }
 
-    public function saveData($key, $value) {
+    public function saveData($key, $value)
+    {
         $exists = Db::getInstance()->getRow(
-                'SELECT id FROM ' . _DB_PREFIX_ . $this->table . ' WHERE `key`="' . pSQL($key) . '"'
+            'SELECT id FROM ' . _DB_PREFIX_ . $this->table . ' WHERE `key`="' . pSQL($key) . '"'
         );
         if ($exists) {
             Db::getInstance()->update($this->table, array('value' => pSQL($value)), '`key` = "' . pSQL($key) . '"');
@@ -1228,12 +1258,14 @@ class AdminMergadoController extends ModuleAdminController {
         }
     }
 
-    public function getCronUrl($key) {
+    public function getCronUrl($key)
+    {
         return $this->baseUrl() . '/modules/' . $this->name . '/cron.php?feed=' . $key .
-                '&token=' . Tools::substr(Tools::encrypt('mergado/cron'), 0, 10);
+            '&token=' . Tools::substr(Tools::encrypt('mergado/cron'), 0, 10);
     }
 
-    public function baseUrl() {
+    public function baseUrl()
+    {
         return 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' . Tools::getShopDomain(false, true);
     }
 

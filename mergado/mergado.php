@@ -32,7 +32,7 @@ class Mergado extends Module
     {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.6.4';
+        $this->version = '1.6.5';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
@@ -293,9 +293,8 @@ class Mergado extends Module
     public function hookDisplayShoppingCartFooter($params)
     {
         $adWordsRemarketing = MergadoClass::getSettings('adwords_remarketing');
-
         $prodid = "";
-        foreach ($params['products'] as $product) {
+        foreach ($params['cart']->getProducts() as $product) {
             $prodid .= "'" . $product['id_product'];
 
             if (isset($product['id_product_attribute']) && $product['id_product_attribute'] != "") {
@@ -466,21 +465,20 @@ class Mergado extends Module
         $categoryId = Tools::getValue('id_category');
         $productId = Tools::getValue('id_product');
 
+
         if ($categoryId) {
             $category = new CategoryCore($categoryId, (int)ContextCore::getContext()->language->id);
             $nb = 10;
             $products_tmp = $category->getProducts((int)Context::getContext()->language->id, 1, ($nb ? $nb : 10));
-
             $products = array();
             foreach ($products_tmp as $product) {
-                $products['ids'][] = "'" . $product['id_product'] . '-' . $product['id_product_attribute'] . "'";
-                $products['name'][] = "'" . $product['name'] . "'";
+                $products['ids'][] = $product['id_product'] . '-' . $product['id_product_attribute'];
+                $products['name'][] = $product['name'];
             }
-
             $this->smarty->assign(array(
                 'glami_pixel_category' => $category,
-                'glami_pixel_productIds' => implode(',', $products['ids']),
-                'glami_pixel_productNames' => implode(',', $products['name'])
+                'glami_pixel_productIds' => json_encode($products['ids']),
+                'glami_pixel_productNames' => json_encode($products['name'])
             ));
         }
 
@@ -523,15 +521,15 @@ class Mergado extends Module
         if (_PS_VERSION_ < 1.7) {
             $order = new OrderCore($params['objOrder']->id);
         } else {
-            $order = new OrderCore($params['order']->id_cart);
+            $order = new OrderCore($params['order']->id);
         }
 
         $products_tmp = $order->getProducts();
 
         $products = array();
         foreach ($products_tmp as $product) {
-            $products['ids'][] = "'" . $product['id_product'] . '-' . $product['product_attribute_id'] . "'";
-            $products['name'][] = "'" . $product['product_name'] . "'";
+            $products['ids'][] = $product['product_id'] . '-' . $product['product_attribute_id'];
+            $products['name'][] = $product['product_name'];
         }
 
         if (_PS_VERSION_ < 1.7) {
@@ -539,20 +537,21 @@ class Mergado extends Module
                 'glami_pixel_orderId' => $params['objOrder']->id,
                 'glami_pixel_value' => $params['total_to_pay'],
                 'glami_pixel_currency' => $params['currencyObj']->iso_code,
-                'glami_pixel_productIds' => implode(',', $products['ids']),
-                'glami_pixel_productNames' => implode(',', $products['name'])
+                'glami_pixel_productIds' => json_encode($products['ids']),
+                'glami_pixel_productNames' => json_encode($products['name'])
             ));
         } else {
             $this->smarty->assign(array(
                 'glami_pixel_orderId' => $params['order']->id_cart,
                 'glami_pixel_value' => $params['order']->total_paid,
                 'glami_pixel_currency' => CurrencyCore::getCurrency($params['order']->id_currency),
-                'glami_pixel_productIds' => implode(',', $products['ids']),
-                'glami_pixel_productNames' => implode(',', $products['name'])
+                'glami_pixel_productIds' => json_encode($products['ids']),
+                'glami_pixel_productNames' => json_encode($products['name'])
             ));
         }
 
         $zboziActive = MergadoClass::getSettings('mergado_zbozi_konverze');
+        $zboziAdvancedActive = MergadoClass::getSettings('mergado_zbozi_advanced_konverze');
         $zboziId = MergadoClass::getSettings('mergado_zbozi_shop_id');
         $heurekaCzActive = MergadoClass::getSettings('mergado_heureka_konverze_cz');
         $heurekaCzCode = MergadoClass::getSettings('mergado_heureka_konverze_cz_kod');
@@ -633,6 +632,7 @@ class Mergado extends Module
             $data = array(
                 'conversionZboziShopId' => $zboziId,
                 'conversionZboziActive' => $zboziActive,
+                'conversionZboziAdvancedActive' => $zboziAdvancedActive,
                 'conversionZboziTotal' => number_format(
                     $params['objOrder']->total_paid, Configuration::get('PS_PRICE_DISPLAY_PRECISION')
                 ),
@@ -659,6 +659,7 @@ class Mergado extends Module
             $data = array(
                 'conversionZboziShopId' => $zboziId,
                 'conversionZboziActive' => $zboziActive,
+                'conversionZboziAdvancedActive' => $zboziAdvancedActive,
                 'conversionZboziTotal' => number_format(
                     $params['order']->total_paid, Configuration::get('PS_PRICE_DISPLAY_PRECISION')
                 ),
@@ -675,7 +676,7 @@ class Mergado extends Module
                 'adwords' => $adwords,
                 'adwordsCode' => $adwordsCode,
                 'adwordsLabel' => $adwordsLabel,
-                'total' => $params['total_paid'],
+                'total' => $params['order']->total_paid,
                 'currency' => CurrencyCore::getCurrency($params['order']->id_currency),
                 'languageCode' => str_replace('-', '_', $context->language->language_code),
                 'fbPixel' => $fbPixel,

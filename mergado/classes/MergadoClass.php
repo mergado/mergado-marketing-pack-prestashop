@@ -1034,59 +1034,74 @@ class MergadoClass extends ObjectModel
     public function sendZboziKonverze($order, $lang)
     {
         $active = self::getSettings('mergado_zbozi_konverze');
+        $advanced = self::getSettings('mergado_zbozi_advanced_konverze');
         $id = self::getSettings('mergado_zbozi_shop_id');
         $secret = self::getSettings('mergado_zbozi_secret');
 
         if ($active === '1') {
-            try {
-                $zbozi = new MergadoZboziKonverze($id, $secret);
+            if ($advanced === '1') {
+                // Extended process
+                try {
+                    $zbozi = new ZboziKonverze($id, $secret);
 
-                // testovací režim
-//                 $zbozi->useSandbox(true);
+                    foreach ($order['order']->getProducts() as $product) {
+                        $pid = $product['product_id'];
+                        if ($product['product_attribute_id'] != '0') {
+                            $pid .= '-' . $product['product_attribute_id'];
+                        }
 
-                $cart = new Cart($order['cart']->id, Language::getIdByIso($lang));
-                $products = $cart->getProducts();
-
-                foreach ($products as $product) {
-                    $exactName = $product['name'];
-
-                    if (array_key_exists('attributes_small', $product) && $product['attributes_small'] != '') {
-                        $tmpName = array_reverse(explode(', ', $product['attributes_small']));
-                        $exactName .= ': ' . implode(' ', $tmpName);
+                        $zbozi->addCartItem(array(
+                            'productName' => $product['product_name'],
+                            'itemId' => $pid,
+                            'unitPrice' => $product['unit_price_tax_incl'],
+                            'quantity' => $product['product_quantity'],
+                        ));
                     }
 
-                    $pid = $product['id_product'];
-                    if ($product['id_product_attribute'] != '0') {
-                        $pid .= '-' . $product['id_product_attribute'];
-                    }
-
-                    $zbozi->addCartItem(array(
-                        'productName' => $exactName,
-                        'itemId' => $pid,
-                        'unitPrice' => $product['price_wt'],
-                        'quantity' => $product['quantity'],
+                    $carrier = new Carrier($order['order']->id_carrier);
+                    $zbozi->setOrder(array(
+                        'orderId' => $order['order']->id,
+                        'email' => $order['customer']->email,
+                        'deliveryType' => $carrier->name,
+                        'deliveryPrice' => (string)$order['order']->total_shipping_tax_incl,
+                        'deliveryDate' => $order['order']->delivery_date,
+                        'paymentType' => $order['order']->payment,
+                        'otherCosts' => -($order['order']->total_discounts_tax_incl)
                     ));
+
+                    $zbozi->send();
+
+                    return true;
+                } catch (ZboziKonverzeException $e) {
+                    echo 'Error: ' . $e->getMessage();
+                } catch (Exception $e) {
+                    echo 'Error: ' . $e->getMessage();
                 }
-                $carrier = new Carrier($order['order']->id_carrier);
+            } else {
+                // Simplified process
+                try {
+                    $zbozi = new ZboziKonverze($id, $secret);
 
-                $zbozi->setOrder(array(
-                    'email' => $order['customer']->email,
-                    'deliveryType' => $carrier->name,
-                    'deliveryPrice' => (string)$order['order']->total_shipping,
-                    'deliveryDate' => $order['order']->delivery_date,
-                    'orderId' => $order['order']->id,
-                    'otherCosts' => '0',
-                    'paymentType' => $order['order']->payment,
-                    'totalPrice' => $order['order']->total_paid,
-                ));
+                    foreach ($order['order']->getProducts() as $product) {
+                        $pid = $product['product_id'];
+                        if ($product['product_attribute_id'] != '0') {
+                            $pid .= '-' . $product['product_attribute_id'];
+                        }
 
+                        $zbozi->addProductItemId($pid);
+                        $zbozi->addProduct($product['product_name']);
+                    }
 
-                $zbozi->send();
-                return true;
-            } catch (ZboziKonverzeException $e) {
-                echo 'Error: ' . $e->getMessage();
-            } catch (Exception $e) {
-                echo 'Error: ' . $e->getMessage();
+                    $zbozi->setEmail($order['customer']->email);
+                    $zbozi->addOrderId($order['order']->id);
+                    $zbozi->send();
+
+                    return true;
+                } catch (ZboziKonverzeException $e) {
+                    echo 'Error: ' . $e->getMessage();
+                } catch (Exception $e) {
+                    echo 'Error: ' . $e->getMessage();
+                }
             }
         }
 
