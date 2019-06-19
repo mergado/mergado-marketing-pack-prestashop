@@ -1051,14 +1051,19 @@ class MergadoClass extends ObjectModel
                         }
 
                         $zbozi->addCartItem(array(
-                            'productName' => $product['product_name'],
                             'itemId' => $pid,
+                            'productName' => $product['product_name'],
                             'unitPrice' => $product['unit_price_tax_incl'],
                             'quantity' => $product['product_quantity'],
                         ));
                     }
 
                     $carrier = new Carrier($order['order']->id_carrier);
+                    $other = $order['order']->total_discounts_tax_incl;
+                    if($other && $other > 0) {
+                        $other = $other * -1;
+                    }
+
                     $zbozi->setOrder(array(
                         'orderId' => $order['order']->id,
                         'email' => $order['customer']->email,
@@ -1066,8 +1071,9 @@ class MergadoClass extends ObjectModel
                         'deliveryPrice' => (string)$order['order']->total_shipping_tax_incl,
                         'deliveryDate' => $order['order']->delivery_date,
                         'paymentType' => $order['order']->payment,
-                        'otherCosts' => -($order['order']->total_discounts_tax_incl)
+                        'otherCosts' => $other
                     ));
+
 
                     $zbozi->send();
 
@@ -1079,7 +1085,7 @@ class MergadoClass extends ObjectModel
                 }
             } else {
                 // Simplified process
-                try {
+                /*try {
                     $zbozi = new ZboziKonverze($id, $secret);
 
                     foreach ($order['order']->getProducts() as $product) {
@@ -1088,8 +1094,15 @@ class MergadoClass extends ObjectModel
                             $pid .= '-' . $product['product_attribute_id'];
                         }
 
-                        $zbozi->addProductItemId($pid);
-                        $zbozi->addProduct($product['product_name']);
+                        $zbozi->addCartItem(array(
+                            'productName' => $product['product_name'],
+                            'itemId' => $pid,
+                            'unitPrice' => $product['unit_price_tax_incl'],
+                            'quantity' => $product['product_quantity'],
+                        ));
+
+//                        $zbozi->addProductItemId($pid);
+//                        $zbozi->addProduct($product['product_name']);
                     }
 
                     $zbozi->setEmail($order['customer']->email);
@@ -1101,7 +1114,7 @@ class MergadoClass extends ObjectModel
                     echo 'Error: ' . $e->getMessage();
                 } catch (Exception $e) {
                     echo 'Error: ' . $e->getMessage();
-                }
+                }*/
             }
         }
 

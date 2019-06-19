@@ -32,7 +32,7 @@ class Mergado extends Module
     {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.6.5';
+        $this->version = '1.6.6';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
@@ -663,7 +663,7 @@ class Mergado extends Module
                 'conversionZboziTotal' => number_format(
                     $params['order']->total_paid, Configuration::get('PS_PRICE_DISPLAY_PRECISION')
                 ),
-                'conversionOrderId' => $params['order']->id_cart,
+                'conversionOrderId' => $params['order']->id,
                 'heurekaCzActive' => $heurekaCzActive,
                 'heurekaCzCode' => $heurekaCzCode,
                 'heurekaSkActive' => $heurekaSkActive,

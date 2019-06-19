@@ -12,16 +12,15 @@
 *  @license   LICENSE.txt
 *}
 
-<script>
-  var conversionOrderId = '{$conversionOrderId}';
-  var conversionZboziShopId = '{$conversionZboziShopId}';
-  var conversionZboziTotal = '{$conversionZboziTotal}';
-  var heurekaCzCode = '{$heurekaCzCode}';
-  var heurekaSkActive = '{$heurekaSkActive}';
-  var heurekaSkCode = '{$heurekaSkCode}';
-</script>
-
 {if $conversionZboziActive == '1'}
+    <script>
+      var conversionOrderId = '{$conversionOrderId}';
+      var conversionZboziShopId = '{$conversionZboziShopId}';
+      var conversionZboziTotal = '{$conversionZboziTotal}';
+      var heurekaCzCode = '{$heurekaCzCode}';
+      var heurekaSkActive = '{$heurekaSkActive}';
+      var heurekaSkCode = '{$heurekaSkCode}';
+    </script>
     {if $conversionZboziAdvancedActive == '1'}
         <script>
             {literal}
@@ -72,8 +71,7 @@
 
             // nastavení informací o objednávce
             zbozi("setOrder", {
-              "orderId": conversionOrderId,
-              "totalPrice": conversionZboziTotal
+              "orderId": conversionOrderId
             });
             // odeslání
             zbozi("send");
