@@ -73,7 +73,7 @@ class AdminController extends AdminControllerCore
             }
         }
 
-        parent::postProcess();
+        return parent::postProcess();
     }
 
     public function mergadoDeleteFiles($dir)

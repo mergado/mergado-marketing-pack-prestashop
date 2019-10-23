@@ -32,7 +32,7 @@ class Mergado extends Module
     {
         $this->name = 'mergado';
         $this->tab = 'export';
-        $this->version = '1.6.6';
+        $this->version = '1.6.7';
         $this->author = 'www.mergado.cz';
         $this->need_instance = 0;
         $this->module_key = '12cdb75588bb090637655d626c01c351';
