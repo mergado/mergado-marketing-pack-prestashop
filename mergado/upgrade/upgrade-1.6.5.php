@@ -24,10 +24,7 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_1_6_5($module)
 {
-
-    $sql = 'INSERT INTO ' . _DB_PREFIX_ . 'mergado (key, value) VALUES ("mergado_zbozi_advanced_konverze", "0") ';
-    Db::getInstance()->execute($sql);
-
+    include __DIR__ . "/../sql/update-1.6.5.php";
     Tools::clearCache();
     return true;
 }

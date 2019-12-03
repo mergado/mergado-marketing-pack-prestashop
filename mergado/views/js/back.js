@@ -13,35 +13,32 @@
  */
 
 $(document).ready(function () {
-    
-    $('#mergadoController .mergado-tab').hide();
+    var mergadoTab = $('#mergadoController .mergado-tab');
+
+    mergadoTab.hide();
     var currentTab = getUrlVars('mergadoTab');
 
     if (currentTab !== undefined) {
         $('#mergadoController .mergado-tab[data-tab=' + currentTab + ']').stop().show();
         $('#mergadoController .tabControl a[data-tab=' + currentTab + ']').addClass('active');
 
-        if (currentTab == 1 || currentTab == 6) {
-            checkChanges = true;
-        } else {
-            checkChanges = false;
-        }
+        checkChanges = currentTab === 1 || currentTab === 6;
 
     } else {
-        $('#mergadoController .mergado-tab').stop().first().show();
+        mergadoTab.stop().first().show();
         $('#mergadoController .tabControl a').first().addClass('active');
         checkChanges = true;
     }
 
-    
+    generateCron();
 });
 
 function getUrlVars(variable) {
     var vars = {};
     var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,
-            function (m, key, value) {
-                vars[key] = value;
-            });
+        function (m, key, value) {
+            vars[key] = value;
+        });
     return vars[variable];
 
 }
@@ -55,7 +52,7 @@ function removeURLParameter(url, parameter) {
         var pars = urlparts[1].split(/[&;]/g);
 
         //reverse iteration as may be destructive
-        for (var i = pars.length; i-- > 0; ) {
+        for (var i = pars.length; i-- > 0;) {
             //idiom for string.startsWith
             if (pars[i].lastIndexOf(prefix, 0) !== -1) {
                 pars.splice(i, 1);
@@ -67,4 +64,51 @@ function removeURLParameter(url, parameter) {
     } else {
         return url;
     }
+}
+
+function generateCron()
+{
+    var locker = false;
+
+    $('.mergado-manual-cron').each(function() {
+        $(this).on('click', function (e) {
+
+            $(this).addClass('disabled');
+            $(this).html(admin_mergado_back_process);
+
+            if(locker) {
+                return;
+            } else {
+                locker = true;
+            }
+
+            var el = $(this);
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: admin_mergado_ajax_url,
+                data: {
+                    controller : 'AdminMergado',
+                    action : $(this).attr('data-generate'),
+                    ajax : true,
+                    feedBase: $(this).attr('data-cron'),
+                }, success: function(jsonData) {
+                    if(jsonData) {
+                        if(jsonData === 'running') {
+                            alert(admin_mergado_back_running);
+                        } else if ($(el).hasClass('last')) {
+                            alert(admin_mergado_back_merged);
+                        } else if($(el).attr('data-generate') === 'import_prices') {
+                            alert(admin_mergado_prices_imported);
+                        } else {
+                            alert(admin_mergado_back_success);
+                        }
+                        window.location.reload();
+                    } else {
+                            alert(admin_mergado_back_error);
+                    }
+                }
+            });
+        });
+    });
 }

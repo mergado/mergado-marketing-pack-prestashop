@@ -17,7 +17,7 @@ $(document).ready(function () {
         var $_currency = $(this).closest('li').find('[itemprop="priceCurrency"]').attr('content');
         var $_id = $(this).attr('data-id-product') + '-' + $(this).attr('data-id-product-attribute');
         var $_name = $(this).closest('li').find('.product-name').text().replace(/\t/g, '').trim();
-        var $_price = $(this).closest('li').find('.content_price .price.product-price').first().text().replace(',', '.').replace($('#mergadoSetup').attr('data-currencySymbol'), '').replace(/\t/g, '').trim();
+        // var $_price = $(this).closest('li').find('.content_price .price.product-price').first().text().replace(',', '.').replace($('#mergadoSetup').attr('data-currencySymbol'), '').replace(/\t/g, '').trim();
 
         glami('track', 'AddToCart', {
             item_ids: [$_id],

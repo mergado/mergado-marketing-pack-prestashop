@@ -9,10 +9,10 @@
     <url><![CDATA[]]></url>
     <img><![CDATA[]]></img>
     <description_full><![CDATA[]]></description_full>
-    <additional_description><![CDATA[]]></additional_description>    
+    <additional_description><![CDATA[]]></additional_description>
     <tab><![CDATA[export]]></tab>
     <version><![CDATA[1.6.4]]></version>
-    <compatibility><from><![CDATA[1.5.3.1]]></from><to><![CDATA[1.7.9.99]]></to></compatibility>
+    <compatibility><from><![CDATA[1.6.0.0]]></from><to><![CDATA[1.7.9.99]]></to></compatibility>
     <price><EUR><![CDATA[0]]></EUR></price>
     <badges><![CDATA[]]></badges>
     <cover><![CDATA[]]></cover>

@@ -23,13 +23,13 @@
     border: 1px solid #4c7910;
 }
 
-#mergadoController table tbody th, #mergadoController table tbody td{    
+#mergadoController table tbody th, #mergadoController table tbody td{
     padding: 3px 5px;
     border: 1px solid #ccc;
 }
 
 #mergadoController #mergadoHeader{
-    background: #6ba222;    
+    background: #6ba222;
     margin: 10px 0;
     color: #fff;
     position: relative;
@@ -37,7 +37,7 @@
 
 #mergadoController #mergadoHeader #mergadoLogo{
     background: #333;
-    padding: 0 10px;    
+    padding: 0 10px;
     padding: 10px;
 }
 
@@ -89,4 +89,106 @@
 
 #mrmergado img{
     max-height: 260px;
+}
+
+#mergadoController .td-center {
+    vertical-align: center;
+    text-align: center;
+    width: 100px;
+}
+
+#mergadoController .td-center form {
+    margin-bottom: 0;
+}
+
+#mergadoController .button {
+    background-color: red;
+    color: white;
+    font-weight: bold;
+}
+
+#mergadoController .mergado_card {
+    background-color: white;
+    margin: 20px 0;
+}
+
+#mergadoController .mergado_card__header {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px 20px;;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 3px 3px 0 0;
+}
+
+#mergadoController .mergado_card.TOP,
+#mergadoController .mergado_card.top,
+#mergadoController .mergado_card.UPDATE,
+#mergadoController .mergado_card.update {
+    border-left: 5px solid #bd0000;
+}
+
+#mergadoController h3.mergado_card__title {
+    color: #333333 !important;
+    line-height: initial !important;
+    margin: 0 !important;
+    border: none !important;
+    font-size: 1rem !important;
+    font-weight: bold !important;
+    height: auto !important;
+    padding: 0 !important;
+}
+
+#mergadoController .mergado_card__header.mergado_card__header--none {
+    background-color: white;
+}
+
+#mergadoController h3.mergado_card__title.mergado_card__title--none {
+    text-align: center;
+    margin: 0 auto !important;
+}
+
+#mergadoController .mergado_card__body {
+    padding: 20px;
+    font-size: 0.9rem;
+    box-shadow: 0 1px 5px rgba(0,0,0,.15);
+}
+
+#mergadoController .mergado_card__date {
+    font-size: 0.8rem;
+    font-style: italic;
+    display: block;
+    margin: 0;
+    color: #777777;
+}
+
+[data-tab-link]:hover,
+[data-tab-link]:focus {
+    text-decoration: none !important;
+}
+
+.text-link {
+    display: inline;
+}
+.text-link input {
+    padding: 0;
+    font-weight: bold;
+    border: none !important;
+    background: none !important;
+    display: inline !important;
+}
+
+.text-warning.mergado {
+    opacity: 0.85 !important;
+}
+
+.text-warning.mergado:hover,
+.text-warning.mergado:focus {
+    opacity: 1 !important;
+    outline: none;
+}
+
+.text-warning.mergado:active {
+    outline: none;
+    border: none;
 }

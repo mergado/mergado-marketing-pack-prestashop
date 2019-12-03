@@ -16,6 +16,7 @@
 $sql = array();
 
 $sql[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'mergado`';
+$sql[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'mergado_news`';
 
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {

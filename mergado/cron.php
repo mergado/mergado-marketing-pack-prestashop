@@ -13,14 +13,22 @@
  *  @license   LICENSE.txt
  */
 
+namespace Mergado;
+
+use Mergado;
+use Mergado\Tools\XMLClass;
+use Tools;
+use Module;
+
 require_once '../../config/config.inc.php';
+require_once _PS_MODULE_DIR_.'mergado/classes/tools/XMLClass.php';
 
 $feed = null;
 if (isset($argv) && $argv != null) {
     $token = $argv[1];
     $token = str_replace('--token=', '', $token);
 
-    if (Tools::substr(Tools::encrypt('mergado/cron'), 0, 10) != $token || !Module::isInstalled('mergado')) {
+    if (Tools::substr(Tools::encrypt('mergado/cron'), 0, 10) != $token || !Module::isInstalled(Mergado::MERGADO['MODULE_NAME'])) {
         die('Bad token');
     }
 
@@ -29,20 +37,18 @@ if (isset($argv) && $argv != null) {
 } else {
     /* Kontrola bezpečnostního tokenu */
     if (Tools::substr(Tools::encrypt('mergado/cron'), 0, 10) != Tools::getValue('token')
-            || !Module::isInstalled('mergado')) {
+            || !Module::isInstalled(Mergado::MERGADO['MODULE_NAME'])) {
         die('Bad token');
     }
 
     $feed = Tools::getValue('feed');
 }
 
-require_once _PS_MODULE_DIR_.'mergado/classes/MergadoClass.php';
-
-$mergado = new MergadoClass();
+$mergado = new XMLClass();
 if ($mergado->generateMergadoFeed($feed)) {
-    echo '<div style="height: 16px; width: 16px; border-radius: 100%; background: green;display:inline-block;margin-right:4px;"></div> feed generated';
+    echo '<div style="height: 16px; width: 16px; border-radius: 100%; background: green;display:inline-block;margin-right:4px;"></div> Feed generated';
     die();
 } else {
-    echo '<div style="height: 16px; width: 16px; border-radius: 100%; background: red;display:inline-block;margin-right:4px;"></div> error occured';
+    echo '<div style="height: 16px; width: 16px; border-radius: 100%; background: red;display:inline-block;margin-right:4px;"></div> Error occured';
     die();
 }
