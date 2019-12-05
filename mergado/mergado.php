@@ -69,7 +69,7 @@ class Mergado extends \Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.0.0',
+        'VERSION' => '2.0.1',
     ];
 
     public function __construct()
@@ -284,6 +284,7 @@ class Mergado extends \Module
         include __DIR__ . "/sql/update-1.2.2.php";
         include __DIR__ . "/sql/update-1.6.5.php";
         include __DIR__ . "/sql/update-2.0.0.php";
+        include __DIR__ . "/sql/update-2.0.1.php";
 
         return true;
     }
