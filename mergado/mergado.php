@@ -14,19 +14,7 @@
  * @license   LICENSE.txt
  */
 
-use Mergado\Heureka\HeurekaClass;
-use Mergado\Tools\LogClass;
-use Mergado\NajNakup\NajNakupClass;
-use Mergado\Pricemania\PricemaniaClass;
-use Mergado\Tools\SettingsClass;
-use Mergado\Tools\RssClass;
-use Mergado\Zbozi\ZboziClass;
-use ContextCore as Context;
-use LanguageCore as Language;
-use ModuleCore as Module;
-use TabCore as Tab;
-use ConfigurationCore as Configuration;
-use ShopCore as Shop;
+// Do not use USE statements because of PS 1.6.1.12 - error during installation
 
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Heureka/HeurekaClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Zbozi/ZboziClass.php';
@@ -40,7 +28,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 
-class Mergado extends \Module
+class Mergado extends Module
 {
     protected $controllerClass;
     public $shopId;
@@ -69,7 +57,7 @@ class Mergado extends \Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.0.2',
+        'VERSION' => '2.0.3',
     ];
 
     public function __construct()
@@ -104,8 +92,12 @@ class Mergado extends \Module
 
         $this->_clearCache('*');
 
-        $cronRss = new RssClass();
-        $cronRss->getFeed($this->context->language->iso_code);
+        try {
+            $cronRss = new Mergado\Tools\RssClass();
+            $cronRss->getFeed($this->context->language->iso_code);
+        } catch (Exception $ex) {
+            // Error during installation
+        }
     }
 
     public static function getRepo()
@@ -170,7 +162,7 @@ class Mergado extends \Module
         $version = $response->tag_name;
 
         if ($version > self::MERGADO['VERSION']) {
-            SettingsClass::saveSetting(SettingsClass::NEW_MODULE_VERSION_AVAILABLE, $version, 0);
+            Mergado\Tools\SettingsClass::saveSetting(Mergado\Tools\SettingsClass::NEW_MODULE_VERSION_AVAILABLE, $version, 0);
             return true;
         } else {
             return false;
@@ -205,7 +197,7 @@ class Mergado extends \Module
                 }
             }
         } else {
-            SettingsClass::saveSetting(SettingsClass::NEW_MODULE_VERSION_AVAILABLE, $version, 0);
+            Mergado\Tools\SettingsClass::saveSetting(Mergado\Tools\SettingsClass::NEW_MODULE_VERSION_AVAILABLE, $version, 0);
             return false;
         }
 
@@ -243,7 +235,7 @@ class Mergado extends \Module
                 return $updateXml;
             }
 
-            @file_put_contents(_PS_ROOT_DIR_ . Module::CACHE_FILE_MUST_HAVE_MODULES_LIST, $updateXml);
+            @file_put_contents(_PS_ROOT_DIR_ . ModuleCore::CACHE_FILE_MUST_HAVE_MODULES_LIST, $updateXml);
         }
     }
 
@@ -302,7 +294,7 @@ class Mergado extends \Module
      */
     protected function renderForm()
     {
-        $id = Tab::getIdFromClassName($this->controllerClass);
+        $id = TabCore::getIdFromClassName($this->controllerClass);
         $token = Tools::getAdminToken($this->controllerClass . $id . (int)$this->context->employee->id);
         Tools::redirectAdmin('index.php?controller=' . $this->controllerClass . '&token=' . $token);
         die;
@@ -313,7 +305,7 @@ class Mergado extends \Module
      */
     protected function addTab()
     {
-        $id_parent = Tab::getIdFromClassName('AdminCatalog');
+        $id_parent = TabCore::getIdFromClassName('AdminCatalog');
         if (!$id_parent) {
             throw new RuntimeException(
                 sprintf($this->l('Failed to add the module into the main BO menu.')) . ' : '
@@ -322,11 +314,11 @@ class Mergado extends \Module
         }
 
         $tabNames = array();
-        foreach (Language::getLanguages(false) as $lang) {
+        foreach (LanguageCore::getLanguages(false) as $lang) {
             $tabNames[$lang['id_lang']] = $this->displayName;
         }
 
-        $tab = new Tab();
+        $tab = new TabCore();
         $tab->class_name = $this->controllerClass;
         $tab->name = $tabNames;
         $tab->module = $this->name;
@@ -339,7 +331,7 @@ class Mergado extends \Module
 
     protected function removeTab()
     {
-        if (!Tab::getInstanceFromClassName($this->controllerClass)->delete()) {
+        if (!TabCore::getInstanceFromClassName($this->controllerClass)->delete()) {
             throw new RuntimeException($this->l('Failed to remove the module from the main BO menu.'));
         }
     }
@@ -373,7 +365,7 @@ class Mergado extends \Module
         }
 
 
-        if (!Module::isEnabled($this->name)) {
+        if (!ModuleCore::isEnabled($this->name)) {
             return false;
         }
 
@@ -420,10 +412,10 @@ class Mergado extends \Module
     {
         $this->shopId = self::getShopId();
 
-        $googleAdsRemarketing = SettingsClass::getSettings(SettingsClass::GOOGLE_ADS['REMARKETING'], $this->shopID);
+        $googleAdsRemarketing = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING'], $this->shopID);
 
-        if ($googleAdsRemarketing === SettingsClass::ENABLED) {
-            $googleAdsRemarketingId = SettingsClass::getSettings(SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $this->shopID);
+        if ($googleAdsRemarketing === Mergado\Tools\SettingsClass::ENABLED) {
+            $googleAdsRemarketingId = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $this->shopID);
 
             if ($googleAdsRemarketingId !== '') {
                 $this->smarty->assign(array(
@@ -451,7 +443,7 @@ class Mergado extends \Module
     {
         $this->shopId = self::getShopId();
 
-        $googleAdsRemarketing = SettingsClass::getSettings(SettingsClass::GOOGLE_ADS['REMARKETING'], $this->shopId);
+        $googleAdsRemarketing = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING'], $this->shopId);
         $prodid = "";
 
         foreach ($params['cart']->getProducts() as $product) {
@@ -467,8 +459,8 @@ class Mergado extends \Module
 
         $prodid = "[" . substr($prodid, 0, -1) . "]";
 
-        if ($googleAdsRemarketing === SettingsClass::ENABLED) {
-            $googleAdsRemarketingId = SettingsClass::getSettings(SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $this->shopId);
+        if ($googleAdsRemarketing === Mergado\Tools\SettingsClass::ENABLED) {
+            $googleAdsRemarketingId = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $this->shopId);
 
             if ($googleAdsRemarketingId !== '') {
                 $this->smarty->assign(array(
@@ -498,36 +490,36 @@ class Mergado extends \Module
     {
         $this->shopId = Mergado::getShopId();
 
-        $verifiedCz = SettingsClass::getSettings(SettingsClass::HEUREKA['VERIFIED_CZ'], $this->shopID);
-        $verifiedSk = SettingsClass::getSettings(SettingsClass::HEUREKA['VERIFIED_SK'], $this->shopID);
+        $verifiedCz = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_CZ'], $this->shopID);
+        $verifiedSk = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_SK'], $this->shopID);
 
         /* Heureka verified by users */
-        if ($verifiedCz && $verifiedCz === SettingsClass::ENABLED) {
-            $verifiedCzCode = SettingsClass::getSettings(SettingsClass::HEUREKA['VERIFIED_CODE_CZ'], $this->shopID);
+        if ($verifiedCz && $verifiedCz === Mergado\Tools\SettingsClass::ENABLED) {
+            $verifiedCzCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_CODE_CZ'], $this->shopID);
 
             if ($verifiedCzCode && $verifiedCzCode !== '') {
-                HeurekaClass::heurekaVerify($verifiedCzCode, $params, self::LANG_CS);
+                Mergado\Heureka\HeurekaClass::heurekaVerify($verifiedCzCode, $params, self::LANG_CS);
             }
         }
 
-        if ($verifiedSk && $verifiedSk === SettingsClass::ENABLED) {
-            $verifiedCzCode = SettingsClass::getSettings(SettingsClass::HEUREKA['VERIFIED_SK'], $this->shopID);
+        if ($verifiedSk && $verifiedSk === Mergado\Tools\SettingsClass::ENABLED) {
+            $verifiedCzCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_SK'], $this->shopID);
 
             if ($verifiedCzCode && $verifiedCzCode !== '') {
-                HeurekaClass::heurekaVerify($verifiedCzCode, $params, self::LANG_SK);
+                Mergado\Heureka\HeurekaClass::heurekaVerify($verifiedCzCode, $params, self::LANG_SK);
             }
         }
 
-        $zboziSent = ZboziClass::sendZbozi($params, $this->shopId);
-        $najNakupSent = NajnakupClass::sendNajnakupValuation($params, self::LANG_SK, $this->shopId);
+        $zboziSent = Mergado\Zbozi\ZboziClass::sendZbozi($params, $this->shopId);
+        $najNakupSent = Mergado\NajNakup\NajNakupClass::sendNajnakupValuation($params, self::LANG_SK, $this->shopId);
 
         try {
-            $pricemaniaSent = PricemaniaClass::sendPricemaniaOverenyObchod($params, self::LANG_SK, $this->shopId);
+            $pricemaniaSent = Mergado\Pricemania\PricemaniaClass::sendPricemaniaOverenyObchod($params, self::LANG_SK, $this->shopId);
         } catch (Exception $e) {
             echo 'Error: ' . $e->getMessage();
         }
 
-        LogClass::log("Validate order:\n" . json_encode(array('verifiedCz' => $verifiedCz, 'verifiedSk' => $verifiedSk, 'conversionSent_Zbozi' => $zboziSent, 'conversionSent_NajNakup' => $najNakupSent, 'conversionSent_Pricemania' => $pricemaniaSent)) . "\n");
+        Mergado\Tools\LogClass::log("Validate order:\n" . json_encode(array('verifiedCz' => $verifiedCz, 'verifiedSk' => $verifiedSk, 'conversionSent_Zbozi' => $zboziSent, 'conversionSent_NajNakup' => $najNakupSent, 'conversionSent_Pricemania' => $pricemaniaSent)) . "\n");
     }
 
 
@@ -544,18 +536,18 @@ class Mergado extends \Module
 
         $this->shopId = self::getShopId();
 
-        $iso_code = Language::getIsoById((int)$cookie->id_lang);
-        $codeCz = SettingsClass::getSettings(SettingsClass::HEUREKA['WIDGET_CZ'], $this->shopID);
-        $codeSk = SettingsClass::getSettings(SettingsClass::HEUREKA['WIDGET_SK'], $this->shopID);
-        $fbPixel = SettingsClass::getSettings('fb_pixel', $this->shopID);
-        $googleAdsRemarketing = SettingsClass::getSettings(SettingsClass::GOOGLE_ADS['REMARKETING'], $this->shopID);
-        $sklikRetargeting = SettingsClass::getSettings(SettingsClass::SKLIK['RETARGETING'], $this->shopID);
-        $etarget = SettingsClass::getSettings(SettingsClass::ETARGET['ACTIVE'], $this->shopID);
+        $iso_code = LanguageCore::getIsoById((int)$cookie->id_lang);
+        $codeCz = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_CZ'], $this->shopID);
+        $codeSk = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_SK'], $this->shopID);
+        $fbPixel = Mergado\Tools\SettingsClass::getSettings('fb_pixel', $this->shopID);
+        $googleAdsRemarketing = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING'], $this->shopID);
+        $sklikRetargeting = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::SKLIK['RETARGETING'], $this->shopID);
+        $etarget = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::ETARGET['ACTIVE'], $this->shopID);
 
         $display = "";
 
-        if ($iso_code === self::LANG_CS && $codeCz === SettingsClass::ENABLED) {
-            $conversioncode = SettingsClass::getSettings(SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ'], $this->shopID);
+        if ($iso_code === self::LANG_CS && $codeCz === Mergado\Tools\SettingsClass::ENABLED) {
+            $conversioncode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ'], $this->shopID);
             if ($conversioncode !== '') {
 
                 $this->smarty->assign(array(
@@ -566,8 +558,8 @@ class Mergado extends \Module
             }
         }
 
-        if ($iso_code === self::LANG_SK && $codeSk === SettingsClass::ENABLED) {
-            $conversioncode = SettingsClass::getSettings(SettingsClass::HEUREKA['CONVERSIONS_CODE_SK'], $this->shopID);
+        if ($iso_code === self::LANG_SK && $codeSk === Mergado\Tools\SettingsClass::ENABLED) {
+            $conversioncode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_SK'], $this->shopID);
             if ($conversioncode !== '') {
                 $this->smarty->assign(array(
                     'conversionKey' => $conversioncode
@@ -577,8 +569,8 @@ class Mergado extends \Module
             }
         }
 
-        if ($fbPixel === SettingsClass::ENABLED) {
-            $fbPixelCode = SettingsClass::getSettings(SettingsClass::FB_PIXEL['CODE'], $this->shopID);
+        if ($fbPixel === Mergado\Tools\SettingsClass::ENABLED) {
+            $fbPixelCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::FB_PIXEL['CODE'], $this->shopID);
 
             if ($fbPixelCode !== '') {
                 $this->smarty->assign(array(
@@ -591,8 +583,8 @@ class Mergado extends \Module
         }
 
 
-        if ($googleAdsRemarketing === SettingsClass::ENABLED) {
-            $googleAdsRemarketingId = SettingsClass::getSettings(SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $this->shopID);
+        if ($googleAdsRemarketing === Mergado\Tools\SettingsClass::ENABLED) {
+            $googleAdsRemarketingId = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $this->shopID);
 
             if ($googleAdsRemarketingId !== '') {
                 $this->smarty->assign(array(
@@ -603,8 +595,8 @@ class Mergado extends \Module
             }
         }
 
-        if ($sklikRetargeting === SettingsClass::ENABLED) {
-            $sklikRetargetingId = SettingsClass::getSettings(SettingsClass::SKLIK['RETARGETING_ID'], $this->shopID);
+        if ($sklikRetargeting === Mergado\Tools\SettingsClass::ENABLED) {
+            $sklikRetargetingId = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::SKLIK['RETARGETING_ID'], $this->shopID);
 
             if ($sklikRetargetingId !== '') {
                 $this->smarty->assign(array(
@@ -615,9 +607,9 @@ class Mergado extends \Module
             }
         }
 
-        if ($etarget === SettingsClass::ENABLED) {
-            $etargetId = SettingsClass::getSettings(SettingsClass::ETARGET['ID'], $this->shopID);
-            $etargetHash = SettingsClass::getSettings(SettingsClass::ETARGET['HASH'], $this->shopID);
+        if ($etarget === Mergado\Tools\SettingsClass::ENABLED) {
+            $etargetId = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::ETARGET['ID'], $this->shopID);
+            $etargetHash = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::ETARGET['HASH'], $this->shopID);
 
             if ($etargetId !== '') {
                 $this->smarty->assign(array(
@@ -649,20 +641,20 @@ class Mergado extends \Module
      */
     public function hookDisplayHeader()
     {
-        $lang = SettingsClass::getLangIso();
+        $lang = Mergado\Tools\SettingsClass::getLangIso();
 
         $this->shopId = self::getShopId();
 
         $display = "";
-        $glami = SettingsClass::getSettings(SettingsClass::GLAMI['ACTIVE'], self::getShopId());
-        $glamiLangActive = SettingsClass::getSettings(SettingsClass::GLAMI_LANGUAGES[$lang], self::getShopId());
+        $glami = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI['ACTIVE'], self::getShopId());
+        $glamiLangActive = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI_LANGUAGES[$lang], self::getShopId());
         $categoryId = Tools::getValue('id_category');
         $productId = Tools::getValue('id_product');
 
         if ($categoryId) {
             $category = new CategoryCore($categoryId, (int)ContextCore::getContext()->language->id);
             $nb = 10;
-            $products_tmp = $category->getProducts((int)Context::getContext()->language->id, 1, ($nb ? $nb : 10));
+            $products_tmp = $category->getProducts((int)ContextCore::getContext()->language->id, 1, ($nb ? $nb : 10));
             $products = array();
             foreach ($products_tmp as $product) {
                 $products['ids'][] = $product['id_product'] . '-' . $product['id_product_attribute'];
@@ -683,8 +675,8 @@ class Mergado extends \Module
             ));
         }
 
-        if ($glami === SettingsClass::ENABLED && $glamiLangActive === SettingsClass::ENABLED) {
-            $glamiPixel = SettingsClass::getSettings(SettingsClass::GLAMI['CODE'] . '-' . $lang, $this->shopID);
+        if ($glami === Mergado\Tools\SettingsClass::ENABLED && $glamiLangActive === Mergado\Tools\SettingsClass::ENABLED) {
+            $glamiPixel = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI['CODE'] . '-' . $lang, $this->shopID);
 
             if ($glamiPixel !== '') {
                 $this->smarty->assign(array(
@@ -718,10 +710,10 @@ class Mergado extends \Module
         $heurekaSkProducts = array();
 
         $options = $this->getOrderConfirmationOptions();
-        $context = Context::getContext();
+        $context = ContextCore::getContext();
 
         $this->smarty->assign(array(
-            'useSandbox' => ZboziClass::ZBOZI_SANDBOX === true ? 1 : 0,
+            'useSandbox' => Mergado\Zbozi\ZboziClass::ZBOZI_SANDBOX === true ? 1 : 0,
         ));
 
         if (_PS_VERSION_ < Mergado::PS_V_17) {
@@ -811,7 +803,7 @@ class Mergado extends \Module
 
         $this->smarty->assign($data);
 
-        LogClass::log("Order confirmation:\n" . json_encode($data) . "\n");
+        Mergado\Tools\LogClass::log("Order confirmation:\n" . json_encode($data) . "\n");
         return $this->display(__FILE__, '/views/templates/front/orderConfirmation/base.tpl');
     }
 
@@ -839,9 +831,9 @@ class Mergado extends \Module
     public function getOrderConfirmationOptions()
     {
         $shopId = self::getShopId();
-        $settings = SettingsClass::getWholeSettings($shopId);
+        $settings = Mergado\Tools\SettingsClass::getWholeSettings($shopId);
 
-        // @TODO Rewrite if only php 7+ support - like: isset($settings[SettingsClass::ZBOZI['CONVERSION']]) ?? '',
+        // @TODO Rewrite if only php 7+ support - like: isset($settings[Mergado\Tools\SettingsClass::ZBOZI['CONVERSION']]) ?? '',
 
         $sorted = array();
 
@@ -850,20 +842,20 @@ class Mergado extends \Module
         }
 
         return array(
-            'zboziActive' => isset($sorted[SettingsClass::ZBOZI['CONVERSIONS']]) ? $sorted[SettingsClass::ZBOZI['CONVERSIONS']] : '',
-            'zboziAdvancedActive' => isset($sorted[SettingsClass::ZBOZI['CONVERSIONS_ADVANCED']]) ? $sorted[SettingsClass::ZBOZI['CONVERSIONS_ADVANCED']] : '',
-            'zboziId' => isset($sorted[SettingsClass::ZBOZI['SHOP_ID']]) ? $sorted[SettingsClass::ZBOZI['SHOP_ID']] : '',
-            'heurekaCzActive' => isset($sorted[SettingsClass::HEUREKA['CONVERSIONS_CZ']]) ? $sorted[SettingsClass::HEUREKA['CONVERSIONS_CZ']] : '',
-            'heurekaCzCode' => isset($sorted[SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ']]) ? $sorted[SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ']] : '',
-            'heurekaSkActive' => isset($sorted[SettingsClass::HEUREKA['CONVERSIONS_SK']]) ? $sorted[SettingsClass::HEUREKA['CONVERSIONS_SK']] : '',
-            'heurekaSkCode' => isset($sorted[SettingsClass::HEUREKA['CONVERSIONS_SK']]) ? $sorted[SettingsClass::HEUREKA['CONVERSIONS_SK']] : '',
-            'sklik' => isset($sorted[SettingsClass::SKLIK['CONVERSIONS']]) ? $sorted[SettingsClass::SKLIK['CONVERSIONS']] : '',
-            'sklikCode' => isset($sorted[SettingsClass::SKLIK['CONVERSIONS_CODE']]) ? $sorted[SettingsClass::SKLIK['CONVERSIONS_CODE']] : '',
-            'sklikValue' => isset($sorted[SettingsClass::SKLIK['CONVERSIONS_VALUE']]) ? $sorted[SettingsClass::SKLIK['CONVERSIONS_VALUE']] : '',
-            'googleAds' => isset($sorted[SettingsClass::GOOGLE_ADS['CONVERSIONS']]) ? $sorted[SettingsClass::GOOGLE_ADS['CONVERSIONS']] : '',
-            'googleAdsCode' => isset($sorted[SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE']]) ? $sorted[SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE']] : '',
-            'googleAdsLabel' => isset($sorted[SettingsClass::GOOGLE_ADS['CONVERSIONS_LABEL']]) ? $sorted[SettingsClass::GOOGLE_ADS['CONVERSIONS_LABEL']] : '',
-            'fbPixel' => isset($sorted[SettingsClass::FB_PIXEL['ACTIVE']]) ? $sorted[SettingsClass::FB_PIXEL['ACTIVE']] : '',
+            'zboziActive' => isset($sorted[Mergado\Tools\SettingsClass::ZBOZI['CONVERSIONS']]) ? $sorted[Mergado\Tools\SettingsClass::ZBOZI['CONVERSIONS']] : '',
+            'zboziAdvancedActive' => isset($sorted[Mergado\Tools\SettingsClass::ZBOZI['CONVERSIONS_ADVANCED']]) ? $sorted[Mergado\Tools\SettingsClass::ZBOZI['CONVERSIONS_ADVANCED']] : '',
+            'zboziId' => isset($sorted[Mergado\Tools\SettingsClass::ZBOZI['SHOP_ID']]) ? $sorted[Mergado\Tools\SettingsClass::ZBOZI['SHOP_ID']] : '',
+            'heurekaCzActive' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CZ']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CZ']] : '',
+            'heurekaCzCode' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ']] : '',
+            'heurekaSkActive' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']] : '',
+            'heurekaSkCode' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']] : '',
+            'sklik' => isset($sorted[Mergado\Tools\SettingsClass::SKLIK['CONVERSIONS']]) ? $sorted[Mergado\Tools\SettingsClass::SKLIK['CONVERSIONS']] : '',
+            'sklikCode' => isset($sorted[Mergado\Tools\SettingsClass::SKLIK['CONVERSIONS_CODE']]) ? $sorted[Mergado\Tools\SettingsClass::SKLIK['CONVERSIONS_CODE']] : '',
+            'sklikValue' => isset($sorted[Mergado\Tools\SettingsClass::SKLIK['CONVERSIONS_VALUE']]) ? $sorted[Mergado\Tools\SettingsClass::SKLIK['CONVERSIONS_VALUE']] : '',
+            'googleAds' => isset($sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS']]) ? $sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS']] : '',
+            'googleAdsCode' => isset($sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE']]) ? $sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE']] : '',
+            'googleAdsLabel' => isset($sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_LABEL']]) ? $sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_LABEL']] : '',
+            'fbPixel' => isset($sorted[Mergado\Tools\SettingsClass::FB_PIXEL['ACTIVE']]) ? $sorted[Mergado\Tools\SettingsClass::FB_PIXEL['ACTIVE']] : '',
         );
     }
 
@@ -883,7 +875,7 @@ class Mergado extends \Module
             'conversionZboziActive' => $options['zboziActive'],
             'conversionZboziAdvancedActive' => $options['zboziAdvancedActive'],
             'conversionZboziTotal' => number_format(
-                $params['order']->total_paid, Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                $params['order']->total_paid, ConfigurationCore::get('PS_PRICE_DISPLAY_PRECISION')
             ),
             'heurekaCzActive' => $options['heurekaCzActive'],
             'heurekaCzCode' => $options['heurekaCzCode'],
@@ -922,7 +914,7 @@ class Mergado extends \Module
                 'name' => $exactName,
                 'qty' => $product['quantity'],
                 'unitPrice' => Tools::ps_round(
-                    $product['price_wt'], Configuration::get('PS_PRICE_DISPLAY_PRECISION')
+                    $product['price_wt'], ConfigurationCore::get('PS_PRICE_DISPLAY_PRECISION')
                 ),
             );
         }
@@ -932,8 +924,8 @@ class Mergado extends \Module
 
     public static function getShopId()
     {
-        if (Shop::isFeatureActive()) {
-            $shopID = Context::getContext()->shop->id;
+        if (ShopCore::isFeatureActive()) {
+            $shopID = ContextCore::getContext()->shop->id;
         } else {
             $shopID = 0;
         }
@@ -944,7 +936,7 @@ class Mergado extends \Module
     public function mergadoEnableAll($force_all = false)
     {
         // Retrieve all shops where the module is enabled
-        $list = Shop::getShops(true, null, true);
+        $list = ShopCore::getShops(true, null, true);
         if (!$this->id || !is_array($list)) {
             return false;
         }

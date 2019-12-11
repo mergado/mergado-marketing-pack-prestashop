@@ -1,1 +1,0 @@
-<div id="mergadoSetup" data-currencySymbol="{$currencySign}"></div>

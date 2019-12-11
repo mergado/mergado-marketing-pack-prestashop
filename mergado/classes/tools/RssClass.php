@@ -38,7 +38,6 @@ class RssClass
 
     public function getFeed($lang)
     {
-
         try {
             $lastDownload = SettingsClass::getSettings(SettingsClass::RSS_FEED, 0);
 
@@ -69,7 +68,7 @@ class RssClass
                 SettingsClass::saveSetting(SettingsClass::RSS_FEED, $date, 0);
             }
         } catch (Exception $e) {
-            LogClass::log("Mergado getFeed ERROR:\n" . $e->getMessage());
+
         }
     }
 
