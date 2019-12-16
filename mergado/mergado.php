@@ -57,7 +57,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.0.3',
+        'VERSION' => '2.0.4',
     ];
 
     public function __construct()
@@ -97,6 +97,84 @@ class Mergado extends Module
             $cronRss->getFeed($this->context->language->iso_code);
         } catch (Exception $ex) {
             // Error during installation
+        }
+    }
+
+    public function hookDisplayProductAdditionalInfo() {
+        //Modal first
+        $this->addToCart();
+    }
+
+    public function addToCart() {
+        $lang = Mergado\Tools\SettingsClass::getLangIso();
+
+        $this->shopId = self::getShopId();
+
+        $glami = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI['ACTIVE'], self::getShopId());
+        $glamiLangActive = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI_LANGUAGES[$lang], self::getShopId());
+
+        if($glami === Mergado\Tools\SettingsClass::ENABLED && $glamiLangActive === Mergado\Tools\SettingsClass::ENABLED) {
+            ?>
+            <script>
+                if(typeof $ !== 'undefined') {
+                    $('.add-to-cart').on('click', function () {
+                        var $_currency = $('.product-price').find('[itemprop="priceCurrency"]').attr('content');
+                        var $_id = $(this).closest('form').find('#product_page_product_id').val();
+                        var $_name = $('h1[itemprop="name"]').text();
+                        var $_price = $('.product-price').find('[itemprop="price"]').attr('content');
+
+                        if ($_name === '') {
+                            $_name = $('.modal-body h1').text();
+                        }
+
+                        if ($(this).closest('form').find('#idCombination').length > 0) {
+                            $_id = $_id + '-' + $(this).closest('form').find('#idCombination').val();
+                        }
+
+                        glami('track', 'AddToCart', {
+                            item_ids: [$_id],
+                            product_names: [$_name],
+                            value: $_price,
+                            currency: $_currency
+                        });
+                    });
+                }
+            </script>
+            <?php
+        }
+
+        $facebook = Mergado\Tools\SettingsClass::getSettings('fb_pixel', $this->shopID);
+
+        if($facebook === Mergado\Tools\SettingsClass::ENABLED) {
+            ?>
+            <script>
+                // In product detail and modal in PS1.7
+                if(typeof $ !== 'undefined') {
+                    $('.add-to-cart').on('click', function () {
+                        var $_currency = $('.product-price').find('[itemprop="priceCurrency"]').attr('content');
+                        var $_id = $(this).closest('form').find('#product_page_product_id').val();
+                        var $_name = $('h1[itemprop="name"]').text();
+                        var $_price = $('.product-price').find('[itemprop="price"]').attr('content');
+
+                        if($_name === '') {
+                            $_name = $('.modal-body h1').text();
+                        }
+
+                        if($(this).closest('form').find('#idCombination').length > 0) {
+                            $_id = $_id + '-' + $(this).closest('form').find('#idCombination').val();
+                        }
+
+                        fbq('track', 'AddToCart', {
+                            content_name: $_name,
+                            content_ids: [$_id],
+                            content_type: 'product',
+                            value: $_price,
+                            currency: $_currency,
+                        });
+                    });
+                }
+            </script>
+            <?php
         }
     }
 
@@ -259,6 +337,7 @@ class Mergado extends Module
             && $this->registerHook('displayShoppingCartFooter')
             && $this->registerHook('displayHeader')
             && $this->registerHook('displayOrderConfirmation')
+            && $this->registerHook('displayProductAdditionalInfo')
             && $this->mergadoEnableAll(true);
     }
 
@@ -539,7 +618,6 @@ class Mergado extends Module
         $iso_code = LanguageCore::getIsoById((int)$cookie->id_lang);
         $codeCz = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_CZ'], $this->shopID);
         $codeSk = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_SK'], $this->shopID);
-        $fbPixel = Mergado\Tools\SettingsClass::getSettings('fb_pixel', $this->shopID);
         $googleAdsRemarketing = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING'], $this->shopID);
         $sklikRetargeting = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::SKLIK['RETARGETING'], $this->shopID);
         $etarget = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::ETARGET['ACTIVE'], $this->shopID);
@@ -566,19 +644,6 @@ class Mergado extends Module
                 ));
 
                 $display .= $this->display(__FILE__, '/views/templates/front/footer/partials/heureka_widget_sk.tpl');
-            }
-        }
-
-        if ($fbPixel === Mergado\Tools\SettingsClass::ENABLED) {
-            $fbPixelCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::FB_PIXEL['CODE'], $this->shopID);
-
-            if ($fbPixelCode !== '') {
-                $this->smarty->assign(array(
-                    'fbPixelCode' => $fbPixelCode,
-                    'searchQuery' => Tools::getValue('search_query'),
-                ));
-
-                $display .= $this->display(__FILE__, '/views/templates/front/footer/partials/fbpixel.tpl');
             }
         }
 
@@ -650,6 +715,7 @@ class Mergado extends Module
         $glamiLangActive = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI_LANGUAGES[$lang], self::getShopId());
         $categoryId = Tools::getValue('id_category');
         $productId = Tools::getValue('id_product');
+        $fbPixel = Mergado\Tools\SettingsClass::getSettings('fb_pixel', $this->shopID);
 
         if ($categoryId) {
             $category = new CategoryCore($categoryId, (int)ContextCore::getContext()->language->id);
@@ -688,7 +754,21 @@ class Mergado extends Module
             }
         }
 
+        if ($fbPixel === Mergado\Tools\SettingsClass::ENABLED) {
+            $fbPixelCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::FB_PIXEL['CODE'], $this->shopID);
+
+            if ($fbPixelCode !== '') {
+                $this->smarty->assign(array(
+                    'fbPixelCode' => $fbPixelCode,
+                    'searchQuery' => Tools::getValue('search_query'),
+                ));
+
+                $display .= $this->display(__FILE__, '/views/templates/front/footer/partials/fbpixel.tpl');
+            }
+        }
+
         $this->context->controller->addJS($this->_path . 'views/js/glami.js');
+        $this->context->controller->addJS($this->_path . 'views/js/fbpixel.js');
 
         return $display;
     }
@@ -775,7 +855,13 @@ class Mergado extends Module
 
         if ($options['fbPixel']) {
             foreach ($cart->getProducts() as $product) {
-                $fbProducts[] = $product['id_product'];
+                $_id = $product['id_product'];
+
+                if(isset($product['id_product_attribute']) && $product['id_product_attribute'] !== '') {
+                    $_id = $_id . '-' . $product['id_product_attribute'];
+                }
+
+                $fbProducts[] = $_id;
             }
         }
 

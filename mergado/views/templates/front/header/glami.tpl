@@ -30,21 +30,21 @@
         glami('track', 'PageView');
 
         {if isset($glami_pixel_category) && $glami_pixel_category}
-        glami('track', 'ViewContent', {
-            content_type: 'category',
-            item_ids: [{$glami_pixel_productIds nofilter}],
-            product_names: [{$glami_pixel_productNames nofilter}],
-            category_id: '{$glami_pixel_category->id}',
-            category_text: '{$glami_pixel_category->name}'
-        });
+            glami('track', 'ViewContent', {
+                content_type: 'category',
+                item_ids: [{$glami_pixel_productIds nofilter}],
+                product_names: [{$glami_pixel_productNames nofilter}],
+                category_id: '{$glami_pixel_category->id}',
+                category_text: '{$glami_pixel_category->name}'
+            });
         {/if}
 
         {if isset($glami_pixel_product) && $glami_pixel_product}
-        glami('track', 'ViewContent', {
-            content_type: 'product',
-            item_ids: ['{$glami_pixel_product->id}'],
-            product_names: ['{$glami_pixel_product->name}'],
-        });
+            glami('track', 'ViewContent', {
+                content_type: 'product',
+                item_ids: ['{$glami_pixel_product->id}'],
+                product_names: ['{$glami_pixel_product->name}'],
+            });
         {/if}
     </script>
 {/if}

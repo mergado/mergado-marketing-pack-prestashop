@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
-    <name>mergado</name>
-    <displayName><![CDATA[Mergado marketing pack]]></displayName>
-    <version><![CDATA[2.0.3]]></version>
-    <description><![CDATA[Mergado marketing pack module helps you to export your products information to Mergado services.]]></description>
-    <author><![CDATA[www.mergado.cz]]></author>
-    <tab><![CDATA[export]]></tab>
+	<name>mergado</name>
+	<displayName><![CDATA[Mergado marketing pack]]></displayName>
+	<version><![CDATA[2.0.4]]></version>
+	<description><![CDATA[Mergado marketing pack module helps you to export your products information to Mergado services.]]></description>
+	<author><![CDATA[www.mergado.cz]]></author>
+	<tab><![CDATA[export]]></tab>
 	<confirmUninstall><![CDATA[Are you sure to uninstall Mergado marketing pack module?]]></confirmUninstall>
-    <is_configurable>1</is_configurable>
-    <need_instance>0</need_instance>
+	<is_configurable>1</is_configurable>
+	<need_instance>0</need_instance>
 	<limited_countries></limited_countries>
 </module>

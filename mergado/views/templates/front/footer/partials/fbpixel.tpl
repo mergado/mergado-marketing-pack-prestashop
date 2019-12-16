@@ -107,14 +107,6 @@
         content_name: '{$m_title}'
     });
     {/if}
-
-    {* PS 1.7 - start on document ready when jQuery is already loaded *}
-    document.addEventListener("DOMContentLoaded", function(event) {
-        $('#add_to_cart button[type=submit], .ajax_add_to_cart_button').on('click', function () {
-            fbq('track', 'AddToCart');
-        });
-    });
-
 </script>
 <noscript>
     <img height="1" width="1" style="display:none"
