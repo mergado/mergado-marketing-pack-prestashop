@@ -96,6 +96,8 @@ $_MODULE['<{mergado}prestashop>adminmergadocontroller_fae8a9257e154175da4193dbf6
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_e1ef8648962b08d5ab4e242c13ec6c0f'] = 'Glami pixel';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_8afc8e3ac6d2b62475a1ed706c3694fb'] = 'Modul je aktívny';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_c15e053815188bcc3711a1a28375e395'] = 'Glami pixel';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_0c7727155f9686d1c69a69955c683aed'] = 'Glami TOP';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_d2c315b712edb3ad6cee84bf40f16ee8'] = '1. Aspoň stránka potvrdzujúci objednávku musí mať HTTPS protokol. 2. Pred použitím musíte nastaviť DNS záznamy. Viac informácií: https://www.glami.cz/info/reviews/implementation/';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_a7a66b17f577a3f52a2269d2c0eb9149'] = 'Dostupnostný feed';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_657d8b13f5eaea54e63e77337e63b563'] = 'Mergado statický feed';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_6d88865acb8658a92b188e47ba03906d'] = 'Žiadne nové správy';
@@ -149,3 +151,6 @@ $_MODULE['<{mergado}prestashop>tab5_8d282a8bd2fe903679ba3011d408c26a'] = 'Licenc
 $_MODULE['<{mergado}prestashop>tab5_bb078029764c1467ba3cdbd01e1a0acc'] = 'Používanie marketingového balíka Mergado je na vaše vlastné riziko. Tvorca modulu, spoločnosť Mergado technologies, LLC, nezodpovedá za žiadne straty ani škody v akejkoľvek podobe. Inštaláciou modulu do obchodu súhlasíte s týmito podmienkami.';
 $_MODULE['<{mergado}prestashop>tab5_6cd3242ac53b12c55239d4a4dc3ea10f'] = 'Zdrojový kód modulu nemôže byť zmenený inak ako pomocou užívateľského nastavenia v správe PrestaShop.';
 $_MODULE['<{mergado}prestashop>tab5_e2cc91191e9e277cca2c747ba723c364'] = 'Používanie marketingového balíka Mergado v rámci PrestaShop je bezplatné. Podporované verzie programu PrestaShop sú 1.6.0.0 až 1.7.9.99';
+$_MODULE['<{mergado}prestashop>glami_95c7b86552405bc3576c386ce8d0eaf8'] = ' Odovzdať kontakt pre hodnotenie nákupu cez službu GlamiTOP';
+$_MODULE['<{mergado}prestashop>glami_93cba07454f06a4a960172bbd6e2a435'] = 'Áno';
+$_MODULE['<{mergado}prestashop>glami_bafd7322c6e97d25b6299b5d6fe8920b'] = 'Nie';

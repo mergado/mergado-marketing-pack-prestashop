@@ -57,7 +57,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.0.4',
+        'VERSION' => '2.1.0',
     ];
 
     public function __construct()
@@ -784,6 +784,7 @@ class Mergado extends Module
      */
     public function hookDisplayOrderConfirmation($params)
     {
+//        $this->context->controller->addCSS($this->_path . 'views/css/popup.css');
         $this->shopId = self::getShopId();
 
         $heurekaCzProducts = array();
@@ -794,6 +795,8 @@ class Mergado extends Module
 
         $this->smarty->assign(array(
             'useSandbox' => Mergado\Zbozi\ZboziClass::ZBOZI_SANDBOX === true ? 1 : 0,
+            'lang' => strtolower(substr($context->language->language_code, strpos($context->language->language_code, "-") + 1)), // CZ/SK
+            'langIsoCode' => $context->language->iso_code, // CS,SK
         ));
 
         if (_PS_VERSION_ < Mergado::PS_V_17) {
@@ -810,20 +813,24 @@ class Mergado extends Module
             $products['name'][] = $product['product_name'];
         }
 
+        $customer = new Customer($order->id_customer);
+
         if (_PS_VERSION_ < Mergado::PS_V_17) {
             $this->assignGlami($params['objOrder']->id,
-                $params['total_to_pay'],
+                $params['objOrder']->total_products,
                 $params['currencyObj']->iso_code,
                 $products['ids'],
-                $products['name']
+                $products['name'],
+                $customer->email
             );
         } else {
             $this->assignGlami(
                 $params['order']->id_cart,
-                $params['order']->total_paid,
+                $params['order']->total_products,
                 CurrencyCore::getCurrency($params['order']->id_currency),
                 $products['ids'],
-                $products['name']
+                $products['name'],
+                $customer->email
             );
         }
 
@@ -868,10 +875,11 @@ class Mergado extends Module
         $baseData = $this->getOrderConfirmationBaseData($options, $params, $context, $heurekaSkProducts, $heurekaCzProducts, $fbProducts);
 
         if (_PS_VERSION_ < Mergado::PS_V_17) {
+
             $specialData = array(
                 'sklikValue' => $sklikValue,
                 'conversionOrderId' => $params['objOrder']->id,
-                'total' => $params['total_to_pay'],
+                'total' => $params['objOrder']->total_products,
                 'currency' => $params['currencyObj'],
                 'totalWithoutShippingAndVat' => $params['order']->total_products,
             );
@@ -879,7 +887,7 @@ class Mergado extends Module
             $specialData = array(
                 'sklikValue' => $sklikValue,
                 'conversionOrderId' => $params['order']->id,
-                'total' => $params['order']->total_paid,
+                'total' => $params['order']->total_products,
                 'currency' => CurrencyCore::getCurrency($params['order']->id_currency),
                 'totalWithoutShippingAndVat' => $params['order']->total_products,
             );
@@ -899,15 +907,26 @@ class Mergado extends Module
      * @param $currency
      * @param $productIds
      * @param $productNames
+     * @param $customerEmail
      */
-    public function assignGlami($orderId, $value, $currency, $productIds, $productNames)
+    public function assignGlami($orderId, $value, $currency, $productIds, $productNames, $customerEmail)
     {
+        $lang = Mergado\Tools\SettingsClass::getLangIso();
+        $shopID = self::getShopId();
+
         $this->smarty->assign(array(
-            'glami_pixel_orderId' => $orderId,
-            'glami_pixel_value' => $value,
-            'glami_pixel_currency' => $currency,
-            'glami_pixel_productIds' => json_encode($productIds),
-            'glami_pixel_productNames' => json_encode($productNames)
+            'glami_active' => Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI['ACTIVE'], $shopID),
+            'glami_top_active' => Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI['ACTIVE_TOP'], $shopID),
+            'glami_top_lang_active'=> Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI_TOP_LANGUAGES[$lang], $shopID),
+            'glami_top_code' => Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI['CODE_TOP'] . '-' . $lang, $shopID),
+            'glami_orderId' => $orderId,
+            'glami_value' => $value,
+            'glami_currency' => $currency,
+            'glami_productIds' => json_encode($productIds),
+            'glami_productIds_semicolon' => implode(';', $productIds),
+            'glami_productNames' => json_encode($productNames),
+            'glami_productNames_semicolon' => implode(';', $productNames),
+            'glami_email' => $customerEmail,
         ));
     }
 

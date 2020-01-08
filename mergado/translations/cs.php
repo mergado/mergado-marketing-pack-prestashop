@@ -96,6 +96,8 @@ $_MODULE['<{mergado}prestashop>adminmergadocontroller_fae8a9257e154175da4193dbf6
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_e1ef8648962b08d5ab4e242c13ec6c0f'] = 'Glami pixel';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_8afc8e3ac6d2b62475a1ed706c3694fb'] = 'Aktivovat modul';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_c15e053815188bcc3711a1a28375e395'] = 'Glami pixel';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_0c7727155f9686d1c69a69955c683aed'] = 'Glami TOP';
+$_MODULE['<{mergado}prestashop>adminmergadocontroller_d2c315b712edb3ad6cee84bf40f16ee8'] = '1. Alespoň stránka potvrzující objednávku musí mít HTTPS protokol. 2. Před použitím musíte nastavit DNS záznamy. Více informací: https://www.glami.cz/info/reviews/implementation/';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_a7a66b17f577a3f52a2269d2c0eb9149'] = 'Dostupnostní feed';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_657d8b13f5eaea54e63e77337e63b563'] = 'Mergadovo statistické XML';
 $_MODULE['<{mergado}prestashop>adminmergadocontroller_6d88865acb8658a92b188e47ba03906d'] = 'Žádné nové zprávy';
@@ -149,3 +151,6 @@ $_MODULE['<{mergado}prestashop>tab5_8d282a8bd2fe903679ba3011d408c26a'] = 'Licenc
 $_MODULE['<{mergado}prestashop>tab5_bb078029764c1467ba3cdbd01e1a0acc'] = 'Používání modulu Mergado marketing pack je na vlastní riziko. Tvůrce modulu Mergado technologies, LLC, neodpovídá za žádné ztráty ani škody v jakékoli formě. Instalací modulu do vašeho obchodu souhlasíte s těmito podmínkami.';
 $_MODULE['<{mergado}prestashop>tab5_6cd3242ac53b12c55239d4a4dc3ea10f'] = 'Zdrojový kód modulu nesmí být měněn jinak než uživatelským nastavením v administraci Prestashopu.';
 $_MODULE['<{mergado}prestashop>tab5_e2cc91191e9e277cca2c747ba723c364'] = 'Používání modulu Mergado marketing pack v PřestaShopu je zdarma. Podporované verze PrestaShopu jsou 1.6.0.0 až 1.7.9.99';
+$_MODULE['<{mergado}prestashop>glami_95c7b86552405bc3576c386ce8d0eaf8'] = 'Předat kontakt pro hodnocení nákupu přes službu GLAMI TOP';
+$_MODULE['<{mergado}prestashop>glami_93cba07454f06a4a960172bbd6e2a435'] = 'Ano';
+$_MODULE['<{mergado}prestashop>glami_bafd7322c6e97d25b6299b5d6fe8920b'] = 'Ne';

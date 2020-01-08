@@ -64,9 +64,8 @@
         contentName = ['{$product->name}']; {* PS 1.7 *}
     }
 
-    fbq('trackCustom', 'ViewProduct', {
-
-        cotnent_name: contentName,
+    fbq('trackCustom', 'ViewContent', {
+        content_name: contentName,
         content_type: 'product',
         content_ids: ['{$product->id}']
     });
@@ -89,23 +88,23 @@
         content_type: 'product',
         content_ids: fbProductsArray
     });
-    {elseif $p_name == 'search'}
-    var fbProducts = {$products|json_encode};
-    var fbProductsArray = new Array();
-    if (fbProductsArray.length > 0) {
-        fbProducts.forEach(function (p) {
-            fbProductsArray.push(p.id_product);
-        });
-    }
-    fbq('track', 'Search', {
-        search_string: '{$searchQuery}',
-        content_ids: fbProductsArray,
-        content_type: 'product'
-    });
-    {else}
-    fbq('track', 'ViewContent', {
-        content_name: '{$m_title}'
-    });
+{*    {elseif $p_name == 'search'}*}
+    {*var fbProducts = {$products|json_encode};*}
+    // var fbProductsArray = new Array();
+    // if (fbProductsArray.length > 0) {
+    //     fbProducts.forEach(function (p) {
+    //         fbProductsArray.push(p.id_product);
+    //     });
+    // }
+    // fbq('track', 'Search', {
+    {*    search_string: '{$searchQuery}',*}
+    //     content_ids: fbProductsArray,
+    //     content_type: 'product'
+    // });
+{*    {else}*}
+    // fbq('track', 'ViewContent', {
+    {*    content_name: '{$m_title}'*}
+    // });
     {/if}
 </script>
 <noscript>

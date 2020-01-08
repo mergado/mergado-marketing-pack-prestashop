@@ -83,7 +83,9 @@ class SettingsClass
 
     const GLAMI = array(
         'ACTIVE' => 'glami_active', // Activation of module
-        'CODE' => 'glami_pixel_code' // Helper for code variables
+        'CODE' => 'glami_pixel_code', // Helper for code variables
+        'ACTIVE_TOP' => 'glami_top_active',
+        'CODE_TOP' => 'glami_top_code',
     );
 
     const GLAMI_LANGUAGES = [
@@ -102,6 +104,24 @@ class SettingsClass
         'ES' => 'glami-form-active-lang-ES',
         'BR' => 'glami-form-active-lang-BR',
         'ECO' => 'glami-form-active-lang-ECO'];
+
+    const GLAMI_TOP_LANGUAGES = [
+        'CZ' => 'top_glami-form-active-lang-CZ',
+//        'DE' => 'top_glami-form-active-lang-DE',
+//        'FR' => 'top_glami-form-active-lang-FR',
+//        'SK' => 'top_glami-form-active-lang-SK',
+//        'RO' => 'top_glami-form-active-lang--RO',
+//        'HU' => 'top_glami-form-active-lang-HU',
+//        'RU' => 'top_glami-form-active-lang-RU',
+//        'GR' => 'top_glami-form-active-lang-GR',
+//        'TR' => 'top_glami-form-active-lang-TR',
+//        'BG' => 'top_glami-form-active-lang-BG',
+//        'HR' => 'top_glami-form-active-lang-HR',
+//        'SI' => 'top_glami-form-active-lang-SI',
+//        'ES' => 'top_glami-form-active-lang-ES',
+//        'BR' => 'top_glami-form-active-lang-BR',
+//        'ECO' => 'top_glami-form-active-lang-ECO'
+    ];
 
     const FEED = array(
         'STATIC' => 'static_feed',

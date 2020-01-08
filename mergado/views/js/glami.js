@@ -51,7 +51,6 @@ $(document).ready(function () {//PS 1.6 category page
         });
     });
 
-
     // In product detail and modal in PS1.7 --------------------------------------------
     $(document).ready(function () {
         $('.add-to-cart').on('click', addEvents);
@@ -99,6 +98,5 @@ $(document).ready(function () {//PS 1.6 category page
             value: $_price,
             currency: $_currency
         });
-
     }
 });

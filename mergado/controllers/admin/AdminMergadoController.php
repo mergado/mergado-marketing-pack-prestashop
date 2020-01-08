@@ -1292,15 +1292,81 @@ class AdminMergadoController extends \ModuleAdminController
                 ),
                 'visibility' => Shop::CONTEXT_ALL,
             );
+
+            $fields_form[8]['form']['input'][] = array(
+                'name' => SettingsClass::GLAMI['CODE'] . '-' . $key,
+                'label' => $this->l('Glami Pixel') . ' ' . $key,
+                'type' => 'text',
+                'visibility' => Shop::CONTEXT_ALL,
+            );
         }
 
-        foreach(SettingsClass::GLAMI_LANGUAGES as $key => $lang) {
-            $fields_form[8]['form']['input'][] = array(
-                    'name' => SettingsClass::GLAMI['CODE'] . '-' . $key,
-                    'label' => $this->l('Glami Pixel') . ' ' . $key,
-                    'type' => 'text',
-                    'visibility' => Shop::CONTEXT_ALL,
-                );
+        $fields_form[9]['form'] = array(
+            'legend' => array(
+                'title' => $this->l('Glami TOP'),
+                'icon' => 'icon-cogs',
+            ),
+            'input' => array(
+
+            ),
+            'submit' => array(
+                'title' => $this->l('Save'),
+                'name' => 'submit' . $this->name
+            )
+        );
+
+        $fields_form[9]['form']['input'][] = array(
+            'name' => SettingsClass::GLAMI['ACTIVE_TOP'],
+            'label' => $this->l('Module active'),
+            'validation' => 'isBool',
+            'cast' => 'intval',
+            'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
+            'desc' => $this->l('1. Your website must have HTTPS protocol at least on order confirmation page. 2. You have to set your DNS before use. More informations on: https://www.glami.cz/info/reviews/implementation/'),
+            'class' => 'switch15',
+            'values' => array(
+                array(
+                    'id' => 'glami_top_active_on',
+                    'value' => 1,
+                    'label' => $this->l('Yes')
+                ),
+                array(
+                    'id' => 'glami_top_active_off',
+                    'value' => 0,
+                    'label' => $this->l('No')
+                )
+            ),
+            'visibility' => Shop::CONTEXT_ALL,
+        );
+
+        foreach(SettingsClass::GLAMI_TOP_LANGUAGES as $key => $lang) {
+            $fields_form[9]['form']['input'][] = array(
+                'name' => $lang,
+                'label' => $key,
+                'validation' => 'isBool',
+                'cast' => 'intval',
+                'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
+                'class' => 'switch15',
+                'values' => array(
+                    array(
+                        'id' => 'glami_top_active_on',
+                        'value' => 1,
+                        'label' => $this->l('Yes')
+                    ),
+                    array(
+                        'id' => 'glami_top_active_off',
+                        'value' => 0,
+                        'label' => $this->l('No')
+                    )
+                ),
+                'visibility' => Shop::CONTEXT_ALL,
+            );
+
+            $fields_form[9]['form']['input'][] = array(
+                'name' => SettingsClass::GLAMI['CODE_TOP'] . '-' . $key,
+                'label' => $this->l('Glami TOP') . ' ' . $key,
+                'type' => 'text',
+                'visibility' => Shop::CONTEXT_ALL,
+            );
         }
 
         $fields_value = [
