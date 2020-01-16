@@ -25,6 +25,7 @@ use Db;
 class NewsClass
 {
     const DATE_FORMAT = 'Y-m-d H:i:s';
+    const DATE_COMPARE_FORMAT = 'Y-m-d';
 
     /*******************************************************************************************************************
      * GET
@@ -59,7 +60,8 @@ class NewsClass
         $return = Db::getInstance()->executeS($sql);
 
         foreach($return as $item => $val) {
-            $date = new DateTime($return[$item]['pubDate']);
+            $date = new DateTime();
+            $date = $date::createFromFormat('Y-m-d H:m:s',$return[$item]['pubDate']);
             $formatted = $date->format('d.m.Y H:m:s');
 
             $return[$item]['pubDate'] = $formatted;
@@ -84,6 +86,7 @@ class NewsClass
         $sql->select('*');
         $sql->from(Mergado::MERGADO['TABLE_NEWS_NAME']);
         $sql->where('`language`="' . $lang . '"');
+        $sql->orderBy('id DESC');
 
         if($limit) {
             $sql->limit($limit);

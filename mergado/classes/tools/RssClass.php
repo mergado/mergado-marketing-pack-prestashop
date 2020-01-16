@@ -87,11 +87,14 @@ class RssClass
                 $itemDatetime = new DateTime((string)$item->pubDate);
                 $save = true;
 
-
                 if (count($dbQuery) > 0) {
                     foreach ($dbQuery as $dbItem) {
 
-                        if ($itemDatetime->format(NewsClass::DATE_FORMAT) === $dbItem['pubDate'] && (string)$item->title === $dbItem['title']) {
+                        // Fix different APIs ( one with time and second only date ) => Compare only based on date and title
+                        $dbTime = new DateTime($dbItem['pubDate']);
+                        $dbTime = $dbTime->format(NewsClass::DATE_COMPARE_FORMAT);
+
+                        if ($itemDatetime->format(NewsClass::DATE_COMPARE_FORMAT) === $dbTime && (string)$item->title === $dbItem['title']) {
                             $save = false;
                             break;
                         }
