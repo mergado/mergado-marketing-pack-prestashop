@@ -64,30 +64,35 @@
         contentName = ['{$product->name}']; {* PS 1.7 *}
     }
 
+    var productId = '';
+    {if $product === NULL}
+        productId = '{$productId}'; {* PS 1.6 *}
+    {else}
+        productId = '{$product->id_product}'; {* PS 1.7 *}
+    {/if}
+
     fbq('trackCustom', 'ViewContent', {
         content_name: contentName,
         content_type: 'product',
-        content_ids: ['{$product->id}']
+        content_ids: [productId]
     });
+
     {elseif $p_name == 'category'}
+        {if isset($glami_pixel_productIds)}
+            {if (float)_PS_VERSION_ >= Mergado::PS_V_17} {* PS 1.7 *}
+                var fbProductsArray = {$glami_pixel_productIds nofilter};
+            {else}
+                var fbProductsArray = {$glami_pixel_productIds};
+            {/if}
+        {else}
+            var fbProductsArray = '';
+        {/if}
 
-    {if isset($products)}
-        var fbProducts = {$products|json_encode};
-    {else}
-        var fbProducts = '';
-    {/if}
-
-    var fbProductsArray = new Array();
-    if (fbProductsArray.length > 0) {
-        fbProducts.forEach(function (p) {
-            fbProductsArray.push(p.id_product);
+        fbq('trackCustom', 'ViewCategory', {
+            content_name: '{$m_title}',
+            content_type: 'product',
+            content_ids: fbProductsArray
         });
-    }
-    fbq('trackCustom', 'ViewCategory', {
-        content_name: '{$m_title}',
-        content_type: 'product',
-        content_ids: fbProductsArray
-    });
 {*    {elseif $p_name == 'search'}*}
     {*var fbProducts = {$products|json_encode};*}
     // var fbProductsArray = new Array();

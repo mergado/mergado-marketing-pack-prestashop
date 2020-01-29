@@ -259,7 +259,7 @@ class XMLClass extends ObjectModel
         $xml_new->openURI($out);
         $xml_new->startDocument('1.0', 'UTF-8');
         $xml_new->startElement('CHANNEL');
-        $xml_new->writeAttribute('xmlns', 'http://www.mergado.com/ns/1.4/category');
+        $xml_new->writeAttribute('xmlns', 'http://www.mergado.com/ns/1.6/category');
 
         $xml_new->startElement('LINK');
         $xml_new->text('http://www.mergadoshop.com/');
@@ -439,9 +439,11 @@ class XMLClass extends ObjectModel
                     $xml_new->text($product['itemgroup_id']);
                     $xml_new->endElement();
 
-                    $xml_new->startElement('EAN');
-                    $xml_new->text($product['ean']);
-                    $xml_new->endElement();
+                    if($product['ean'] != 0) {
+                        $xml_new->startElement('EAN');
+                        $xml_new->text($product['ean']);
+                        $xml_new->endElement();
+                    }
 
                     $xml_new->startElement('PRODUCTNO');
                     $xml_new->text($product['reference']);
@@ -531,6 +533,11 @@ class XMLClass extends ObjectModel
                     $xml_new->text($product['condition']);
                     $xml_new->endElement();
 
+                    // Product stock quanity
+                    $xml_new->startElement('STOCK_QUANTITY');
+                    $xml_new->text($product['stock_quantity']);
+                    $xml_new->endElement();
+
                     // Product params
                     foreach ($product['params'] as $param) {
                         $xml_new->startElement('PARAM');
@@ -544,15 +551,19 @@ class XMLClass extends ObjectModel
                         $xml_new->endElement();
                     }
 
-                    // Product size
-                    $xml_new->startElement('SHIPPING_SIZE');
-                    $xml_new->text($product['shipping_size']);
-                    $xml_new->endElement();
+                    if($product['shipping_size']) {
+                        // Product size
+                        $xml_new->startElement('SHIPPING_SIZE');
+                        $xml_new->text($product['shipping_size']);
+                        $xml_new->endElement();
+                    }
 
-                    // Product weight
-                    $xml_new->startElement('SHIPPING_WEIGHT');
-                    $xml_new->text($product['shipping_weight']);
-                    $xml_new->endElement();
+                    if($product['shipping_weight']) {
+                        // Product weight
+                        $xml_new->startElement('SHIPPING_WEIGHT');
+                        $xml_new->text($product['shipping_weight']);
+                        $xml_new->endElement();
+                    }
 
                     // END ITEM
                     $xml_new->endElement();
@@ -932,7 +943,6 @@ class XMLClass extends ObjectModel
                 //$price = ToolsCore::convertPriceFull($price, $this->defaultCurrency, $this->currency);
                 $images = array_diff($images, array($mainImage));
 
-
                 $productBase[] = array(
                     'item_id' => $combination['id_product'] . '-' . $combination['id_product_attribute'],
                     'itemgroup_id' => $itemgroupBase,
@@ -940,6 +950,9 @@ class XMLClass extends ObjectModel
                     'availability' => (Product::getQuantity(
                             $combination['id_product'], $combination['id_product_attribute']
                         ) > 0) ? 'in stock' : 'out of stock',
+                    'stock_quantity' => Product::getQuantity(
+                            $combination['id_product'], $combination['id_product_attribute']
+                    ),
                     'category' => $category,
                     'condition' => $item->condition,
                     'delivery_days' => ($qty > 0) ? 0 : $qtyDays,
@@ -956,10 +969,8 @@ class XMLClass extends ObjectModel
                     'price' => Tools::ps_round($price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'wholesale_price' => $combination['wholesale_price'] != 0 ? $combination['wholesale_price'] : $item->wholesale_price,
-                    'shipping_size' => $item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' .
-                        Configuration::get('PS_DIMENSION_UNIT'),
-                    'shipping_weight' => ($item->weight + $combination['weight']) . ' ' .
-                        Configuration::get('PS_WEIGHT_UNIT'),
+                    'shipping_size' => ($item->depth != 0 && $item->width != 0 && $item->height != 0) ? ($item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' . Configuration::get('PS_DIMENSION_UNIT')) : false,
+                    'shipping_weight' => (($item->weight + $combination['weight']) != 0) ? ($item->weight + $combination['weight']) . ' ' . Configuration::get('PS_WEIGHT_UNIT') : false,
                     'vat' => $tax_calculator->taxes[0]->rate,
                 );
             }
@@ -1033,6 +1044,7 @@ class XMLClass extends ObjectModel
                     'itemgroup_id' => $itemgroupBase,
                     'accessory' => $accessoriesExtended,
                     'availability' => (Product::getQuantity($item->id) > 0) ? 'in stock' : 'out of stock',
+                    'stock_quantity' => Product::getQuantity($item->id),
                     'category' => $category,
                     'condition' => $item->condition,
                     'delivery_days' => ($qty > 0) ? 0 : $qtyDays,
@@ -1049,9 +1061,8 @@ class XMLClass extends ObjectModel
                     'price' => Tools::ps_round($price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'wholesale_price' => $item->wholesale_price,
-                    'shipping_size' => $item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' .
-                        Configuration::get('PS_DIMENSION_UNIT'),
-                    'shipping_weight' => $item->weight . ' ' . Configuration::get('PS_WEIGHT_UNIT'),
+                    'shipping_size' => ($item->depth != 0 || $item->width != 0 || $item->height != 0) ? ($item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' . Configuration::get('PS_DIMENSION_UNIT')) : false,
+                    'shipping_weight' => ($item->weight != 0) ? ($item->weight . ' ' . Configuration::get('PS_WEIGHT_UNIT')) : false,
                     'vat' => $tax_calculator->taxes[0]->rate,
                 );
             }

@@ -34,7 +34,7 @@ class RssClass
     );
 
     // @TODO - UPDATE CONSTANT - update ???
-    const UPDATE_CATEGORY = 'UPDATE';
+    const UPDATE_CATEGORY = 'update';
 
     public function getFeed($lang)
     {
@@ -84,7 +84,12 @@ class RssClass
             $dbQuery = NewsClass::getNews($lang);
             $rssFeed = $this->downloadFeed($lang);
             foreach ($rssFeed as $item) {
-                $itemDatetime = new DateTime((string)$item->pubDate);
+
+                // Transform keys to lowercase
+                $itemAr = (array) $item;
+                $item = array_change_key_case($itemAr, CASE_LOWER);
+
+                $itemDatetime = new DateTime((string)$item['pubdate']);
                 $save = true;
 
                 if (count($dbQuery) > 0) {
@@ -94,7 +99,7 @@ class RssClass
                         $dbTime = new DateTime($dbItem['pubDate']);
                         $dbTime = $dbTime->format(NewsClass::DATE_COMPARE_FORMAT);
 
-                        if ($itemDatetime->format(NewsClass::DATE_COMPARE_FORMAT) === $dbTime && (string)$item->title === $dbItem['title']) {
+                        if ($itemDatetime->format(NewsClass::DATE_COMPARE_FORMAT) === $dbTime && (string)$item['title'] === $dbItem['title']) {
                             $save = false;
                             break;
                         }
@@ -102,9 +107,9 @@ class RssClass
                 }
 
                 if ($save) {
-                    if((string) $item->category == self::UPDATE_CATEGORY && Mergado::checkUpdate()) {
+                    if((string) $item['category'] == self::UPDATE_CATEGORY && Mergado::checkUpdate()) {
                         NewsClass::saveArticle($item, $itemDatetime, $lang);
-                    } elseif((string) $item->category != self::UPDATE_CATEGORY) {
+                    } elseif((string) $item['category'] != self::UPDATE_CATEGORY) {
                         NewsClass::saveArticle($item, $itemDatetime, $lang);
                     }
                 }

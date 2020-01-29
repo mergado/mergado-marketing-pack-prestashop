@@ -152,19 +152,18 @@ class NewsClass
     /**
      * Save article to DB
      *
-     * @param SimpleXMLElement $item
+     * @param array $item
      * @param DateTime $date
      * @param $lang
-     * @throws \PrestaShopDatabaseException
      */
-    public static function saveArticle(SimpleXMLElement $item, DateTime $date, $lang)
+    public static function saveArticle(array $item, DateTime $date, $lang)
     {
         $lang = self::getMergadoNewsLanguage($lang);
 
         Db::getInstance()->insert(Mergado::MERGADO['TABLE_NEWS_NAME'], array(
-            'title' => pSQL((string) $item->title),
-            'description' => $item->description,
-            'category' => (string) $item->category,
+            'title' => pSQL((string) $item['title']),
+            'description' => $item['description'],
+            'category' => (string) $item['category'],
             'pubDate' => $date->format(self::DATE_FORMAT),
             'language' => $lang,
             'shown' => 0,

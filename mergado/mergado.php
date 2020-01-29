@@ -57,7 +57,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.1.1',
+        'VERSION' => '2.1.2',
     ];
 
     public function __construct()
@@ -313,7 +313,7 @@ class Mergado extends Module
                 return $updateXml;
             }
 
-            @file_put_contents(_PS_ROOT_DIR_ . ModuleCore::CACHE_FILE_MUST_HAVE_MODULES_LIST, $updateXml);
+//            @file_put_contents(_PS_ROOT_DIR_ . ModuleCore::CACHE_FILE_MUST_HAVE_MODULES_LIST, $updateXml);
         }
     }
 
@@ -722,10 +722,12 @@ class Mergado extends Module
             $nb = 10;
             $products_tmp = $category->getProducts((int)ContextCore::getContext()->language->id, 1, ($nb ? $nb : 10));
             $products = array();
+
             foreach ($products_tmp as $product) {
                 $products['ids'][] = $product['id_product'] . '-' . $product['id_product_attribute'];
                 $products['name'][] = $product['name'];
             }
+
             $this->smarty->assign(array(
                 'glami_pixel_category' => $category,
                 'glami_pixel_productIds' => json_encode($products['ids']),
@@ -737,7 +739,8 @@ class Mergado extends Module
             $product = new ProductCore($productId, false, (int)ContextCore::getContext()->language->id);
 
             $this->smarty->assign(array(
-                'glami_pixel_product' => $product
+                'glami_pixel_product' => $product,
+                'productId' => $productId
             ));
         }
 
