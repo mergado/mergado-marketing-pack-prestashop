@@ -231,11 +231,7 @@ class SettingsClass
      */
     public static function clearSettings($pattern, $shopId)
     {
-        $sql = new DbQuery();
-        $sql->from(Mergado::MERGADO['TABLE_NAME']);
-        $sql->where('`key` LIKE "' . pSQL($pattern) . '" AND `id_shop` ="' . pSQL($shopId) . '"');
-
-        return Db::getInstance()->executeS($sql);
+        return Db::getInstance()->delete(Mergado::MERGADO['TABLE_NAME'], '`key` LIKE "' . pSQL($pattern) . '" AND `id_shop` ="' . pSQL($shopId) . '"');
     }
 
     public static function getLangIso()

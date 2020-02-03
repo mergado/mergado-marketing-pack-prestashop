@@ -612,6 +612,7 @@ class AdminMergadoController extends \ModuleAdminController
         $helper->name_controller = $this->name;
 
         $helper->tpl_vars = array('fields_value' => array_merge($fields_value, $optionsArray, $defaultValues));
+
         if (isset($this->defaultLang)) {
             $helper->default_form_language = $this->defaultLang;
             $helper->allow_employee_form_lang = $this->defaultLang;
@@ -1628,7 +1629,9 @@ class AdminMergadoController extends \ModuleAdminController
             LogClass::log("Settings saved:\n" . json_encode($_POST) . "\n");
 
             if (isset($_POST['clrCheckboxes'])) {
-                SettingsClass::clearSettings('what_to_export', $this->shopID);
+                SettingsClass::clearSettings(SettingsClass::EXPORT['BOTH'], $this->shopID);
+                SettingsClass::clearSettings(SettingsClass::EXPORT['CATALOG'], $this->shopID);
+                SettingsClass::clearSettings(SettingsClass::EXPORT['SEARCH'], $this->shopID);
             }
 
             if (isset($_POST['mergado_del_log']) && $_POST['mergado_del_log'] === SettingsClass::ENABLED) {
