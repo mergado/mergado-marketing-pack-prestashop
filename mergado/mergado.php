@@ -16,6 +16,8 @@
 
 // Do not use USE statements because of PS 1.6.1.12 - error during installation
 
+use Mergado\Tools\SettingsClass;
+
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Heureka/HeurekaClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Zbozi/ZboziClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/NajNakup/NajNakupClass.php';
@@ -57,7 +59,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.1.3',
+        'VERSION' => '2.2.1',
     ];
 
     public function __construct()
@@ -94,7 +96,7 @@ class Mergado extends Module
 
         try {
             $cronRss = new Mergado\Tools\RssClass();
-            $cronRss->getFeed($this->context->language->iso_code);
+            $cronRss->getFeed();
         } catch (Exception $ex) {
             // Error during installation
         }
@@ -355,7 +357,6 @@ class Mergado extends Module
         include __DIR__ . "/sql/update-1.2.2.php";
         include __DIR__ . "/sql/update-1.6.5.php";
         include __DIR__ . "/sql/update-2.0.0.php";
-        include __DIR__ . "/sql/update-2.0.1.php";
 
         return true;
     }
@@ -430,6 +431,8 @@ class Mergado extends Module
         if (Tools::getValue('controller') == $this->controllerClass) {
             $this->context->controller->addJquery();
             $this->context->controller->addJS($this->_path . 'views/js/back.js');
+            $this->context->controller->addJS($this->_path . 'views/vendors/iframe-resizer/js/iframeResizer.min.js');
+            $this->context->controller->addJS($this->_path . 'views/js/iframe-resizer.js');
             $this->context->controller->addCSS($this->_path . 'views/css/back.css');
         } else {
             $this->context->controller->addJquery();
@@ -442,6 +445,11 @@ class Mergado extends Module
         } else {
             $this->context->controller->addCSS($this->_path . 'views/css/notifications17.css');
         }
+
+        $lang = Mergado\Tools\SettingsClass::getLangIso();
+        $this->smarty->assign(array(
+            'langCode' => $lang,
+        ));
 
 
         if (!ModuleCore::isEnabled($this->name)) {

@@ -51,7 +51,7 @@ class SettingsClass
 
     const PRICEMANIA = array(
         'VERIFIED' => 'mergado_pricemania_overeny_obchod',
-        'SHOP_ID' => '	mergado_pricemania_shop_id'
+        'SHOP_ID' => 'mergado_pricemania_shop_id'
     );
 
     const SKLIK = array(
@@ -150,6 +150,17 @@ class SettingsClass
 
     // RSS feed
     const RSS_FEED = 'last_rss_feed_download';
+    const RSS_FEED_LOCK = 'unfinished_rss_downloads';
+
+    const COOKIE_NEWS = 'mmp-cookie-news';
+
+    const LANG_TO_DOMAIN = [
+        'cz' => 'cz',
+        'sk' => 'sk',
+        'pl' => 'pl',
+        'en' => 'com',
+        'gb' => 'com',
+    ];
 
     /*******************************************************************************************************************
      * SET

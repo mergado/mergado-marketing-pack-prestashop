@@ -14,5 +14,5 @@
  *  @license   LICENSE.txt
  */
 
-$sql = 'INSERT INTO ' . _DB_PREFIX_ . 'mergado (key, value) VALUES ("mergado_zbozi_advanced_konverze", "0") ';
+$sql = "INSERT INTO `" . _DB_PREFIX_ . "mergado` (`key`, `value`) VALUES ('mergado_zbozi_advanced_konverze', '0') ";
 Db::getInstance()->execute($sql);

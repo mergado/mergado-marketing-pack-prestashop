@@ -18,57 +18,62 @@ namespace Mergado\Tools;
 use DateTime;
 use Exception;
 use Mergado;
-use Psr\Log\InvalidArgumentException;
 use SimpleXMLElement;
+use Symfony\Component\Config\Util\Exception\InvalidXmlException;
 
 require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XMLClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/NewsClass.php';
 
 class RssClass
 {
-    // @TODO - correct ?? (lang mutations ??)
     const FEED_URLS = array(
         'en' => 'https://news.mergado.com/en/prestashop/rss.xml',
         'cs' => 'https://news.mergado.com/cs/prestashop/rss.xml',
         'sk' => 'https://news.mergado.com/sk/prestashop/rss.xml',
     );
 
-    // @TODO - UPDATE CONSTANT - update ???
     const UPDATE_CATEGORY = 'update';
 
-    public function getFeed($lang)
+    public function getFeed()
     {
+        $now = new DateTime();
+        $date = $now->format(NewsClass::DATE_FORMAT);
+
+        $lastDownload = SettingsClass::getSettings(SettingsClass::RSS_FEED, 0);
+        $lastDate = new DateTime($lastDownload);
+
+        if ($this->getDownloadLock() < count(self::FEED_URLS) * 3) {
+            $dateFormatted = $lastDate->modify('+5 minutes')->format(NewsClass::DATE_FORMAT);
+        } else {
+            $dateFormatted = $lastDate->modify('+30 minutes')->format(NewsClass::DATE_FORMAT);
+        }
+
         try {
-            $lastDownload = SettingsClass::getSettings(SettingsClass::RSS_FEED, 0);
-
             if ($lastDownload && $lastDownload !== '') {
-                $dateTime = new DateTime($lastDownload);
-
-                // Check every half day from last check
-                $dateFormatted = $dateTime->modify('+5 seconds')->format(NewsClass::DATE_FORMAT);
-
-                $now = new DateTime();
-                $date = $now->format(NewsClass::DATE_FORMAT);
-
                 if ($dateFormatted <= $date) {
                     foreach(self::FEED_URLS as $item_lang => $val) {
                         $this->saveFeed($item_lang);
                     }
 
-                    SettingsClass::saveSetting(SettingsClass::RSS_FEED, $date, 0);
+                    $this->nullDownloadLock();
+                    $this->setLastDownload($date);
                 }
             } else {
-                $now = new DateTime();
-                $date = $now->format(NewsClass::DATE_FORMAT);
-
                 foreach(self::FEED_URLS as $item_lang => $val) {
                     $this->saveFeed($item_lang);
                 }
 
-                SettingsClass::saveSetting(SettingsClass::RSS_FEED, $date, 0);
+                $this->nullDownloadLock();
+                $this->setLastDownload($date);
             }
+        } catch (InvalidXmlException $e) {
+            LogClass::log("Mergado XML parse RSS feed ERROR:\n" . $e->getMessage());
+            $this->increaseDownloadLock();
+            $this->setLastDownload($date);
         } catch (Exception $e) {
-
+            LogClass::log("Mergado save downloaded RSS feed ERROR:\n" . $e->getMessage());
+            $this->increaseDownloadLock();
+            $this->setLastDownload($date);
         }
     }
 
@@ -77,51 +82,51 @@ class RssClass
      *
      * @param $lang
      * @return void
+     * @throws \PrestaShopDatabaseException
+     * @throws Exception
      */
     private function saveFeed($lang)
     {
-        try {
-            $dbQuery = NewsClass::getNews($lang);
-            $rssFeed = $this->downloadFeed($lang);
-            foreach ($rssFeed as $item) {
+        $dbQuery = NewsClass::getNews($lang);
+        $rssFeed = $this->downloadFeed($lang);
+        foreach ($rssFeed as $item) {
 
-                // Transform keys to lowercase
-                $itemAr = (array) $item;
-                $item = array_change_key_case($itemAr, CASE_LOWER);
+            // Transform keys to lowercase
+            $itemAr = (array)$item;
+            $item = array_change_key_case($itemAr, CASE_LOWER);
 
-                $itemDatetime = new DateTime((string)$item['pubdate']);
-                $save = true;
+            $itemDatetime = new DateTime((string)$item['pubdate']);
+            $save = true;
 
-                if (count($dbQuery) > 0) {
-                    foreach ($dbQuery as $dbItem) {
+            if (count($dbQuery) > 0) {
+                foreach ($dbQuery as $dbItem) {
 
-                        // Fix different APIs ( one with time and second only date ) => Compare only based on date and title
-                        $dbTime = new DateTime($dbItem['pubDate']);
-                        $dbTime = $dbTime->format(NewsClass::DATE_COMPARE_FORMAT);
+                    // Fix different APIs ( one with time and second only date ) => Compare only based on date and title
+                    $dbTime = new DateTime($dbItem['pubDate']);
+                    $dbTime = $dbTime->format(NewsClass::DATE_COMPARE_FORMAT);
 
-                        if ($itemDatetime->format(NewsClass::DATE_COMPARE_FORMAT) === $dbTime && (string)$item['title'] === $dbItem['title']) {
-                            $save = false;
-                            break;
-                        }
-                    }
-                }
-
-                if ($save) {
-                    if((string) $item['category'] == self::UPDATE_CATEGORY && Mergado::checkUpdate()) {
-                        NewsClass::saveArticle($item, $itemDatetime, $lang);
-                    } elseif((string) $item['category'] != self::UPDATE_CATEGORY) {
-                        NewsClass::saveArticle($item, $itemDatetime, $lang);
+                    if ($itemDatetime->format(NewsClass::DATE_COMPARE_FORMAT) === $dbTime && (string)$item['title'] === $dbItem['title']) {
+                        $save = false;
+                        break;
                     }
                 }
             }
-        } catch (Exception $e) {
-            LogClass::log("Mergado save downloaded RSS feed ERROR:\n" . $e->getMessage());
+
+            if ($save) {
+                if ((string)$item['category'] == self::UPDATE_CATEGORY && Mergado::checkUpdate()) {
+                    NewsClass::saveArticle($item, $itemDatetime, $lang);
+                } elseif ((string)$item['category'] != self::UPDATE_CATEGORY) {
+                    NewsClass::saveArticle($item, $itemDatetime, $lang);
+                }
+            }
         }
     }
 
     /**
      * Downlaod feed - upgraded version
      * - do not use file_get_contents (not working on HTTPS in php 5.6)
+     * @param $lang
+     * @return array
      */
 
     private function downloadFeed($lang)
@@ -141,13 +146,53 @@ class RssClass
         $feed = curl_exec($ch);
         curl_close($ch);
 
-        $x = new SimpleXMLElement($feed);
+        try {
+            $x = new SimpleXMLElement($feed, LIBXML_NOERROR);
 
-        $data = array();
-        foreach ($x->channel->item as $item) {
-            $data[] = $item;
+            $data = array();
+            foreach ($x->channel->item as $item) {
+                $data[] = $item;
+            }
+        } catch (Exception $ex) {
+            throw new InvalidXmlException($ex);
         }
 
         return $data;
+    }
+
+    /**
+     * Set last download based on lock
+     *
+     * @param $now
+     */
+    private function setLastDownload($now)
+    {
+        SettingsClass::saveSetting(SettingsClass::RSS_FEED, $now, 0);
+    }
+
+    /**
+     * Set lock for few minutes, if feed is broken
+     */
+    private function increaseDownloadLock()
+    {
+        $value = $this->getDownloadLock();
+        SettingsClass::saveSetting(SettingsClass::RSS_FEED_LOCK, $value + 1, 0);
+    }
+
+    /**
+     * Set download lock to null
+     */
+    private function nullDownloadLock()
+    {
+        SettingsClass::saveSetting(SettingsClass::RSS_FEED_LOCK, 0, 0);
+    }
+
+    /**
+     * Return current downlaod lock number
+     * @return false|string|null
+     */
+    private function getDownloadLock()
+    {
+        return SettingsClass::getSettings(SettingsClass::RSS_FEED_LOCK, 0);
     }
 }

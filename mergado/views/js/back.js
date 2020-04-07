@@ -21,16 +21,26 @@ $(document).ready(function () {
     if (currentTab !== undefined) {
         $('#mergadoController .mergado-tab[data-tab=' + currentTab + ']').stop().show();
         $('#mergadoController .tabControl a[data-tab=' + currentTab + ']').addClass('active');
-
+        $('.mmp-header-bot').show();
         checkChanges = currentTab === 1 || currentTab === 6;
 
     } else {
+        $('.mmp-header-bot').hide();
         mergadoTab.stop().first().show();
         $('#mergadoController .tabControl a').first().addClass('active');
         checkChanges = true;
     }
 
     generateCron();
+    tabControl();
+    toggleFieldsInit();
+    initFormChangeChecker();
+    closeCronPopup();
+    copyToClipboard();
+    initRangeScript();
+    setSettings();
+    tab1FormSend();
+    confirmMessage();
 });
 
 function getUrlVars(variable) {
@@ -88,27 +98,273 @@ function generateCron()
                 type: 'POST',
                 url: admin_mergado_ajax_url,
                 data: {
-                    controller : 'AdminMergado',
-                    action : $(this).attr('data-generate'),
-                    ajax : true,
+                    controller: 'AdminMergado',
+                    action: $(this).attr('data-generate'),
+                    ajax: true,
                     feedBase: $(this).attr('data-cron'),
+                }, beforeSend: function() {
+                    $('.mmp-popup').addClass('active');
+                    $('.mmp-popup__button').addClass('disabled');
+                    $('.mmp-popup__loader').show();
                 }, success: function(jsonData) {
-                    if(jsonData) {
-                        if(jsonData === 'running') {
-                            alert(admin_mergado_back_running);
+                    $('.mmp-popup__loader').hide();
+                    if (jsonData) {
+                        if (jsonData === 'running') {
+                            $('.mmp-popup__output').html(admin_mergado_back_running);
                         } else if ($(el).hasClass('last')) {
-                            alert(admin_mergado_back_merged);
-                        } else if($(el).attr('data-generate') === 'import_prices') {
-                            alert(admin_mergado_prices_imported);
+                            $('.mmp-popup__output').html(admin_mergado_back_merged);
+                        } else if ($(el).attr('data-generate') === 'import_prices') {
+                            $('.mmp-popup__output').html(admin_mergado_prices_imported);
                         } else {
-                            alert(admin_mergado_back_success);
+                            $('.mmp-popup__output').html(admin_mergado_back_success);
                         }
-                        window.location.reload();
                     } else {
-                            alert(admin_mergado_back_error);
+                        $('.mmp-popup__output').html(admin_mergado_back_error);
                     }
+                },
+                error: function() {
+                    $('.mmp-popup__loader').hide();
+                    $('.mmp-popup__output').html($('.mmp-popup').attr('data-500'));
+                    locker = false;
+                },
+                complete: function() {
+                    $('.mmp-popup__button').removeClass('disabled');
+                    locker = false;
                 }
             });
         });
+    });
+}
+
+function setSettings() {
+    var locker = false;
+
+    $('[data-cookie]').each(function() {
+        $(this).on('click', function (e) {
+
+            $(this).closest('.panel').hide();
+
+            if(locker) {
+                return;
+            } else {
+                locker = true;
+            }
+
+            var el = $(this);
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: admin_mergado_ajax_url,
+                data: {
+                    controller: 'AdminMergado',
+                    action: $(this).attr('data-cookie'),
+                    ajax: true,
+                }
+            }).complete(function() {
+                locker = false;
+            });
+        });
+    });
+}
+
+function closeCronPopup() {
+    $('.mmp-popup__button').on('click', function(e) {
+        e.preventDefault();
+        if(!$(this).hasClass('disabled')) {
+            $('.mmp-popup').removeClass('active');
+            $('.mmp-popup__output').html('');
+            window.location.reload(); // Partially ajax .. meh
+        }
+    });
+}
+
+function tabControl() {
+    // Tab control
+    $('.mmp_tabs__menu li').on('click', function(e) {
+        e.preventDefault();
+        $('.mmp_tabs li.active').removeClass('active');
+        $('.mmp_tabs__tab.active').removeClass('active');
+        $(this).addClass('active');
+        $('[data-mmp-tab="' + $(this).children('a').attr('data-mmp-tab-button') + '"]').addClass('active');
+    });
+}
+
+function toggleFieldsInit()
+{
+    var toggleJSON = JSON.parse($('[data-toggle-fields-json]').attr('data-toggle-fields-json'));
+
+    var fieldStatusSetter = function setFieldStatus(values, mainStatus)
+    {
+        if(typeof values['fields'] !== "undefined") {
+            Object.keys(values['fields']).forEach(function (key) {
+
+                var field = $('[name="' + values['fields'][key] + '"]');
+
+                if (mainStatus) {
+                    field.attr('disabled', false);
+                } else {
+                    field.attr('disabled', true);
+                }
+            });
+        }
+
+        if(typeof values['sub-check'] !== "undefined") {
+            Object.keys(values['sub-check']).forEach(function(k) {
+                var field = $('[name="' + k + '"]');
+
+                if(mainStatus) {
+                    return fieldStatusSetter(values['sub-check'][k], getSwitchStatus(field));
+                } else {
+                    field.attr('disabled', true);
+                    return fieldStatusSetter(values['sub-check'][k], false);
+                }
+            });
+        }
+    };
+
+    toggleFieldsMonstrosity();
+
+    $('form input[type="radio"]').on('click', function() {
+        toggleFieldsMonstrosity();
+    });
+
+    function toggleFieldsMonstrosity() {
+        Object.keys(toggleJSON).forEach(function(key) {
+            var main = $('[name="' + key + '"]');
+            var values = toggleJSON[key];
+
+            fieldStatusSetter(values, getSwitchStatus(main));
+        });
+    }
+
+    function getSwitchStatus(main)
+    {
+        if (main && main.attr('checked') == 'checked') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+// On change of form set changed
+function initFormChangeChecker()
+{
+    clickedSubmit = false;
+
+    $("form :input").change(function() {
+        $(this).closest('form').data('changed', true);
+    });
+
+    $('button[type="submit"]').on('click', function() {
+        clickedSubmit = true;
+    });
+
+    $(window).bind('beforeunload', function() {
+        var changed = false;
+        $('form').each(function() {
+            if ($(this).data('changed') && !clickedSubmit) {
+                changed = true;
+                return false;
+            }
+        });
+
+        if(changed) {
+            return false;
+        }
+    });
+}
+
+function copyToClipboard()
+{
+    // Copy to clipboard
+    $('[data-copy-stash]').on('click', function (e) {
+        e.preventDefault();
+        var stash = $(this).attr('data-copy-stash');
+        copyToClipboard(stash);
+    });
+
+    function copyToClipboard(text) {
+        var $temp = $("<input>");
+        $("body").append($temp);
+        $temp.val(text).select();
+        document.execCommand("copy");
+        $temp.remove();
+    }
+}
+
+function initRangeScript()
+{
+    // Range slider init
+   $('[class*="rangeSlider-"]').each(function() {
+        $(this).append('<style>.rangeSlider-' + $(this).attr('data-range-index') + '::before{width: ' + $(this).attr('data-percentage') + '%;}</style>');
+   });
+}
+
+function confirmMessage() {
+    $('[data-confirm-message]').on('click', function() {
+        var r = confirm($(this).attr('data-confirm-message'));
+        if (r != true) {
+            return false;
+        }
+    });
+}
+
+function tab1FormSend()
+{
+    var locker = false;
+
+    $('.mergado-tab form').submit(function(e) {
+        var tab = $(this).closest('.mergado-tab').attr('data-tab');
+
+        if(tab === '6' || tab === '1') {
+            e.preventDefault();
+
+            if(locker) {
+                return;
+            } else {
+                locker = true;
+            }
+
+            var pageSet = false;
+            var shopIdSet = false;
+            var formData = [];
+
+            $('.mergado-tab[data-tab="' + tab + '"] form').each(function() {
+                var disabled = $(this).find(':input:disabled').removeAttr('disabled');
+                formData.push($(this).serializeArray());
+                disabled.attr('disabled','disabled');
+            });
+
+            var outputItems = [];
+
+            formData.forEach(function(i) {
+                i.forEach(function(item) {
+                    if((item['name'] === 'page' || (item['name'] === 'id_shop'))) {
+                        if((item['name'] === 'page' && !pageSet)) {
+                            outputItems.push(item);
+                            pageSet = true;
+                        }
+
+                        if((item['name'] === 'id_shop' && !shopIdSet)) {
+                            outputItems.push(item);
+                            shopIdSet = true;
+                        }
+                    } else {
+                        outputItems.push(item);
+                    }
+                });
+            });
+
+            jQuery.ajax({
+                type: 'POST',
+                data: outputItems,
+                url: e.currentTarget.action,
+                dataType: 'json'
+            }).complete(function() {
+                locker = false;
+                window.location.reload();
+            });
+        }
     });
 }

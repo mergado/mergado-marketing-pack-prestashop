@@ -129,8 +129,9 @@ class XMLClass extends ObjectModel
                     LogClass::log("Mergado feed generated:\n" . $feedBase);
 
                     if (SettingsClass::getSettings(SettingsClass::FEED['STATIC'], $this->shopID) === "1") {
+                        $feedBaseStatic = Tools::getAdminTokenLite('AdminModules');
                         $staticProducts = $this->productsToFlat(0, 0, false, intval(Configuration::get('PS_LANG_DEFAULT')));
-                        $xml = $this->generateStaticXML($staticProducts, $this->shopID);
+                        $xml = $this->generateStaticXML($feedBaseStatic, $staticProducts, $this->shopID);
                         LogClass::log("Mergado static feed generated");
                     }
 
@@ -259,14 +260,14 @@ class XMLClass extends ObjectModel
         $xml_new->openURI($out);
         $xml_new->startDocument('1.0', 'UTF-8');
         $xml_new->startElement('CHANNEL');
-        $xml_new->writeAttribute('xmlns', 'http://www.mergado.com/ns/1.6/category');
+        $xml_new->writeAttribute('xmlns', 'http://www.mergado.com/ns/category/1.7');
 
         $xml_new->startElement('LINK');
-        $xml_new->text('http://www.mergadoshop.com/');
+        $xml_new->text(_PS_BASE_URL_.__PS_BASE_URI__);
         $xml_new->endElement();
 
         $xml_new->startElement('GENERATOR');
-        $xml_new->text('mergado.prestashop.modulemergadoxml.' . str_replace('.', '_', Mergado::MERGADO['VERSION']));
+        $xml_new->text('mergado.prestashop.marketingpack.' . str_replace('.', '_', Mergado::MERGADO['VERSION']));
         $xml_new->endElement();
 
         $link = new Link();
@@ -419,6 +420,10 @@ class XMLClass extends ObjectModel
                 $xml_new->openURI($out);
                 $xml_new->startDocument('1.0', 'UTF-8');
                 $xml_new->startElement('CHANNEL');
+                $xml_new->writeAttribute('xmlns', 'http://www.mergado.com/ns/1.7');
+                $xml_new->startElement('LINK');
+                $xml_new->text(_PS_BASE_URL_.__PS_BASE_URI__);
+                $xml_new->endElement();
 
                 $xml_new->startElement('GENERATOR');
                 $xml_new->text('mergado.prestashop.marketingpack.' . str_replace('.', '_', Mergado::MERGADO['VERSION']));
@@ -593,17 +598,19 @@ class XMLClass extends ObjectModel
     }
 
     /**
+     * @param $feedBase
      * @param $products
+     * @param $shopID
      * @return bool
      */
-    public function generateStaticXML($products, $shopID)
+    public function generateStaticXML($feedBase, $products, $shopID)
     {
         $tmpDir = self::TMP_DIR . 'xmlStatic/';
         $tmpShopDir = $tmpDir . $shopID . '/';
         $xmlDir = self::XML_DIR . $shopID . '/';
 
-        $out = $tmpShopDir . 'static_feed.xml';
-        $storage = $xmlDir . 'static_feed.xml';
+        $out = $tmpShopDir . 'static_feed' . '_' . $feedBase . '.xml';
+        $storage = $xmlDir . 'static_feed' . '_' . $feedBase . '.xml';
 
         $this->createDIR(array($tmpDir, $tmpShopDir, $xmlDir));
 
@@ -611,6 +618,7 @@ class XMLClass extends ObjectModel
         $xml_new->openURI($out);
         $xml_new->startDocument('1.0', 'UTF-8');
         $xml_new->startElement('PRODUCTS');
+        $xml_new->writeAttribute('xmlns', 'http://www.mergado.com/ns/analytic/1.1');
 
         $xml_new->startElement('DATE');
         $xml_new->text(date('d-m-Y'));
@@ -669,15 +677,18 @@ class XMLClass extends ObjectModel
     {
         $loop = 0;
 
-        $xmlstr = '<CHANNEL>';
+        $xmlstr = '<CHANNEL xmlns="http://www.mergado.com/ns/1.7">';
 
         foreach (glob($tmpShopDir . '*.xml') as $file) {
             $xml = Tools::simplexml_load_file($file);
 
+            $innerLoop = 0;
             foreach ($xml as $item) {
-                if ($loop != 0 && preg_match('/^mergado.prestashop/', $item[0])) {
+                if ($loop != 0 && (preg_match('/^mergado.prestashop/', $item[0]) || ($innerLoop == 0 || $innerLoop == 1))) {
+                    $innerLoop++;
                     continue;
                 } else {
+                    $innerLoop++;
                     $xmlstr .= $item->asXml();
                 }
             }

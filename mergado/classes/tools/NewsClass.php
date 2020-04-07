@@ -26,6 +26,7 @@ class NewsClass
 {
     const DATE_FORMAT = 'Y-m-d H:i:s';
     const DATE_COMPARE_FORMAT = 'Y-m-d';
+    const DATE_OUTPUT_FORMAT = 'd.m.Y';
 
     /*******************************************************************************************************************
      * GET
@@ -102,10 +103,12 @@ class NewsClass
      * @param $lang
      * @param null $category
      * @param null $limit
+     * @param bool $excludeTop
+     * @param string $order
      * @return array|false|\mysqli_result|\PDOStatement|resource|null
      * @throws \PrestaShopDatabaseException
      */
-    public static function getNewsByStatusAndLanguageAndCategory($shown, $lang, $category = null, $limit = null)
+    public static function getNewsByStatusAndLanguageAndCategory($shown, $lang, $category = null, $limit = null, $excludeTop = false, $order = false)
     {
         $lang = self::getMergadoNewsLanguage($lang);
 
@@ -119,12 +122,21 @@ class NewsClass
             $sql->where('`shown`="' . 0 . '"');
         }
 
-        if ($category || $category == '') {
+        if (($category || $category != '') && $category !== null) {
             $sql->where('`category`="' . $category . '"');
         }
 
-        if($limit) {
+        if ($excludeTop) {
+            $sql->where('`category`!="top"');
+        }
+
+        if($order) {
+            $sql->orderBy('`pubDate`' . $order .'');
+        } else {
             $sql->orderBy('`pubDate`');
+        }
+
+        if($limit) {
             $sql->limit($limit);
         }
 
@@ -162,7 +174,7 @@ class NewsClass
 
         Db::getInstance()->insert(Mergado::MERGADO['TABLE_NEWS_NAME'], array(
             'title' => pSQL((string) $item['title']),
-            'description' => $item['description'],
+            'description' => pSQL($item['description'], true),
             'category' => (string) $item['category'],
             'pubDate' => $date->format(self::DATE_FORMAT),
             'language' => $lang,
@@ -194,5 +206,12 @@ class NewsClass
             array('shown' => 1),
             '`language` = "' . $lang . '"');
 
+    }
+
+    public static function getFormattedDate($date)
+    {
+        $date = new DateTime($date);
+        $date = $date->format(NewsClass::DATE_OUTPUT_FORMAT);
+        return $date;
     }
 }

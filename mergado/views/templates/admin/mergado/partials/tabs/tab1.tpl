@@ -13,5 +13,12 @@
 *}
 
 <div class="mergado-tab" data-tab="1">
-    {$tab1}
+    <h2>{l s='Nastavení exportu produktů' mod='mergado'}</h2>
+    {$tab1['exportProducts']}
+    <h2>{l s='Nastavení exportu kategorií' mod='mergado'}</h2>
+    {$tab1['exportCategory']}
+    <h2>{l s='Nastavení analytického exportu' mod='mergado'}</h2>
+    {$tab1['exportStatic']}
+    <h2>{l s='Nastavení importu cen' mod='mergado'}</h2>
+    {$tab1['importPrices']}
 </div>

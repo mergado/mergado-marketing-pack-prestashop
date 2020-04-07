@@ -20,6 +20,7 @@
         {elseif $disableFeatures}
             {include file='./partials/disabled.tpl'}
         {else}
+            {include file='./partials/tabs/tab0.tpl'}
             {include file='./partials/tabs/tab1.tpl'}
             {include file='./partials/tabs/tab2.tpl'}
             {include file='./partials/tabs/tab3.tpl'}
