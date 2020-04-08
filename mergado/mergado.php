@@ -43,11 +43,13 @@ class Mergado extends Module
     const LANG_CS = 'cs';
     const LANG_SK = 'sk';
     const LANG_EN = 'en';
+    const LANG_PL = 'pl';
 
     const LANG_AVAILABLE = array(
         self::LANG_EN,
         self::LANG_CS,
         self::LANG_SK,
+        self::LANG_PL,
     );
 
     // Prestashop versions
@@ -59,7 +61,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.2.1',
+        'VERSION' => '2.2.2',
     ];
 
     public function __construct()

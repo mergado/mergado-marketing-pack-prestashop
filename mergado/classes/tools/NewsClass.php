@@ -174,7 +174,7 @@ class NewsClass
 
         Db::getInstance()->insert(Mergado::MERGADO['TABLE_NEWS_NAME'], array(
             'title' => pSQL((string) $item['title']),
-            'description' => pSQL($item['description'], true),
+            'description' => pSQL(str_replace(']]>','', str_replace('<![CDATA[', '', $item['description'])), true),
             'category' => (string) $item['category'],
             'pubDate' => $date->format(self::DATE_FORMAT),
             'language' => $lang,

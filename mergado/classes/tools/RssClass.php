@@ -27,19 +27,22 @@ require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/NewsClass.php';
 class RssClass
 {
     const FEED_URLS = array(
-        'en' => 'https://news.mergado.com/en/prestashop/rss.xml',
-        'cs' => 'https://news.mergado.com/cs/prestashop/rss.xml',
-        'sk' => 'https://news.mergado.com/sk/prestashop/rss.xml',
+        'en' => 'https://feeds.mergado.com/pres-en-a54e4d67391189dcaa03c177cb0d728b.xml',
+        'cs' => 'https://feeds.mergado.com/pres-cs-588aee3e934a2cac2c5218119a81b430.xml',
+        'sk' => 'https://feeds.mergado.com/pres-sk-318b4f8deed4eaaae3e0349a50925258.xml',
+        'pl' => 'https://feeds.mergado.com/pres-pl-b661e96b5522065fedf2f96ce5d75d06.xml',
     );
 
     const UPDATE_CATEGORY = 'update';
 
     public function getFeed()
     {
+
         $now = new DateTime();
         $date = $now->format(NewsClass::DATE_FORMAT);
 
         $lastDownload = SettingsClass::getSettings(SettingsClass::RSS_FEED, 0);
+
         $lastDate = new DateTime($lastDownload);
 
         if ($this->getDownloadLock() < count(self::FEED_URLS) * 3) {
@@ -52,6 +55,7 @@ class RssClass
             if ($lastDownload && $lastDownload !== '') {
                 if ($dateFormatted <= $date) {
                     foreach(self::FEED_URLS as $item_lang => $val) {
+
                         $this->saveFeed($item_lang);
                     }
 
