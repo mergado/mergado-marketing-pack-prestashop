@@ -88,46 +88,55 @@
                             </td>
                                 {if $cronsPartial}
                                     <td class="cron-status-td">
+                                        {if $crons[$k][$key]['currentFiles']}
                                             <div class="rangeSlider rangeSlider-{$smarty.foreach.mainforeach.index}{$smarty.foreach.itemforeach.index}" data-range-index="{$smarty.foreach.mainforeach.index}{$smarty.foreach.itemforeach.index}" data-percentage="{round(($crons[$k][$key]['currentFiles'] / ($crons[$k][$key]['totalFiles'] + 1)) * 100, 2)}">
                                                 <span>{round(($crons[$k][$key]['currentFiles'] / ($crons[$k][$key]['totalFiles'] + 1)) * 100, 2)}%</span>
                                             </div>
+                                        {else}
+                                            <div class="rangeSlider rangeSlider-{$smarty.foreach.mainforeach.index}{$smarty.foreach.itemforeach.index}" data-range-index="{$smarty.foreach.mainforeach.index}{$smarty.foreach.itemforeach.index}" data-percentage="100">
+                                                <span>100%</span>
+                                            </div>
+                                        {/if}
                                     </td>
                                 {/if}
                             <td class="cron-btn-td">
-                                <a href="#" class="btn btn-sm btn-default mmp-btn-hover--info" data-copy-stash="{$xml['url']|escape:'htmlall':'UTF-8'}"><i class="icon-copy"></i>{l s='Kopírovat URL feedu' mod='mergado'}</a>
-
-                                {if $k == 'stock' || $k == 'category'}
-                                    <a class="btn btn-sm btn-default mmp-btn-hover--success mergado-manual-cron" href="javascript:void(0)" data-generate="generate_xml" data-cron="{$key|escape:'htmlall':'UTF-8'}"
-                                       title="{$key|escape:'htmlall':'UTF-8'}">
-                                        <i class="icon-play-circle"></i>
-                                        {l s='Ručně generovat feed' mod='mergado'}
-                                    </a>
-                                {elseif $k == 'base'}
-                                    {if isset($crons['base'][$key]['totalFiles']) && isset($crons['base'][$key]['currentFiles']) && !in_array($crons['base'][$key]['totalFiles'], array(0, 1))}
-                                        {if $crons['base'][$key]['totalFiles'] > $crons['base'][$key]['currentFiles']}
-                                            <a class="btn btn-sm btn-default mmp-btn-hover--success mergado-manual-cron" href="javascript:void(0)" data-generate="generate_xml" data-cron="{$key|escape:'htmlall':'UTF-8'}">
-                                                <i class="icon-play-circle"></i>
-                                                {l s='Ručně generovat feed' mod='mergado'} {$crons['base'][$key]['currentFiles'] + 1} / {$crons['base'][$key]['totalFiles']}</a>
+                                <div style="padding-bottom: 5px; display: inline-block">
+                                    <a href="#" class="btn btn-sm btn-default mmp-btn-hover--info" data-copy-stash="{$xml['url']|escape:'htmlall':'UTF-8'}"><i class="icon-copy"></i>{l s='Kopírovat URL feedu' mod='mergado'}</a>
+                                    <a href='{$xml['url']|escape:'htmlall':'UTF-8'}' target='_blank' title='{$xml['language']|escape:'htmlall':'UTF-8'}' class="btn btn-sm btn-default mmp-btn-hover--info">{l s='Stáhnout XML feed' mod='mergado'}</a>
+                                </div>
+                                <div style="display: inline-block">
+                                    {if $k == 'stock' || $k == 'category'}
+                                        <a class="btn btn-sm btn-default mmp-btn-hover--success mergado-manual-cron" href="javascript:void(0)" data-generate="generate_xml" data-cron="{$key|escape:'htmlall':'UTF-8'}"
+                                           title="{$key|escape:'htmlall':'UTF-8'}">
+                                            <i class="icon-play-circle"></i>
+                                            {l s='Ručně generovat feed' mod='mergado'}
+                                        </a>
+                                    {elseif $k == 'base'}
+                                        {if isset($crons['base'][$key]['totalFiles']) && isset($crons['base'][$key]['currentFiles']) && !in_array($crons['base'][$key]['totalFiles'], array(0, 1))}
+                                            {if $crons['base'][$key]['totalFiles'] > $crons['base'][$key]['currentFiles']}
+                                                <a class="btn btn-sm btn-default mmp-btn-hover--success mergado-manual-cron" href="javascript:void(0)" data-generate="generate_xml" data-cron="{$key|escape:'htmlall':'UTF-8'}">
+                                                    <i class="icon-play-circle"></i>
+                                                    {l s='Ručně generovat feed' mod='mergado'} {$crons['base'][$key]['currentFiles'] + 1} / {$crons['base'][$key]['totalFiles']}</a>
+                                            {else}
+                                                <a class="btn btn-sm btn-default mmp-btn-hover--success mergado-manual-cron last" href="javascript:void(0)" data-generate="generate_xml" data-cron="{$key|escape:'htmlall':'UTF-8'}">
+                                                    <i class="icon-play-circle"></i>
+                                                    {l s='Merge and create new feed' mod='mergado'}
+                                                </a>
+                                            {/if}
                                         {else}
-                                            <a class="btn btn-sm btn-default mmp-btn-hover--success mergado-manual-cron last" href="javascript:void(0)" data-generate="generate_xml" data-cron="{$key|escape:'htmlall':'UTF-8'}">
-                                                <i class="icon-play-circle"></i>
-                                                {l s='Merge and create new feed' mod='mergado'}
+                                            <a class="btn btn-sm btn-default mmp-btn-hover--success mergado-manual-cron" href="javascript:void(0)" data-generate="generate_xml" data-cron="{$key|escape:'htmlall':'UTF-8'}""
+                                            title="{$crons['base'][$key]['name']|escape:'htmlall':'UTF-8'}">
+                                            <i class="icon-play-circle"></i>
+                                            {l s='Ručně generovat feed' mod='mergado'}
                                             </a>
                                         {/if}
-                                    {else}
-                                        <a class="btn btn-sm btn-default mmp-btn-hover--success mergado-manual-cron" href="javascript:void(0)" data-generate="generate_xml" data-cron="{$key|escape:'htmlall':'UTF-8'}""
-                                        title="{$crons['base'][$key]['name']|escape:'htmlall':'UTF-8'}">
-                                        <i class="icon-play-circle"></i>
-                                        {l s='Ručně generovat feed' mod='mergado'}
-                                        </a>
                                     {/if}
-                                {/if}
-
                                 <form method="post" class="mb-0 d-inline">
                                     <input type="hidden" name="delete_url" value="{$xml['file']}">
                                     <input type="hidden" name="page" value="3">
                                     <button class="btn btn-sm btn-default mmp-btn-hover--danger" type="submit" name="submitmergadodelete" data-confirm-message="{l s='Opravdu smazat export %s?' mod='mergado' sprintf=[$xml['language']]}"><i class="icon-trash"></i>{l s='Smazat feed' mod='mergado'}</button>
                                 </form>
+                                </div>
                             </td>
                         </tr>
                     {/foreach}

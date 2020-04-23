@@ -110,14 +110,28 @@
         <div class="mergado-updated-notice news">
 
             <div class="mmp-news__holder">
+                {if $unreadedUpdates}
+                    <div style="border-right: 1px solid #ddd; padding-right: 20px; margin-right: 20px;">
+                        {foreach from=$unreadedUpdates item=item}
+                            <a href="#" data-tab-link="7" class="mergado-link mmp-news__item">
+                                <p class="mmp-news__title">{$item['title']}</p>
+                                <p><span class="mmp-badge mmp-badge--{$item['category']}">{$item['category']}</span> <span class="mmp-news__date">
+                                {$item['pubDate']|date_format:$formattedDate}
+                            </span></p>
+                            </a>
+                        {/foreach}
+                    </div>
+                {/if}
+                <div>
                 {foreach from=$unreadedNews item=item}
-                <a href="#" data-tab-link="7" class="mergado-link mmp-news__item">
-                    <p class="mmp-news__title">{$item['title']}</p>
-                    <p><span class="mmp-badge mmp-badge--{$item['category']}">{$item['category']}</span> <span class="mmp-news__date">
+                    <a href="#" data-tab-link="7" class="mergado-link mmp-news__item">
+                        <p class="mmp-news__title">{$item['title']}</p>
+                        <p><span class="mmp-badge mmp-badge--{$item['category']}">{$item['category']}</span> <span class="mmp-news__date">
                         {$item['pubDate']|date_format:$formattedDate}
                     </span></p>
-                </a>
+                    </a>
                 {/foreach}
+                </div>
             </div>
 
             <span data-cookie="mmp-cookie-news" class="mmp-cross mmp-close-cross">🞩</span>
