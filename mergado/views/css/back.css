@@ -862,3 +862,28 @@ h2 {
         width: 10%;
     }
 }
+
+.rowmer .col-side {
+    margin-top: 30px;
+}
+
+@media (min-width: 1220px) {
+    .rowmer {
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+    }
+
+    .rowmer .col-side.col-side-extra {
+        margin-top: 20px;
+    }
+
+    .rowmer .col-side {
+        margin-top: 0;
+        min-width: 320px;
+        padding-left: 20px;
+        -webkit-box-flex: 0;
+        -ms-flex: 0 340px;
+        flex: 0 340px;
+    }
+}

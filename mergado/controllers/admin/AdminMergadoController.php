@@ -991,6 +991,15 @@ class AdminMergadoController extends \ModuleAdminController
             'staticFeed' => SettingsClass::getSettings(SettingsClass::FEED['STATIC'], $this->shopID),
             'categoryFeed' => SettingsClass::getSettings(SettingsClass::FEED['CATEGORY'], $this->shopID),
         ));
+
+        try {
+            $this->context->smarty->assign(array(
+                'sideAd' => file_get_contents('https://platforms.mergado.com/prestashop/sidebar'),
+                'wideAd' => file_get_contents('https://platforms.mergado.com/prestashop/wide'),
+            ));
+        } catch (Exception $e){
+            
+        }
     }
 
 

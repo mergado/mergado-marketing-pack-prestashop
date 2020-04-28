@@ -13,24 +13,32 @@
 *}
 
 <div class="mergado-tab" data-tab="7">
-    {foreach $tab7 as $item}
-        <div class="mergado_card {$item['category']}">
-            <div class="mergado_card__header">
-                <h3 class="mergado_card__title">{$item['title']}</h3><p class="mergado_card__date">{$item['pubDate']}</p>
-            </div>
-            <div class="mergado_card__body">
-                <p class="mergado_card__description">
-                    {$item['description']}
-                </p>
-            </div>
-        </div>
-    {/foreach}
+    <div class="rowmer">
+        <div class="col-content">
+            {foreach $tab7 as $item}
+                <div class="mergado_card {$item['category']}">
+                    <div class="mergado_card__header">
+                        <h3 class="mergado_card__title">{$item['title']}</h3>
+                        <p class="mergado_card__date">{$item['pubDate']}</p>
+                    </div>
+                    <div class="mergado_card__body">
+                        <p class="mergado_card__description">
+                            {$item['description']}
+                        </p>
+                    </div>
+                </div>
+            {/foreach}
 
-    {if $tab7 == []}
-        <div class="mergado_card">
-            <div class="mergado_card__header mergado_card__header--none">
-                <h3 class="mergado_card__title mergado_card__title--none">{$noMessages}</h3>
-            </div>
+            {if $tab7 == []}
+                <div class="mergado_card">
+                    <div class="mergado_card__header mergado_card__header--none">
+                        <h3 class="mergado_card__title mergado_card__title--none">{$noMessages}</h3>
+                    </div>
+                </div>
+            {/if}
         </div>
-    {/if}
+        <div class="col-side">
+            {$sideAd}
+        </div>
+    </div>
 </div>

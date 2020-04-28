@@ -145,4 +145,6 @@
         </div>
             {/foreach}
     </div>
+
+    {$wideAd}
 </div>

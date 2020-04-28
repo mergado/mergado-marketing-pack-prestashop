@@ -13,15 +13,22 @@
 *}
 
 <div class='mergado-tab' data-tab='5'>
-    <div id="mergadoCron">
-        <div class="panel " id="mergado_fieldset_mergado_lang">
-            <div class="panel-heading">
-                <i class="icon-time"></i>
-                {l s='Licence' mod='mergado'}
+    <div class="rowmer">
+        <div class="col-content">
+            <div id="mergadoCron">
+                <div class="panel " id="mergado_fieldset_mergado_lang">
+                    <div class="panel-heading">
+                        <i class="icon-time"></i>
+                        {l s='Licence' mod='mergado'}
+                    </div>
+                    <p>{l s='Using the module Mergado marketing pack is at your own risk. The creator of module, the company Mergado technologies, LLC, is not liable for any losses or damages in any form. Installing the module into your store, you agree to these terms.' mod='mergado'}</p>
+                    <p>{l s='The module source code cannot be changed and modified otherwise than the user settings in the administration of PrestaShop.' mod='mergado'}</p>
+                    <p>{l s='Using the module Mergado marketing pack within PrestaShop is free. Supported versions of PrestaShop are 1.6.0.0 up to 1.7.9.99' mod='mergado'}</p>
+                </div>
             </div>
-            <p>{l s='Using the module Mergado marketing pack is at your own risk. The creator of module, the company Mergado technologies, LLC, is not liable for any losses or damages in any form. Installing the module into your store, you agree to these terms.' mod='mergado'}</p>
-            <p>{l s='The module source code cannot be changed and modified otherwise than the user settings in the administration of PrestaShop.' mod='mergado'}</p>
-            <p>{l s='Using the module Mergado marketing pack within PrestaShop is free. Supported versions of PrestaShop are 1.6.0.0 up to 1.7.9.99' mod='mergado'}</p>
+        </div>
+        <div class="col-side">
+            {$sideAd}
         </div>
     </div>
 </div>

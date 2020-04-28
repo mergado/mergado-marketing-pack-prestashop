@@ -254,4 +254,6 @@
             </div>
         {/if}
     </div>
+
+    {$wideAd}
 </div>

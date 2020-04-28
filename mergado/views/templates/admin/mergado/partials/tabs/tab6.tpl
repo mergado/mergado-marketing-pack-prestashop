@@ -13,40 +13,49 @@
 *}
 
 <div class="mergado-tab" data-tab="6" data-toggle-fields-json={$toggleFieldsJSON}>
-    <ul class="mmp_tabs mmp_tabs__menu">
-        {if version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0}
-            {foreach $tab6 as $key => $tab}
-                <li class="{if isset($tab['active']) && $tab['active']}active{/if}">
-                    <a href="#" data-mmp-tab-button="{$key}">
-                        {$tab['title']}
-                    </a>
-                </li>
-            {/foreach}
-        {else}
-            {foreach from=$tab6 key=$key item=$tab}
-                <li class="{if isset($tab['active']) && $tab['active']}active{/if}">
-                    <a href="#" data-mmp-tab-button="{$key}">
-                        {$tab['title']}
-                    </a>
-                </li>
-            {/foreach}
-        {/if}
-    </ul>
+    <div class="rowmer">
+        <div class="col-content">
+            <ul class="mmp_tabs mmp_tabs__menu">
+                {if version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0}
+                    {foreach $tab6 as $key => $tab}
+                        <li class="{if isset($tab['active']) && $tab['active']}active{/if}">
+                            <a href="#" data-mmp-tab-button="{$key}">
+                                {$tab['title']}
+                            </a>
+                        </li>
+                    {/foreach}
+                {else}
+                    {foreach from=$tab6 key=$key item=$tab}
+                        <li class="{if isset($tab['active']) && $tab['active']}active{/if}">
+                            <a href="#" data-mmp-tab-button="{$key}">
+                                {$tab['title']}
+                            </a>
+                        </li>
+                    {/foreach}
+                {/if}
+            </ul>
 
-    <div class="mmp_tabs mmp_tabs__content">
-        {if version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0}
-            {foreach $tab6 as $key => $tab}
-                <div class="mmp_tabs__tab {if isset($tab['active']) && $tab['active']}active{/if}" data-mmp-tab="{$key}">
-                    {$tab['form']}
-                </div>
-            {/foreach}
-        {else}
-            {foreach from=$tab6 key=$key item=$tab}
-                <div class="mmp_tabs__tab {if isset($tab['active']) && $tab['active']}active{/if}" data-mmp-tab="{$key}">
-                    {$tab['form']}
-                </div>
-            {/foreach}
+            <div class="mmp_tabs mmp_tabs__content">
+                {if version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0}
+                    {foreach $tab6 as $key => $tab}
+                        <div class="mmp_tabs__tab {if isset($tab['active']) && $tab['active']}active{/if}"
+                             data-mmp-tab="{$key}">
+                            {$tab['form']}
+                        </div>
+                    {/foreach}
+                {else}
+                    {foreach from=$tab6 key=$key item=$tab}
+                        <div class="mmp_tabs__tab {if isset($tab['active']) && $tab['active']}active{/if}"
+                             data-mmp-tab="{$key}">
+                            {$tab['form']}
+                        </div>
+                    {/foreach}
 
-        {/if}
+                {/if}
+            </div>
+        </div>
+        <div class="col-side">
+            {$sideAd}
+        </div>
     </div>
 </div>
