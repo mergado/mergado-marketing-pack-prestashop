@@ -998,7 +998,7 @@ class AdminMergadoController extends \ModuleAdminController
                 'wideAd' => file_get_contents('https://platforms.mergado.com/prestashop/wide'),
             ));
         } catch (Exception $e){
-            
+
         }
     }
 

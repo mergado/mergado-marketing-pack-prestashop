@@ -577,6 +577,7 @@ class Mergado extends Module
      */
     public function hookActionValidateOrder($params)
     {
+
         $this->shopId = Mergado::getShopId();
 
         $verifiedCz = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_CZ'], $this->shopID);
@@ -592,7 +593,7 @@ class Mergado extends Module
         }
 
         if ($verifiedSk && $verifiedSk === Mergado\Tools\SettingsClass::ENABLED) {
-            $verifiedCzCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_SK'], $this->shopID);
+            $verifiedCzCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_CODE_SK'], $this->shopID);
 
             if ($verifiedCzCode && $verifiedCzCode !== '') {
                 Mergado\Heureka\HeurekaClass::heurekaVerify($verifiedCzCode, $params, self::LANG_SK);

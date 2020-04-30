@@ -31,4 +31,7 @@
             {$sideAd}
         </div>
     </div>
+    <div class="merwide">
+        {$wideAd}
+    </div>
 </div>

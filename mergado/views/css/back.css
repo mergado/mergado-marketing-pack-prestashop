@@ -867,11 +867,21 @@ h2 {
     margin-top: 30px;
 }
 
-@media (min-width: 1220px) {
+
+.merwide {
+    margin-top: 30px;
+}
+
+@media (min-width: 1024px) {
     .rowmer {
         display: -webkit-box;
         display: -ms-flexbox;
         display: flex;
+    }
+
+    .merwide {
+        margin-top: 30px;
+        display: none;
     }
 
     .rowmer .col-side.col-side-extra {

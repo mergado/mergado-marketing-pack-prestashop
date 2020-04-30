@@ -25,8 +25,8 @@ use Mergado\Tools\SettingsClass;
 
 class HeurekaClass
 {
-    const HEUREKA_URL = 'http://www.heureka.cz/direct/dotaznik/objednavka.php';
-    const HEUREKA_URL_SK = 'http://www.heureka.sk/direct/dotaznik/objednavka.php';
+    const HEUREKA_URL = 'https://www.heureka.cz/direct/dotaznik/objednavka.php';
+    const HEUREKA_URL_SK = 'https://www.heureka.sk/direct/dotaznik/objednavka.php';
 
     /**
      * Send data from backend to Heureka
