@@ -860,6 +860,7 @@ class XMLClass extends ObjectModel
 
         if (!empty($combinations)) {
             foreach ($combinations as $combination) {
+                $mainImage = null;
                 $qty = Product::getQuantity(
                     $combination['id_product'], $combination['id_product_attribute']
                 );
@@ -872,19 +873,18 @@ class XMLClass extends ObjectModel
 
                 $img = new Image();
                 $imagesList = $img->getImages($lang, $combination['id_product'], $combination['id_product_attribute']);
-
                 if (empty($imagesList)) {
                     $imagesList = $img->getImages($lang, $combination['id_product']);
                 }
 
                 $images = array();
-                foreach ($imagesList as $img) {
+                foreach ($imagesList as $imgx) {
                     $images[] = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
-                        $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
+                        $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $imgx['id_image']);
 
-                    if ($img['cover'] != null) {
+                    if ($imgx['cover'] != null) {
                         $mainImage = 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' .
-                            $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $img['id_image']);
+                            $link->getImageLink($item->link_rewrite[$lang], $item->id . '-' . $imgx['id_image']);
                     }
                 }
 
@@ -952,6 +952,10 @@ class XMLClass extends ObjectModel
                 }
 
                 //$price = ToolsCore::convertPriceFull($price, $this->defaultCurrency, $this->currency);
+                if ($mainImage === NULL) {
+                    $mainImage = isset($images[0]) ? $images[0] : null;
+                }
+
                 $images = array_diff($images, array($mainImage));
 
                 $productBase[] = array(
@@ -986,7 +990,6 @@ class XMLClass extends ObjectModel
                 );
             }
         } else {
-
             $qty = Product::getQuantity($item->id);
             $qtyDays = SettingsClass::getSettings('delivery_days', $this->shopID);
 
