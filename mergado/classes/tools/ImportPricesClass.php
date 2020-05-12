@@ -245,31 +245,34 @@ class ImportPricesClass
      */
     private function updateProduct($item)
     {
-        $item->ITEM_ID = '8';
-        $exploded = explode('-', $item->ITEM_ID);
+        $exploded = explode('-', $item->ITEM_ID->__toString());
 
         $itemID = $exploded[0];
-        $combID = $exploded[1];
-
+        $combID = isset($exploded[1]) ? $exploded[1] : null;             
+        
+        
         try {
             if($combID != null) {
                 // Part with combinations
                 $product = new Product($itemID);
                 $combination = new Combination($combID);
 
-                if(isset($item->PRICE)) {
-                    $combination->price = (int)$item->PRICE[0] - $product->price;
+                if($item->PRICE->__toString() !== "") {
+                    $price = (float)$item->PRICE->__toString() - (float)$product->price;
+                    
+                    $combination->price = $price;
                     $combination->save();
                 }
             } else {
                 // Part with products
+                
                 $product = new Product($itemID);
-
+                
                 // Correct
-                if(isset($item->PRICE)) {
-                    $product->price = (string) $item->PRICE[0];
+                if($item->PRICE->__toString() !== "") {
+                    $product->price = (string) $item->PRICE->__toString();
                 }
-
+                
                 $product->save();
             }
         } catch (\PrestaShopDatabaseException $e) {
