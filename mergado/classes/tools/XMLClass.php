@@ -125,7 +125,7 @@ class XMLClass extends ObjectModel
                         Tools::substr(hash('md5', $base[0] . '-' . $base[1] . Configuration::get('PS_SHOP_NAME')), 1, 11);
                     $this->language = $this->language->getLanguageByIETFCode($this->language->getLanguageCodeByIso($base[0]));
                     $this->currency = new Currency($this->currency->getIdByIsoCode($base[1]));
-                    $xml = $this->generateXML($feedBase, $this->currency, $this->shopID, $name);
+                    $xml = $this->generateXML($feedBase, $this->currency, $this->shopID, $name, $this->language->id);
                     LogClass::log("Mergado feed generated:\n" . $feedBase);
 
                     if (SettingsClass::getSettings(SettingsClass::FEED['STATIC'], $this->shopID) === "1") {
@@ -374,10 +374,11 @@ class XMLClass extends ObjectModel
      * @param $currency
      * @param $shopID
      * @param $name
+     * @param $language
      * @return bool
      * @throws Exception
      */
-    public function generateXML($feedBase, $currency, $shopID, $name)
+    public function generateXML($feedBase, $currency, $shopID, $name, $language)
     {
         try {
             // Paths
@@ -392,8 +393,7 @@ class XMLClass extends ObjectModel
 
             $start = $currentFilesCount === 0 ? 0 : ($currentFilesCount * $stepProducts);
             $limit = $stepProducts;
-
-            $productsListTotal = $this->productsToFlat(0, 0, false, $this->language->id);
+            $productsListTotal = $this->productsToFlat(0, 0, false, $language);
 
             if($stepProducts !== 0 && $productsListTotal > $stepProducts) {
                 // Get only products we need
@@ -980,7 +980,8 @@ class XMLClass extends ObjectModel
                     'name_exact' => $combination['name'],
                     'params' => $params,
                     'producer' => $manufacturer->name,
-                    'url' => $link->getProductLink($item, null, $defaultCategoryName, null, $lang, null, $combination['id_product_attribute'], false, false, true),
+                    'url' => $link->getProductLink((int)$item, null, null, null, (int)$lang, null, $combination['id_product_attribute'], false, false, true),
+//                    'url' => $link->getProductLink($item, null, $defaultCategoryName, null, $lang, null, $combination['id_product_attribute'], false, false, true),
                     'price' => Tools::ps_round($price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'wholesale_price' => $combination['wholesale_price'] != 0 ? $combination['wholesale_price'] : $item->wholesale_price,
