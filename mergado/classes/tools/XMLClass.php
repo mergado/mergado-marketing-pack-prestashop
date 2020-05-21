@@ -958,6 +958,10 @@ class XMLClass extends ObjectModel
 
                 $images = array_diff($images, array($mainImage));
 
+                //Change context lang cause of 1.7 generating link from context lang
+                $originalLangId = Context::getContext()->language->id;
+                Context::getContext()->language->id = $lang;
+
                 $productBase[] = array(
                     'item_id' => $combination['id_product'] . '-' . $combination['id_product_attribute'],
                     'itemgroup_id' => $itemgroupBase,
@@ -980,7 +984,8 @@ class XMLClass extends ObjectModel
                     'name_exact' => $combination['name'],
                     'params' => $params,
                     'producer' => $manufacturer->name,
-                    'url' => $link->getProductLink((int)$item, null, null, null, (int)$lang, null, $combination['id_product_attribute'], false, false, true),
+                    'url' => $link->getProductLink($item->id, null, null, null, $lang, null, $combination['id_product_attribute'], false, false, true),
+//                    'url' => $link->getProductLink($item->id, null, $defaultCategoryName, null, $lang, null, $combination['id_product_attribute'], false, false, true),
 //                    'url' => $link->getProductLink($item, null, $defaultCategoryName, null, $lang, null, $combination['id_product_attribute'], false, false, true),
                     'price' => Tools::ps_round($price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
@@ -989,6 +994,9 @@ class XMLClass extends ObjectModel
                     'shipping_weight' => (($item->weight + $combination['weight']) != 0) ? ($item->weight + $combination['weight']) . ' ' . Configuration::get('PS_WEIGHT_UNIT') : false,
                     'vat' => $tax_calculator->taxes[0]->rate,
                 );
+
+                //Return original lang id
+                Context::getContext()->language->id = $originalLangId;
             }
         } else {
             $qty = Product::getQuantity($item->id);
@@ -1053,6 +1061,10 @@ class XMLClass extends ObjectModel
                     0);
 
                 $images = array_diff($images, array($mainImage));
+
+                //Change context lang cause of 1.7 context lang link creating
+                $originalLangId = Context::getContext()->language->id;
+                Context::getContext()->language->id = $lang;
 
                 $productBase = array(
                     'item_id' => $item->id,
