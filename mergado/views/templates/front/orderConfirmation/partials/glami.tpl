@@ -26,22 +26,23 @@
                 });
             {/if}
 
-            {if $glami_top_active == 1 && $glami_top_lang_active == 1 && $glami_top_code !== '' && $lang !== '' && $langIsoCode !== '' && $glami_email !== ''}
+            {if $glami_top_active == 1 && $glami_top_lang_active && $glami_top_code !== '' && $lang !== '' && $langIsoCode !== '' && $glami_email !== ''}
                 // GLAMI TOP
+                var glami_top_url_active = '{$glami_top_url_active}';
+
                 {literal}
                 (function (f, a, s, h, i, o, n) {
                     f['GlamiOrderReview'] = i;
                     f[i] = f[i] || function () {(f[i].q = f[i].q || []).push(arguments);};
                     o = a.createElement(s), n = a.getElementsByTagName(s)[0];
                     o.async = 1; o.src = h; n.parentNode.insertBefore(o, n);
-                })(window,document,'script','//www.glami.cz/js/compiled/or.js', 'glami_or');
+                })(window,document,'script','//www.' + glami_top_url_active + '/js/compiled/or.js', 'glami_or');
                 {/literal}
-                glami_or('addParameter', 'merchant_id','{$glami_top_code}', '{$lang}'); //cz
+                glami_or('addParameter', 'merchant_id','{$glami_top_code}', '{$glami_top_lang_active}'); //cz
                 glami_or('addParameter', 'order_id', '{$glami_orderId}');
                 glami_or('addParameter', 'email', '{$glami_email}');
                 glami_or('addParameter', 'language', '{$langIsoCode}'); //cs
-                glami_or('addParameter', 'item_ids', '{$glami_productIds_semicolon}');
-                glami_or('addParameter', 'item_names', '{$glami_productNames_semicolon}');
+                glami_or('addParameter', 'items', {$glami_products});
 
                 glami_or('create');
             {/if}

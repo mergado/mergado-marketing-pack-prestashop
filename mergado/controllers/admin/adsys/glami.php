@@ -112,35 +112,22 @@ $fields_form[1]['form']['input'][] = array(
     'visibility' => Shop::CONTEXT_ALL,
 );
 
-foreach (SettingsClass::GLAMI_TOP_LANGUAGES as $key => $lang) {
-    $fields_form[1]['form']['input'][] = array(
-        'name' => $lang,
-        'label' => $key,
-        'validation' => 'isBool',
-        'cast' => 'intval',
-        'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
-        'class' => 'switch15',
-        'values' => array(
-            array(
-                'id' => 'glami_top_active_on',
-                'value' => 1,
-                'label' => $this->l('Yes')
-            ),
-            array(
-                'id' => 'glami_top_active_off',
-                'value' => 0,
-                'label' => $this->l('No')
-            )
-        ),
-        'visibility' => Shop::CONTEXT_ALL,
-    );
+$fields_form[1]['form']['input'][] = array(
+    'name' => SettingsClass::GLAMI['SELECTION_TOP'],
+    'label' => $this->l('Glami website'),
+    'type' => 'select',
+    'options' => array(
+        'query' => SettingsClass::GLAMI_TOP_LANGUAGES,
+        'id' => 'id_option',
+        'name' => 'name'
+    )
+);
 
-    $fields_form[1]['form']['input'][] = array(
-        'name' => SettingsClass::GLAMI['CODE_TOP'] . '-' . $key,
-        'label' => $this->l('Glami TOP') . ' ' . $key,
-        'type' => 'text',
-        'visibility' => Shop::CONTEXT_ALL,
-    );
-}
+$fields_form[1]['form']['input'][] = array(
+    'name' => SettingsClass::GLAMI['CODE_TOP'],
+    'label' => $this->l('Glami TOP'),
+    'type' => 'text',
+    'visibility' => Shop::CONTEXT_ALL,
+);
 
 include __DIR__ . '/partials/helperForm.php';

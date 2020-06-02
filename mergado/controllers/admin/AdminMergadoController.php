@@ -771,8 +771,18 @@ class AdminMergadoController extends \ModuleAdminController
         return $helper->generateForm($fields_form);
     }
 
+    public function formAdSys_kelkoo() {
+        include_once __DIR__ . '/adsys/kelkoo.php';
+        return $helper->generateForm($fields_form);
+    }
+
     public function formAdSys_pricemania() {
         include_once __DIR__ . '/adsys/pricemania.php';
+        return $helper->generateForm($fields_form);
+    }
+
+    public function formAdSys_biano() {
+        include_once __DIR__ . '/adsys/biano.php';
         return $helper->generateForm($fields_form);
     }
 
@@ -967,16 +977,18 @@ class AdminMergadoController extends \ModuleAdminController
         ];
 
         //TAB6
-        $tab6 = [
-            'google' => ['title' => $this->l('Google'), 'form' => $this->formAdSys_google(), 'active' => true],
-            'facebook' => ['title' => $this->l('Facebook'), 'form' => $this->formAdSys_facebook()],
-            'heureka' => ['title' => $this->l('Heureka'),'form' => $this->formAdSys_heureka()],
-            'glami' => ['title' => $this->l('GLAMI'),'form' => $this->formAdSys_glami()],
-            'seznam' => ['title' => $this->l('Seznam'),'form' => $this->formAdSys_seznam()],
-            'etarget' => ['title' => $this->l('Etarget'),'form' => $this->formAdSys_etarget()],
-            'najnakupsk' => ['title' => $this->l('Najnakup.sk'), 'form' => $this->formAdSys_najnakupsk()],
-            'pricemania' => ['title' => $this->l('Pricemania'), 'form' => $this->formAdSys_pricemania()],
-        ];
+        $tab6 = array(
+            'google' => array('title' => $this->l('Google'), 'form' => $this->formAdSys_google(), 'active' => true),
+            'facebook' => array('title' => $this->l('Facebook'), 'form' => $this->formAdSys_facebook()),
+            'heureka' => array('title' => $this->l('Heureka'),'form' => $this->formAdSys_heureka()),
+            'glami' => array('title' => $this->l('GLAMI'),'form' => $this->formAdSys_glami()),
+            'seznam' => array('title' => $this->l('Seznam'),'form' => $this->formAdSys_seznam()),
+            'etarget' => array('title' => $this->l('Etarget'),'form' => $this->formAdSys_etarget()),
+            'najnakupsk' => array('title' => $this->l('Najnakup.sk'), 'form' => $this->formAdSys_najnakupsk()),
+            'pricemania' => array('title' => $this->l('Pricemania'), 'form' => $this->formAdSys_pricemania()),
+            'kelkoo' => array('title' => $this->l('Kelkoo'),'form' => $this->formAdSys_kelkoo()),
+            'biano' => array('title' => $this->l('Biano'),'form' => $this->formAdSys_biano()),
+        );
 
         $tab4 = $this->formDevelopers();
 
@@ -1009,39 +1021,112 @@ class AdminMergadoController extends \ModuleAdminController
 
     /**
      * EXAMPLE:
-     *  'namee' => [
-     *    'fields' => [],
+     *  'name' => [
+     *     'fields' => [
+     *        'name', 'name', 'name'
+     *     ],
      *    'sub-check' => [
      *      'name' => [
-     *        'name', 'name', 'name'
-     *      ]
+     *         'fields' => [
+     *           'name', 'name', 'name'
+     *         ]
+     *       ]
+     *    ],
+     *    'sub-check-two' => [
+     *      'name' => [
+     *         'fields' => [
+     *           'name', 'name', 'name'
+     *         ]
+     *       ]
      *    ]
      *  ],
      *
      * @return false|string
      */
 
+    //TODO: SPLIT IN SMALLER FILES
     public function toggleFieldsJSON() {
+        //GLAMI
         $glamiFields = [];
-        $glamiTOPFields = [];
         $glamiMainFields = array_values(SettingsClass::GLAMI_LANGUAGES);
-        $glamiMainTOPFields = array_values(SettingsClass::GLAMI_TOP_LANGUAGES);
 
         foreach(SettingsClass::GLAMI_LANGUAGES as $key => $values) {
             $glamiFields[$values]['fields'] = [SettingsClass::GLAMI['CODE'] . '-' . $key];
         }
 
-        foreach(SettingsClass::GLAMI_TOP_LANGUAGES as $key => $values) {
-            $glamiTOPFields[$values]['fields'] = [SettingsClass::GLAMI['CODE_TOP'] . '-' . $key];
+        //BIANO
+        $bianoFields = [];
+        $bianoMainFields = [];
+
+        foreach($this->languages->getLanguages(true) as $key => $lang) {
+            $langName = SettingsClass::getLangIso(strtoupper($lang['iso_code']));
+
+            //Get names for language
+            $langFieldName = \Mergado\Biano\BianoClass::getActiveLangFieldName($langName);
+            $merchantIdFieldName = \Mergado\Biano\BianoClass::getMerchantIdFieldName($langName);
+
+            //Asign to arrays
+            $bianoMainFields[] = \Mergado\Biano\BianoClass::getActiveLangFieldName($langName);
+            $bianoFields[$langFieldName]['fields'] = [$merchantIdFieldName];
         }
 
         $jsonMap = [
-            // Google
+            // Google ADS
             SettingsClass::GOOGLE_ADS['CONVERSIONS'] => [
                 'fields' => [SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE'], SettingsClass::GOOGLE_ADS['CONVERSIONS_LABEL']],
             ],
             SettingsClass::GOOGLE_ADS['REMARKETING'] => [
                 'fields' => [SettingsClass::GOOGLE_ADS['REMARKETING_ID']]
+            ],
+
+            // Google analytics - GTAGJS
+            SettingsClass::GOOGLE_GTAGJS['ACTIVE'] => [
+                'fields' => [
+                    SettingsClass::GOOGLE_GTAGJS['CODE'],
+                    SettingsClass::GOOGLE_GTAGJS['TRACKING'],
+                    SettingsClass::GOOGLE_GTAGJS['ECOMMERCE'],
+                    SettingsClass::GOOGLE_GTAGJS['ECOMMERCE_ENHANCED'],
+                ],
+                'sub-check' => [
+                    SettingsClass::GOOGLE_GTAGJS['TRACKING'] => [
+                    'fields' => [
+                        SettingsClass::GOOGLE_GTAGJS['ECOMMERCE'],
+                        SettingsClass::GOOGLE_GTAGJS['ECOMMERCE_ENHANCED'],
+                        ],
+                    ],
+                ],
+                'sub-check-two' => [
+                    SettingsClass::GOOGLE_GTAGJS['ECOMMERCE'] => [
+                        'fields' => [
+                            SettingsClass::GOOGLE_GTAGJS['ECOMMERCE_ENHANCED'],
+                        ],
+                    ],
+                ]
+            ],
+
+            // Google analytics - Google Tag Manager
+            SettingsClass::GOOGLE_TAG_MANAGER['ACTIVE'] => [
+                'fields' => [
+                    SettingsClass::GOOGLE_TAG_MANAGER['CODE'],
+                    SettingsClass::GOOGLE_TAG_MANAGER['TRACKING'],
+                    SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE'],
+                    SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE_ENHANCED'],
+                ],
+                'sub-check' => [
+                    SettingsClass::GOOGLE_TAG_MANAGER['TRACKING'] => [
+                        'fields' => [
+                            SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE'],
+                            SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE_ENHANCED'],
+                        ],
+                    ],
+                ],
+                'sub-check-two' => [
+                    SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE'] => [
+                        'fields' => [
+                            SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE_ENHANCED'],
+                        ],
+                    ],
+                ]
             ],
 
             // Facebook
@@ -1070,8 +1155,16 @@ class AdminMergadoController extends \ModuleAdminController
                 'sub-check' => $glamiFields,
             ],
             SettingsClass::GLAMI['ACTIVE_TOP'] => [
-                'fields' => $glamiMainTOPFields,
-                'sub-check' => $glamiTOPFields,
+                'fields' => [
+                    SettingsClass::GLAMI['SELECTION_TOP'],
+                    SettingsClass::GLAMI['CODE_TOP']
+                ],
+            ],
+
+            // BIANO
+            SettingsClass::BIANO['ACTIVE'] => [
+                'fields' => $bianoMainFields,
+                'sub-check' => $bianoFields,
             ],
 
             // Seznam
@@ -1116,6 +1209,14 @@ class AdminMergadoController extends \ModuleAdminController
                     SettingsClass::PRICEMANIA['SHOP_ID'],
                 ]
             ],
+
+            // Kelkoo
+            SettingsClass::KELKOO['ACTIVE'] => [
+                'fields' => [
+                    SettingsClass::KELKOO['COUNTRY'],
+                    SettingsClass::KELKOO['COM_ID'],
+                ]
+            ]
         ];
 
         return json_encode($jsonMap, JSON_FORCE_OBJECT);

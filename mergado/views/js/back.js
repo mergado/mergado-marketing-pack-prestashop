@@ -213,10 +213,24 @@ function toggleFieldsInit()
                 var field = $('[name="' + k + '"]');
 
                 if(mainStatus) {
-                    return fieldStatusSetter(values['sub-check'][k], getSwitchStatus(field));
+                    fieldStatusSetter(values['sub-check'][k], getSwitchStatus(field));
                 } else {
                     field.attr('disabled', true);
-                    return fieldStatusSetter(values['sub-check'][k], false);
+                    fieldStatusSetter(values['sub-check'][k], false);
+                }
+            });
+        }
+
+        if(typeof values['sub-check-two'] !== "undefined") {
+            Object.keys(values['sub-check-two']).forEach(function(k) {
+                var field = $('[name="' + k + '"]');
+
+                // Check main status of subchecktwo and status of subcheck main field
+                if(mainStatus && getSwitchStatus($('[name="' + Object.keys(values['sub-check'])[0] + '"]'))) {
+                    return fieldStatusSetter(values['sub-check-two'][k], getSwitchStatus(field));
+                } else {
+                    field.attr('disabled', true);
+                    return fieldStatusSetter(values['sub-check-two'][k], false);
                 }
             });
         }

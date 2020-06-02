@@ -13,9 +13,24 @@
 *}
 
 {if $sklik === '1' && $sklikCode && $sklikCode !== ''}
-    {if $sklikValue == ''}
-        <iframe width="119" height="22" frameborder="0" scrolling="no" src="http://out.sklik.cz/conversion?c={$sklikCode}&color=ffffff&v={$totalWithoutShippingAndVat}"></iframe>
+    {if !$sklikValue}
+        <!-- Měřicí kód Sklik.cz -->
+        <script type="text/javascript">
+            var seznam_cId = '{$sklikCode}';
+            var seznam_value = {$totalWithoutShippingAndVat};
+        </script>
     {else}
-        <iframe width="119" height="22" frameborder="0" scrolling="no" src="http://out.sklik.cz/conversion?c={$sklikCode}&color=ffffff&v={$sklikValue}"></iframe>
+        <!-- Měřicí kód Sklik.cz -->
+        <script type="text/javascript">
+            var seznam_cId = {$sklikCode};
+
+            {if $sklikValue != ''}
+                var seznam_value = {$sklikValue};
+            {else}
+                var seznam_value = 0;
+            {/if}
+        </script>
     {/if}
+
+    <script type="text/javascript" src="https://www.seznam.cz/rs/static/rc.js" async></script>
 {/if}

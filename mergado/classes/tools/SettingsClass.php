@@ -70,6 +70,22 @@ class SettingsClass
         'REMARKETING_ID' => 'adwords_remarketing_id',
     );
 
+    const GOOGLE_GTAGJS = array(
+        'ACTIVE' => 'mergado_google_analytics_active',
+        'CODE' => 'mergado_google_analytics_code',
+        'TRACKING' => 'mergado_google_analytics_tracking',
+        'ECOMMERCE' => 'mergado_google_analytics_ecommerce',
+        'ECOMMERCE_ENHANCED' => 'mergado_google_analytics_ecommerce_enhanced',
+    );
+
+    const GOOGLE_TAG_MANAGER = array(
+        'ACTIVE' => 'mergado_google_tag_manager_active',
+        'CODE' => 'mergado_google_tag_manager_code',
+        'TRACKING' => 'mergado_google_tag_manager_tracking',
+        'ECOMMERCE' => 'mergado_google_tag_manager_ecommerce',
+        'ECOMMERCE_ENHANCED' => 'mergado_google_tag_manager_ecommerce_enhanced',
+    );
+
     const FB_PIXEL = array(
         'ACTIVE' => 'fb_pixel',
         'CODE' => 'fb_pixel_code'
@@ -84,11 +100,12 @@ class SettingsClass
     const GLAMI = array(
         'ACTIVE' => 'glami_active', // Activation of module
         'CODE' => 'glami_pixel_code', // Helper for code variables
+        'SELECTION_TOP' => 'glami_top_selection',
         'ACTIVE_TOP' => 'glami_top_active',
         'CODE_TOP' => 'glami_top_code',
     );
 
-    const GLAMI_LANGUAGES = [
+    const GLAMI_LANGUAGES = array(
         'CZ' => 'glami-form-active-lang-CZ',
         'DE' => 'glami-form-active-lang-DE',
         'FR' => 'glami-form-active-lang-FR',
@@ -103,25 +120,63 @@ class SettingsClass
         'SI' => 'glami-form-active-lang-SI',
         'ES' => 'glami-form-active-lang-ES',
         'BR' => 'glami-form-active-lang-BR',
-        'ECO' => 'glami-form-active-lang-ECO'];
+        'ECO' => 'glami-form-active-lang-ECO');
 
-    const GLAMI_TOP_LANGUAGES = [
-        'CZ' => 'top_glami-form-active-lang-CZ',
-//        'DE' => 'top_glami-form-active-lang-DE',
-//        'FR' => 'top_glami-form-active-lang-FR',
-//        'SK' => 'top_glami-form-active-lang-SK',
-//        'RO' => 'top_glami-form-active-lang--RO',
-//        'HU' => 'top_glami-form-active-lang-HU',
-//        'RU' => 'top_glami-form-active-lang-RU',
-//        'GR' => 'top_glami-form-active-lang-GR',
-//        'TR' => 'top_glami-form-active-lang-TR',
-//        'BG' => 'top_glami-form-active-lang-BG',
-//        'HR' => 'top_glami-form-active-lang-HR',
-//        'SI' => 'top_glami-form-active-lang-SI',
-//        'ES' => 'top_glami-form-active-lang-ES',
-//        'BR' => 'top_glami-form-active-lang-BR',
-//        'ECO' => 'top_glami-form-active-lang-ECO'
-    ];
+    const GLAMI_TOP_LANGUAGES = array(
+        array('id_option' => 1, 'name' => 'glami.cz', 'type_code' => 'cz'),
+        array('id_option' => 2, 'name' => 'glami.de', 'type_code' => 'de'),
+        array('id_option' => 3, 'name' => 'glami.fr', 'type_code' => 'fr'),
+        array('id_option' => 4, 'name' => 'glami.sk', 'type_code' => 'sk'),
+        array('id_option' => 5, 'name' => 'glami.ro', 'type_code' => 'ro'),
+        array('id_option' => 6, 'name' => 'glami.hu', 'type_code' => 'hu'),
+        array('id_option' => 7, 'name' => 'glami.ru', 'type_code' => 'ru'),
+        array('id_option' => 8, 'name' => 'glami.gr', 'type_code' => 'gr'),
+        array('id_option' => 9, 'name' => 'glami.com.tr', 'type_code' => 'tr'),
+        array('id_option' => 10, 'name' => 'glami.bg', 'type_code' => 'bg'),
+        array('id_option' => 11, 'name' => 'glami.hr', 'type_code' => 'hr'),
+        array('id_option' => 12, 'name' => 'glami.si', 'type_code' => 'si'),
+        array('id_option' => 13, 'name' => 'glami.es', 'type_code' => 'es'),
+        array('id_option' => 14, 'name' => 'glami.com.br', 'type_code' => 'br'),
+        array('id_option' => 15, 'name' => 'glami.eco', 'type_code' => 'eco'),
+    );
+
+    const KELKOO = array(
+        'ACTIVE' => 'kelkoo_active',
+        'COM_ID' => 'kelkoo_merchant_id',
+        'COUNTRY' => 'kelkoo_country',
+    );
+
+    const KELKOO_COUNTRIES = array(
+        array('id_option' => 1, 'name' => 'Austria', 'type_code' => 'at'),
+        array('id_option' => 2, 'name' => 'Belgium', 'type_code' => 'be'),
+        array('id_option' => 3, 'name' => 'Brazil', 'type_code' => 'br'),
+        array('id_option' => 4, 'name' => 'Switzerland', 'type_code' => 'ch'),
+        array('id_option' => 5, 'name' => 'Czech Republic', 'type_code' => 'cz'),
+        array('id_option' => 6, 'name' => 'Germany', 'type_code' => 'de'),
+        array('id_option' => 7, 'name' => 'Denmark', 'type_code' => 'dk'),
+        array('id_option' => 8, 'name' => 'Spain', 'type_code' => 'es'),
+        array('id_option' => 9, 'name' => 'Finland', 'type_code' => 'fi'),
+        array('id_option' => 10, 'name' => 'France', 'type_code' => 'fr'),
+        array('id_option' => 11, 'name' => 'Ireland', 'type_code' => 'ie'),
+        array('id_option' => 12, 'name' => 'Italy', 'type_code' => 'it'),
+        array('id_option' => 13, 'name' => 'Mexico', 'type_code' => 'mx'),
+        array('id_option' => 14, 'name' => 'Flemish Belgium', 'type_code' => 'nb'),
+        array('id_option' => 15, 'name' => 'Netherlands', 'type_code' => 'nl'),
+        array('id_option' => 16, 'name' => 'Norway', 'type_code' => 'no'),
+        array('id_option' => 17, 'name' => 'Poland', 'type_code' => 'pl'),
+        array('id_option' => 18, 'name' => 'Portugal', 'type_code' => 'pt'),
+        array('id_option' => 19, 'name' => 'Russia', 'type_code' => 'ru'),
+        array('id_option' => 20, 'name' => 'Sweden', 'type_code' => 'se'),
+        array('id_option' => 21, 'name' => 'United Kingdom', 'type_code' => 'uk'),
+        array('id_option' => 22, 'name' => 'United States', 'type_code' => 'us'),
+    );
+
+    const BIANO = array(
+        'ACTIVE' => 'biano_active',
+        'MERCHANT_ID' => 'biano_merchant_id',
+        'FORM_ACTIVE' => 'biano-form-active-lang',
+        'LANG_OPTIONS' => array('CZ', 'SK'),
+    );
 
     const FEED = array(
         'STATIC' => 'static_feed',
@@ -245,10 +300,12 @@ class SettingsClass
         return Db::getInstance()->delete(Mergado::MERGADO['TABLE_NAME'], '`key` LIKE "' . pSQL($pattern) . '" AND `id_shop` ="' . pSQL($shopId) . '"');
     }
 
-    public static function getLangIso()
+    public static function getLangIso($lang = null)
     {
-        global $cookie;
-        $lang = strtoupper(Language::getIsoById( (int)$cookie->id_lang ));
+        if ($lang === null) {
+            global $cookie;
+            $lang = strtoupper(Language::getIsoById( (int)$cookie->id_lang ));
+        }
 
         if($lang == 'CS') {
             $lang = 'CZ';
