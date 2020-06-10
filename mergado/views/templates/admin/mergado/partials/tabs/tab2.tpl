@@ -244,7 +244,9 @@
                             {l s='Kopírovat cron URL' mod='mergado'}
                         </a>
                         <a class="btn btn-sm btn-default mergado-manual-cron mmp-btn-hover--success" data-generate="import_prices" href="javascript:void(0)"
-                           title="{$cron['name']|escape:'htmlall':'UTF-8'}">
+                           title="
+{*{$cron['name']|escape:'htmlall':'UTF-8'}*}
+">
                             <i class="icon-play-circle"></i>
                             {l s='Jednorázově importovat' mod='mergado'}
                         </a>

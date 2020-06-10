@@ -66,7 +66,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.3.0',
+        'VERSION' => '2.3.1',
     ];
 
     public function __construct()
@@ -1080,9 +1080,8 @@ class Mergado extends Module
         foreach ($products_tmp as $product) {
             $glamiProducts['full'] = ['id' => $product['product_id'] . '-' . $product['product_attribute_id'], 'name' => $product['product_name']];
             $glamiProducts['ids'][] = $product['product_id'] . '-' . $product['product_attribute_id'];
-            $glamiProducts['name'][] = $product['product_name'];
+            $glamiProducts['names'][] = $product['product_name'];
         }
-
         $customer = new Customer($order->id_customer);
 
         if (_PS_VERSION_ < Mergado::PS_V_17) {

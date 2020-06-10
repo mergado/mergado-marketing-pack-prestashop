@@ -16,6 +16,7 @@
 
 namespace Mergado\Heureka;
 
+use CurrencyCore;
 use Exception;
 use Mergado;
 use Mergado\Tools\LogClass;
@@ -40,12 +41,16 @@ class HeurekaClass
     {
         $url = null;
 
-        if ($lang === Mergado::LANG_CS) {
-            $url = HeurekaClass::HEUREKA_URL;
+        $currencyIso = CurrencyCore::getCurrency($order['cart']->id_currency)['iso_code'];
+
+        //If order by euros - then in SK
+        if($currencyIso == 'EUR') {
+            $url = HeurekaClass::HEUREKA_URL_SK;
         }
 
-        if ($lang === Mergado::LANG_SK) {
-            $url = HeurekaClass::HEUREKA_URL_SK;
+        //If order in CZK - then CZ
+        if($currencyIso == 'CZK') {
+            $url = HeurekaClass::HEUREKA_URL;
         }
 
         $url .= '?id=' . $apiKey;

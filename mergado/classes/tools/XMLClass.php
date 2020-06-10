@@ -16,6 +16,7 @@
 
 namespace Mergado\Tools;
 
+use AddressCore;
 use CartCore as Cart;
 use DateTime;
 use LanguageCore as Language;
@@ -414,13 +415,12 @@ class XMLClass extends ObjectModel
             $this->createDIR(array($tmpDir, $tmpShop, $tmpShopDir, $xmlDir));
 
             if (count($productsList) > 0) {
-
                 $xml_new = new XMLWriter();
 
                 $xml_new->openURI($out);
                 $xml_new->startDocument('1.0', 'UTF-8');
                 $xml_new->startElement('CHANNEL');
-                $xml_new->writeAttribute('xmlns', 'http://www.mergado.com/ns/1.7');
+                $xml_new->writeAttribute('xmlns', 'http://www.mergado.com/ns/1.8');
                 $xml_new->startElement('LINK');
                 $xml_new->text(_PS_BASE_URL_.__PS_BASE_URI__);
                 $xml_new->endElement();
@@ -527,6 +527,20 @@ class XMLClass extends ObjectModel
                     $xml_new->startElement('PRICE_VAT');
                     $xml_new->text($product['price_vat']);
                     $xml_new->endElement();
+
+                    if($product['cost'] != '') {
+                        //Product COST
+                        $xml_new->startElement('COST');
+                        $xml_new->text($product['cost']);
+                        $xml_new->endElement();
+                    }
+
+                    if($product['cost_vat'] != '') {
+                        //Product COST_VAT
+                        $xml_new->startElement('COST_VAT');
+                        $xml_new->text($product['cost_vat']);
+                        $xml_new->endElement();
+                    }
 
                     // Product availability
                     $xml_new->startElement('AVAILABILITY');
@@ -677,7 +691,7 @@ class XMLClass extends ObjectModel
     {
         $loop = 0;
 
-        $xmlstr = '<CHANNEL xmlns="http://www.mergado.com/ns/1.7">';
+        $xmlstr = '<CHANNEL xmlns="http://www.mergado.com/ns/1.8">';
 
         foreach (glob($tmpShopDir . '*.xml') as $file) {
             $xml = Tools::simplexml_load_file($file);
@@ -932,6 +946,13 @@ class XMLClass extends ObjectModel
                     0, // ID Cart
                     0);
 
+                $cost = $combination['wholesale_price'] != 0 ? $combination['wholesale_price'] : $item->wholesale_price;
+
+                if($cost == 0) {
+                    $cost = null;
+                }
+
+                $cost_vat = $this->getProductWholesalePriceWithVat($combination['id_product'], $cost, $id_country, $this->shopID, $context);
 
                 $params = array();
 
@@ -989,6 +1010,8 @@ class XMLClass extends ObjectModel
 //                    'url' => $link->getProductLink($item, null, $defaultCategoryName, null, $lang, null, $combination['id_product_attribute'], false, false, true),
                     'price' => Tools::ps_round($price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
+                    'cost' => $cost == null ? '' : $cost,
+                    'cost_vat' => $cost_vat == null ? '' : $cost_vat,
                     'wholesale_price' => $combination['wholesale_price'] != 0 ? $combination['wholesale_price'] : $item->wholesale_price,
                     'shipping_size' => ($item->depth != 0 && $item->width != 0 && $item->height != 0) ? ($item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' . Configuration::get('PS_DIMENSION_UNIT')) : false,
                     'shipping_weight' => (($item->weight + $combination['weight']) != 0) ? ($item->weight + $combination['weight']) . ' ' . Configuration::get('PS_WEIGHT_UNIT') : false,
@@ -1060,6 +1083,9 @@ class XMLClass extends ObjectModel
                     0, // ID Cart
                     0);
 
+                $cost = $item->wholesale_price != 0 ? $item->wholesale_price : null;
+                $cost_vat = $this->getProductWholesalePriceWithVat($item->id, $cost, $id_country, $this->shopID, $context);
+
                 $images = array_diff($images, array($mainImage));
 
                 //Change context lang cause of 1.7 context lang link creating
@@ -1087,15 +1113,42 @@ class XMLClass extends ObjectModel
                     'url' => $link->getProductLink($item, null, $defaultCategoryName, null, $lang, null),
                     'price' => Tools::ps_round($price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
+                    'cost' => $cost == null ? '' : $cost,
+                    'cost_vat' => $cost_vat == null ? '' : $cost_vat,
                     'wholesale_price' => $item->wholesale_price,
                     'shipping_size' => ($item->depth != 0 || $item->width != 0 || $item->height != 0) ? ($item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' . Configuration::get('PS_DIMENSION_UNIT')) : false,
                     'shipping_weight' => ($item->weight != 0) ? ($item->weight . ' ' . Configuration::get('PS_WEIGHT_UNIT')) : false,
                     'vat' => $tax_calculator->taxes[0]->rate,
                 );
+
+                //Return original lang id
+                Context::getContext()->language->id = $originalLangId;
             }
         }
 
         return $productBase;
+    }
+
+    public function getProductWholesalePriceWithVat($id, $wholesale_price, $id_country, $shopId, $context)
+    {
+        //Count product cost
+//        if(SettingsClass::getSettings(SettingsClass::EXPORT['COST'],  $shopId)) {
+//            if($wholesale_price != 0) {
+//                // Tax
+//                $costAddress = new Address();
+//                $costAddress->id_country = $id_country;
+//                $costAddress->id_state = 0;
+//                $costAddress->postcode = 0;
+//
+//                $tax_manager = TaxManagerFactory::getManager($costAddress, Product::getIdTaxRulesGroupByIdProduct((int) $id, $context));
+//                $product_tax_calculator = $tax_manager->getTaxCalculator();
+//
+//                // Add Tax
+//                return $product_tax_calculator->addTaxes($wholesale_price);
+//            }
+//        }
+
+        return null;
     }
 
     /**

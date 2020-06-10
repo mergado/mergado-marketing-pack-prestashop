@@ -125,7 +125,7 @@
                                             {/if}
                                         {else}
                                             <a class="btn btn-sm btn-default mmp-btn-hover--success mergado-manual-cron" href="javascript:void(0)" data-generate="generate_xml" data-cron="{$key|escape:'htmlall':'UTF-8'}""
-                                            title="{$crons['base'][$key]['name']|escape:'htmlall':'UTF-8'}">
+                                            title="">
                                             <i class="icon-play-circle"></i>
                                             {l s='Ručně generovat feed' mod='mergado'}
                                             </a>

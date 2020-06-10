@@ -187,7 +187,8 @@ class SettingsClass
     const EXPORT = array(
         'BOTH' => 'what_to_export_both',
         'CATALOG' => 'what_to_export_catalog',
-        'SEARCH' => 'what_to_export_search'
+        'SEARCH' => 'what_to_export_search',
+        'COST' => 'm_export_wholesale_prices',
     );
 
     const IMPORT = array(

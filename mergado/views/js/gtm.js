@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", function (event) {
  **********************************************************************************************************************/
 
 var m_GTM = {
-    couponCookie: 'mergado_ps_coupons',
     init: function () {
         this.initAddToCartPs16();
         this.initAddToCartPs17();
@@ -54,8 +53,6 @@ var m_GTM = {
                 this.initCheckoutAddressStepPs16();
                 this.initCheckoutDeliveryStepPs16();
                 this.initCheckoutPaymentStepPs16();
-                this.initCouponAdded();
-                this.initCouponRemoved();
             }
         }
 
@@ -449,7 +446,7 @@ var m_GTM = {
             return items;
         }
     },intiViewListPs17: function () {
-        if(prestashop !== 'undefined') {
+        if(typeof prestashop !== 'undefined') {
             var products = $('.product-miniature[data-id-product]');
             var currency = prestashop.currency.iso_code;
 

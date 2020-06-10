@@ -11,6 +11,8 @@ foreach ($this->settingsValues as $key => $value) {
     }
 }
 
+//Fill in empty fields
+include __DIR__ . '../../../partials/helperFormEmptyFieldsFiller.php';
 
 $helper = new HelperForm();
 

@@ -487,7 +487,7 @@ var m_GTAG = {
         }
     },
     intiViewListPs17: function () {
-        if(prestashop !== 'undefined') {
+        if(typeof prestashop !== 'undefined') {
             var products = $('.product-miniature[data-id-product]');
 
             if (products.length > 0) {

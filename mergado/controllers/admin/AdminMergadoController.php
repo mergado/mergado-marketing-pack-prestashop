@@ -140,6 +140,9 @@ class AdminMergadoController extends \ModuleAdminController
             'id_shop' => $this->shopID,
         );
 
+        //Fill in empty fields
+        include __DIR__ . '/partials/helperFormEmptyFieldsFiller.php';
+
         $this->show_toolbar = true;
         $this->show_form_cancel_button = false;
 
@@ -263,6 +266,8 @@ class AdminMergadoController extends \ModuleAdminController
             'id_shop' => $this->shopID,
         );
 
+        //Fill in empty fields
+        include __DIR__ . '/partials/helperFormEmptyFieldsFiller.php';
 
         $this->show_toolbar = true;
         $this->show_form_cancel_button = false;
@@ -439,6 +444,23 @@ class AdminMergadoController extends \ModuleAdminController
                 ),
                 array(
                     'type' => 'checkbox',
+                    'label' => $this->l('Export cost elements'),
+                    'name' => 'm_export',
+                    'values' => array(
+                        'query' =>
+                            array(
+                                array(
+                                    'id_option' => 'wholesale_prices',
+                                    'name' => $this->l('Yes')
+                                ),
+                            ),
+                        'id' => 'id_option',
+                        'name' =>'name'
+                    ),
+                    'hint' => $this->l('Choose whether to export COST and COST_VAT elements to the product feed.')
+                ),
+                array(
+                    'type' => 'checkbox',
                     'label' => $this->l('Export visible in'),
                     'name' => 'what_to_export',
                     'values' => array(
@@ -475,11 +497,15 @@ class AdminMergadoController extends \ModuleAdminController
 
         $fields_value = array(
             SettingsClass::FEED['MAX_SIZE'] => isset($this->settingsValues['partial_feeds_size']) ? $this->settingsValues['partial_feeds_size'] : false,
+            'm_export_wholesale_prices' => isset($this->settingsValues['m_export_wholesale_prices']) ? $this->settingsValues['m_export_wholesale_prices'] : null,
             'delivery_days' => isset($this->settingsValues['delivery_days']) ? $this->settingsValues['delivery_days'] : null,
             'clrCheckboxes' => 1,
             'page' => 1,
             'id_shop' => $this->shopID,
         );
+
+        //Fill in empty fields
+        include __DIR__ . '/partials/helperFormEmptyFieldsFiller.php';
 
         $helper = new HelperForm();
 
@@ -585,6 +611,9 @@ class AdminMergadoController extends \ModuleAdminController
             'id_shop' => $this->shopID,
         );
 
+        //Fill in empty fields
+        include __DIR__ . '/partials/helperFormEmptyFieldsFiller.php';
+
         $helper = new HelperForm();
 
         $helper->module = $this;
@@ -686,6 +715,9 @@ class AdminMergadoController extends \ModuleAdminController
             'page' => 1,
             'id_shop' => $this->shopID,
         );
+
+        //Fill in empty fields
+        include __DIR__ . '/partials/helperFormEmptyFieldsFiller.php';
 
         $helper = new HelperForm();
 
@@ -1249,6 +1281,7 @@ class AdminMergadoController extends \ModuleAdminController
                 SettingsClass::clearSettings(SettingsClass::EXPORT['BOTH'], $this->shopID);
                 SettingsClass::clearSettings(SettingsClass::EXPORT['CATALOG'], $this->shopID);
                 SettingsClass::clearSettings(SettingsClass::EXPORT['SEARCH'], $this->shopID);
+                SettingsClass::clearSettings(SettingsClass::EXPORT['COST'], $this->shopID);
             }
 
             if (isset($_POST['mergado_del_log']) && $_POST['mergado_del_log'] === SettingsClass::ENABLED) {
