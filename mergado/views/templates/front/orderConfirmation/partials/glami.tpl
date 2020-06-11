@@ -42,7 +42,7 @@
                 glami_or('addParameter', 'order_id', '{$glami_orderId}');
                 glami_or('addParameter', 'email', '{$glami_email}');
                 glami_or('addParameter', 'language', '{$langIsoCode}'); //cs
-                glami_or('addParameter', 'items', {$glami_products nofilter});
+                glami_or('addParameter', 'items', [{$glami_products nofilter}]);
 
                 glami_or('create');
             {/if}
