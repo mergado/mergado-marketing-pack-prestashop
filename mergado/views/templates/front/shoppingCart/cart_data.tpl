@@ -11,5 +11,4 @@
 *  @copyright 2016 Mergado technologies, s. r. o.
 *  @license   LICENSE.txt
 *}
-
 <div style="display: none;" data-mscd='{$data}' data-mscd-cart-id='{$cart_id}' data-morder-url='{$orderUrl}' data-mcoupons="{$coupons}"></div>

@@ -92,12 +92,13 @@ var m_GTAG = {
             var $_quantity = 1;
             var $_category = '';
             var $_price = '';
+            var $_currency = currency.iso_code;
 
             if ($(this).attr('data-id-product-attribute')) {
                 $_id = $_id + '-' + $(this).attr('data-id-product-attribute');
             }
 
-            m_GTAG_events.sendAddToCart($_id, $_name, $_category, $_price, $_quantity);
+            m_GTAG_events.sendAddToCart($_id, $_name, $_category, $_price, $_quantity, $_currency);
         });
 
         //PS 1.6
@@ -109,12 +110,13 @@ var m_GTAG = {
             var $_quantity = buyBlock.find('#quantity_wanted').val();
             var $_category = '';
             var $_price = buyBlock.find('[itemprop="price"]').attr('content');
+            var $_currency = currency.iso_code;
 
             if (buyBlock.find('#idCombination').length > 0) {
                 $_id = $_id + '-' + buyBlock.find('#idCombination').val();
             }
 
-            m_GTAG_events.sendAddToCart($_id, $_name, $_category, $_price, $_quantity);
+            m_GTAG_events.sendAddToCart($_id, $_name, $_category, $_price, $_quantity, $_currency);
         });
     },
     initAddToCartPs17: function () {
@@ -124,7 +126,7 @@ var m_GTAG = {
         });
 
         function addEvents(target) {
-            var $_id, $_name, $_price, $_category, $_quantity;
+            var $_id, $_name, $_price, $_category, $_quantity, $_currency;
 
             if(target.closest('.product-add-to-cart').find('#quantity_wanted').length > 0) {
                 $_quantity = target.closest('.product-add-to-cart').find('#quantity_wanted').val();
@@ -138,6 +140,7 @@ var m_GTAG = {
                 $_name = productJSON.name;
                 $_price = productJSON.price_amount;
                 $_category = productJSON.category_name;
+                $_currency = prestashop.currency.iso_code;
 
                 if (productJSON.id_product_attribute !== "") {
                     $_id = $_id + '-' + productJSON.id_product_attribute;
@@ -157,7 +160,7 @@ var m_GTAG = {
                 }
             }
 
-            m_GTAG_events.sendAddToCart($_id, $_name, $_category, $_price, $_quantity);
+            m_GTAG_events.sendAddToCart($_id, $_name, $_category, $_price, $_quantity, $_currency);
         }
     },
     initRemoveFromCartPs16: function() {
@@ -167,12 +170,13 @@ var m_GTAG = {
 
             var $_id = urlParams.get('id_product');
             var $_ipa = urlParams.get('ipa');
+            var $_currency = currency.iso_code;
 
             if($_ipa != null && $_ipa != 0) {
                 $_id += "-" + $_ipa;
             }
 
-            m_GTAG_events.sendRemoveFromCart($_id);
+            m_GTAG_events.sendRemoveFromCart($_id, $_currency);
         });
     },
     initRemoveFromCartPs17: function() {
@@ -183,20 +187,23 @@ var m_GTAG = {
             var $_id = urlParams.get('id_product');
             var $_ipa = urlParams.get('id_product_attribute');
 
+            var $_currency = prestashop.currency.iso_code;
+
             if($_ipa != null && $_ipa != 0) {
                 $_id += "-" + $_ipa;
             }
 
-            m_GTAG_events.sendRemoveFromCart($_id);
+            m_GTAG_events.sendRemoveFromCart($_id, $_currency);
         });
     },
     initDetailViewed: function() {
-        var $_id, $_name;
+        var $_id, $_name, $_currency;
 
         if ($('[data-product]').length > 0) {
             var productJSON = JSON.parse($('[data-product]').attr('data-product'));
             $_id = productJSON.id;
             $_name = productJSON.name;
+            $_currency = prestashop.currency.iso_code;
 
             if (productJSON.id_product_attribute !== "") {
                 $_id = $_id + '-' + productJSON.id_product_attribute;
@@ -206,6 +213,7 @@ var m_GTAG = {
 
             $_id = baseBlock.find('#product_page_product_id').val();
             $_name = $('h1[itemprop="name"]').text();
+            $_currency = currency.iso_code;
 
             if ($_name === '') {
                 $_name = $('.modal-body h1').text();
@@ -216,7 +224,7 @@ var m_GTAG = {
             }
         }
 
-        m_GTAG_events.sendViewItem($_id, $_name);
+        m_GTAG_events.sendViewItem($_id, $_name, $_currency);
     },
     initPaymentSetPs16: function () {
         //PS 1.6
@@ -234,8 +242,9 @@ var m_GTAG = {
             $('.payment_module a').on('click', function () {
                 var value = $(this).attr('title');
                 var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+                var $_currency = currency.iso_code;
 
-                m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon());
+                m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
                 m_GTAG_events.sendCheckoutOptionSelected('payment method', 3, value);
             });
         }
@@ -278,9 +287,10 @@ var m_GTAG = {
             $('body').on('click', '.delivery_option_radio', function () {
                 if(!lock) {
                     lock = true;
+                        var $_currency = currency.iso_code;
                         var value = $(this).val().replace(',', '');
                         var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
-                        m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon())
+                        m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency)
                         m_GTAG_events.sendCheckoutOptionSelected('shipping method', 2, value);
 
                     setTimeout(function () {
@@ -304,66 +314,74 @@ var m_GTAG = {
         $('body#order .cart_navigation .standard-checkout').on('click', function () {
             if (typeof $(this).attr('name') == 'undefined' || $(this).attr('name') === '') {
                 var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+                var $_currency = currency.iso_code;
 
-                m_GTAG_events.sendBeginCheckout(items, m_GTAG.getCoupon());
+                m_GTAG_events.sendBeginCheckout(items, m_GTAG.getCoupon(), $_currency);
             }
         });
 
         //OnePageCheckout
         if($('body#order-opc').length > 0) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var $_currency = currency.iso_code;
 
-            m_GTAG_events.sendBeginCheckout(items, m_GTAG.getCoupon());
+            m_GTAG_events.sendBeginCheckout(items, m_GTAG.getCoupon(), $_currency);
         }
     },
     initCheckoutLoginStepPs16: function () {
         if($('body#authentication').length > 0) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
-
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon());
+            var $_currency = currency.iso_code;
+            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
         }
     },
     initCheckoutAddressStepPs16: function () {
         if($('body#order [name="processAddress"]').length > 0) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var $_currency = currency.iso_code;
 
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon());
+            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
         }
     },
     initCheckoutDeliveryStepPs16: function () {
         if($('body#order [name="processCarrier"]').length > 0) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var $_currency = currency.iso_code;
 
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon());
+            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
         }
     },
     initCheckoutPaymentStepPs16: function () {
         if($('body#order .payment_module a').length > 0) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var $_currency = currency.iso_code;
 
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon());
+            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
         }
     },
     initCheckoutReviewStepPs16: function () {
         //Multistep
         $('body#order .payment_module a').on('click', function () {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var $_currency = currency.iso_code;
 
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon());
+            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
         });
 
         //One page checkout payment/review page before confirm order
         $('body#order-opc #opc_payment_methods a').on('click', function () {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var $_currency = currency.iso_code;
 
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon());
+            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
         });
     },
     initCheckoutStarted17: function () {
         var orderUrl = $('[data-morder-url]').attr('data-morder-url');
         $('a[href="' + orderUrl + '"]').on('click', function () {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
-            m_GTAG_events.sendBeginCheckout(items, m_GTAG.getCoupon())
+            var $_currency = prestashop.currency.iso_code;
+            m_GTAG_events.sendBeginCheckout(items, m_GTAG.getCoupon(), $_currency)
         });
 
         // Triggering this can be skipped if already logged in .. so button probably better
@@ -376,19 +394,22 @@ var m_GTAG = {
     initCheckoutAddressStep17: function () {
         if($('#checkout-addresses-step').hasClass('-current') || $('#checkout-addresses-step').hasClass('js-currenct-step')) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon())
+            var currency = prestashop.currency.iso_code;
+            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), currency)
         }
     },
     initCheckoutDeliveryStep17: function () {
         if($('#checkout-delivery-step').hasClass('-current') || $('#checkout-delivery-step').hasClass('js-currenct-step')) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon())
+            var currency = prestashop.currency.iso_code;
+            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), currency)
         }
     },
     initCheckoutPaymentStep17: function () {
         if($('#checkout-payment-step').hasClass('-current') || $('#checkout-payment-step').hasClass('js-currenct-step')) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon())
+            var currency = prestashop.currency.iso_code;
+            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), currency)
         }
     },
     initCouponChangePs17: function() {
@@ -398,8 +419,9 @@ var m_GTAG = {
                 'updatedCart',
                 function() {
                     var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+                    var currency = prestashop.currency.iso_code;
 
-                    m_GTAG_events.sendDiscountRemoved(items, m_GTAG.getCoupon());
+                    m_GTAG_events.sendDiscountRemoved(items, m_GTAG.getCoupon(), currency);
                 }
             );
         }
@@ -411,19 +433,21 @@ var m_GTAG = {
         var urlParams = new URLSearchParams(window.location.search);
         var couponAdded = urlParams.get('addingCartRule');
         var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+        var $_currency = currency.iso_code;
 
         if (couponAdded) {
-                m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon());
+                m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
         }
     },
     initCouponRemoved: function () {
         //Only for ps 1.6
 
         $('.price_discount_delete').on('click', function () {
-            items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var $_currency = currency.iso_code;
 
             //Send new discount change
-            m_GTAG_events.sendDiscountRemoved(items, m_GTAG.getCoupon());
+            m_GTAG_events.sendDiscountRemoved(items, m_GTAG.getCoupon(), $_currency);
         });
     },
     getCoupon: function () {
@@ -431,18 +455,20 @@ var m_GTAG = {
     },
     intiViewListPs16: function () {
         var products = $('.ajax_block_product');
+        var $_currency = currency.iso_code;
 
         if(products.length > 0) {
             var items = getProductsData(products);
-            m_GTAG_events.sendViewList(items);
+            m_GTAG_events.sendViewList(items, $_currency);
         }
 
         $(document).ajaxComplete(function() {
             var currentProducts = $('.ajax_block_product');
             var newProducts = getProductsData(currentProducts)
+            var $_currency = currency.iso_code;
 
             if(items !== newProducts && currentProducts.length > 0) {
-                m_GTAG_events.sendViewList(newProducts);
+                m_GTAG_events.sendViewList(newProducts, $_currency);
             }
         });
 
@@ -489,10 +515,11 @@ var m_GTAG = {
     intiViewListPs17: function () {
         if(typeof prestashop !== 'undefined') {
             var products = $('.product-miniature[data-id-product]');
+            var currency = prestashop.currency.iso_code;
 
             if (products.length > 0) {
                 var items = getProductsData(products);
-                m_GTAG_events.sendViewList(items);
+                m_GTAG_events.sendViewList(items, currency);
             }
 
             $(document).ajaxComplete(function () {
@@ -500,7 +527,7 @@ var m_GTAG = {
                 var newProducts = getProductsData(currentProducts)
 
                 if (items !== newProducts && currentProducts.length > 0) {
-                    m_GTAG_events.sendViewList(newProducts);
+                    m_GTAG_events.sendViewList(newProducts, currency);
                 }
             });
 
@@ -550,8 +577,9 @@ var m_GTAG = {
  **********************************************************************************************************************/
 
 var m_GTAG_events = {
-    sendAddToCart: function (id, name, category, price, quantity) {
+    sendAddToCart: function (id, name, category, price, quantity, currency) {
         gtag('event', 'add_to_cart', {
+            "currency" : currency,
             "items": [
                 {
                     "id": id,
@@ -567,8 +595,9 @@ var m_GTAG_events = {
             ]
         });
     },
-    sendRemoveFromCart: function(id) {
+    sendRemoveFromCart: function(id, currency) {
         gtag('event', 'remove_from_cart', {
+            "currency" : currency,
             "items": [
                 {
                     "id": id,
@@ -584,8 +613,9 @@ var m_GTAG_events = {
             ]
         });
     },
-    sendViewItem: function(id, name) {
+    sendViewItem: function(id, name, currency) {
         gtag('event', 'view_item', {
+            "currency" : currency,
             "items": [
                 {
                     "id": id,
@@ -608,26 +638,30 @@ var m_GTAG_events = {
             "value": value
         });
     },
-    sendBeginCheckout: function(items, coupon) {
+    sendBeginCheckout: function(items, coupon, currency) {
         gtag('event', 'begin_checkout', {
+            "currency" : currency,
             "items": items,
             "coupon": coupon,
         });
     },
-    sendCheckoutProgress: function(items, coupon) {
+    sendCheckoutProgress: function(items, coupon, currency) {
         gtag('event', 'checkout_progress', {
+            "currency" : currency,
             "items": items,
             "coupon": coupon,
         });
     },
-    sendDiscountRemoved: function (items, coupon) {
+    sendDiscountRemoved: function (items, coupon, currency) {
         gtag('event', 'checkout_progress', {
+            "currency" : currency,
             "items": items,
             "coupon": coupon,
         });
     },
-    sendViewList: function (items) {
+    sendViewList: function (items, currency) {
         gtag('event', 'view_item_list', {
+            "currency" : currency,
             "items": items
         });
     }

@@ -66,7 +66,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.3.2',
+        'VERSION' => '2.3.3',
     ];
 
     public function __construct()
@@ -570,9 +570,7 @@ class Mergado extends Module
 
     public function hookDisplayBeforeBodyClosingTag($params)
     {
-        $this->cartDataPs17($params);
-
-        return false;
+        return $this->cartDataPs17($params);
     }
 
     /**
@@ -774,6 +772,7 @@ class Mergado extends Module
 
     public function cartDataPs17($params) {
         //Data for checkout in ps 1.7 ..
+
         if(_PS_VERSION_ > self::PS_V_16) {
             $langId = (int)ContextCore::getContext()->language->id;
 
@@ -811,11 +810,18 @@ class Mergado extends Module
                 ));
             }
 
+            $discounts = [];
+
+            foreach ($cart->getDiscounts() as $item) {
+                $discounts[] = $item['name'];
+            }
+
             global $smarty;
             $url = $smarty->tpl_vars['urls']->value['pages']['order'];
 
             $this->smarty->assign(array(
-                'orderUrl' => $url
+                'orderUrl' => $url,
+                'coupons' => join(', ', $discounts),
             ));
 
             return $this->display(__FILE__, '/views/templates/front/shoppingCart/cart_data.tpl');
@@ -1174,8 +1180,11 @@ class Mergado extends Module
 
         //GoogleTagManager - Google analytics
         if(Mergado\Google\GoogleClass::isGTMEcommerceActive(self::getShopId())) {
+            $currency = new CurrencyCore($order->id_currency);
+
             $this->smarty->assign(array(
                 'gtm_purchase_data' => Mergado\Google\GoogleClass::getGTMPurchaseData($orderId, $order, $products_tmp, (int) $context->language->id),
+                'gtm_currencyCode' => $currency->iso_code,
             ));
 
             $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/gtm.tpl');

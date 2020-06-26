@@ -16,13 +16,17 @@
 document.addEventListener("DOMContentLoaded", function(event) {
     if(typeof gtag !== 'undefined') {
         if($('body#product').length > 0) {
-            var $_id, $_name, $_category;
+            var $_id, $_name, $_category, $_currency;
 
             if($('[data-product]').length > 0) {
                 var productJSON = JSON.parse($('[data-product]').attr('data-product'));
                 $_id = productJSON.id;
                 $_name = productJSON.name;
                 $_category = productJSON.category_name;
+
+                if (typeof prestashop !== 'undefined') {
+                    $_currency = prestashop.currency.iso_code
+                }
 
                 if(productJSON.id_product_attribute !== "") {
                     $_id = $_id + '-' + productJSON.id_product_attribute;
@@ -33,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 $_id = baseBlock.find('#product_page_product_id').val();
                 $_name = $('h1[itemprop="name"]').text();
                 $_category = '';
+                $_currency = currency.iso_code;
 
                 if ($_name === '') {
                     $_name = $('.modal-body h1').text();
@@ -45,6 +50,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
             gtag('event', 'select_content', {
                 "content_type": "product",
+                "currency" : $_currency,
                 "items": [
                     {
                         "id": $_id,

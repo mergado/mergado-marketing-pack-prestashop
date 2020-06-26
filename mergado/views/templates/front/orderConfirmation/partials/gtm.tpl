@@ -16,6 +16,7 @@
     document.addEventListener("DOMContentLoaded", function (event) {
         dataLayer.push({
             'ecommerce': {
+                'currencyCode': "{$gtm_currencyCode}",
                 'purchase': {$gtm_purchase_data nofilter}
             }
         });
