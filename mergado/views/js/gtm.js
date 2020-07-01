@@ -30,8 +30,11 @@ var m_GTM = {
         this.initRemoveFromCartPs16();
         this.initRemoveFromCartPs17();
 
-        this.intiViewListPs16();
-        this.intiViewListPs17();
+        if(typeof prestashop != 'undefined') {
+            this.initViewListPs17();
+        } else {
+            this.initViewListPs16();
+        }
 
         //Detail of product
         if($('body#product').length > 0) {
@@ -411,7 +414,7 @@ var m_GTM = {
             m_GTM_events.sendCheckoutProgress(4, items, currency)
         }
     },
-    intiViewListPs16: function () {
+    initViewListPs16: function () {
         var products = $('.ajax_block_product');
         var currency = $('[itemprop="priceCurrency"]').attr('content');
 
@@ -466,7 +469,7 @@ var m_GTM = {
 
             return items;
         }
-    },intiViewListPs17: function () {
+    },initViewListPs17: function () {
         if(typeof prestashop !== 'undefined') {
             var products = $('.product-miniature[data-id-product]');
             var currency = prestashop.currency.iso_code;
