@@ -88,7 +88,7 @@ $fields_form[0]['form'] = array(
 
 $fields_form[1]['form'] = array(
     'legend' => array(
-        'title' => $this->l('Google Analytics - gtag.js'),
+        'title' => $this->l('gtag.js'),
         'icon' => 'icon-cogs'
     ),
     'input' => array(
@@ -123,7 +123,7 @@ $fields_form[1]['form'] = array(
         ),
         array(
             'name' => SettingsClass::GOOGLE_GTAGJS['CODE'],
-            'label' => $this->l('Google analytics code'),
+            'label' => $this->l('gtag.js code'),
             'type' => 'text',
 //            'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->l('Konverzní kód získáte v administraci Google Ads účtu > Nástroje a nastavení > Měření – konverze > Přidat konverzi > Webová stránka. Vytvořte novou konverzi a poté klikněte na Nainstalovat značku sami. Kód se nachází v sekci “Globální značka webu” a má tuto podobu AW-123456789.'),
             'visibility' => Shop::CONTEXT_ALL,
@@ -203,7 +203,7 @@ $fields_form[1]['form'] = array(
 
 $fields_form[2]['form'] = array(
     'legend' => array(
-        'title' => $this->l('Google Analytics - Google Tag Manager'),
+        'title' => $this->l('Google Tag Manager'),
         'icon' => 'icon-cogs'
 
     ),
@@ -239,7 +239,7 @@ $fields_form[2]['form'] = array(
         ),
         array(
             'name' => SettingsClass::GOOGLE_TAG_MANAGER['CODE'],
-            'label' => $this->l('Google analytics code'),
+            'label' => $this->l('Google Tag Manager code'),
             'type' => 'text',
 //            'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->l('Konverzní kód získáte v administraci Google Ads účtu > Nástroje a nastavení > Měření – konverze > Přidat konverzi > Webová stránka. Vytvořte novou konverzi a poté klikněte na Nainstalovat značku sami. Kód se nachází v sekci “Globální značka webu” a má tuto podobu AW-123456789.'),
             'visibility' => Shop::CONTEXT_ALL,

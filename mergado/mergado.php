@@ -16,8 +16,6 @@
 
 // Do not use USE statements because of PS 1.6.1.12 - error during installation
 
-use Mergado\Tools\SettingsClass;
-
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Biano/BianoClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Google/GoogleClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Kelkoo/KelkooClass.php';
@@ -66,7 +64,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.3.31',
+        'VERSION' => '2.3.32',
     ];
 
     public function __construct()
