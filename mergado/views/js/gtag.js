@@ -581,6 +581,7 @@ var m_GTAG = {
 
 var m_GTAG_events = {
     sendAddToCart: function (id, name, category, price, quantity, currency) {
+
         gtag('event', 'add_to_cart', {
             "currency" : currency,
             "items": [

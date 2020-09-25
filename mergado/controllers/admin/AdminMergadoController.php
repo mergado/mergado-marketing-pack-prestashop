@@ -1105,11 +1105,11 @@ class AdminMergadoController extends \ModuleAdminController
         $jsonMap = [
             // Google ADS
             SettingsClass::GOOGLE_ADS['CONVERSIONS'] => [
-                'fields' => [SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE'], SettingsClass::GOOGLE_ADS['CONVERSIONS_LABEL']],
+                'fields' => [SettingsClass::GOOGLE_ADS['CONVERSIONS_LABEL']],
             ],
-            SettingsClass::GOOGLE_ADS['REMARKETING'] => [
-                'fields' => [SettingsClass::GOOGLE_ADS['REMARKETING_ID']]
-            ],
+//            SettingsClass::GOOGLE_ADS['REMARKETING'] => [
+//                'fields' => [SettingsClass::GOOGLE_ADS['REMARKETING_ID']]
+//            ],
 
             // Google analytics - GTAGJS
             SettingsClass::GOOGLE_GTAGJS['ACTIVE'] => [

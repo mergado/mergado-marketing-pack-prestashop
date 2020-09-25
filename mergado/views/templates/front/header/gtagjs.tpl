@@ -15,16 +15,25 @@
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script>
-    var gtagAnalyticsId = '{$gtag_analytics_id}';
+    var gtagMain = '{$gtagMainCode}';
 </script>
 
-<script async src="https://www.googletagmanager.com/gtag/js?id={$gtag_analytics_id}"></script>
-{literal}
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
+<script async src="https://www.googletagmanager.com/gtag/js?id={$gtagMainCode}"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+        dataLayer.push(arguments);
+    }
 
-        gtag('config', gtagAnalyticsId);
-    </script>
-{/literal}
+    gtag('js', new Date());
+
+    {if isset($googleAnalyticsCode)}
+        gtag('config', '{$googleAnalyticsCode}');
+    {/if}
+
+    {if isset($gAdsConversionCode) && $gAdsRemarketingActive}
+        gtag('config', 'AW-{$gAdsConversionCode}', {literal}{'send_page_view': true}{/literal});
+    {else}
+        gtag('config', 'AW-{$gAdsConversionCode}', {literal}{'send_page_view': false}{/literal});
+    {/if}
+</script>

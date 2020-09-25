@@ -64,7 +64,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.3.32',
+        'VERSION' => '2.3.33',
     ];
 
     public function __construct()
@@ -527,21 +527,21 @@ class Mergado extends Module
         $display = "";
         $this->shopId = self::getShopId();
 
-        $googleAdsRemarketing = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING'], $this->shopID);
-
-        if ($googleAdsRemarketing === Mergado\Tools\SettingsClass::ENABLED) {
-            $googleAdsRemarketingId = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $this->shopID);
-
-            if ($googleAdsRemarketingId !== '') {
-                $this->smarty->assign(array(
-                    'googleAds_remarketing_id' => $googleAdsRemarketingId,
-                    'page_type' => 'product',
-                    'prodid' => $params['product']->id
-                ));
-
-                $display .= $this->display(__FILE__, '/views/templates/front/remarketingtag.tpl');
-            }
-        }
+        //TODO: ADS
+//        $googleAdsRemarketing = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING'], $this->shopID);
+//        if ($googleAdsRemarketing === Mergado\Tools\SettingsClass::ENABLED) {
+//            $googleAdsRemarketingId = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $this->shopID);
+//
+//            if ($googleAdsRemarketingId !== '') {
+//                $this->smarty->assign(array(
+//                    'googleAds_remarketing_id' => $googleAdsRemarketingId,
+//                    'page_type' => 'product',
+//                    'prodid' => $params['product']->id
+//                ));
+//
+//                $display .= $this->display(__FILE__, '/views/templates/front/remarketingtag.tpl');
+//            }
+//        }
 
         if(\Mergado\Biano\BianoClass::isActive($this->shopId)) {
             $langCode = SettingsClass::getLangIso(strtoupper($this->context->language->iso_code));
@@ -572,43 +572,44 @@ class Mergado extends Module
     }
 
     /**
+     * TODO: ADS - DELETE NOT USED
      * @param array $params
      * @return mixed
      */
     public function hookDisplayShoppingCartFooter($params)
     {
-        $this->shopId = self::getShopId();
-
-        $googleAdsRemarketing = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING'], $this->shopId);
-        $prodid = "";
-
-        foreach ($params['cart']->getProducts() as $product) {
-            $prodid .= "'" . $product['id_product'];
-
-            if (isset($product['id_product_attribute']) && $product['id_product_attribute'] !== "") {
-                $prodid .= '-';
-                $prodid .= $product['id_product_attribute'];
-            }
-
-            $prodid .= "',";
-        }
-
-        $prodid = "[" . substr($prodid, 0, -1) . "]";
-
-        if ($googleAdsRemarketing === Mergado\Tools\SettingsClass::ENABLED) {
-            $googleAdsRemarketingId = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $this->shopId);
-
-            if ($googleAdsRemarketingId !== '') {
-                $this->smarty->assign(array(
-                    'googleAds_remarketing_id' => $googleAdsRemarketingId,
-                    'page_type' => 'cart',
-                    'prodid' => $prodid
-                ));
-
-                return $this->display(__FILE__, '/views/templates/front/remarketingtag.tpl');
-            }
-        }
-
+//        $this->shopId = self::getShopId();
+//
+//        $googleAdsRemarketing = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING'], $this->shopId);
+//        $prodid = "";
+//
+//        foreach ($params['cart']->getProducts() as $product) {
+//            $prodid .= "'" . $product['id_product'];
+//
+//            if (isset($product['id_product_attribute']) && $product['id_product_attribute'] !== "") {
+//                $prodid .= '-';
+//                $prodid .= $product['id_product_attribute'];
+//            }
+//
+//            $prodid .= "',";
+//        }
+//
+//        $prodid = "[" . substr($prodid, 0, -1) . "]";
+//
+//        if ($googleAdsRemarketing === Mergado\Tools\SettingsClass::ENABLED) {
+//            $googleAdsRemarketingId = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $this->shopId);
+//
+//            if ($googleAdsRemarketingId !== '') {
+//                $this->smarty->assign(array(
+//                    'googleAds_remarketing_id' => $googleAdsRemarketingId,
+//                    'page_type' => 'cart',
+//                    'prodid' => $prodid
+//                ));
+//
+//                return $this->display(__FILE__, '/views/templates/front/remarketingtag.tpl');
+//            }
+//        }
+//
         return false;
     }
 
@@ -709,18 +710,17 @@ class Mergado extends Module
             }
         }
 
-
-        if ($googleAdsRemarketing === Mergado\Tools\SettingsClass::ENABLED) {
-            $googleAdsRemarketingId = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $this->shopID);
-
-            if ($googleAdsRemarketingId !== '') {
-                $this->smarty->assign(array(
-                    'googleAds_remarketing_id' => $googleAdsRemarketingId,
-                ));
-
-                $display .= $this->display(__FILE__, '/views/templates/front/footer/partials/googleAds.tpl');
-            }
-        }
+//        if ($googleAdsRemarketing === Mergado\Tools\SettingsClass::ENABLED) {
+//            $googleAdsRemarketingId = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $this->shopID);
+//
+//            if ($googleAdsRemarketingId !== '') {
+//                $this->smarty->assign(array(
+//                    'googleAds_remarketing_id' => $googleAdsRemarketingId,
+//                ));
+//
+//                $display .= $this->display(__FILE__, '/views/templates/front/footer/partials/googleAds.tpl');
+//            }
+//        }
 
         if ($sklikRetargeting === Mergado\Tools\SettingsClass::ENABLED) {
             $sklikRetargetingId = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::SKLIK['RETARGETING_ID'], $this->shopID);
@@ -874,7 +874,7 @@ class Mergado extends Module
             }
 
             global $smarty;
-            $url = $smarty->tpl_vars['urls']->value['pages']['order'];
+            $url = array_key_exists('urls', $smarty->tpl_vars) ? $smarty->tpl_vars['urls']->value['pages']['order'] : null;
 
             $this->smarty->assign(array(
                 'orderUrl' => $url,
@@ -953,11 +953,38 @@ class Mergado extends Module
         }
 
         //GTAG
-        if (Mergado\Google\GoogleClass::isGtagjsActive($this->shopId)) {
-            $googleAnalyticsCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['CODE'], self::getShopId());
-            $this->smarty->assign(array(
-               'gtag_analytics_id' => $googleAnalyticsCode,
-            ));
+        if (Mergado\Google\GoogleClass::isGtagjsActive($this->shopId) || Mergado\Google\GoogleClass::isGAdsConversionsActive($this->shopId) || Mergado\Google\GoogleClass::isGAdsRemarketingActive($this->shopId)) {
+            $smartyParams = array();
+            $gtagMainCode = '';
+
+            //Add google analytics code
+            if (Mergado\Google\GoogleClass::isGtagjsActive($this->shopId)) {
+                $smartyParams['googleAnalyticsCode'] = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['CODE'], self::getShopId());
+                $gtagMainCode = $smartyParams['googleAnalyticsCode'];
+            }
+
+            // Add conversion code
+            if (Mergado\Google\GoogleClass::isGAdsConversionsActive($this->shopID) || \Mergado\Google\GoogleClass::isGAdsRemarketingActive($this->shopID)) {
+                $gAdsConversionCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE'], $this->shopID);;
+
+                if (preg_match("/^[A-Z]{2}-/i", substr($gAdsConversionCode, 0, 3))) {
+                    $smartyParams['gAdsConversionCode'] = substr($gAdsConversionCode, 3);
+                } else {
+                    $smartyParams['gAdsConversionCode'] = $gAdsConversionCode;
+                }
+
+                if ($gtagMainCode == '') {
+                    $gtagMainCode = 'AW-' . $smartyParams['gAdsConversionCode'];
+                }
+            }
+
+            //Does remarketing code exist ??
+            $smartyParams['gAdsRemarketingActive'] = \Mergado\Google\GoogleClass::isGAdsRemarketingActive($this->shopID);
+
+            //Add main code to template
+            $smartyParams['gtagMainCode'] = $gtagMainCode;
+
+            $this->smarty->assign($smartyParams);
 
             $display .= $this->display(__FILE__, '/views/templates/front/header/gtagjs.tpl');
         }
@@ -1322,6 +1349,11 @@ class Mergado extends Module
             $sorted[$item['key']] = $item['value'];
         }
 
+        $googleAdsCodeSanitized = isset($sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE']]) ? $sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE']] : '';
+        if (preg_match("/^[A-Z]{2}-/i", substr($googleAdsCodeSanitized, 0, 3))) {
+            $googleAdsCodeSanitized = substr($googleAdsCodeSanitized, 3);
+        }
+
         return array(
             'zboziActive' => isset($sorted[Mergado\Tools\SettingsClass::ZBOZI['CONVERSIONS']]) ? $sorted[Mergado\Tools\SettingsClass::ZBOZI['CONVERSIONS']] : '',
             'zboziAdvancedActive' => isset($sorted[Mergado\Tools\SettingsClass::ZBOZI['CONVERSIONS_ADVANCED']]) ? $sorted[Mergado\Tools\SettingsClass::ZBOZI['CONVERSIONS_ADVANCED']] : '',
@@ -1334,7 +1366,7 @@ class Mergado extends Module
             'sklikCode' => isset($sorted[Mergado\Tools\SettingsClass::SKLIK['CONVERSIONS_CODE']]) ? $sorted[Mergado\Tools\SettingsClass::SKLIK['CONVERSIONS_CODE']] : '',
             'sklikValue' => isset($sorted[Mergado\Tools\SettingsClass::SKLIK['CONVERSIONS_VALUE']]) ? $sorted[Mergado\Tools\SettingsClass::SKLIK['CONVERSIONS_VALUE']] : '',
             'googleAds' => isset($sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS']]) ? $sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS']] : '',
-            'googleAdsCode' => isset($sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE']]) ? $sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE']] : '',
+            'googleAdsCode' => $googleAdsCodeSanitized,
             'googleAdsLabel' => isset($sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_LABEL']]) ? $sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_LABEL']] : '',
             'fbPixel' => isset($sorted[Mergado\Tools\SettingsClass::FB_PIXEL['ACTIVE']]) ? $sorted[Mergado\Tools\SettingsClass::FB_PIXEL['ACTIVE']] : '',
         );

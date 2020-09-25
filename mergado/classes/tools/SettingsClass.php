@@ -67,7 +67,7 @@ class SettingsClass
         'CONVERSIONS_CODE' => 'mergado_adwords_conversion_code',
         'CONVERSIONS_LABEL' => 'mergado_adwords_conversion_label',
         'REMARKETING' => 'adwords_remarketing',
-        'REMARKETING_ID' => 'adwords_remarketing_id',
+//        'REMARKETING_ID' => 'adwords_remarketing_id',
     );
 
     const GOOGLE_GTAGJS = array(
@@ -237,12 +237,12 @@ class SettingsClass
 
         if ($exists) {
             Db::getInstance()->update(Mergado::MERGADO['TABLE_NAME'],
-                array('value' => pSQL($value)),
+                array('value' => pSQL(trim($value))),
                 '`key` = "' . pSQL($key) . '" && `id_shop` = "' . pSQL($shopID) . '"');
         } else {
             Db::getInstance()->insert(Mergado::MERGADO['TABLE_NAME'], array(
                 'key' => pSQL($key),
-                'value' => pSQL($value),
+                'value' => pSQL(trim($value)),
                 'id_shop' => pSQL($shopID),
             ));
         }

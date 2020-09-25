@@ -250,4 +250,46 @@ class GoogleClass
             return false;
         }
     }
+
+    /*******************************************************************************************************************
+     * Google Ads - remarketing
+     ******************************************************************************************************************/
+
+    /**
+     * Return if google Ads remarketing is active
+     * @param $shopId
+     * @return bool
+     */
+    public static function isGAdsRemarketingActive($shopId)
+    {
+        $active = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING'], $shopId);
+//        $code = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $shopId);
+
+        if($active === Mergado\Tools\SettingsClass::ENABLED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /*******************************************************************************************************************
+     * Google Ads - conversions
+     ******************************************************************************************************************/
+
+    /**
+     * Return if google Ads conversions is active
+     * @param $shopId
+     * @return bool
+     */
+    public static function isGAdsConversionsActive($shopId)
+    {
+        $active = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS'], $shopId);
+        $code = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE'], $shopId);
+
+        if($active === Mergado\Tools\SettingsClass::ENABLED && $code && $code !== '') {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

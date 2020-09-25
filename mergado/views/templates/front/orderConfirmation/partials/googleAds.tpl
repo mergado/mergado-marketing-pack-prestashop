@@ -11,7 +11,6 @@
 *  @copyright 2016 Mergado technologies, s. r. o.
 *  @license   LICENSE.txt
 *}
-
 {if $googleAds === '1' && $googleAdsCode && $googleAdsCode !== '' && $googleAdsLabel && $googleAdsLabel !== ''}
     {* PS 1.6 *}
     {if isset($currency->iso_code)}
@@ -21,23 +20,20 @@
         {$c_iso_code = $currency['iso_code']}
     {/if}
 
-    <script type="text/javascript">
-        /* <![CDATA[ */
-        var google_conversion_id = {$googleAdsCode};
-        var google_conversion_label = "{$googleAdsLabel}";
-
-        var google_conversion_language = "{$languageCode}";
-        var google_conversion_value = {$total};
-        var google_conversion_currency = "{$c_iso_code}";
-
-        var google_conversion_format = "1";
-        var google_conversion_color = "666666";
-        var google_remarketing_only = "false";
-        /* ]]> */
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
     </script>
-    <script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js"></script>
-    <noscript>
-        <img height=1 width=1 border=0
-             src="//www.googleadservices.com/pagead/conversion/{$googleAdsCode}/?value={$total}&amp;currency_code={$c_iso_code}&amp;label={$googleAdsLabel}&amp;guid=ON&amp;script=0">
-    </noscript>
+
+    <script>
+        gtag('event', 'conversion', {
+            'send_to': 'AW-{$googleAdsCode}/{$googleAdsLabel}',
+            'value': {$total},
+            'currency': '{$c_iso_code}',
+            'transaction_id': '{$conversionOrderId}'
+        });
+    </script>
 {/if}
