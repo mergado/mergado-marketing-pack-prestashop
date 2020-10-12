@@ -89,7 +89,7 @@ var m_GTM = {
             var $_category = '';
             var $_price = '';
 
-            if ($(this).attr('data-id-product-attribute')) {
+            if ($(this).attr('data-id-product-attribute') && $(this).attr('data-id-product-attribute') !== '' && $(this).attr('data-id-product-attribute') !== '0') {
                 $_id = $_id + '-' + $(this).attr('data-id-product-attribute');
             }
 
@@ -107,7 +107,7 @@ var m_GTM = {
             var $_category = '';
             var $_price = buyBlock.find('[itemprop="price"]').attr('content');
 
-            if (buyBlock.find('#idCombination').length > 0) {
+            if (buyBlock.find('#idCombination').length > 0 && buyBlock.find('#idCombination').val() !== '' && buyBlock.find('#idCombination').val() !== '0') {
                 $_id = $_id + '-' + buyBlock.find('#idCombination').val();
             }
 
@@ -121,7 +121,7 @@ var m_GTM = {
         });
 
         function addEvents(target) {
-            var $_id, $_name, $_price, $_category, $_currency, $_quantity;
+            var $_id, $_name, $_price, $_category, $_currency, $_quantity, $_modal, $_id2;
 
             if(target.closest('.product-add-to-cart').find('#quantity_wanted').length > 0) {
                 $_quantity = target.closest('.product-add-to-cart').find('#quantity_wanted').val();
@@ -137,11 +137,22 @@ var m_GTM = {
                 $_category = productJSON.category_name;
                 $_currency = prestashop.currency.iso_code;
 
-                if (productJSON.id_product_attribute !== "") {
+                if (productJSON.id_product_attribute !== "" && productJSON.id_product_attribute !== "0") {
                     $_id = $_id + '-' + productJSON.id_product_attribute;
                 }
             } else {
-                $_id = target.closest('[id*="quickview-modal-"]').attr('id').replace('quickview-modal-', '');
+                $_modal = target.closest('[id*="quickview-modal-"]').clone().html();
+
+                //Can't get real attr ID because no hook or data on that place :=/
+                $_id = $($_modal).find('#product_page_product_id').val();
+                $_id2 = $($_modal).find('[data-product-attribute]:checked').attr('data-product-attribute')
+
+                if ($_id2 !== '' && $_id2 && $_id2 !== '0') {
+                    $_id = $_id + '-' + $_id2;
+                } else if ($(this).closest('form').find('#idCombination').length > 0) {
+                    $_id = $_id + '-' + target.closest('form').find('#idCombination').val();
+                }
+
                 $_name = $('h1[itemprop="name"]').text();
                 $_price = $('.product-price').find('[itemprop="price"]').attr('content');
                 $_category = '';
@@ -149,10 +160,6 @@ var m_GTM = {
 
                 if ($_name === '') {
                     $_name = $('.modal-body h1').text();
-                }
-
-                if ($(this).closest('form').find('#idCombination').length > 0) {
-                    $_id = $_id + '-' + target.closest('form').find('#idCombination').val();
                 }
             }
 
@@ -201,7 +208,7 @@ var m_GTM = {
             $_category = productJSON.category_name;
             $_currency = prestashop.currency.iso_code;
 
-            if (productJSON.id_product_attribute !== "") {
+            if (productJSON.id_product_attribute !== "" && productJSON.id_product_attribute !== "0") {
                 $_id = $_id + '-' + productJSON.id_product_attribute;
             }
         } else {
@@ -442,7 +449,7 @@ var m_GTM = {
 
                 var id_attr = $(this).find('[data-id-product-attribute]');
 
-                if(id_attr.length > 0 && id_attr.attr('data-id-product-attribute') !== '') {
+                if(id_attr.length > 0 && id_attr.attr('data-id-product-attribute') !== '' && id_attr.attr('data-id-product-attribute') !== '0') {
                     $_id = $_id + '-' + id_attr.attr('data-id-product-attribute');
                 }
 

@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     $_currency = prestashop.currency.iso_code
                 }
 
-                if(productJSON.id_product_attribute !== "") {
+                if(productJSON.id_product_attribute !== "" && productJSON.id_product_attribute !== '0') {
                     $_id = $_id + '-' + productJSON.id_product_attribute;
                 }
             } else {

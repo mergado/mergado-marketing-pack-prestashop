@@ -73,14 +73,14 @@ class HelperClass
             if(is_array($product)) {
                 $id = $product['id_product'];
 
-                if(isset($product['id_product_attribute']) && $product['id_product_attribute'] !== '') {
+                if(isset($product['id_product_attribute']) && $product['id_product_attribute'] !== '' && $product['id_product_attribute'] !== '0') {
                     $id = $id . '-' . $product['id_product_attribute'];
                 }
 
             } else {
                 $id = $product->id;
 
-                if(isset($product->id_product_attribute) && $product->id_product_attribute !== '') {
+                if(isset($product->id_product_attribute) && $product->id_product_attribute !== '' && $product->id_product_attribute !== '0') {
                     $id = $id . '-' . $product->id_product_attribute;
                 }
             }
@@ -88,7 +88,7 @@ class HelperClass
         } else {
             $id = $product['id_product'];
 
-            if(isset($product['id_product_attribute']) && $product['id_product_attribute'] !== '') {
+            if(isset($product['id_product_attribute']) && $product['id_product_attribute'] !== '' && $product['id_product_attribute'] !== '0') {
                 $id = $id . '-' . $product['id_product_attribute'];
             }
         }

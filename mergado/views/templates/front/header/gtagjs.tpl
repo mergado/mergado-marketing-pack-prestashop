@@ -32,8 +32,8 @@
     {/if}
 
     {if isset($gAdsConversionCode) && $gAdsRemarketingActive}
-        gtag('config', 'AW-{$gAdsConversionCode}', {literal}{'send_page_view': true}{/literal});
-    {else}
-        gtag('config', 'AW-{$gAdsConversionCode}', {literal}{'send_page_view': false}{/literal});
+        gtag('config', 'AW-{$gAdsConversionCode}');
+    {elseif isset($gAdsConversionCode)}
+        gtag('config', 'AW-{$gAdsConversionCode}', {literal}{'allow_ad_personalization_signals': false}{/literal});
     {/if}
 </script>

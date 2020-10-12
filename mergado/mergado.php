@@ -27,6 +27,7 @@ require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Pricemania/PricemaniaCl
 require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/RssClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/ImportPricesClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/HelperClass.php';
+require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/SettingsClass.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -64,7 +65,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.3.33',
+        'VERSION' => '2.3.34',
     ];
 
     public function __construct()
@@ -364,8 +365,7 @@ class Mergado extends Module
         }
     }
 
-    public function hookDisplayProductAdditionalInfo() {
-
+    public function hookDisplayProductAdditionalInfo($product) {
         //Modal first
         $this->addToCart();
     }
@@ -544,7 +544,7 @@ class Mergado extends Module
 //        }
 
         if(\Mergado\Biano\BianoClass::isActive($this->shopId)) {
-            $langCode = SettingsClass::getLangIso(strtoupper($this->context->language->iso_code));
+            $langCode = Mergado\Tools\SettingsClass::getLangIso(strtoupper($this->context->language->iso_code));
 
             if(\Mergado\Biano\BianoClass::isLanguageActive($langCode, $this->shopId)) {
                 $prodId = \Mergado\Tools\HelperClass::getProductId($params['product']);
@@ -759,7 +759,7 @@ class Mergado extends Module
 
         //BIANO
         if (\Mergado\Biano\BianoClass::isActive($this->shopId)) {
-            $langCode = SettingsClass::getLangIso(strtoupper($this->context->language->iso_code));
+            $langCode = Mergado\Tools\SettingsClass::getLangIso(strtoupper($this->context->language->iso_code));
 
             $display .= $this->display(__FILE__, 'views/templates/front/header/biano/bianoView.tpl');
             $this->context->controller->addJS($this->_path . 'views/js/biano.js');
@@ -1035,7 +1035,7 @@ class Mergado extends Module
 
         //BIANO
         if (\Mergado\Biano\BianoClass::isActive($this->shopId)) {
-            $langCode = SettingsClass::getLangIso(strtoupper($this->context->language->iso_code));
+            $langCode = Mergado\Tools\SettingsClass::getLangIso(strtoupper($this->context->language->iso_code));
 
             if(\Mergado\Biano\BianoClass::isLanguageActive($langCode, $this->shopId)) {
                 $this->smarty->assign(array(

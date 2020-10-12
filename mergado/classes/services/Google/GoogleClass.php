@@ -59,8 +59,14 @@ class GoogleClass
             $manufacturer = new ManufacturerCore($product['id_manufacturer'], (int)$langId);
             $productVariant = Mergado\Tools\HelperClass::getProductAttributeName($product['product_attribute_id'], $langId);
 
+            if ($product['product_attribute_id'] && $product['product_attribute_id'] !== '' && $product['product_attribute_id'] !== '0') {
+                $idProduct = $product['product_id'] . '-' . $product['product_attribute_id'];
+            } else {
+                $idProduct = $product['product_id'];
+            }
+
             $product_item = array(
-                "id" => $product['product_id'] . '-' . $product['product_attribute_id'],
+                "id" => $idProduct,
                 "name" => $product['product_name'],
 //                "list_name" => "",
                 "brand" => $manufacturer->name,
@@ -177,9 +183,15 @@ class GoogleClass
             $manufacturer = new ManufacturerCore($product['id_manufacturer'], (int)$langId);
             $productVariant = Mergado\Tools\HelperClass::getProductAttributeName($product['product_attribute_id'], $langId);
 
+            if ($product['product_attribute_id'] && $product['product_attribute_id'] !== '' && $product['product_attribute_id'] !== '0') {
+                $idProduct = $product['product_id'] . '-' . $product['product_attribute_id'];
+            } else {
+                $idProduct = $product['product_id'];
+            }
+
             $product_item = array(
                 "name" => $product['product_name'],
-                "id" => $product['product_id'] . '-' . $product['product_attribute_id'],
+                "id" => $idProduct,
                 "price" => $product['total_price_tax_incl'] / $product['product_quantity'],
                 "brand" => $manufacturer->name,
                 "category" => $category->name,

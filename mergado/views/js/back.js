@@ -266,7 +266,7 @@ function initFormChangeChecker()
 {
     clickedSubmit = false;
 
-    $("form :input").change(function() {
+    $(".mergado-tab form :input").change(function() {
         $(this).closest('form').data('changed', true);
     });
 
