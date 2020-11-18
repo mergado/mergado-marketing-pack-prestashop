@@ -86,10 +86,18 @@ class HelperClass
             }
         //PS 1.7
         } else {
-            $id = $product['id_product'];
+            if (isset($product['product_id']) && isset($product['product_attribute_id'])) {
+                $id = $product['product_id'];
 
-            if(isset($product['id_product_attribute']) && $product['id_product_attribute'] !== '' && $product['id_product_attribute'] !== '0') {
-                $id = $id . '-' . $product['id_product_attribute'];
+                if(isset($product['product_attribute_id']) && $product['product_attribute_id'] !== '' && $product['product_attribute_id'] !== '0') {
+                    $id = $id . '-' . $product['product_attribute_id'];
+                }
+            } else {
+                $id = $product['id_product'];
+
+                if(isset($product['id_product_attribute']) && $product['id_product_attribute'] !== '' && $product['id_product_attribute'] !== '0') {
+                    $id = $id . '-' . $product['id_product_attribute'];
+                }
             }
         }
 

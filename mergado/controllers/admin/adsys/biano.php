@@ -1,5 +1,6 @@
 <?php
 
+use Mergado\Biano\BianoClass;
 use Mergado\Tools\SettingsClass;
 
 $fields_form[0]['form'] = array(
@@ -24,13 +25,13 @@ $fields_form[0]['form'] = array(
 );
 
 $fields_form[0]['form']['input'][] = array(
-    'name' => SettingsClass::BIANO['ACTIVE'],
+    'name' => BianoClass::ACTIVE,
     'label' => $this->l('Module active'),
     'validation' => 'isBool',
     'cast' => 'intval',
     'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
     'class' => 'switch15',
-    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Biano Pixel merchantId is available only for CZ and SK languages. Other languages will be using default option.'),
+    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Biano Pixel merchantId is available only for CZ, SK, HU, RO, NL languages. Other languages will be using default option.'),
     'values' => array(
         array(
             'id' => 'glami_active_on',
@@ -50,7 +51,7 @@ foreach ($this->languages->getLanguages(true) as $key => $lang) {
     $langName = SettingsClass::getLangIso(strtoupper($lang['iso_code']));
 
     $fields_form[0]['form']['input'][] = array(
-        'name' => \Mergado\Biano\BianoClass::getActiveLangFieldName($langName),
+        'name' => BianoClass::getActiveLangFieldName($langName),
         'label' => $langName,
         'validation' => 'isBool',
         'cast' => 'intval',
@@ -71,9 +72,9 @@ foreach ($this->languages->getLanguages(true) as $key => $lang) {
         'visibility' => Shop::CONTEXT_ALL,
     );
 
-    if(in_array($langName, SettingsClass::BIANO['LANG_OPTIONS'])) {
+    if(in_array($langName, BianoClass::LANG_OPTIONS)) {
         $fields_form[0]['form']['input'][] = array(
-            'name' => \Mergado\Biano\BianoClass::getMerchantIdFieldName($langName),
+            'name' => BianoClass::getMerchantIdFieldName($langName),
             'label' => $this->l('Merchant ID') . ' ' . $langName,
             'type' => 'text',
             'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('You can get your merchantId by sending an email to info@biano.cz or info@biano.sk'),
@@ -81,5 +82,28 @@ foreach ($this->languages->getLanguages(true) as $key => $lang) {
         );
     }
 }
+
+$fields_form[0]['form']['input'][] = array(
+    'name' => BianoClass::CONVERSION_VAT_INCl,
+    'label' => $this->l('With VAT'),
+    'validation' => 'isBool',
+    'cast' => 'intval',
+    'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
+    'class' => 'switch15',
+    'values' => array(
+        array(
+            'id' => 'biano_active_on',
+            'value' => 1,
+            'label' => $this->l('Yes')
+        ),
+        array(
+            'id' => 'biano_active_off',
+            'value' => 0,
+            'label' => $this->l('No')
+        )
+    ),
+    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Choose whether the conversion value will be sent with or without VAT.'),
+    'visibility' => Shop::CONTEXT_ALL,
+);
 
 include __DIR__ . '/partials/helperForm.php';

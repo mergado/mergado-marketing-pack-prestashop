@@ -1,6 +1,6 @@
 <?php
 
-use Mergado\Tools\SettingsClass;
+use Mergado\Kelkoo\KelkooClass;
 
 $fields_form[0]['form'] = array(
     'legend' => array(
@@ -15,7 +15,7 @@ $fields_form[0]['form'] = array(
 );
 
 $fields_form[0]['form']['input'][] = array(
-    'name' => SettingsClass::KELKOO['ACTIVE'],
+    'name' => KelkooClass::ACTIVE,
     'label' => $this->l('Module active'),
     'validation' => 'isBool',
     'cast' => 'intval',
@@ -38,20 +38,43 @@ $fields_form[0]['form']['input'][] = array(
 );
 
 $fields_form[0]['form']['input'][] = array(
-    'name' => SettingsClass::KELKOO['COUNTRY'],
+    'name' => KelkooClass::COUNTRY,
     'label' => $this->l('Kelkoo country'),
     'type' => 'select',
     'options' => array(
-        'query' => SettingsClass::KELKOO_COUNTRIES,
+        'query' => KelkooClass::COUNTRIES,
         'id' => 'id_option',
         'name' => 'name'
     )
 );
 
 $fields_form[0]['form']['input'][] = array(
-    'name' => SettingsClass::KELKOO['COM_ID'],
+    'name' => KelkooClass::COM_ID,
     'label' => $this->l('Kelkoo merchant id'),
     'type' => 'text',
+    'visibility' => Shop::CONTEXT_ALL,
+);
+
+$fields_form[0]['form']['input'][] = array(
+    'name' => KelkooClass::CONVERSION_VAT_INCL,
+    'label' => $this->l('With VAT'),
+    'validation' => 'isBool',
+    'cast' => 'intval',
+    'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
+    'class' => 'switch15',
+    'values' => array(
+        array(
+            'id' => 'kelkoo_active_on',
+            'value' => 1,
+            'label' => $this->l('Yes')
+        ),
+        array(
+            'id' => 'kelkoo_active_off',
+            'value' => 0,
+            'label' => $this->l('No')
+        )
+    ),
+    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Choose whether the conversion value will be sent with or without VAT.'),
     'visibility' => Shop::CONTEXT_ALL,
 );
 

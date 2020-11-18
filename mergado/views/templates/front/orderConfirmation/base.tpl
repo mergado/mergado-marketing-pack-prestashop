@@ -14,10 +14,9 @@
 
 <div class="mergadoOrderConfirmation">
     {include file='./partials/zbozi.tpl'}
-    {include file='./partials/sklik.tpl'}
     {include file='./partials/heureka.tpl'}
     {include file='./partials/googleAds.tpl'}
-    {include file='./partials/fbpixel.tpl'}
     {include file='./partials/glami.tpl'}
+    {include file='./partials/glamiTop.tpl'}
 </div>
 

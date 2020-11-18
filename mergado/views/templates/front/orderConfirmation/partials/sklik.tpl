@@ -12,25 +12,12 @@
 *  @license   LICENSE.txt
 *}
 
-{if $sklik === '1' && $sklikCode && $sklikCode !== ''}
-    {if !$sklikValue}
-        <!-- Měřicí kód Sklik.cz -->
-        <script type="text/javascript">
-            var seznam_cId = '{$sklikCode}';
-            var seznam_value = {$totalWithoutShippingAndVat};
-        </script>
-    {else}
-        <!-- Měřicí kód Sklik.cz -->
-        <script type="text/javascript">
-            var seznam_cId = {$sklikCode};
-
-            {if $sklikValue != ''}
-                var seznam_value = {$sklikValue};
-            {else}
-                var seznam_value = 0;
-            {/if}
-        </script>
-    {/if}
+{if $sklikData['active'] === '1' && $sklikData['conversionCode'] && $sklikData['conversionCode'] !== ''}
+    <!-- Měřicí kód Sklik.cz -->
+    <script type="text/javascript">
+        var seznam_cId = '{$sklikData['conversionCode']}';
+        var seznam_value = {$sklikData['conversionValue']};
+    </script>
 
     <script type="text/javascript" src="https://www.seznam.cz/rs/static/rc.js" async></script>
 {/if}

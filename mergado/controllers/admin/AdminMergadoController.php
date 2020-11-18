@@ -14,6 +14,13 @@
  * @license   LICENSE.txt
  */
 
+use Mergado\Biano\BianoClass;
+use Mergado\Etarget\EtargetClass;
+use Mergado\Facebook\FacebookClass;
+use Mergado\Google\GaRefundClass;
+use Mergado\Kelkoo\KelkooClass;
+use Mergado\NajNakup\NajNakupClass;
+use Mergado\Sklik\SklikClass;
 use Mergado\Tools\ImportPricesClass;
 use Mergado\Tools\LogClass;
 use Mergado\Tools\NewsClass;
@@ -985,6 +992,7 @@ class AdminMergadoController extends \ModuleAdminController
             'moduleUrl' => $this->getBaseUrl() . _MODULE_DIR_ . $this->name . '/',
             'moduleVersion' => $version,
             'remoteVersion' => $remoteVersion,
+            'phpMinVersion' => Mergado::MERGADO['PHP_MIN_VERSION'],
             'unreadedNews' => NewsClass::getNewsByStatusAndLanguageAndCategory(false, $this->context->language->iso_code, 'news', 1,true, 'DESC'),
             'unreadedUpdates' => NewsClass::getNewsByStatusAndLanguageAndCategory(false, $this->context->language->iso_code, 'update', 1,true, 'DESC'),
             'unreadedTopNews' => NewsClass::getNewsByStatusAndLanguageAndCategory(false, $this->context->language->iso_code, 'TOP'),
@@ -1076,7 +1084,7 @@ class AdminMergadoController extends \ModuleAdminController
      * @return false|string
      */
 
-    //TODO: SPLIT IN SMALLER FILES
+    //TODO: SPLIT IN SMALLER FILES - MOVE EVERY SINGLE ONE TO SINGLE CLASS AND IMCLUDE IT HERE
     public function toggleFieldsJSON() {
         //GLAMI
         $glamiFields = [];
@@ -1085,24 +1093,9 @@ class AdminMergadoController extends \ModuleAdminController
         foreach(SettingsClass::GLAMI_LANGUAGES as $key => $values) {
             $glamiFields[$values]['fields'] = [SettingsClass::GLAMI['CODE'] . '-' . $key];
         }
+        $glamiMainFields[] = SettingsClass::GLAMI['CONVERSION_VAT_INCL'];
 
-        //BIANO
-        $bianoFields = [];
-        $bianoMainFields = [];
-
-        foreach($this->languages->getLanguages(true) as $key => $lang) {
-            $langName = SettingsClass::getLangIso(strtoupper($lang['iso_code']));
-
-            //Get names for language
-            $langFieldName = \Mergado\Biano\BianoClass::getActiveLangFieldName($langName);
-            $merchantIdFieldName = \Mergado\Biano\BianoClass::getMerchantIdFieldName($langName);
-
-            //Asign to arrays
-            $bianoMainFields[] = \Mergado\Biano\BianoClass::getActiveLangFieldName($langName);
-            $bianoFields[$langFieldName]['fields'] = [$merchantIdFieldName];
-        }
-
-        $jsonMap = [
+        $oldFields = [
             // Google ADS
             SettingsClass::GOOGLE_ADS['CONVERSIONS'] => [
                 'fields' => [SettingsClass::GOOGLE_ADS['CONVERSIONS_LABEL']],
@@ -1118,6 +1111,7 @@ class AdminMergadoController extends \ModuleAdminController
                     SettingsClass::GOOGLE_GTAGJS['TRACKING'],
                     SettingsClass::GOOGLE_GTAGJS['ECOMMERCE'],
                     SettingsClass::GOOGLE_GTAGJS['ECOMMERCE_ENHANCED'],
+                    SettingsClass::GOOGLE_GTAGJS['CONVERSION_VAT_INCL'],
                 ],
                 'sub-check' => [
                     SettingsClass::GOOGLE_GTAGJS['TRACKING'] => [
@@ -1143,6 +1137,7 @@ class AdminMergadoController extends \ModuleAdminController
                     SettingsClass::GOOGLE_TAG_MANAGER['TRACKING'],
                     SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE'],
                     SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE_ENHANCED'],
+                    SettingsClass::GOOGLE_TAG_MANAGER['CONVERSION_VAT_INCL'],
                 ],
                 'sub-check' => [
                     SettingsClass::GOOGLE_TAG_MANAGER['TRACKING'] => [
@@ -1161,24 +1156,49 @@ class AdminMergadoController extends \ModuleAdminController
                 ]
             ],
 
-            // Facebook
-            SettingsClass::FB_PIXEL['ACTIVE'] => [
-                'fields' => [SettingsClass::FB_PIXEL['CODE']]
-            ],
-
             // Heureka
             SettingsClass::HEUREKA['VERIFIED_CZ'] => [
-                'fields' => [SettingsClass::HEUREKA['VERIFIED_CODE_CZ'], SettingsClass::HEUREKA['WIDGET_CZ']]
+                'fields' => [
+                    SettingsClass::HEUREKA['VERIFIED_CODE_CZ'],
+                ],
             ],
+            SettingsClass::HEUREKA['WIDGET_CZ'] => [
+                'fields' => [
+                    SettingsClass::HEUREKA['WIDGET_ID_CZ'],
+                    SettingsClass::HEUREKA['WIDGET_POSITION_CZ'],
+                    SettingsClass::HEUREKA['WIDGET_TOP_MARGIN_CZ'],
+                    SettingsClass::HEUREKA['WIDGET_MOBILE_CZ'],
+                    SettingsClass::HEUREKA['WIDGET_SCREEN_WIDTH_CZ'],
+                ],
+            ],
+
             SettingsClass::HEUREKA['VERIFIED_SK'] => [
-                'fields' => [SettingsClass::HEUREKA['VERIFIED_CODE_SK'], SettingsClass::HEUREKA['WIDGET_SK']]
+                'fields' => [
+                    SettingsClass::HEUREKA['VERIFIED_CODE_SK'],
+                ],
             ],
+            SettingsClass::HEUREKA['WIDGET_SK'] => [
+                'fields' => [
+                    SettingsClass::HEUREKA['WIDGET_ID_SK'],
+                    SettingsClass::HEUREKA['WIDGET_POSITION_SK'],
+                    SettingsClass::HEUREKA['WIDGET_TOP_MARGIN_SK'],
+                    SettingsClass::HEUREKA['WIDGET_MOBILE_SK'],
+                    SettingsClass::HEUREKA['WIDGET_SCREEN_WIDTH_SK'],
+                ],
+            ],
+
+
             SettingsClass::HEUREKA['CONVERSIONS_CZ'] => [
-                'fields' => [SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ']]
+                'fields' => [
+                    SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ'],
+                    SettingsClass::HEUREKA['CONVERSION_VAT_INCL_CZ'],
+                ],
             ],
             SettingsClass::HEUREKA['CONVERSIONS_SK'] => [
-                'fields' => [SettingsClass::HEUREKA['CONVERSIONS_CODE_SK']
-                ]
+                'fields' => [
+                    SettingsClass::HEUREKA['CONVERSIONS_CODE_SK'],
+                    SettingsClass::HEUREKA['CONVERSION_VAT_INCL_SK'],
+                ],
             ],
 
             // GLAMI
@@ -1189,49 +1209,17 @@ class AdminMergadoController extends \ModuleAdminController
             SettingsClass::GLAMI['ACTIVE_TOP'] => [
                 'fields' => [
                     SettingsClass::GLAMI['SELECTION_TOP'],
-                    SettingsClass::GLAMI['CODE_TOP']
+                    SettingsClass::GLAMI['CODE_TOP'],
                 ],
             ],
 
-            // BIANO
-            SettingsClass::BIANO['ACTIVE'] => [
-                'fields' => $bianoMainFields,
-                'sub-check' => $bianoFields,
-            ],
-
-            // Seznam
-            SettingsClass::SKLIK['CONVERSIONS'] => [
-                'fields' => [
-                    SettingsClass::SKLIK['CONVERSIONS_CODE'],
-                    SettingsClass::SKLIK['CONVERSIONS_VALUE'],
-                ]
-            ],
-            SettingsClass::SKLIK['RETARGETING'] => [
-                'fields' => [
-                    SettingsClass::SKLIK['RETARGETING_ID']
-                ]
-            ],
             // ZBOZI
             SettingsClass::ZBOZI['CONVERSIONS'] => [
                 'fields' => [
                     SettingsClass::ZBOZI['CONVERSIONS_ADVANCED'],
                     SettingsClass::ZBOZI['SHOP_ID'],
                     SettingsClass::ZBOZI['SECRET'],
-                ]
-            ],
-
-            // Etarget
-            SettingsClass::ETARGET['ACTIVE'] => [
-                'fields' => [
-                    SettingsClass::ETARGET['ID'],
-                    SettingsClass::ETARGET['HASH']
-                ]
-            ],
-
-            // Najnakup.sk
-            SettingsClass::NAJNAKUP['CONVERSIONS'] => [
-                'fields' => [
-                    SettingsClass::NAJNAKUP['SHOP_ID'],
+                    SettingsClass::ZBOZI['CONVERSION_VAT_INCL'],
                 ]
             ],
 
@@ -1241,15 +1229,18 @@ class AdminMergadoController extends \ModuleAdminController
                     SettingsClass::PRICEMANIA['SHOP_ID'],
                 ]
             ],
-
-            // Kelkoo
-            SettingsClass::KELKOO['ACTIVE'] => [
-                'fields' => [
-                    SettingsClass::KELKOO['COUNTRY'],
-                    SettingsClass::KELKOO['COM_ID'],
-                ]
-            ]
         ];
+
+        $jsonMap = array_merge(
+            $oldFields,
+            FacebookClass::getToggleFields(),
+            SklikClass::getToggleFields(),
+            KelkooClass::getToggleFields(),
+            BianoClass::getToggleFields($this->languages->getLanguages(true)),
+            NajNakupClass::getToggleFields(),
+            EtargetClass::getToggleFields(),
+            GaRefundClass::getToggleFields()
+        );
 
         return json_encode($jsonMap, JSON_FORCE_OBJECT);
     }

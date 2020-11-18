@@ -24,6 +24,16 @@ use LanguageCore as Language;
 
 class NajNakupClass
 {
+    const CONVERSIONS = 'mergado_najnakup_konverze';
+    const SHOP_ID = 'mergado_najnakup_shop_id';
+
+    private $active;
+    private $shopId;
+
+    public function __construct()
+    {
+    }
+
     /**
      * Products
      *
@@ -80,7 +90,7 @@ class NajNakupClass
      * @return string
      * @throws Exception
      */
-    private static function sendRequest($url, $host, $port)
+    private function sendRequest($url, $host, $port)
     {
         $fp = fsockopen($host, $port, $errno, $errstr, 6);
 
@@ -109,14 +119,14 @@ class NajNakupClass
      *
      * @param $order
      * @param $lang
-     * @param $shopID
+     * @param $shopId
      * @return string
      */
-    public static function sendNajnakupValuation($order, $lang, $shopID)
+    public function sendNajnakupValuation($order, $lang, $shopId)
     {
 
-        $active = SettingsClass::getSettings(SettingsClass::NAJNAKUP['CONVERSIONS'], $shopID);
-        $id = SettingsClass::getSettings(SettingsClass::NAJNAKUP['SHOP_ID'], $shopID);
+        $active = $this->getActive($shopId);
+        $id = $this->getShopId($shopId);
 
         if ($active === SettingsClass::ENABLED) {
 
@@ -141,5 +151,59 @@ class NajNakupClass
         }
 
         return false;
+    }
+
+    /*******************************************************************************************************************
+     * GET FIELD
+     ******************************************************************************************************************/
+
+    /**
+     * @param $shopId
+     * @return mixed
+     */
+    public function getActive($shopId)
+    {
+        if (!is_null($this->active)) {
+            return $this->active;
+        }
+
+        $this->active = SettingsClass::getSettings(self::CONVERSIONS, $shopId);
+
+        return $this->active;
+    }
+
+    /**
+     * @param $shopId
+     * @return mixed
+     */
+    public function getShopId($shopId)
+    {
+        if (!is_null($this->shopId)) {
+            return $this->shopId;
+        }
+
+        $this->shopId = SettingsClass::getSettings(self::SHOP_ID, $shopId);
+
+        return $this->shopId;
+    }
+
+    /*******************************************************************************************************************
+     * TOGGLE FIELDS JSON
+     ******************************************************************************************************************/
+
+    /**
+     * @return \array[][]
+     */
+
+    public static function getToggleFields()
+    {
+
+        return array(
+            self::CONVERSIONS => [
+                'fields' => [
+                    self::SHOP_ID,
+                ]
+            ],
+        );
     }
 }

@@ -13,17 +13,17 @@
 *}
 
 <script>
-    var kelkoo_country = "{$kelkoo_country}";
-    var kelkoo_merchant_id = "{$kelkoo_merchant_id}";
+    var kelkoo_country = "{$kelkooData['country']}";
+    var kelkoo_merchant_id = "{$kelkooData['merchantId']}";
 </script>
 
-{if $PS_VERSION < 1.7}
+{if $kelkooData['IS_PS_17']}
     <script type="text/javascript">
         _kkstrack = {
             {literal}merchantInfo: [{ country:kelkoo_country, merchantId:kelkoo_merchant_id }],{/literal}
-            orderValue: '{$kelkoo_sales}',
-            orderId: '{$kelkoo_orderId}',
-            basket: {$kelkoo_products_json}
+            orderValue: '{$kelkooData['sales']}',
+            orderId: '{$kelkooData['orderId']}',
+            basket: {$kelkooData['productsJson']}
         };
         (function() {
             var s = document.createElement('script');
@@ -38,9 +38,9 @@
     <script type="text/javascript">
         _kkstrack = {
             merchantInfo: [{ country:kelkoo_country, merchantId:kelkoo_merchant_id }],
-            orderValue: '{$kelkoo_sales}',
-            orderId: '{$kelkoo_orderId}',
-            basket: {$kelkoo_products_json nofilter}
+            orderValue: '{$kelkooData['sales']}',
+            orderId: '{$kelkooData['orderId']}',
+            basket: {$kelkooData['productsJson'] nofilter}
         };
         (function() {
             var s = document.createElement('script');

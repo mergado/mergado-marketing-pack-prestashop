@@ -312,6 +312,12 @@ class ZboziClass
         $advanced = SettingsClass::getSettings(SettingsClass::ZBOZI['CONVERSIONS_ADVANCED'], $shopID);
         $id = SettingsClass::getSettings(SettingsClass::ZBOZI['SHOP_ID'], $shopID);
         $secret = SettingsClass::getSettings(SettingsClass::ZBOZI['SECRET'], $shopID);
+        $withVat = SettingsClass::getSettings(SettingsClass::ZBOZI['CONVERSION_VAT_INCL'], $shopID);
+
+        // Default is with vat
+        if ($withVat === false) {
+            $withVat = true;
+        }
 
         if ($active === SettingsClass::ENABLED) {
             if ($advanced === SettingsClass::ENABLED) {
@@ -325,16 +331,32 @@ class ZboziClass
                             $pid .= '-' . $product['product_attribute_id'];
                         }
 
+                        // If in settings set with TAX or without
+                        if ($withVat) {
+                            $unitPrice = $product['unit_price_tax_incl'];
+                        } else {
+                            $unitPrice = $product['unit_price_tax_excl'];
+                        }
+
                         $zbozi->addCartItem(array(
                             'itemId' => $pid,
                             'productName' => $product['product_name'],
-                            'unitPrice' => $product['unit_price_tax_incl'],
+                            'unitPrice' => $unitPrice,
                             'quantity' => $product['product_quantity'],
                         ));
                     }
 
+                    // If in settings set with TAX or without
+                    if ($withVat) {
+                        $deliveryPrice = $order['order']->total_shipping_tax_incl;
+                        $other = $order['order']->total_discounts_tax_incl;
+                    } else {
+                        $deliveryPrice = $order['order']->total_shipping_tax_excl;
+                        $other = $order['order']->total_discounts_tax_excl;
+                    }
+
                     $carrier = new Carrier($order['order']->id_carrier);
-                    $other = $order['order']->total_discounts_tax_incl;
+
                     if ($other && $other > 0) {
                         $other = $other * -1;
                     }
@@ -343,7 +365,7 @@ class ZboziClass
                         'orderId' => $order['order']->id,
                         'email' => $order['customer']->email,
                         'deliveryType' => DeliveryType::getDeliveryType($carrier->name),
-                        'deliveryPrice' => (string)$order['order']->total_shipping_tax_incl,
+                        'deliveryPrice' => (string) $deliveryPrice,
                         'deliveryDate' => $order['order']->delivery_date,
                         'paymentType' => $order['order']->payment,
                         'otherCosts' => $other

@@ -13,5 +13,5 @@
 *}
 
 <script>
-    bianoTrack('track', 'purchase', {$bianoPurchaseData});
+    bianoTrack('track', 'purchase', {$bianoPurchaseData nofilter});
 </script>

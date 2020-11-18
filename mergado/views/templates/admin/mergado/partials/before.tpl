@@ -84,7 +84,7 @@
     </div>
 </div>
 
-{if $moduleVersion < $remoteVersion}
+{if ($moduleVersion < $remoteVersion) && (phpversion() > $phpMinVersion)}
     <div class="alert alert-warning">
         {l s='New version of module is available' mod='mergado'} -
         <form method="post" class="text-link">

@@ -46,6 +46,29 @@ $fields_form[0]['form']['input'][] = array(
     'visibility' => Shop::CONTEXT_ALL,
 );
 
+$fields_form[0]['form']['input'][] = array(
+    'name' => SettingsClass::GLAMI['CONVERSION_VAT_INCL'],
+    'label' => $this->l('With VAT'),
+    'validation' => 'isBool',
+    'cast' => 'intval',
+    'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
+    'class' => 'switch15',
+    'values' => array(
+        array(
+            'id' => 'glam_conv_active_on',
+            'value' => 1,
+            'label' => $this->l('Yes')
+        ),
+        array(
+            'id' => 'glam_conv_active_off',
+            'value' => 0,
+            'label' => $this->l('No')
+        )
+    ),
+    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Choose whether the conversion value will be sent with or without VAT.'),
+    'visibility' => Shop::CONTEXT_ALL,
+);
+
 foreach (SettingsClass::GLAMI_LANGUAGES as $key => $lang) {
     $fields_form[0]['form']['input'][] = array(
         'name' => $lang,

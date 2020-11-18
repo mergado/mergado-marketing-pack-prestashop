@@ -897,3 +897,12 @@ h2 {
         flex: 0 340px;
     }
 }
+
+#mergado_fake_field {
+    display: none;
+}
+
+.mmp-tag--field {
+    margin-top: -7px;
+    display: inline-block;
+}

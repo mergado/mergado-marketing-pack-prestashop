@@ -18,7 +18,7 @@
     var updateAvailable = '{l s='New version available' mod='mergado'}';
     $('.page-head .page-title').append(' v.' + moduleVersion + '');
 
-    {if $moduleVersion < $remoteVersion}
+    {if ($moduleVersion < $remoteVersion) && (phpversion() > $phpMinVersion)}
     $('.page-head .page-title').append('<br><small>' + updateAvailable + ' ' + remoteVersion + '</small>');
     {/if}
 </script>

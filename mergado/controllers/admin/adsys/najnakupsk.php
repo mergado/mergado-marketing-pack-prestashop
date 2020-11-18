@@ -1,6 +1,6 @@
 <?php
 
-use Mergado\Tools\SettingsClass;
+use Mergado\NajNakup\NajNakupClass;
 
 $fields_form[0]['form'] = array(
     'legend' => array(
@@ -17,7 +17,7 @@ $fields_form[0]['form'] = array(
             'name' => 'id_shop'
         ),
         array(
-            'name' => SettingsClass::NAJNAKUP['CONVERSIONS'],
+            'name' => NajNakupClass::CONVERSIONS,
             'label' => $this->l('Najnakup track conversions'),
             'validation' => 'isBool',
             'cast' => 'intval',
@@ -38,7 +38,7 @@ $fields_form[0]['form'] = array(
             'visibility' => Shop::CONTEXT_ALL,
         ),
         array(
-            'name' => SettingsClass::NAJNAKUP['SHOP_ID'],
+            'name' => NajNakupClass::SHOP_ID,
             'label' => $this->l('Najnakup shop ID'),
             'type' => 'text',
             'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->l('Vaše jedinečné ID obchodu z Najnakup.sk.'),

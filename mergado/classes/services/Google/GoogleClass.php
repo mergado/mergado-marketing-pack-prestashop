@@ -17,7 +17,6 @@
 namespace Mergado\Google;
 
 use CategoryCore;
-use CombinationCore;
 use ConfigurationCore;
 use CurrencyCore;
 use ManufacturerCore;
@@ -35,21 +34,28 @@ class GoogleClass
      * @param $order
      * @param $products
      * @param $langId
+     * @param $shopId
      * @return false|string
      */
 
-    public static function getGtagjsPurchaseData($orderId, $order, $products, $langId)
+    public static function getGtagjsPurchaseData($orderId, $order, $products, $langId, $shopId)
     {
         $data = array();
 
         $currency = new CurrencyCore($order->id_currency);
+        $withVat = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['CONVERSION_VAT_INCL'], $shopId);
+
+        // Default is with vat
+        if ($withVat === false) {
+            $withVat = true;
+        }
 
         $data['transaction_id'] = "$orderId";
         $data['affiliation'] = ConfigurationCore::get('PS_SHOP_NAME');
         $data['value'] = $order->total_paid;
         $data['currency'] = $currency->iso_code;
-        $data['tax'] = $order->total_paid_tax_incl - $order->total_paid_tax_excl;
-        $data['shipping'] = $order->total_shipping;
+        $data['tax'] = (string) ($order->total_paid_tax_incl - $order->total_paid_tax_excl);
+        $data['shipping'] = $order->total_shipping_tax_excl;
 
         $productData = array();
 
@@ -74,8 +80,15 @@ class GoogleClass
                 "variant" => $productVariant,
 //                "list_position" => "",
                 "quantity" => $product['product_quantity'],
-                "price" => $product['total_price_tax_incl'] / $product['product_quantity'],
             );
+
+            // If VAT included or not
+            if ($withVat) {
+                $product_item['price'] = $product['unit_price_tax_incl'];
+            } else {
+                $product_item['price'] = $product['unit_price_tax_excl'];
+            }
+
             $productData[] = $product_item;
         }
 
@@ -150,20 +163,27 @@ class GoogleClass
      * @param $order
      * @param $products
      * @param $langId
+     * @param $shopId
      * @return false|string
      */
 
-    public static function getGTMPurchaseData($orderId, $order, $products, $langId)
+    public static function getGTMPurchaseData($orderId, $order, $products, $langId, $shopId)
     {
         $data = array();
 
         $currency = new CurrencyCore($order->id_currency);
+        $withVat = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['CONVERSION_VAT_INCL'], $shopId);
+
+        // Default is with vat
+        if ($withVat === false) {
+            $withVat = true;
+        }
 
         $data['actionField']['id'] = "$orderId";
         $data['actionField']['affiliation'] = ConfigurationCore::get('PS_SHOP_NAME');
         $data['actionField']['revenue'] = $order->total_paid;
-        $data['actionField']['tax'] = $order->total_paid_tax_incl - $order->total_paid_tax_excl;
-        $data['actionField']['shipping'] = $order->total_shipping;
+        $data['actionField']['tax'] = (string) ($order->total_paid_tax_incl - $order->total_paid_tax_excl);
+        $data['actionField']['shipping'] = $order->total_shipping_tax_excl;
         $data['actionField']['coupon'] = '';
 
         $cartRules = array();
@@ -192,12 +212,19 @@ class GoogleClass
             $product_item = array(
                 "name" => $product['product_name'],
                 "id" => $idProduct,
-                "price" => $product['total_price_tax_incl'] / $product['product_quantity'],
                 "brand" => $manufacturer->name,
                 "category" => $category->name,
                 "variant" => $productVariant,
                 "quantity" => $product['product_quantity'],
             );
+
+            // If VAT included or not
+            if ($withVat) {
+                $product_item['price'] = $product['unit_price_tax_incl'];
+            } else {
+                $product_item['price'] = $product['unit_price_tax_excl'];
+            }
+
             $productData[] = $product_item;
         }
 

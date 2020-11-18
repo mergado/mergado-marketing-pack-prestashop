@@ -1,6 +1,6 @@
 <?php
 
-use Mergado\Tools\SettingsClass;
+use Mergado\Etarget\EtargetClass;
 
 $fields_form[0]['form'] = array(
     'legend' => array(
@@ -17,7 +17,7 @@ $fields_form[0]['form'] = array(
             'name' => 'id_shop'
         ),
         array(
-            'name' => SettingsClass::ETARGET['ACTIVE'],
+            'name' => EtargetClass::ACTIVE,
             'label' => $this->l('ETARGET'),
             'validation' => 'isBool',
             'cast' => 'intval',
@@ -38,13 +38,13 @@ $fields_form[0]['form'] = array(
             'visibility' => Shop::CONTEXT_ALL,
         ),
         array(
-            'name' => SettingsClass::ETARGET['ID'],
+            'name' => EtargetClass::ID,
             'label' => $this->l('ETARGET ID'),
             'type' => 'text',
             'visibility' => Shop::CONTEXT_ALL,
         ),
         array(
-            'name' => SettingsClass::ETARGET['HASH'],
+            'name' => EtargetClass::HASH,
             'label' => $this->l('Hash'),
             'type' => 'text',
             'visibility' => Shop::CONTEXT_ALL,

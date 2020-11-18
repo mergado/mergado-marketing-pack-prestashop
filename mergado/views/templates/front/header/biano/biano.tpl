@@ -11,8 +11,7 @@
 *  @copyright 2016 Mergado technologies, s. r. o.
 *  @license   LICENSE.txt
 *}
-
-{if $langCode == 'CZ'}
+{if in_array($langCode, $bianoLangOptions)}
     <!-- Biano Pixel Code -->
     <script>
         var merchantId = '{$merchantId}';
@@ -22,26 +21,9 @@
                 o.callMethod.apply(o,arguments):o.queue.push(arguments)};
                 o.push=o;o.queue=[];p=i.createElement(a);p.async=!0;p.src=n;
                 x=i.getElementsByTagName(a)[0];x.parentNode.insertBefore(p,x)
-                // }(window,document,'script','https://pixel.biano.cz/min/pixel.js');
-                }(window,document,'script','https://pixel.biano.cz/debug/pixel.js'); // Debug
+        {/literal}{literal}// }(window,document,'script','https://pixel.biano.{/literal}{strtolower($langCode)}{literal}/min/pixel.js');
+                }{/literal}(window,document,'script','https://pixel.biano.{strtolower($langCode)}/debug/pixel.js'); // Debug
         bianoTrack('init', merchantId);
-        {/literal}
-    </script>
-    <!-- End Biano Pixel Code -->
-{elseif $langCode == 'SK'}
-    <!-- Biano Pixel Code -->
-    <script>
-        var merchantId = '{$merchantId}';
-        {literal}
-        !function(b,i,a,n,o,p,x)
-            {if(b.bianoTrack)return;o=b.bianoTrack=function(){o.callMethod?
-            o.callMethod.apply(o,arguments):o.queue.push(arguments)};
-            o.push=o;o.queue=[];p=i.createElement(a);p.async=!0;p.src=n;
-            x=i.getElementsByTagName(a)[0];x.parentNode.insertBefore(p,x)
-            // }(window,document,'script','https://pixel.biano.sk/min/pixel.js');
-            }(window,document,'script','https://pixel.biano.sk/debug/pixel.js'); // Debug
-        bianoTrack('init', merchantId);
-        {/literal}
     </script>
     <!-- End Biano Pixel Code -->
 {/if}

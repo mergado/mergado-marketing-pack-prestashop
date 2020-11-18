@@ -12,7 +12,7 @@
 *  @license   LICENSE.txt
 *}
 
-{if $fbPixel == 1}
+{if $fbPixelData['active'] == 1}
     {* PS 1.6 *}
     {if isset($currency->iso_code)}
         {$c_iso_code = $currency->iso_code}
@@ -26,9 +26,9 @@
         document.addEventListener("DOMContentLoaded", function(event) {
             $(function () {
                 fbq('track', 'Purchase', {
-                    content_ids: [{$fbPixelProducts|json_encode nofilter}], // Used nofilter because of console errors
+                    content_ids: [{$fbPixelData['products']|json_encode nofilter}], // Used nofilter because of console errors
                     content_type: 'product',
-                    value: {$total},
+                    value: {$fbPixelData['orderValue']},
                     currency: '{$c_iso_code}'
                 });
             });
