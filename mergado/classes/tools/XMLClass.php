@@ -30,6 +30,7 @@ use ManufacturerCore as Manufacturer;
 use LinkCore as Link;
 use EmployeeCore as Employee;
 use SimpleXMLElement;
+use SpecificPrice;
 use ValidateCore as Validate;
 use CombinationCore as Combination;
 use ShopCore as Shop;
@@ -475,9 +476,11 @@ class XMLClass extends ObjectModel
                     $xml_new->endElement();
 
                     // Product delivery days
-                    $xml_new->startElement('DELIVERY_DAYS');
-                    $xml_new->text($product['delivery_days']);
-                    $xml_new->endElement();
+                    if ($product['delivery_days'] != '') {
+                        $xml_new->startElement('DELIVERY_DAYS');
+                        $xml_new->text($product['delivery_days']);
+                        $xml_new->endElement();
+                    }
 
                     // Product currency
                     $xml_new->startElement('CURRENCY');
@@ -527,6 +530,26 @@ class XMLClass extends ObjectModel
                     $xml_new->startElement('PRICE_VAT');
                     $xml_new->text($product['price_vat']);
                     $xml_new->endElement();
+
+                    // Product discount price NO VAT
+                    if ($product['discount_price'] != '') {
+                        $xml_new->startElement('DISCOUNT_PRICE');
+                        $xml_new->text($product['discount_price']);
+                        $xml_new->endElement();
+                    }
+
+                    // Product discount price VAT
+                    if ($product['discount_price_vat']) {
+                        $xml_new->startElement('DISCOUNT_PRICE_VAT');
+                        $xml_new->text($product['discount_price_vat']);
+                        $xml_new->endElement();
+                    }
+
+                    if ($product['sale_price_effective_date'] != '') {
+                        $xml_new->startElement('SALE_PRICE_EFFECTIVE_DATE');
+                        $xml_new->text($product['sale_price_effective_date']);
+                        $xml_new->endElement();
+                    }
 
                     if($product['cost'] != '') {
                         //Product COST
@@ -772,16 +795,11 @@ class XMLClass extends ObjectModel
                 $export = false;
             }
 
-            if (!(bool)$product->show_price) {
-                $export = false;
-            }
-
             if (!$export) {
                 continue;
             }
 
             $base = $this->productBase($product, $lang);
-
             if (array_key_exists('item_id', $base)) {
                 $flatProductList[] = $base;
             } else {
@@ -868,18 +886,17 @@ class XMLClass extends ObjectModel
 
         $whenOutOfStock = StockAvailable::outOfStock($item->id);
 
+        // 0 - no orders if out of stock
+        // 1 - orders if out of stock allowed
+        // 2 - settings of product is same as main global settings
         if ($whenOutOfStock == 2) {
-            $whenOutOfStock = Configuration::get('PS_ORDER_OUT_OF_STOCK');
+            $whenOutOfStock = Configuration::get('PS_ORDER_OUT_OF_STOCK'); // set global settings as the used one
         }
 
         if (!empty($combinations)) {
             foreach ($combinations as $combination) {
                 $mainImage = null;
-                $qty = Product::getQuantity(
-                    $combination['id_product'], $combination['id_product_attribute']
-                );
-
-                $qtyDays = SettingsClass::getSettings('delivery_days', $this->shopID);
+                $qty = Product::getQuantity($combination['id_product'], $combination['id_product_attribute']);
 
                 if ($qty <= 0 && $whenOutOfStock == 0) {
                     continue;
@@ -903,48 +920,49 @@ class XMLClass extends ObjectModel
                 }
 
                 $specific_price = null;
+                $price_vat = $this->getProductPrice(
+                    $id_country,
+                    $specific_price,
+                    $context->shop->id,
+                    $combination['id_product'],
+                    $combination['id_product_attribute'],
+                    true
+                );
 
-                $price_vat = Product::priceCalculation($context->shop->id, // ID shop
-                    $combination['id_product'], // ID Product
-                    $combination['id_product_attribute'], // ID Product atribut
-                    $id_country, // ID Country
-                    0, // ID State
-                    0, // ZIP Code
-                    $this->currency->id, // Id Currency
-                    1, // ID Group
-                    1, // Quantity
-                    true, // Použít daň
-                    6, // Počet desetinných míst
-                    false, // Only reduct
-                    true, // Use reduct
-                    true, // With ekotax
-                    $specific_price, // Specific price
-                    true, // Use group reduction
-                    0, // ID customer
-                    true, // Use customer price
-                    0, // ID Cart
-                    0);
+                $price_novat = $this->getProductPrice(
+                    $id_country,
+                    $specific_price,
+                    $context->shop->id,
+                    $combination['id_product'],
+                    $combination['id_product_attribute'],
+                    false
+                );
 
-                $price_novat = Product::priceCalculation($context->shop->id, // ID shop
-                    $combination['id_product'], // ID Product
-                    $combination['id_product_attribute'], // ID Product atribut
-                    $id_country, // ID Country
-                    0, // ID State
-                    0, // ZIP Code
-                    $this->currency->id, // Id Currency
-                    1, // ID Group
-                    1, // Quantity
-                    false, // Použít daň
-                    6, // Počet desetinných míst
-                    false, // Only reduct
-                    true, // Use reduct
-                    true, // With ekotax
-                    $specific_price, // Specific price
-                    true, // Use group reduction
-                    0, // ID customer
-                    true, // Use customer price
-                    0, // ID Cart
-                    0);
+                $discount_price_vat = $this->getProductDiscountPrice(
+                    $id_country,
+                    $specific_price,
+                    $context->shop->id,
+                    $combination['id_product'],
+                    $combination['id_product_attribute'],
+                    true
+                );
+
+                $discount_price_novat = $this->getProductDiscountPrice(
+                    $id_country,
+                    $specific_price,
+                    $context->shop->id,
+                    $combination['id_product'],
+                    $combination['id_product_attribute'],
+                    false
+                );
+
+                $saleDateInterval = $this->getSaleDateInterval($id_country, $context->shop->id, $combination['id_product'], $combination['id_product_attribute']);
+
+                // If no discount don't create elements
+                if ($discount_price_novat == $price_novat) {
+                    $discount_price_vat = '';
+                    $discount_price_novat = '';
+                }
 
                 $cost = $combination['wholesale_price'] != 0 ? $combination['wholesale_price'] : $item->wholesale_price;
 
@@ -962,7 +980,6 @@ class XMLClass extends ObjectModel
                         'value' => $value,
                     );
                 }
-
 
                 $params = array_merge($params, $features);
                 $itemgroup = array();
@@ -987,15 +1004,11 @@ class XMLClass extends ObjectModel
                     'item_id' => $combination['id_product'] . '-' . $combination['id_product_attribute'],
                     'itemgroup_id' => $itemgroupBase,
                     'accessory' => $accessoriesExtended,
-                    'availability' => (Product::getQuantity(
-                            $combination['id_product'], $combination['id_product_attribute']
-                        ) > 0) ? 'in stock' : 'out of stock',
-                    'stock_quantity' => Product::getQuantity(
-                            $combination['id_product'], $combination['id_product_attribute']
-                    ),
+                    'availability' => $this->getProductAvailability($qty),
+                    'stock_quantity' => $qty,
                     'category' => $category,
                     'condition' => $item->condition,
-                    'delivery_days' => ($qty > 0) ? 0 : $qtyDays,
+                    'delivery_days' => $this->getProductDeliveryDays($combination, $qty),
                     'description_short' => strip_tags($item->description_short[$lang]),
                     'description' => strip_tags($item->description[$lang]),
                     'ean' => ($combination['ean13'] == "" ? $item->ean13 : $combination['ean13']),
@@ -1010,6 +1023,9 @@ class XMLClass extends ObjectModel
 //                    'url' => $link->getProductLink($item, null, $defaultCategoryName, null, $lang, null, $combination['id_product_attribute'], false, false, true),
                     'price' => Tools::ps_round($price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
+                    'discount_price' => Tools::ps_round($discount_price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
+                    'discount_price_vat' => Tools::ps_round($discount_price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
+                    'sale_price_effective_date' => $saleDateInterval,
                     'cost' => $cost == null ? '' : $cost,
                     'cost_vat' => $cost_vat == null ? '' : $cost_vat,
                     'wholesale_price' => $combination['wholesale_price'] != 0 ? $combination['wholesale_price'] : $item->wholesale_price,
@@ -1023,12 +1039,10 @@ class XMLClass extends ObjectModel
             }
         } else {
             $qty = Product::getQuantity($item->id);
-            $qtyDays = SettingsClass::getSettings('delivery_days', $this->shopID);
 
             if ($qty <= 0 && $whenOutOfStock == 0) {
                 // skip
             } else {
-
                 $imagesList = $item->getImages($lang);
                 $images = array();
                 foreach ($imagesList as $img) {
@@ -1041,47 +1055,49 @@ class XMLClass extends ObjectModel
                 }
 
                 $specific_price = null;
-                $price_vat = Product::priceCalculation($context->shop->id, // ID shop
-                    $item->id, // ID Product
-                    null, // ID Product atribut
-                    $id_country, // ID Country
-                    0, // ID State
-                    0, // ZIP Code
-                    $this->currency->id, // Id Currency
-                    1, // ID Group
-                    1, // Quantity
-                    true, // Použít daň
-                    6, // Počet desetinných míst
-                    false, // Only reduct
-                    true, // Use reduct
-                    true, // With ekotax
-                    $specific_price, // Specific price
-                    true, // Use group reduction
-                    0, // ID customer
-                    true, // Use customer price
-                    0, // ID Cart
-                    0);
+                $price_vat = $this->getProductPrice(
+                    $id_country,
+                    $specific_price,
+                    $context->shop->id,
+                    $item->id,
+                    null,
+                    true
+                );
 
-                $price_novat = Product::priceCalculation($context->shop->id, // ID shop
-                    $item->id, // ID Product
-                    null, // ID Product atribut
-                    $id_country, // ID Country
-                    0, // ID State
-                    0, // ZIP Code
-                    $this->currency->id, // Id Currency
-                    1, // ID Group
-                    1, // Quantity
-                    false, // Použít daň
-                    6, // Počet desetinných míst
-                    false, // Only reduct
-                    true, // Use reduct
-                    true, // With ekotax
-                    $specific_price, // Specific price
-                    true, // Use group reduction
-                    0, // ID customer
-                    true, // Use customer price
-                    0, // ID Cart
-                    0);
+                $price_novat = $this->getProductPrice(
+                    $id_country,
+                    $specific_price,
+                    $context->shop->id,
+                    $item->id,
+                    null,
+                    false
+                );
+
+                $discount_price_vat = $this->getProductDiscountPrice(
+                    $id_country,
+                    $specific_price,
+                    $context->shop->id,
+                    $item->id,
+                    null,
+                    true
+                );
+
+                $discount_price_novat = $this->getProductDiscountPrice(
+                    $id_country,
+                    $specific_price,
+                    $context->shop->id,
+                    $item->id,
+                    null,
+                    false
+                );
+
+                $saleDateInterval = $this->getSaleDateInterval($id_country, $context->shop->id, $item->id, null);
+
+                // If no discount don't create elements
+                if ($discount_price_novat == $price_novat) {
+                    $discount_price_vat = '';
+                    $discount_price_novat = '';
+                }
 
                 $cost = $item->wholesale_price != 0 ? $item->wholesale_price : null;
                 $cost_vat = $this->getProductWholesalePriceWithVat($item->id, $cost, $id_country, $this->shopID, $context);
@@ -1096,11 +1112,11 @@ class XMLClass extends ObjectModel
                     'item_id' => $item->id,
                     'itemgroup_id' => $itemgroupBase,
                     'accessory' => $accessoriesExtended,
-                    'availability' => (Product::getQuantity($item->id) > 0) ? 'in stock' : 'out of stock',
+                    'availability' => $this->getProductAvailability($qty),
                     'stock_quantity' => Product::getQuantity($item->id),
                     'category' => $category,
                     'condition' => $item->condition,
-                    'delivery_days' => ($qty > 0) ? 0 : $qtyDays,
+                    'delivery_days' => $this->getProductDeliveryDays($item, $qty),
                     'description_short' => strip_tags($item->description_short[$lang]),
                     'description' => strip_tags($item->description[$lang]),
                     'ean' => $item->ean13,
@@ -1113,6 +1129,9 @@ class XMLClass extends ObjectModel
                     'url' => $link->getProductLink($item, null, $defaultCategoryName, null, $lang, null),
                     'price' => Tools::ps_round($price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
                     'price_vat' => Tools::ps_round($price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
+                    'discount_price' => Tools::ps_round($discount_price_novat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
+                    'discount_price_vat' => Tools::ps_round($discount_price_vat, Configuration::get('PS_PRICE_DISPLAY_PRECISION')),
+                    'sale_price_effective_date' => $saleDateInterval,
                     'cost' => $cost == null ? '' : $cost,
                     'cost_vat' => $cost_vat == null ? '' : $cost_vat,
                     'wholesale_price' => $item->wholesale_price,
@@ -1598,6 +1617,137 @@ class XMLClass extends ObjectModel
         );
 
         return $return;
+    }
+
+    public function getProductDeliveryDays($product, $availableQuantity)
+    {
+//     * Choose which parameters use for give information delivery.
+//     * 0 - none
+//     * 1 - use default information
+//     * 2 - use product information
+        $productLableSettingsUsage = $product->additional_delivery_times;
+        $deliveryDaysDefault = SettingsClass::getSettings('delivery_days', $this->shopID);
+
+        // Product is in stock
+        if (trim($deliveryDaysDefault) == '') {
+            if ($availableQuantity > 0) {
+                if ($productLableSettingsUsage == 0) {
+                    $deliveryDays = ''; // no delivery days
+                } else if ( $productLableSettingsUsage == 1 ) {
+                    $deliveryDays = Configuration::get('PS_LABEL_DELIVERY_TIME_AVAILABLE', $this->defaultLang); // global label
+                } else if ( $productLableSettingsUsage == 2 ) {
+                    $deliveryDays = $product->delivery_in_stock[1]; // label from specific product
+                }
+
+            // product is in preorder
+            } else {
+                if ($productLableSettingsUsage == 0) {
+                    $deliveryDays = ''; // no delivery days
+                } else if ( $productLableSettingsUsage == 1 ) {
+                    $deliveryDays = Configuration::get('PS_LABEL_DELIVERY_TIME_OOSBOA', $this->defaultLang); // global label
+                } else if ( $productLableSettingsUsage == 2 ) {
+                    $deliveryDays = $product->delivery_out_stock[1]; // label from specific product
+                }
+            }
+        } else {
+            $deliveryDays = $deliveryDaysDefault;
+        }
+
+        return $deliveryDays;
+
+    }
+
+    public function getProductAvailability($availableQuantity)
+    {
+        if ($availableQuantity <= 0) {
+            $availability = 'preorder';
+        } else if ($availableQuantity > 0) {
+            $availability = 'in stock';
+        } else {
+            $availability = 'out of stock'; // Probably never happens?
+        }
+
+        return $availability;
+    }
+
+    public function getProductPrice($idCountry, $specificPrice, $shopId, $productId, $productAttributeId = null, $with_vat = false)
+    {
+        return Product::priceCalculation(
+            $shopId, // ID shop
+            $productId, // ID Product
+            $productAttributeId, // ID Product atribut
+            $idCountry, // ID Country
+            0, // ID State
+            0, // ZIP Code
+            $this->currency->id, // Id Currency
+            1, // ID Group
+            1, // Quantity
+            $with_vat, // Použít daň
+            6, // Počet desetinných míst
+            false, // Only reduct
+            false, // Use reduct
+            true, // With ekotax
+            $specificPrice, // Specific price
+            false, // Use group reduction
+            0, // ID customer
+            false, // Use customer price
+            0, // ID Cart
+            0);
+    }
+
+    public function getProductDiscountPrice($idCountry, $specificPrice, $shopId, $productId, $productAttributeId = null, $with_vat = false)
+    {
+        return Product::priceCalculation(
+            $shopId, // ID shop
+            $productId, // ID Product
+            $productAttributeId, // ID Product atribut
+            $idCountry, // ID Country
+            0, // ID State
+            0, // ZIP Code
+            $this->currency->id, // Id Currency
+            1, // ID Group
+            1, // Quantity
+            $with_vat, // Použít daň
+            6, // Počet desetinných míst
+            false, // Only reduct
+            true, // Use reduct
+            true, // With ekotax
+            $specificPrice, // Specific price
+            true, // Use group reduction
+            0, // ID customer
+            true, // Use customer price
+            0, // ID Cart
+            0);
+    }
+
+    public function getSaleDateInterval($id_country, $shopId, $productId, $productAttributeId = null)
+    {
+        $from = '';
+        $to = '';
+
+        $rule = SpecificPrice::getSpecificPrice(
+            $productId,
+            $shopId,
+            $this->currency->id,
+            $id_country,
+            1,
+            1,
+            $productAttributeId
+        );
+
+        if ($rule['from'] != 0) {
+            $from = date(DATE_ISO8601, strtotime($rule['from']));
+        }
+
+        if ($rule['to'] != 0) {
+            $to = date(DATE_ISO8601, strtotime($rule['to']));
+        }
+
+        if ($from === '' && $to === '') {
+            return '';
+        }
+
+        return implode('/', [$from, $to]);
     }
 
     /*******************************************************************************************************************

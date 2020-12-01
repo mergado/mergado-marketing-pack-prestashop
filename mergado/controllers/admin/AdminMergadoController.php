@@ -481,7 +481,7 @@ class AdminMergadoController extends \ModuleAdminController
                     'type' => 'text',
                     'name' => 'delivery_days',
                     'hint' => $this->l('In how many days can you delivery the product when it is out of stock'),
-                    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Produkty, které nejsou skladem a zároveň je můžete objednat, budou mít v elementu "DELIVERY_DAYS" tuto hodnotu.'),
+                    'desc' => '<span class="mmp-tag mmp-tag--info"></span><strong>' . $this->l('If not filled in, the value from the field "Label of out-of-stock products with allowed backorders"') . '</strong>',
                     'visibility' => Shop::CONTEXT_ALL
                 )
             ),
