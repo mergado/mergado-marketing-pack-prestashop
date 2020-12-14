@@ -1289,12 +1289,13 @@ class AdminMergadoController extends \ModuleAdminController
 
                 $changed = true;
                 foreach ($_POST as $key => $value) {
-                    if(SettingsClass::getSettings($key, $shopID) != $value) {
+                    $settingValue = SettingsClass::getSettings($key, $shopID);
+
+                    if($settingValue !== $value) {
                         SettingsClass::saveSetting($key, $value, $shopID);
                         LogClass::log('Settings value edited: ' . $key . ' => ' . $value);
                         $changed = false;
                     }
-
                 }
 
                 if($changed) {

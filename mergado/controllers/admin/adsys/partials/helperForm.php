@@ -11,27 +11,27 @@ foreach ($this->settingsValues as $key => $value) {
     if (!isset($fields_value[$key])) {
         $fields_value[$key] = $value;
     }
+}
 
-    // Default values for specific fields
-    if (!isset($fields_value[SettingsClass::ZBOZI['CONVERSION_VAT_INCL']])) {
-        $fields_value[SettingsClass::ZBOZI['CONVERSION_VAT_INCL']] = '1';
-    }
+// Default values for specific fields
+if (!isset($fields_value[SettingsClass::ZBOZI['CONVERSION_VAT_INCL']])) {
+    $fields_value[SettingsClass::ZBOZI['CONVERSION_VAT_INCL']] = 1;
+}
 
-    if (!isset($fields_value['mergado_heureka_conversion_vat_incl_cz'])) {
-        $fields_value['mergado_heureka_conversion_vat_incl_cz'] = '1';
-    }
+if (!isset($fields_value['mergado_heureka_conversion_vat_incl_cz'])) {
+    $fields_value['mergado_heureka_conversion_vat_incl_cz'] = 1;
+}
 
-    if (!isset($fields_value['mergado_heureka_conversion_vat_incl_sk'])) {
-        $fields_value['mergado_heureka_conversion_vat_incl_sk'] = '1';
-    }
+if (!isset($fields_value['mergado_heureka_conversion_vat_incl_sk'])) {
+    $fields_value['mergado_heureka_conversion_vat_incl_sk'] = 1;
+}
 
-    if (!isset($fields_value['mergado_google_tag_manager_conversion_vat_incl'])) {
-        $fields_value['mergado_google_tag_manager_conversion_vat_incl'] = '1';
-    }
+if (!isset($fields_value['mergado_google_tag_manager_conversion_vat_incl'])) {
+    $fields_value['mergado_google_tag_manager_conversion_vat_incl'] = 1;
+}
 
-    if (!isset($fields_value['mergado_google_analytics_conversion_vat_incl'])) {
-        $fields_value['mergado_google_analytics_conversion_vat_incl'] = '1';
-    }
+if (!isset($fields_value['mergado_google_analytics_conversion_vat_incl'])) {
+    $fields_value['mergado_google_analytics_conversion_vat_incl'] = 1;
 }
 
 //Fill in empty fields
