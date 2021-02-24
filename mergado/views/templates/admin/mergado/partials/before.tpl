@@ -84,14 +84,15 @@
     </div>
 </div>
 
-{if ($moduleVersion < $remoteVersion) && (phpversion() > $phpMinVersion)}
-    <div class="alert alert-warning">
-        {l s='New version of module is available' mod='mergado'} -
-        <form method="post" class="text-link">
-            <input type="submit" class="text-warning mergado" name="upgradeModule" value="{l s='Upgrade' mod='mergado'} {$remoteVersion}" />
-        </form>
-    </div>
-{/if}
+
+{*{if ($moduleVersion < $remoteVersion) && (phpversion() > $phpMinVersion) && $isPs16}*}
+{*    <div class="alert alert-warning">*}
+{*        {l s='New version of module is available' mod='mergado'} -*}
+{*        <form method="post" class="text-link">*}
+{*            <input type="submit" class="text-warning mergado" name="upgradeModule" value="{l s='Upgrade' mod='mergado'} {$remoteVersion}" />*}
+{*        </form>*}
+{*    </div>*}
+{*{/if}*}
 
 {if $unreadedTopNews}
     {foreach $unreadedTopNews as $item}
