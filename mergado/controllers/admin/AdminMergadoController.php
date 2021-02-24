@@ -14,18 +14,27 @@
  * @license   LICENSE.txt
  */
 
+use Mergado\Arukereso\ArukeresoClass;
 use Mergado\Biano\BianoClass;
 use Mergado\Etarget\EtargetClass;
 use Mergado\Facebook\FacebookClass;
 use Mergado\Google\GaRefundClass;
+use Mergado\Google\GoogleReviewsClass;
+use Mergado\Google\GoogleAdsClass;
+use Mergado\Google\GoogleTagManagerClass;
 use Mergado\Kelkoo\KelkooClass;
 use Mergado\NajNakup\NajNakupClass;
 use Mergado\Sklik\SklikClass;
 use Mergado\Tools\ImportPricesClass;
 use Mergado\Tools\LogClass;
 use Mergado\Tools\NewsClass;
+use Mergado\Tools\XML\XMLCategoryFeed;
+use Mergado\Tools\XML\XMLProductFeed;
+use Mergado\Tools\XML\XMLQuery;
+use Mergado\Tools\XML\XMLStockFeed;
 use Mergado\Tools\XMLClass;
 use Mergado\Tools\SettingsClass;
+use Mergado\Zbozi\ZboziClass;
 use ShopCore as Shop;
 use ConfigurationCore as Configuration;
 use ContextCore as Context;
@@ -33,6 +42,7 @@ use CurrencyCore as Currency;
 use LanguageCore as Language;
 
 require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XMLClass.php';
+require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XML/Helpers/XMLQuery.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/SettingsClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/NewsClass.php';
 
@@ -103,10 +113,10 @@ class AdminMergadoController extends \ModuleAdminController
     {
         $fields_form[0]['form'] = array(
             'legend' => array(
-                'title' => $this->l('Import cen'),
+                'title' => $this->l('Price import'),
                 'icon' => 'icon-flag',
             ),
-            'description' => $this->l('Import cen z Mergado XML feedu.'),
+            'description' => $this->l('Price import from Mergado XML feed'),
             'input' => array(
                 array(
                     'type' => 'hidden',
@@ -392,7 +402,7 @@ class AdminMergadoController extends \ModuleAdminController
                 'title' => $this->l('Language & currency settings'),
                 'icon' => 'icon-flag'
             ),
-            'description' => $this->l('Vyberte, které kombinace chcete aktivovat pro vytváření exportů.'),
+            'description' => $this->l('Select which combinations you want to activate for generating exports.'),
             'input' => $feedLang,
             'submit' => array(
                 'title' => $this->l('Save'),
@@ -402,10 +412,10 @@ class AdminMergadoController extends \ModuleAdminController
 
         $fields_form[1]['form'] = array(
             'legend' => array(
-                'title' => $this->l('Generování exportu v dávkách'),
+                'title' => $this->l('Generate export in batches'),
                 'icon' => 'icon-bug'
             ),
-            'description' => $this->l('Nastavte po kolika produktech se budou generovat jednotlivé dávky exportu. Ponechte prázdné pro vygenerování celého XML feedu najednou.'),
+            'description' => $this->l('Set how many products will be generated per export batch. Leave blank to generate the entire XML feed at once.'),
             'input' => array(
                 array(
                     'type' => 'hidden',
@@ -416,12 +426,30 @@ class AdminMergadoController extends \ModuleAdminController
                     'name' => 'id_shop'
                 ),
                 array(
-                    'label' => $this->l('Number of products'),
-                    'name' => SettingsClass::FEED['MAX_SIZE'],
+                    'label' => $this->l('Number of products for Mergado Feed'),
+                    'name' => XMLProductFeed::MAX_PRODUCTS,
                     'validation' => 'isInt',
                     'cast' => 'intval',
                     'type' => 'text',
                     'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Leave blank or 0 if you don\'t have problem with generating mergado feed. Use lower number of products in one cron run if your feed is still too big and server cant generate it. Changing this value will delete all current temporary files!!!'),
+                    'visibility' => Shop::CONTEXT_ALL
+                ),
+                array(
+                    'label' => $this->l('Number of products for Heureka stock feed'),
+                    'name' => XMLStockFeed::MAX_PRODUCTS,
+                    'validation' => 'isInt',
+                    'cast' => 'intval',
+                    'type' => 'text',
+                    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Leave blank or 0 if you don\'t have problem with generating Heureka stock feed. Use lower number of products in one cron run if your feed is still too big and server cant generate it. Changing this value will delete all current temporary files!!!'),
+                    'visibility' => Shop::CONTEXT_ALL
+                ),
+                array(
+                    'label' => $this->l('Number of categories for Category feed'),
+                    'name' => XMLCategoryFeed::MAX_PRODUCTS,
+                    'validation' => 'isInt',
+                    'cast' => 'intval',
+                    'type' => 'text',
+                    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Leave blank or 0 if you don\'t have problem with generating category feed. Use lower number of categories in one cron run if your feed is still too big and server cant generate it. Changing this value will delete all current temporary files!!!'),
                     'visibility' => Shop::CONTEXT_ALL
                 ),
             ),
@@ -433,7 +461,7 @@ class AdminMergadoController extends \ModuleAdminController
 
         $fields_form[2]['form'] = array(
             'legend' => array(
-                'title' => $this->l('Doplňková nastavení'),
+                'title' => $this->l('Additional settings'),
                 'icon' => 'icon-cogs'
             ),
             'input' => array(
@@ -503,7 +531,9 @@ class AdminMergadoController extends \ModuleAdminController
         }
 
         $fields_value = array(
-            SettingsClass::FEED['MAX_SIZE'] => isset($this->settingsValues['partial_feeds_size']) ? $this->settingsValues['partial_feeds_size'] : false,
+            XMLProductFeed::MAX_PRODUCTS => isset($this->settingsValues['partial_feeds_size']) ? $this->settingsValues['partial_feeds_size'] : false,
+            XMLStockFeed::MAX_PRODUCTS => isset($this->settingsValues['partial_feeds_stock_size']) ? $this->settingsValues['partial_feeds_stock_size'] : false,
+            XMLCategoryFeed::MAX_PRODUCTS => isset($this->settingsValues['partial_feeds_category_size']) ? $this->settingsValues['partial_feeds_category_size'] : false,
             'm_export_wholesale_prices' => isset($this->settingsValues['m_export_wholesale_prices']) ? $this->settingsValues['m_export_wholesale_prices'] : null,
             'delivery_days' => isset($this->settingsValues['delivery_days']) ? $this->settingsValues['delivery_days'] : null,
             'clrCheckboxes' => 1,
@@ -569,10 +599,10 @@ class AdminMergadoController extends \ModuleAdminController
 
         $fields_form[0]['form'] = array(
             'legend' => array(
-                'title' => $this->l('Mergado analytický feed'),
+                'title' => $this->l('Mergado\'s analytic feed'),
                 'icon' => 'icon-flag'
             ),
-            'description' => $this->l('Zapnutí exportu Mergado Analytického XML.'),
+            'description' => $this->l('Activation of Mergado Analytical XML export.'),
             'input' => array(
                 array(
                     'type' => 'hidden',
@@ -825,6 +855,11 @@ class AdminMergadoController extends \ModuleAdminController
         return $helper->generateForm($fields_form);
     }
 
+    public function formAdSys_arukereso() {
+        include_once __DIR__ . '/adsys/arukereso.php';
+        return $helper->generateForm($fields_form);
+    }
+
 
     /**
      *  Prepare content for admin section
@@ -858,10 +893,14 @@ class AdminMergadoController extends \ModuleAdminController
             $currencyId = CurrencyCore::getIdByIsoCode($iso[1], $this->shopID);
             $currency = CurrencyCore::getCurrency($currencyId);
             if(isset($currency) && $currency['active']) {
-                if($xmlClass->getTotalFilesCount($this->shopID) === 0) {
+
+                $xmlProductFeed = new XMLProductFeed($this->shopID);
+                $totalFilesCount = $xmlProductFeed->getTotalFilesCount();
+                if($totalFilesCount === 0) {
                     $totalFiles = 0;
                 } else {
-                    $totalFiles = ceil(count($xmlClass->productsToFlat(0, 0, false)) / $xmlClass->getTotalFilesCount($this->shopID));
+                    $xmlQuery = new XMLQuery();
+                    $totalFiles = ceil(count($xmlQuery->productsToFlat(0, 0, false)) / $totalFilesCount);
                 }
 
                 $langWithName['base'][$feed['key']] = array(
@@ -875,19 +914,44 @@ class AdminMergadoController extends \ModuleAdminController
                 );
 
                 if ($categoryFeed == "1") {
-                    $categoryCron[] = array(
+                    $xmlCategoryFeed = new XMLCategoryFeed($this->shopID);
+                    $totalFilesCount = $xmlCategoryFeed->getTotalFilesCount();
+                    if($totalFilesCount === 0) {
+                        $totalFiles = 0;
+                    } else {
+                        $totalFiles = ceil(count(Category::getSimpleCategories($this->context->language->id)) / $totalFilesCount);
+                    }
+
+                    $categoryData = array(
+                        'totalFiles' => $totalFiles,
+                        'currentFiles' => XMLClass::getTempNumber(XMLClass::TMP_DIR . 'xml/' . $this->shopID . '/' . 'category_' . $feed['key'] . '/'),
                         'xml' => 'category_' . $feed['key'],
                         'url' => $this->getCronUrl('category_' . $feed['key']),
                         'name' => $this->languages->getLanguageByIETFCode(
                                 $this->languages->getLanguageCodeByIso($iso[0])
                             )->name . ' - ' . $iso[1]);
+
+                    $langWithName['category']['category_' . $feed['key']] = $categoryData;
+                    $categoryCron[] = $categoryData;
                 }
             }
         }
 
+
         $stockFeed = SettingsClass::getSettings('mergado_heureka_dostupnostni_feed', $this->shopID);
         if ($stockFeed) {
-            $langWithName['stock'][] = array(
+            $xmlStockFeed = new XMLStockFeed($this->shopID);
+            $maxProductsPerStep = $xmlStockFeed->getTotalFilesCount();
+
+            if($maxProductsPerStep === 0) {
+                $totalFiles = 0;
+            } else {
+                $totalFiles = ceil(count(ProductCore::getSimpleProducts($this->context->language->id, $this->context)) / $maxProductsPerStep);
+            }
+
+            $langWithName['stock']['stock'] = array(
+                'totalFiles' => $totalFiles,
+                'currentFiles' => XMLClass::getTempNumber(XMLClass::TMP_DIR . 'xml/' . $this->shopID . '/' . 'stock' . '/'),
                 'xml' => 'stock',
                 'url' => $this->getCronUrl('stock'),
                 'name' => $this->l('Stock feed')
@@ -958,6 +1022,7 @@ class AdminMergadoController extends \ModuleAdminController
 
         $newXml = array();
 
+
         if (isset($xmlList['base'])) {
             $newXml['base'] = $xmlList['base'];
         }
@@ -984,7 +1049,7 @@ class AdminMergadoController extends \ModuleAdminController
 
         $this->context->smarty->assign(array(
             'crons' => $langWithName,
-            'cronsPartial' => (bool) ($xmlClass->getTotalFilesCount($this->shopID) > 0),
+            'cronsPartial' => (bool) ($xmlClass->getTotalFilesCount('partial_feeds_size', $this->shopID) > 0),
             'importCron' => $this->getImportCronUrl(),
             'setSettings' => $this->getBaseUrl() . '/modules/' . $this->name . '/setSettings.php?' . '&token=' . Tools::substr(Tools::encrypt('mergado/setSettings'), 0, 10),
             'categoryCron' => $categoryCron,
@@ -1028,6 +1093,7 @@ class AdminMergadoController extends \ModuleAdminController
             'pricemania' => array('title' => $this->l('Pricemania'), 'form' => $this->formAdSys_pricemania()),
             'kelkoo' => array('title' => $this->l('Kelkoo'),'form' => $this->formAdSys_kelkoo()),
             'biano' => array('title' => $this->l('Biano'),'form' => $this->formAdSys_biano()),
+            'arukereso' => array('title' => $this->l('Árukereső'),'form' => $this->formAdSys_arukereso()),
         );
 
         $tab4 = $this->formDevelopers();
@@ -1096,14 +1162,6 @@ class AdminMergadoController extends \ModuleAdminController
         $glamiMainFields[] = SettingsClass::GLAMI['CONVERSION_VAT_INCL'];
 
         $oldFields = [
-            // Google ADS
-            SettingsClass::GOOGLE_ADS['CONVERSIONS'] => [
-                'fields' => [SettingsClass::GOOGLE_ADS['CONVERSIONS_LABEL']],
-            ],
-//            SettingsClass::GOOGLE_ADS['REMARKETING'] => [
-//                'fields' => [SettingsClass::GOOGLE_ADS['REMARKETING_ID']]
-//            ],
-
             // Google analytics - GTAGJS
             SettingsClass::GOOGLE_GTAGJS['ACTIVE'] => [
                 'fields' => [
@@ -1130,32 +1188,7 @@ class AdminMergadoController extends \ModuleAdminController
                 ]
             ],
 
-            // Google analytics - Google Tag Manager
-            SettingsClass::GOOGLE_TAG_MANAGER['ACTIVE'] => [
-                'fields' => [
-                    SettingsClass::GOOGLE_TAG_MANAGER['CODE'],
-                    SettingsClass::GOOGLE_TAG_MANAGER['TRACKING'],
-                    SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE'],
-                    SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE_ENHANCED'],
-                    SettingsClass::GOOGLE_TAG_MANAGER['CONVERSION_VAT_INCL'],
-                ],
-                'sub-check' => [
-                    SettingsClass::GOOGLE_TAG_MANAGER['TRACKING'] => [
-                        'fields' => [
-                            SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE'],
-                            SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE_ENHANCED'],
-                        ],
-                    ],
-                ],
-                'sub-check-two' => [
-                    SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE'] => [
-                        'fields' => [
-                            SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE_ENHANCED'],
-                        ],
-                    ],
-                ]
-            ],
-
+            // TODO: Heureka optOut toggle
             // Heureka
             SettingsClass::HEUREKA['VERIFIED_CZ'] => [
                 'fields' => [
@@ -1213,16 +1246,6 @@ class AdminMergadoController extends \ModuleAdminController
                 ],
             ],
 
-            // ZBOZI
-            SettingsClass::ZBOZI['CONVERSIONS'] => [
-                'fields' => [
-                    SettingsClass::ZBOZI['CONVERSIONS_ADVANCED'],
-                    SettingsClass::ZBOZI['SHOP_ID'],
-                    SettingsClass::ZBOZI['SECRET'],
-                    SettingsClass::ZBOZI['CONVERSION_VAT_INCL'],
-                ]
-            ],
-
             // Pricemania
             SettingsClass::PRICEMANIA['VERIFIED'] => [
                 'fields' => [
@@ -1239,7 +1262,12 @@ class AdminMergadoController extends \ModuleAdminController
             BianoClass::getToggleFields($this->languages->getLanguages(true)),
             NajNakupClass::getToggleFields(),
             EtargetClass::getToggleFields(),
-            GaRefundClass::getToggleFields()
+            GoogleReviewsClass::getToggleFields(),
+            GaRefundClass::getToggleFields(),
+            ZboziClass::getToggleFields($this->languages->getLanguages(true)),
+            ArukeresoClass::getToggleFields($this->languages->getLanguages(true)),
+            GoogleAdsClass::getToggleFields(),
+            GoogleTagManagerClass::getToggleFields()
         );
 
         return json_encode($jsonMap, JSON_FORCE_OBJECT);
@@ -1255,6 +1283,7 @@ class AdminMergadoController extends \ModuleAdminController
      */
     public function postProcess()
     {
+
         if(isset($_POST['upgradeModule'])) {
             $mergado = new Mergado();
 
@@ -1292,7 +1321,14 @@ class AdminMergadoController extends \ModuleAdminController
                     $settingValue = SettingsClass::getSettings($key, $shopID);
 
                     if($settingValue !== $value) {
-                        SettingsClass::saveSetting($key, $value, $shopID);
+
+                        // Html inputs that should be saved as html not escaped text ..
+                        if (strpos($key, 'opt_out_text-') === false) {
+                            SettingsClass::saveSetting($key, $value, $shopID);
+                        } else {
+                            SettingsClass::saveSetting($key, $value, $shopID, true);
+                        }
+
                         LogClass::log('Settings value edited: ' . $key . ' => ' . $value);
                         $changed = false;
                     }

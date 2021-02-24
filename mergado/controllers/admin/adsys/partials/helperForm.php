@@ -1,6 +1,6 @@
 <?php
 
-use Mergado\Tools\SettingsClass;
+use Mergado\Zbozi\ZboziClass;
 
 $fields_value = [
     'page' => 6,
@@ -13,10 +13,10 @@ foreach ($this->settingsValues as $key => $value) {
     }
 }
 
-// Default values for specific fields
-if (!isset($fields_value[SettingsClass::ZBOZI['CONVERSION_VAT_INCL']])) {
-    $fields_value[SettingsClass::ZBOZI['CONVERSION_VAT_INCL']] = 1;
-}
+    // Default values for specific fields
+    if (!isset($fields_value[ZboziClass::VAT_INCL])) {
+        $fields_value[ZboziClass::VAT_INCL] = '1';
+    }
 
 if (!isset($fields_value['mergado_heureka_conversion_vat_incl_cz'])) {
     $fields_value['mergado_heureka_conversion_vat_incl_cz'] = 1;
@@ -41,6 +41,7 @@ $helper = new HelperForm();
 
 $helper->module = $this;
 $helper->name_controller = $this->name;
+
 
 $helper->tpl_vars = array('fields_value' => $fields_value);
 
@@ -68,13 +69,13 @@ if (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) {
     $helper->toolbar_btn = array(
         'save' =>
             array(
-                'desc' => $this->l('Save'),
+                'desc' => $this->module->l('Save'),
                 'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
                     '&token=' . Tools::getAdminTokenLite('AdminModules'),
             ),
         'back' => array(
             'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
-            'desc' => $this->l('Back to list')
+            'desc' => $this->module->l('Back to list')
         )
     );
 }

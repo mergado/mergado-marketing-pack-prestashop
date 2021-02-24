@@ -63,7 +63,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
                         // "quantity": 2,
                         // "price": '2.0'
                     }
-                ]
+                ],
+                "send_to": window.mergado.GtagAndGads.send_to,
             });
         }
     }

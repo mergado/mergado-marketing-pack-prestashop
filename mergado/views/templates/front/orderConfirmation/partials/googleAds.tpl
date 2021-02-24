@@ -21,19 +21,11 @@
     {/if}
 
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-    </script>
-
-    <script>
         gtag('event', 'conversion', {
-            'send_to': 'AW-{$googleAdsCode}/{$googleAdsLabel}',
+            'send_to': '{$googleAdsCode}/{$googleAdsLabel}',
             'value': {$total},
             'currency': '{$c_iso_code}',
-            'transaction_id': '{$conversionOrderId}'
+            'transaction_id': '{$conversionOrderId}',
         });
     </script>
 {/if}

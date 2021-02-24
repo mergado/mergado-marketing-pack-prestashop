@@ -26,65 +26,72 @@ document.addEventListener("DOMContentLoaded", function (event) {
 var m_GTAG = {
     couponCookie: 'mergado_gtag_ps_coupons',
     init: function () {
-        this.initAddToCartPs16();
-        this.initAddToCartPs17();
-        this.initRemoveFromCartPs16();
-        this.initRemoveFromCartPs17();
+        if (mergado.GoogleAds.remarketingActive || mergado.Gtag.enhancedActive) {
+            //Add to cart
+            this.initAddToCartPs16();
+            this.initAddToCartPs17();
 
-        if(typeof prestashop != 'undefined') {
-            this.initViewListPs17();
-        } else {
-            this.initViewListPs16();
-        }
+            //List view
+            if(typeof prestashop != 'undefined') {
+                this.initViewListPs17();
+            } else {
+                this.initViewListPs16();
+            }
 
-        //Detail of product
-        if($('body#product').length > 0) {
-            this.initDetailViewed();
-        }
-
-        //PS 1.6
-        //Standard checkout page and one page checkout
-        if ($('body#order').length > 0 || $('body#order-opc').length > 0) {
-            // Init - carrier and payment select options
-            this.initCarrierSetPs16();
-            this.initPaymentSetPs16();
-
-            if ($('[data-mscd]').length > 0 && $('[data-mscd-cart-id]').length > 0) {
-                // Init - start of checkout, add of coupon to cart and remove of coupon from cart
-                this.initCheckoutStarted16();
-                this.initCheckoutReviewStepPs16();
-                this.initCheckoutLoginStepPs16();
-                this.initCheckoutAddressStepPs16();
-                this.initCheckoutDeliveryStepPs16();
-                this.initCheckoutPaymentStepPs16();
-                this.initCouponAdded();
-                this.initCouponRemoved();
+            //Detail of product
+            if ($('body#product').length > 0) {
+                this.initDetailViewed();
             }
         }
 
-        //PS 1.7
-        if($('body#cart').length > 0) {
-            //Checkout step 1 - cart click on button
-            this.initCheckoutStarted17();
+        if (mergado.Gtag.enhancedActive) {
+            this.initRemoveFromCartPs16();
+            this.initRemoveFromCartPs17();
 
-            if ($('[data-mscd]').length > 0 && $('[data-mscd-cart-id]').length > 0) {
-                this.initCouponChangePs17();
+            //PS 1.6
+            //Standard checkout page and one page checkout
+            if ($('body#order').length > 0 || $('body#order-opc').length > 0) {
+                // Init - carrier and payment select options
+                this.initCarrierSetPs16();
+                this.initPaymentSetPs16();
+
+                if ($('[data-mscd]').length > 0 && $('[data-mscd-cart-id]').length > 0) {
+                    // Init - start of checkout, add of coupon to cart and remove of coupon from cart
+                    this.initCheckoutStarted16();
+                    this.initCheckoutReviewStepPs16();
+                    this.initCheckoutLoginStepPs16();
+                    this.initCheckoutAddressStepPs16();
+                    this.initCheckoutDeliveryStepPs16();
+                    this.initCheckoutPaymentStepPs16();
+                    this.initCouponAdded();
+                    this.initCouponRemoved();
+                }
             }
-        }
 
-        //PS 1.7
-        if($('body#checkout').length > 0) {
-            //Checkout steps
-            //2 - selected/create address page
-            this.initCheckoutAddressStep17();
+            //PS 1.7
+            if($('body#cart').length > 0) {
+                //Checkout step 1 - cart click on button
+                this.initCheckoutStarted17();
 
-            //3 - delivery page
-            this.initCheckoutDeliveryStep17();
-            this.initCarrierSetPs17();
+                if ($('[data-mscd]').length > 0 && $('[data-mscd-cart-id]').length > 0) {
+                    this.initCouponChangePs17();
+                }
+            }
 
-            //4 - payment page
-            this.initCheckoutPaymentStep17();
-            this.initPaymentSetPs17();
+            //PS 1.7
+            if($('body#checkout').length > 0) {
+                //Checkout steps
+                //2 - selected/create address page
+                this.initCheckoutAddressStep17();
+
+                //3 - delivery page
+                this.initCheckoutDeliveryStep17();
+                this.initCarrierSetPs17();
+
+                //4 - payment page
+                this.initCheckoutPaymentStep17();
+                this.initPaymentSetPs17();
+            }
         }
     },
     initAddToCartPs16: function () {
@@ -571,6 +578,7 @@ var m_GTAG = {
                         }
 
                         item['position'] = key;
+                        item['google_business_vertical'] = 'retail';
 
                         items.push(item);
                     });
@@ -601,9 +609,11 @@ var m_GTAG_events = {
                     // "variant": "Black",
                     // "list_position": 1,
                     "quantity": quantity,
-                    "price": price
+                    "price": price,
+                    'google_business_vertical': 'retail'
                 }
-            ]
+            ],
+            "send_to": window.mergado.GtagAndGads.send_to,
         });
     },
     sendRemoveFromCart: function(id, currency) {
@@ -637,9 +647,11 @@ var m_GTAG_events = {
                     // "variant": "Black",
                     // "list_position": 1,
                     // "quantity": 2,
-                    // "price": '2.0'
+                    // "price": '2.0',
+                    'google_business_vertical': 'retail'
                 }
-            ]
+            ],
+            "send_to": window.mergado.GtagAndGads.send_to,
         });
     },
     sendCheckoutOptionSelected: function (option, step, value) {
@@ -673,7 +685,8 @@ var m_GTAG_events = {
     sendViewList: function (items, currency) {
         gtag('event', 'view_item_list', {
             "currency" : currency,
-            "items": items
+            "items": items,
+            "send_to": window.mergado.GtagAndGads.send_to,
         });
     }
 };

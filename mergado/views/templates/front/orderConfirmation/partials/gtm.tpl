@@ -13,12 +13,17 @@
 *}
 
 <script>
-    document.addEventListener("DOMContentLoaded", function (event) {
-        dataLayer.push({
+    window.dataLayer = window.dataLayer || [];
+
+    {if $gtm_ecommerceEnhanced}
+        window.dataLayer.push({
+            'event': 'purchase',
             'ecommerce': {
                 'currencyCode': "{$gtm_currencyCode}",
-                'purchase': {$gtm_purchase_data nofilter}
+                'purchase': {$gtm_purchase_data nofilter},
             }
         });
-    });
+    {else}
+        window.dataLayer.push({$gtm_transaction_data nofilter});
+    {/if}
 </script>

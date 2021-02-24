@@ -14,11 +14,7 @@
 
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
-<script>
-    var gtagMain = '{$gtagMainCode}';
-</script>
-
-<script async src="https://www.googletagmanager.com/gtag/js?id={$gtagMainCode}"></script>
+<script async="true" src="https://www.googletagmanager.com/gtag/js?id={$gtagMainCode}"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() {
@@ -32,8 +28,8 @@
     {/if}
 
     {if isset($gAdsConversionCode) && $gAdsRemarketingActive}
-        gtag('config', 'AW-{$gAdsConversionCode}');
+        gtag('config', '{$gAdsConversionCode}');
     {elseif isset($gAdsConversionCode)}
-        gtag('config', 'AW-{$gAdsConversionCode}', {literal}{'allow_ad_personalization_signals': false}{/literal});
+        gtag('config', '{$gAdsConversionCode}', {literal}{'allow_ad_personalization_signals': false}{/literal});
     {/if}
 </script>

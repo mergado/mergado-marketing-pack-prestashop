@@ -12,13 +12,6 @@
  *  @license   LICENSE.txt
  */
 
-// PS 1.7 - start on document ready when jQuery is already loaded
-document.addEventListener("DOMContentLoaded", function (event) {
-    if (typeof dataLayer !== 'undefined') {
-        m_GTM.init();
-    }
-});
-
 /***********************************************************************************************************************
  * MAIN FUNCTIONS
  **********************************************************************************************************************/
@@ -383,21 +376,9 @@ var m_GTM = {
         });
     },
     initCheckoutStarted17: function () {
-        var orderUrl = $('[data-morder-url]').attr('data-morder-url');
-        $('a[href="' + orderUrl + '"]').on('click', function () {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
-
             var currency = prestashop.currency.iso_code;
-
             m_GTM_events.sendCheckoutProgress(1, items, currency)
-        });
-
-        // Triggering this can be skipped if already logged in .. so button probably better
-        // if($('#checkout-personal-information-step').hasClass('-current') || $('#checkout-personal-information-step').hasClass('js-currenct-step')) {
-        //     var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
-        //     var cartId = $('[data-mscd-cart-id]').attr('data-mscd-cart-id');
-        //     m_GTM_events.sendCheckoutProgress(1, items)
-        // }
     },
     initCheckoutAddressStep17: function () {
         if($('#checkout-addresses-step').hasClass('-current') || $('#checkout-addresses-step').hasClass('js-currenct-step')) {
@@ -433,20 +414,20 @@ var m_GTM = {
         $(document).ajaxComplete(function() {
             var currentProducts = $('.ajax_block_product');
             var newProducts = getProductsData(currentProducts)
+            var currency = $('[itemprop="priceCurrency"]').attr('content');
 
             if(items !== newProducts && currentProducts.length > 0) {
-                m_GTM_events.sendViewList(currency, items);
+                m_GTM_events.sendViewList(currency, newProducts);
             }
         });
 
-        function getProductsData()
+        function getProductsData(products)
         {
             var items = [];
 
             products.each(function (key, value) {
                 var $_id = $(this).find('[data-id-product]').attr('data-id-product');
                 var $_name = $(this).find('.product-name').text().replace(/\t/g, '').trim();
-
                 var id_attr = $(this).find('[data-id-product-attribute]');
 
                 if(id_attr.length > 0 && id_attr.attr('data-id-product-attribute') !== '' && id_attr.attr('data-id-product-attribute') !== '0') {
@@ -467,16 +448,24 @@ var m_GTM = {
 
                 if(list !== '') {
                     item['list'] = list.trim();
+                } else {
+                    item['list'] = 'Overview';
                 }
 
+                item['variant'] = id_attr;
                 item['position'] = key;
 
                 items.push(item);
+
+                if ((key + 1) == window.mergado.GoogleTagManager.maxViewListItems) {
+                    return false;
+                }
             });
 
             return items;
         }
-    },initViewListPs17: function () {
+    },
+    initViewListPs17: function () {
         if(typeof prestashop !== 'undefined') {
             var products = $('.product-miniature[data-id-product]');
             var currency = prestashop.currency.iso_code;
@@ -495,7 +484,7 @@ var m_GTM = {
                 }
             });
 
-            function getProductsData()
+            function getProductsData(products)
             {
                 var items = [];
 
@@ -522,11 +511,18 @@ var m_GTM = {
 
                     if(list !== '') {
                         item['list'] = list.trim();
+                    } else {
+                        item['list'] = 'Overview';
                     }
 
+                    item['variant'] = id_attr;
                     item['position'] = key;
 
                     items.push(item);
+
+                    if ((key + 1) == window.mergado.GoogleTagManager.maxViewListItems) {
+                        return false;
+                    }
                 });
 
                 return items;
@@ -572,6 +568,7 @@ var m_GTM_events = {
     },
     sendViewItem: function(id, name, category, currency) {
         dataLayer.push({
+            'event': 'viewItem',
             'ecommerce': {
             'currencyCode': currency,
                 'detail': {
@@ -608,6 +605,7 @@ var m_GTM_events = {
     },
     sendViewList: function (currency, items) {
         dataLayer.push({
+            'event': 'view_item_list',
             'ecommerce': {
                 'currencyCode': currency,
                 'impressions': items
@@ -615,3 +613,11 @@ var m_GTM_events = {
         });
     }
 };
+
+// PS 1.7 - start on document ready when jQuery is already loaded
+document.addEventListener("DOMContentLoaded", function (event) {
+    window.dataLayer = window.dataLayer || [];
+  // if (typeof dataLayer !== 'undefined') {
+    m_GTM.init();
+  // }
+});

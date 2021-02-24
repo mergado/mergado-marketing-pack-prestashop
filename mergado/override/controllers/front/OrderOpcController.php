@@ -46,6 +46,28 @@ class OrderOpcController extends OrderOpcControllerCore
                         unset($_POST['ajax']);
                         unset($_GET['ajax']);
                     }
+
+                    if (Tools::getValue('method') === 'zboziConsent')  {
+                        if (Tools::getValue('zboziData') == '1') {
+                            $this->context->cookie->mergado_zbozi_consent = '1';
+                        } else {
+                            $this->context->cookie->mergado_zbozi_consent = '0';
+                        }
+
+                        unset($_POST['ajax']);
+                        unset($_GET['ajax']);
+                    }
+
+                    if (Tools::getValue('method') === 'arukeresoConsent')  {
+                        if (Tools::getValue('arukeresoData') == '1') {
+                            $this->context->cookie->mergado_arukereso_consent = '1';
+                        } else {
+                            $this->context->cookie->mergado_arukereso_consent = '0';
+                        }
+
+                        unset($_POST['ajax']);
+                        unset($_GET['ajax']);
+                    }
                 }
             }
         }

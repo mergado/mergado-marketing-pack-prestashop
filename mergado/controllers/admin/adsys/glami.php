@@ -4,7 +4,7 @@ use Mergado\Tools\SettingsClass;
 
 $fields_form[0]['form'] = array(
     'legend' => array(
-        'title' => $this->l('Glami pixel'),
+        'title' => $this->module->l('Glami pixel', 'glami'),
         'icon' => 'icon-cogs'
     ),
     'input' => array(
@@ -18,29 +18,29 @@ $fields_form[0]['form'] = array(
         ),
     ),
     'submit' => array(
-        'title' => $this->l('Save'),
+        'title' => $this->module->l('Save'),
         'name' => 'submit' . $this->name
     )
 );
 
 $fields_form[0]['form']['input'][] = array(
     'name' => SettingsClass::GLAMI['ACTIVE'],
-    'label' => $this->l('Module active'),
+    'label' => $this->module->l('Module active', 'glami'),
     'validation' => 'isBool',
     'cast' => 'intval',
     'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
     'class' => 'switch15',
-    'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->l('Váš piXel naleznete v administraci Glami na stránce Glami piXel > Implementace Glami piXel pro vývojáře > sekce Glami piXel kód pro VÁŠ ESHOP.'),
+    'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->module->l('You can find your piXel in the Glami Administration at Glami piXel page > Implementing Glami piXel for Developers > Glami piXel Code section for YOUR ESHOP', 'glami'),
     'values' => array(
         array(
             'id' => 'glami_active_on',
             'value' => 1,
-            'label' => $this->l('Yes')
+            'label' => $this->module->l('Yes')
         ),
         array(
             'id' => 'glami_active_off',
             'value' => 0,
-            'label' => $this->l('No')
+            'label' => $this->module->l('No')
         )
     ),
     'visibility' => Shop::CONTEXT_ALL,
@@ -48,7 +48,7 @@ $fields_form[0]['form']['input'][] = array(
 
 $fields_form[0]['form']['input'][] = array(
     'name' => SettingsClass::GLAMI['CONVERSION_VAT_INCL'],
-    'label' => $this->l('With VAT'),
+    'label' => $this->module->l('With VAT'),
     'validation' => 'isBool',
     'cast' => 'intval',
     'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
@@ -57,15 +57,15 @@ $fields_form[0]['form']['input'][] = array(
         array(
             'id' => 'glam_conv_active_on',
             'value' => 1,
-            'label' => $this->l('Yes')
+            'label' => $this->module->l('Yes')
         ),
         array(
             'id' => 'glam_conv_active_off',
             'value' => 0,
-            'label' => $this->l('No')
+            'label' => $this->module->l('No')
         )
     ),
-    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Choose whether the conversion value will be sent with or without VAT.'),
+    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->module->l('Choose whether the conversion value will be sent with or without VAT.', 'glami'),
     'visibility' => Shop::CONTEXT_ALL,
 );
 
@@ -81,12 +81,12 @@ foreach (SettingsClass::GLAMI_LANGUAGES as $key => $lang) {
             array(
                 'id' => 'glami_active_on',
                 'value' => 1,
-                'label' => $this->l('Yes')
+                'label' => $this->module->l('Yes')
             ),
             array(
                 'id' => 'glami_active_off',
                 'value' => 0,
-                'label' => $this->l('No')
+                'label' => $this->module->l('No')
             )
         ),
         'visibility' => Shop::CONTEXT_ALL,
@@ -94,7 +94,7 @@ foreach (SettingsClass::GLAMI_LANGUAGES as $key => $lang) {
 
     $fields_form[0]['form']['input'][] = array(
         'name' => SettingsClass::GLAMI['CODE'] . '-' . $key,
-        'label' => $this->l('Glami Pixel') . ' ' . $key,
+        'label' => $this->module->l('Glami Pixel', 'glami') . ' ' . $key,
         'type' => 'text',
         'visibility' => Shop::CONTEXT_ALL,
     );
@@ -102,34 +102,34 @@ foreach (SettingsClass::GLAMI_LANGUAGES as $key => $lang) {
 
 $fields_form[1]['form'] = array(
     'legend' => array(
-        'title' => $this->l('Glami TOP'),
+        'title' => $this->module->l('Glami TOP', 'glami'),
         'icon' => 'icon-cogs',
     ),
     'input' => array(),
     'submit' => array(
-        'title' => $this->l('Save'),
+        'title' => $this->module->l('Save'),
         'name' => 'submit' . $this->name
     )
 );
 
 $fields_form[1]['form']['input'][] = array(
     'name' => SettingsClass::GLAMI['ACTIVE_TOP'],
-    'label' => $this->l('Module active'),
+    'label' => $this->module->l('Module active', 'glami'),
     'validation' => 'isBool',
     'cast' => 'intval',
     'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
-    'desc' => $this->l('1. Your website must have HTTPS protocol at least on order confirmation page. 2. You have to set your DNS before use. More informations on: https://www.glami.cz/info/reviews/implementation/') . '<br><span class="mmp-tag mmp-tag--question"></span>' . $this->l('Váš API klíč pro Glami TOP naleznete v administraci Glami na stránce Glami TOP > Implementace > Průvodce implementace pro vývojáře > sekce Integrace pomocí Javascriptu.'),
+    'desc' => $this->module->l('1. Your website must have HTTPS protocol at least on order confirmation page. 2. You have to set your DNS before use. More informations on: https://www.glami.cz/info/reviews/implementation/', 'glami') . '<br><span class="mmp-tag mmp-tag--question"></span>' . $this->module->l('You can find your Glami TOP API key in the Glami Administration at the Glami TOP page > Implementation > Developer Implementation Guide> Javascript Integration section.', 'glami'),
     'class' => 'switch15',
     'values' => array(
         array(
             'id' => 'glami_top_active_on',
             'value' => 1,
-            'label' => $this->l('Yes')
+            'label' => $this->module->l('Yes')
         ),
         array(
             'id' => 'glami_top_active_off',
             'value' => 0,
-            'label' => $this->l('No')
+            'label' => $this->module->l('No')
         )
     ),
     'visibility' => Shop::CONTEXT_ALL,
@@ -137,7 +137,7 @@ $fields_form[1]['form']['input'][] = array(
 
 $fields_form[1]['form']['input'][] = array(
     'name' => SettingsClass::GLAMI['SELECTION_TOP'],
-    'label' => $this->l('Glami website'),
+    'label' => $this->module->l('Glami website', 'glami'),
     'type' => 'select',
     'options' => array(
         'query' => SettingsClass::GLAMI_TOP_LANGUAGES,
@@ -148,7 +148,7 @@ $fields_form[1]['form']['input'][] = array(
 
 $fields_form[1]['form']['input'][] = array(
     'name' => SettingsClass::GLAMI['CODE_TOP'],
-    'label' => $this->l('Glami TOP'),
+    'label' => $this->module->l('Glami TOP', 'glami'),
     'type' => 'text',
     'visibility' => Shop::CONTEXT_ALL,
 );

@@ -41,6 +41,7 @@ $(document).ready(function () {
     setSettings();
     tab1FormSend();
     confirmMessage();
+    generateInlineCodeForGoogleReviews();
 });
 
 function getUrlVars(variable) {
@@ -381,4 +382,39 @@ function tab1FormSend()
             });
         }
     });
+}
+
+function generateInlineCodeForGoogleReviews()
+{
+    addGoogleReviewsInlineCode();
+
+    // $('#gr_badge_position').on('change', function () {
+    //    if ($(this).val() == '2') {
+    //        addGoogleReviewsInlineCode();
+    //    }  else {
+    //        removeGoogleReviewsInlineCode();
+    //    }
+    // });
+
+    $('#gr_merchant_id').on('input', function () {
+        removeGoogleReviewsInlineCode();
+        addGoogleReviewsInlineCode();
+    });
+}
+
+function addGoogleReviewsInlineCode()
+{
+    var merchantId = $('#gr_merchant_id').val();
+    $('#gr_badge_position').parent().append('<div id="gr_badge_position_inline_code">' +
+        '<p><strong>Inline code:</strong></p>' +
+        '<code>' +
+        '&lt;g:ratingbadge merchant_id=' + merchantId + '&gt;&lt;/g:ratingbadge&gt;' +
+        '</code>' +
+        '</div>'
+    );
+}
+
+function removeGoogleReviewsInlineCode()
+{
+    $('#gr_badge_position_inline_code').remove();
 }

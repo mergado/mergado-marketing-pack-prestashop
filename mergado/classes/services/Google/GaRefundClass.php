@@ -29,7 +29,6 @@ class GaRefundClass
 
     private $active;
     private $code;
-    private $status;
 
     public function isActive($shopId)
     {
@@ -84,7 +83,13 @@ class GaRefundClass
             return $this->code;
         }
 
-        $this->code = SettingsClass::getSettings(self::CODE, $shopId);
+        $code = SettingsClass::getSettings(self::CODE, $shopId);
+
+        if (substr( $code, 0, 3 ) !== "UA-") {
+            $this->code = 'UA-' . $code;
+        } else {
+            $this->code = $code;
+        }
 
         return $this->code;
     }

@@ -38,6 +38,18 @@ class OrderController extends OrderControllerCore
             } else {
                 $this->context->cookie->mergado_heureka_consent = false;
             }
+
+            if (Tools::getValue('zbozi_consent') == 'on') {
+                $this->context->cookie->mergado_zbozi_consent = true;
+            } else {
+                $this->context->cookie->mergado_zbozi_consent = false;
+            }
+
+            if (Tools::getValue('arukereso_consent') == 'on') {
+                $this->context->cookie->mergado_arukereso_consent = true;
+            } else {
+                $this->context->cookie->mergado_arukereso_consent = false;
+            }
         }
 
         parent::init();

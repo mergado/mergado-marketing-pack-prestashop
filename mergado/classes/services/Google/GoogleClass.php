@@ -80,6 +80,7 @@ class GoogleClass
                 "variant" => $productVariant,
 //                "list_position" => "",
                 "quantity" => $product['product_quantity'],
+                "google_business_vertical" => 'retail'
             );
 
             // If VAT included or not
@@ -106,7 +107,7 @@ class GoogleClass
     {
         $active = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['ACTIVE'], $shopId);
         $tracking = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['TRACKING'], $shopId);
-        $code = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['CODE'], $shopId);
+        $code = Mergado\Google\GoogleClass::getGoogleAnalyticsCode($shopId);
 
         if($active === Mergado\Tools\SettingsClass::ENABLED && $tracking === Mergado\Tools\SettingsClass::ENABLED && $code && $code !== '') {
             return true;
@@ -124,7 +125,7 @@ class GoogleClass
     {
         $active = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['ACTIVE'], $shopId);
         $tracking = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['TRACKING'], $shopId);
-        $code = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['CODE'], $shopId);
+        $code = Mergado\Google\GoogleClass::getGoogleAnalyticsCode($shopId);
         $ecommerce = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['ECOMMERCE'], $shopId);
 
         if($active === Mergado\Tools\SettingsClass::ENABLED && $ecommerce === Mergado\Tools\SettingsClass::ENABLED && $tracking === Mergado\Tools\SettingsClass::ENABLED && $code !== '') {
@@ -143,7 +144,7 @@ class GoogleClass
     {
         $active = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['ACTIVE'], $shopId);
         $tracking = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['TRACKING'], $shopId);
-        $code = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['CODE'], $shopId);
+        $code = Mergado\Google\GoogleClass::getGoogleAnalyticsCode($shopId);
         $ecommerce = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['ECOMMERCE'], $shopId);
         $ecommerceEnhanced = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['ECOMMERCE_ENHANCED'], $shopId);
 
@@ -154,181 +155,19 @@ class GoogleClass
         }
     }
 
-    /*******************************************************************************************************************
-     * Google Tag Manager
-     ******************************************************************************************************************/
-
     /**
-     * @param $orderId
-     * @param $order
-     * @param $products
-     * @param $langId
-     * @param $shopId
-     * @return false|string
+     * GET CODES - TODO rewrite me whole to object as others are
      */
 
-    public static function getGTMPurchaseData($orderId, $order, $products, $langId, $shopId)
+    public static function getGoogleAnalyticsCode($shopId)
     {
-        $data = array();
+        $googleAnalyticsCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['CODE'], $shopId);
 
-        $currency = new CurrencyCore($order->id_currency);
-        $withVat = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['CONVERSION_VAT_INCL'], $shopId);
-
-        // Default is with vat
-        if ($withVat === false) {
-            $withVat = true;
+        // add prefix if not exist
+        if (substr( $googleAnalyticsCode, 0, 3 ) !== "UA-") {
+            $googleAnalyticsCode = 'UA-' . $googleAnalyticsCode;
         }
 
-        $data['actionField']['id'] = "$orderId";
-        $data['actionField']['affiliation'] = ConfigurationCore::get('PS_SHOP_NAME');
-        $data['actionField']['revenue'] = $order->total_paid;
-        $data['actionField']['tax'] = (string) ($order->total_paid_tax_incl - $order->total_paid_tax_excl);
-        $data['actionField']['shipping'] = $order->total_shipping_tax_excl;
-        $data['actionField']['coupon'] = '';
-
-        $cartRules = array();
-        foreach($order->getCartRules() as $item) {
-            $cartRules[] = $item['name'];
-        }
-
-        if($cartRules !== array()) {
-            $data['actionField']['coupon'] = join(', ', $cartRules);
-        }
-
-        $productData = array();
-
-        foreach ($products as $product) {
-
-            $category = new CategoryCore((int)$product['id_category_default'], (int)$langId);
-            $manufacturer = new ManufacturerCore($product['id_manufacturer'], (int)$langId);
-            $productVariant = Mergado\Tools\HelperClass::getProductAttributeName($product['product_attribute_id'], $langId);
-
-            if ($product['product_attribute_id'] && $product['product_attribute_id'] !== '' && $product['product_attribute_id'] !== '0') {
-                $idProduct = $product['product_id'] . '-' . $product['product_attribute_id'];
-            } else {
-                $idProduct = $product['product_id'];
-            }
-
-            $product_item = array(
-                "name" => $product['product_name'],
-                "id" => $idProduct,
-                "brand" => $manufacturer->name,
-                "category" => $category->name,
-                "variant" => $productVariant,
-                "quantity" => $product['product_quantity'],
-            );
-
-            // If VAT included or not
-            if ($withVat) {
-                $product_item['price'] = $product['unit_price_tax_incl'];
-            } else {
-                $product_item['price'] = $product['unit_price_tax_excl'];
-            }
-
-            $productData[] = $product_item;
-        }
-
-        $data['products'] = $productData;
-
-        return json_encode($data);
-    }
-
-    /**
-     * Return if ecommerce is active
-     * @param $shopId
-     * @return bool
-     */
-    public static function isGTMActive($shopId)
-    {
-        $active = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['ACTIVE'], $shopId);
-        $tracking = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['TRACKING'], $shopId);
-        $code = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['CODE'], $shopId);
-
-        if($active === Mergado\Tools\SettingsClass::ENABLED && $tracking === Mergado\Tools\SettingsClass::ENABLED && $code && $code !== '') {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Return if ecommerce is active
-     * @param $shopId
-     * @return bool
-     */
-    public static function isGTMEcommerceActive($shopId)
-    {
-        $active = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['ACTIVE'], $shopId);
-        $tracking = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['TRACKING'], $shopId);
-        $code = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['CODE'], $shopId);
-        $ecommerce = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE'], $shopId);
-
-        if($active === Mergado\Tools\SettingsClass::ENABLED && $ecommerce === Mergado\Tools\SettingsClass::ENABLED && $tracking === Mergado\Tools\SettingsClass::ENABLED && $code !== '') {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Return active if enhanced ecommerce is active
-     * @param $shopId
-     * @return bool
-     */
-    public static function isGTMEcommerceEnhancedActive($shopId)
-    {
-        $active = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['ACTIVE'], $shopId);
-        $tracking = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['TRACKING'], $shopId);
-        $code = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['CODE'], $shopId);
-        $ecommerce = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE'], $shopId);
-        $ecommerceEnhanced = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['ECOMMERCE_ENHANCED'], $shopId);
-
-        if($active === Mergado\Tools\SettingsClass::ENABLED && $ecommerceEnhanced === Mergado\Tools\SettingsClass::ENABLED && $ecommerce === Mergado\Tools\SettingsClass::ENABLED && $tracking === Mergado\Tools\SettingsClass::ENABLED && $code !== '') {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /*******************************************************************************************************************
-     * Google Ads - remarketing
-     ******************************************************************************************************************/
-
-    /**
-     * Return if google Ads remarketing is active
-     * @param $shopId
-     * @return bool
-     */
-    public static function isGAdsRemarketingActive($shopId)
-    {
-        $active = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING'], $shopId);
-//        $code = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['REMARKETING_ID'], $shopId);
-
-        if($active === Mergado\Tools\SettingsClass::ENABLED) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /*******************************************************************************************************************
-     * Google Ads - conversions
-     ******************************************************************************************************************/
-
-    /**
-     * Return if google Ads conversions is active
-     * @param $shopId
-     * @return bool
-     */
-    public static function isGAdsConversionsActive($shopId)
-    {
-        $active = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS'], $shopId);
-        $code = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE'], $shopId);
-
-        if($active === Mergado\Tools\SettingsClass::ENABLED && $code && $code !== '') {
-            return true;
-        } else {
-            return false;
-        }
+        return $googleAnalyticsCode;
     }
 }

@@ -4,7 +4,7 @@ use Mergado\NajNakup\NajNakupClass;
 
 $fields_form[0]['form'] = array(
     'legend' => array(
-        'title' => $this->l('Najnakup.sk'),
+        'title' => $this->module->l('Najnakup.sk', 'najnakupsk'),
         'icon' => 'icon-cogs'
     ),
     'input' => array(
@@ -18,7 +18,7 @@ $fields_form[0]['form'] = array(
         ),
         array(
             'name' => NajNakupClass::CONVERSIONS,
-            'label' => $this->l('Najnakup track conversions'),
+            'label' => $this->module->l('Najnakup track conversions', 'najnakupsk'),
             'validation' => 'isBool',
             'cast' => 'intval',
             'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
@@ -27,26 +27,26 @@ $fields_form[0]['form'] = array(
                 array(
                     'id' => 'mergado_najnakup_konverze_on',
                     'value' => 1,
-                    'label' => $this->l('Yes')
+                    'label' => $this->module->l('Yes')
                 ),
                 array(
                     'id' => 'mergado_najnakup_konverze_off',
                     'value' => 0,
-                    'label' => $this->l('No')
+                    'label' => $this->module->l('No')
                 )
             ),
             'visibility' => Shop::CONTEXT_ALL,
         ),
         array(
             'name' => NajNakupClass::SHOP_ID,
-            'label' => $this->l('Najnakup shop ID'),
+            'label' => $this->module->l('Najnakup shop ID', 'najnakupsk'),
             'type' => 'text',
-            'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->l('Vaše jedinečné ID obchodu z Najnakup.sk.'),
+            'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->module->l('Your unique store ID for Najnakup.sk', 'najnakupsk'),
             'visibility' => Shop::CONTEXT_ALL,
         )
     ),
     'submit' => array(
-        'title' => $this->l('Save'),
+        'title' => $this->module->l('Save'),
         'name' => 'submit' . $this->name
     )
 );

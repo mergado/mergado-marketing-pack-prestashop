@@ -16,7 +16,7 @@
     <p class="checkbox">
         <input type="checkbox" name="heureka_consent" id="heureka_consent" />
         <label for="heureka_consent">
-            {$consentText}
+            {$heureka_consentText}
         </label>
     </p>
 </div>

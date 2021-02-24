@@ -15,13 +15,13 @@
 <div class="mergado-tab" data-tab="1">
     <div class="rowmer">
         <div class="col-content">
-            <h2>{l s='Nastavení exportu produktů' mod='mergado'}</h2>
+            <h2>{l s='Product export settings' mod='mergado'}</h2>
             {$tab1['exportProducts']}
-            <h2>{l s='Nastavení exportu kategorií' mod='mergado'}</h2>
+            <h2>{l s='Category export settings' mod='mergado'}</h2>
             {$tab1['exportCategory']}
-            <h2>{l s='Nastavení analytického exportu' mod='mergado'}</h2>
+            <h2>{l s='Analytical export settings' mod='mergado'}</h2>
             {$tab1['exportStatic']}
-            <h2>{l s='Nastavení importu cen' mod='mergado'}</h2>
+            <h2>{l s='Import prices settings' mod='mergado'}</h2>
             {$tab1['importPrices']}
         </div>
         <div class="col-side">

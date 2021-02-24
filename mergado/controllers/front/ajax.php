@@ -20,36 +20,52 @@ class MergadoAjaxModuleFrontController extends ModuleFrontController
 {
     public function initContent()
     {
-        $module = new Mergado;
+        $response = false;
 
-        // You may should do some security work here, like checking an hash from your module
-        if (Tools::isSubmit('action')) {
-            switch (Tools::getValue('action')) {
-                case 'setHeurekaOpc':
-                    if (_PS_VERSION_ >= 1.7) {
-                        if (Tools::getValue('heurekaData') == '1') {
-                            $this->context->cookie->mergado_heureka_consent = true;
-                        } else {
-                            $this->context->cookie->mergado_heureka_consent = false;
-                        }
+        if (_PS_VERSION_ >= 1.7) {
+            if (_PS_VERSION_ >= 1.7) {
+                if (Tools::isSubmit('action')) {
+                    switch (Tools::getValue('action')) {
+                        case 'setHeurekaOpc':
+                            if (Tools::getValue('heurekaData') == '1') {
+                                $this->context->cookie->mergado_heureka_consent = true;
+                            } else {
+                                $this->context->cookie->mergado_heureka_consent = false;
+                            }
+
+                            $response = true;
+                            break;
+
+                        case 'setZboziOpc':
+                            if (Tools::getValue('zboziData') == '1') {
+                                $this->context->cookie->mergado_zbozi_consent = true;
+                            } else {
+                                $this->context->cookie->mergado_zbozi_consent = false;
+                            }
+
+                            $response = true;
+                            break;
+
+                        case 'setArukeresoOpc':
+                            if (Tools::getValue('arukeresoData') == '1') {
+                                $this->context->cookie->mergado_arukereso_consent = true;
+                            } else {
+                                $this->context->cookie->mergado_arukereso_consent = false;
+                            }
+
+                            $response = true;
+                            break;
+                        default:
+                            break;
+
                     }
-
-                    $response = true;
-
-                    // Edit default response and do some work here
-//                    $response = array('status' => true, "message" => $module->l('Set!'));
-
-                    break;
-
-                default:
-                    break;
-
+                }
             }
-        }
 
-        // Classic json response
-        $json = Tools::jsonEncode($response);
-        echo $json;
-        die;
+            // Classic json response
+            $json = Tools::jsonEncode($response);
+            echo $json;
+            die;
+        }
     }
 }

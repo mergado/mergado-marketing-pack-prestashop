@@ -1,6 +1,6 @@
 <?php
 
-//Fill in fields taht was not already set
+//Fill in fields that was not already set
 foreach($fields_form as $form) {
     foreach($form['form']['input'] as $input) {
         if(!isset($fields_value[$input['name']])) {

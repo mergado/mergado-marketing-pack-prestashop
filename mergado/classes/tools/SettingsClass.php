@@ -51,25 +51,9 @@ class SettingsClass
         'CONVERSION_VAT_INCL_SK' => 'mergado_heureka_conversion_vat_incl_sk',
     );
 
-    const ZBOZI = array(
-        'CONVERSIONS' => 'mergado_zbozi_konverze',
-        'CONVERSIONS_ADVANCED' => 'mergado_zbozi_advanced_konverze',
-        'CONVERSION_VAT_INCL' => 'mergado_zbozi_conversion_vat_incl',
-        'SHOP_ID' => 'mergado_zbozi_shop_id',
-        'SECRET' => 'mergado_zbozi_secret',
-    );
-
     const PRICEMANIA = array(
         'VERIFIED' => 'mergado_pricemania_overeny_obchod',
         'SHOP_ID' => 'mergado_pricemania_shop_id'
-    );
-
-    const GOOGLE_ADS = array(
-        'CONVERSIONS' => 'mergado_adwords_conversion',
-        'CONVERSIONS_CODE' => 'mergado_adwords_conversion_code',
-        'CONVERSIONS_LABEL' => 'mergado_adwords_conversion_label',
-        'REMARKETING' => 'adwords_remarketing',
-//        'REMARKETING_ID' => 'adwords_remarketing_id',
     );
 
     const GOOGLE_GTAGJS = array(
@@ -136,8 +120,7 @@ class SettingsClass
 
     const FEED = array(
         'STATIC' => 'static_feed',
-        'CATEGORY' => 'category_feed',
-        'MAX_SIZE' => 'partial_feeds_size',
+        'CATEGORY' => 'category_feed'
     );
 
     const EXPORT = array(
@@ -185,7 +168,7 @@ class SettingsClass
      * @param $value
      * @param $shopID
      */
-    public static function saveSetting($key, $value, $shopID)
+    public static function saveSetting($key, $value, $shopID, $html = false)
     {
         $exists = Db::getInstance()->getRow(
             'SELECT id FROM ' . _DB_PREFIX_ . Mergado::MERGADO['TABLE_NAME'] . ' WHERE `key`="' . pSQL($key) . '" && `id_shop`="' . pSQL($shopID) . '"'
@@ -193,12 +176,12 @@ class SettingsClass
 
         if ($exists) {
             Db::getInstance()->update(Mergado::MERGADO['TABLE_NAME'],
-                array('value' => pSQL(trim($value))),
+                array('value' => pSQL(trim($value), $html)),
                 '`key` = "' . pSQL($key) . '" && `id_shop` = "' . pSQL($shopID) . '"');
         } else {
             Db::getInstance()->insert(Mergado::MERGADO['TABLE_NAME'], array(
                 'key' => pSQL($key),
-                'value' => pSQL(trim($value)),
+                'value' => pSQL(trim($value), $html),
                 'id_shop' => pSQL($shopID),
             ));
         }

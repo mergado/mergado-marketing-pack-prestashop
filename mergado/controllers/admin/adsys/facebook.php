@@ -5,7 +5,7 @@ use Mergado\Tools\SettingsClass;
 
 $fields_form[0]['form'] = array(
     'legend' => array(
-        'title' => $this->l('Facebook pixel'),
+        'title' => $this->module->l('Facebook pixel', 'facebook'),
         'icon' => 'icon-cogs'
     ),
     'input' => array(
@@ -19,7 +19,7 @@ $fields_form[0]['form'] = array(
         ),
         array(
             'name' => FacebookClass::ACTIVE,
-            'label' => $this->l('Facebook pixel'),
+            'label' => $this->module->l('Facebook pixel', 'facebook'),
             'validation' => 'isBool',
             'cast' => 'intval',
             'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
@@ -28,26 +28,26 @@ $fields_form[0]['form'] = array(
                 array(
                     'id' => 'fb_pixel_on',
                     'value' => 1,
-                    'label' => $this->l('Yes')
+                    'label' => $this->module->l('Yes')
                 ),
                 array(
                     'id' => 'fb_pixel_off',
                     'value' => 0,
-                    'label' => $this->l('No')
+                    'label' => $this->module->l('No')
                 )
             ),
             'visibility' => Shop::CONTEXT_ALL,
         ),
         array(
             'name' => FacebookClass::CODE,
-            'label' => $this->l('Facebook pixel ID'),
+            'label' => $this->module->l('Facebook pixel ID', 'facebook'),
             'type' => 'text',
-            'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->l('Pixel ID naleznete v administraci Business Manager pro Facebook. Přejděte do nastavení Správce událostí > Přidat nový zdroj dat > Facebook pixel a vytvořte pixel. Na stránce Přehled daného pixelu vlevo nahoře je pod názvem zobrazené pixel ID.'),
+            'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->module->l('Pixel ID can be found in your Facebook Business Manager. Go to Events Manager > Add new data feed > Facebook pixel. Pixel ID is displayed below the title on the Overview page at the top left.', 'facebook'),
             'visibility' => Shop::CONTEXT_ALL,
         ),
         array(
             'name' => FacebookClass::CONVERSION_VAT_INCL,
-            'label' => $this->l('With VAT'),
+            'label' => $this->module->l('With VAT', 'facebook'),
             'validation' => 'isBool',
             'cast' => 'intval',
             'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
@@ -56,20 +56,20 @@ $fields_form[0]['form'] = array(
                 array(
                     'id' => 'fbpixel_active_on',
                     'value' => 1,
-                    'label' => $this->l('Yes')
+                    'label' => $this->module->l('Yes')
                 ),
                 array(
                     'id' => 'fbpixel_active_off',
                     'value' => 0,
-                    'label' => $this->l('No')
+                    'label' => $this->module->l('No')
                 )
             ),
-            'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Choose whether the conversion value will be sent with or without VAT.'),
+            'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->module->l('Choose whether the conversion value will be sent with or without VAT.', 'facebook'),
             'visibility' => Shop::CONTEXT_ALL,
         ),
     ),
     'submit' => array(
-        'title' => $this->l('Save'),
+        'title' => $this->module->l('Save'),
         'name' => 'submit' . $this->name
     )
 );

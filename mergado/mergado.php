@@ -16,8 +16,11 @@
 
 // Do not use USE statements because of PS 1.6.1.12 - error during installation
 
+require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Arukereso/ArukeresoClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Biano/BianoClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Google/GoogleClass.php';
+require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Google/GoogleTagManagerClass.php';
+require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Google/GoogleAdsClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Google/GaRefundClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Kelkoo/KelkooClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Glami/GlamiClass.php';
@@ -25,9 +28,11 @@ require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Facebook/FacebookClass.
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Heureka/HeurekaClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Etarget/EtargetClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Zbozi/ZboziClass.php';
+require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Zbozi/Zbozi.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/NajNakup/NajNakupClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Pricemania/PricemaniaClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Sklik/SklikClass.php';
+require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Google/GoogleReviews/GoogleReviewsClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/RssClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/ImportPricesClass.php';
 require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/HelperClass.php';
@@ -69,9 +74,12 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.4.2',
+        'VERSION' => '2.5.0',
         'PHP_MIN_VERSION' => 7.1
     ];
+
+    public $GoogleAdsClass;
+    public $GoogleTagManagerClass;
 
     public function __construct()
     {
@@ -109,6 +117,9 @@ class Mergado extends Module
         } catch (Exception $ex) {
             // Error during installation
         }
+
+        $this->GoogleAdsClass = new Mergado\Google\GoogleAdsClass($this->shopID);
+        $this->GoogleTagManagerClass = new Mergado\Google\GoogleTagManagerClass($this->shopID);
     }
 
     /**
@@ -361,11 +372,11 @@ class Mergado extends Module
 
     public function hookDisplayAfterBodyOpeningTag() {
         if(_PS_VERSION_ >= self::PS_V_17) { // Just check cause of custom hook in ps16
-            if(Mergado\Google\GoogleClass::isGTMActive($this->shopId)):
-                $code = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['CODE'], self::getShopId());
+            if($this->GoogleTagManagerClass->isActive()):
+                $code = $this->GoogleTagManagerClass->getCode();
                 ?>
                 <!-- Google Tag Manager (noscript) -->
-                    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=<?= $code ?>"
+                    <noscript><iframe src="//www.googletagmanager.com/ns.html?id=<?= $code ?>"
                     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <!-- End Google Tag Manager (noscript) -->
             <?php
@@ -553,16 +564,16 @@ class Mergado extends Module
         return $display;
     }
 
-    /**
-     * HOOK - DISPLAY SHOPPING CART FOOTER
-     * @param $params
-     * @return bool
-     */
+//    /**
+//     * HOOK - DISPLAY SHOPPING CART FOOTER
+//     * @param $params
+//     * @return bool
+//     */
 
-    public function hookDisplayBeforeBodyClosingTag($params)
-    {
-        return $this->cartDataPs17($params);
-    }
+//    public function hookDisplayBeforeBodyClosingTag($params)
+//    {
+//        return $this->cartDataPs17($params);
+//    }
 
 
     /**
@@ -583,6 +594,7 @@ class Mergado extends Module
 
         //If user don't want the heureka document ... dont send data
         if ($this->context->cookie->mergado_heureka_consent != '1') {
+
             /* Heureka verified by users */
             if ($verifiedCz && $verifiedCz === Mergado\Tools\SettingsClass::ENABLED) {
                 $verifiedCzCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_CODE_CZ'], $this->shopID);
@@ -605,7 +617,12 @@ class Mergado extends Module
         $this->context->cookie->mergado_heureka_consent = '0';
 
 
-        $zboziSent = Mergado\Zbozi\ZboziClass::sendZbozi($params, $this->shopId);
+        if ($this->context->cookie->mergado_zbozi_consent == '1') {
+            $zboziSent = Mergado\Zbozi\Zbozi::sendZbozi($params, $this->shopId);
+        }
+
+        // Unset cookie because of next buy
+        $this->context->cookie->mergado_zbozi_consent = '0';
 
         // NajNakup
         $najNakupClass = new \Mergado\NajNakup\NajNakupClass();
@@ -702,6 +719,45 @@ class Mergado extends Module
         if ($bianoClass->isActive($this->shopId)) {
             $display .= $this->display(__FILE__, 'views/templates/front/header/biano/bianoView.tpl');
             $this->context->controller->addJS($this->_path . 'views/js/biano.js');
+        }
+
+        // Arukereso
+        $arukeresoClass = new Mergado\Arukereso\ArukeresoClass(self::getShopId());
+
+        if ($arukeresoClass->isWidgetActive()) {
+            $this->smarty->assign(
+                array(
+                    'arukeresoWidget' => $arukeresoClass->getWidgetSmartyVariables(),
+                )
+            );
+
+            $display .= $this->display(__FILE__, $arukeresoClass->getWidgetTemplatePath());
+        }
+
+        // Google reviews
+        $GoogleReviewsClass = new Mergado\Google\GoogleReviewsClass(self::getShopId());
+        if ($GoogleReviewsClass->isBadgeActive()) {
+            $this->smarty->assign(
+                array(
+                    'googleBadge' => $GoogleReviewsClass->getBadgeSmartyVariables(),
+                )
+            );
+
+            $display .= $this->display(__FILE__, $GoogleReviewsClass->getBadgeTemplatePath());
+        }
+
+        if(_PS_VERSION_ < self::PS_V_17) { // 16
+            if($this->GoogleTagManagerClass->isActive()):
+                $this->smarty->assign(
+                    array(
+                        'googleTagManagerCode' => $this->GoogleTagManagerClass->getCode(),
+                    )
+                );
+                ?>
+            <?php
+
+            $display .= $this->display(__FILE__, '/views/templates/front/footer/googleTagManager.tpl');
+            endif;
         }
 
         return $display;
@@ -831,7 +887,7 @@ class Mergado extends Module
     /**
      * @return string
      */
-    public function hookDisplayHeader()
+    public function hookDisplayHeader($params)
     {
         $lang = Mergado\Tools\SettingsClass::getLangIso();
 
@@ -842,6 +898,8 @@ class Mergado extends Module
         $glamiLangActive = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI_LANGUAGES[$lang], self::getShopId());
         $categoryId = Tools::getValue('id_category');
         $productId = Tools::getValue('id_product');
+
+        $display .= $this->cartDataPs17($params);
 
         if ($categoryId) {
             $category = new CategoryCore($categoryId, (int)ContextCore::getContext()->language->id);
@@ -891,33 +949,29 @@ class Mergado extends Module
         }
 
         //GTAG
-        if (Mergado\Google\GoogleClass::isGtagjsActive($this->shopId) || Mergado\Google\GoogleClass::isGAdsConversionsActive($this->shopId) || Mergado\Google\GoogleClass::isGAdsRemarketingActive($this->shopId)) {
+        if (Mergado\Google\GoogleClass::isGtagjsActive($this->shopId) || $this->GoogleAdsClass->isConversionsActive() || $this->GoogleAdsClass->isRemarketingActive()) {
             $smartyParams = array();
             $gtagMainCode = '';
 
             //Add google analytics code
             if (Mergado\Google\GoogleClass::isGtagjsActive($this->shopId)) {
-                $smartyParams['googleAnalyticsCode'] = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_GTAGJS['CODE'], self::getShopId());
+                $googleAnalyticsCode = Mergado\Google\GoogleClass::getGoogleAnalyticsCode(self::getShopId());
+                $smartyParams['googleAnalyticsCode'] = $googleAnalyticsCode;
                 $gtagMainCode = $smartyParams['googleAnalyticsCode'];
             }
 
             // Add conversion code
-            if (Mergado\Google\GoogleClass::isGAdsConversionsActive($this->shopID) || \Mergado\Google\GoogleClass::isGAdsRemarketingActive($this->shopID)) {
-                $gAdsConversionCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE'], $this->shopID);;
-
-                if (preg_match("/^[A-Z]{2}-/i", substr($gAdsConversionCode, 0, 3))) {
-                    $smartyParams['gAdsConversionCode'] = substr($gAdsConversionCode, 3);
-                } else {
-                    $smartyParams['gAdsConversionCode'] = $gAdsConversionCode;
-                }
+            if ($this->GoogleAdsClass->isConversionsActive() || $this->GoogleAdsClass->isRemarketingActive()) {
+                $gAdsConversionCode = $this->GoogleAdsClass->getConversionsCode();
+                $smartyParams['gAdsConversionCode'] = $gAdsConversionCode;
 
                 if ($gtagMainCode == '') {
-                    $gtagMainCode = 'AW-' . $smartyParams['gAdsConversionCode'];
+                    $gtagMainCode = $smartyParams['gAdsConversionCode'];
                 }
             }
 
             //Does remarketing code exist ??
-            $smartyParams['gAdsRemarketingActive'] = \Mergado\Google\GoogleClass::isGAdsRemarketingActive($this->shopID);
+            $smartyParams['gAdsRemarketingActive'] = $this->GoogleAdsClass->isRemarketingActive();
 
             //Add main code to template
             $smartyParams['gtagMainCode'] = $gtagMainCode;
@@ -928,23 +982,32 @@ class Mergado extends Module
         }
 
         //GTAG - ecommerce enhanced
-        if(Mergado\Google\GoogleClass::isGtagjsEcommerceEnhancedActive($this->shopId)) {
+        if(Mergado\Google\GoogleClass::isGtagjsEcommerceEnhancedActive($this->shopId) || $this->GoogleAdsClass->isRemarketingActive()) {
+            if (\Mergado\Google\GoogleClass::isGtagjsEcommerceEnhancedActive($this->shopId) && $this->GoogleAdsClass->isRemarketingActive()) {
+                $send_to = implode(',', [\Mergado\Google\GoogleClass::getGoogleAnalyticsCode($this->shopId), $this->GoogleAdsClass->getConversionsCode()]);
+            } else if (\Mergado\Google\GoogleClass::isGtagjsEcommerceEnhancedActive($this->shopId)) {
+                $send_to = \Mergado\Google\GoogleClass::getGoogleAnalyticsCode($this->shopId);
+            } else {
+                $send_to = $this->GoogleAdsClass->getConversionsCode();
+            }
+
+            Media::addJsDef(
+                array('mergado' =>
+                    array (
+                        'GoogleAds' => array(
+                            'remarketingActive' => $this->GoogleAdsClass->isRemarketingActive(),
+                        ),
+                        'Gtag' => array(
+                            'enhancedActive' => Mergado\Google\GoogleClass::isGtagjsEcommerceEnhancedActive($this->shopId),
+                        ),
+                        'GtagAndGads' => array (
+                            'send_to' => $send_to,
+                        )
+                    )
+                )
+            );
+
             $this->context->controller->addJS($this->_path . 'views/js/gtag.js');
-        }
-
-        //Google Tag Manager
-        if (Mergado\Google\GoogleClass::isGTMActive($this->shopId)) {
-            $googleAnalyticsCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GOOGLE_TAG_MANAGER['CODE'], self::getShopId());
-            $this->smarty->assign(array(
-                'gtm_analytics_id' => $googleAnalyticsCode,
-            ));
-
-            $display .= $this->display(__FILE__, '/views/templates/front/header/gtm.tpl');
-        }
-
-        //Google Tag Manager - ecommerce enhanced
-        if(Mergado\Google\GoogleClass::isGTMEcommerceEnhancedActive($this->shopId)) {
-            $this->context->controller->addJS($this->_path . 'views/js/gtm.js');
         }
 
         //GTAG + Google Tag Manager
@@ -964,11 +1027,48 @@ class Mergado extends Module
                         $this->context->controller->addJS($this->_path . 'views/js/gtagProductClick.js');
                     }
 
-                    if (Mergado\Google\GoogleClass::isGTMEcommerceEnhancedActive($this->shopId)) {
+                    if ($this->GoogleTagManagerClass->isEnhancedEcommerceActive()) {
                         $this->context->controller->addJS($this->_path . 'views/js/gtmProductClick.js');
                     }
                 }
             }
+        }
+
+        //Google Tag Manager
+        if ($this->GoogleTagManagerClass->isActive()) {
+            if (Tools::getValue('controller') === 'orderconfirmation') {
+                $orderId = Tools::getValue('id_order');
+                $order = new Order($orderId);
+                $currency = new CurrencyCore($order->id_currency);
+
+                $this->smarty->assign(array(
+                    'gtm_ecommerceEnhanced' => $this->GoogleTagManagerClass->isEnhancedEcommerceActive(),
+                    'gtm_purchase_data' => $this->GoogleTagManagerClass->getPurchaseData($orderId, $order, (int) $this->context->language->id),
+                    'gtm_transaction_data' => $this->GoogleTagManagerClass->getTransactionData($orderId, $order, (int) $this->context->language->id),
+                    'gtm_currencyCode' => $currency->iso_code,
+                ));
+
+                $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/gtm.tpl');
+            }
+
+            //Google Tag Manager - ecommerce enhanced
+            if($this->GoogleTagManagerClass->isEnhancedEcommerceActive()) {
+                Media::addJsDef(
+                    array('mergado' =>
+                        array (
+                            'GoogleTagManager' => array('maxViewListItems' => $this->GoogleTagManagerClass->getViewListItemsCount()),
+                        )
+                    )
+                );
+
+                $this->context->controller->addJS($this->_path . 'views/js/gtm.js');
+            }
+
+            $this->smarty->assign(array(
+                'gtm_analytics_id' => $this->GoogleTagManagerClass->getCode(),
+            ));
+
+            $display .= $this->display(__FILE__, '/views/templates/front/header/gtm.tpl');
         }
 
         //BIANO
@@ -1032,12 +1132,77 @@ class Mergado extends Module
                 $ajax_link = $link->getModuleLink('mergado','ajax', $parameters);
 
                 Media::addJsDef(array(
-                    "heurekaAjax" => $ajax_link,
-                    "heurekaOptText" => $textInLanguage,
+                    "mmp_heureka" => array(
+                        "ajaxLink" => $ajax_link,
+                        "optText" => $textInLanguage,
+                        "checkboxChecked" => $this->context->cookie->mergado_heureka_consent,
+                    )
             ));
 
             // Create a link with ajax path
             $this->context->controller->addJS($this->_path . 'views/js/order17/heureka.js');
+            }
+        }
+
+        //Add checkbox for zbozi
+        if (_PS_VERSION_ >= self::PS_V_17) {
+            $this->shopId = self::getShopId();
+            $ZboziClass = new \Mergado\Zbozi\ZboziClass($this->shopId);
+            $lang = Mergado\Tools\SettingsClass::getLangIso();
+
+            if ($ZboziClass->isActive()) {
+                $textInLanguage = $ZboziClass->getOptOut($lang);
+
+                if (!$textInLanguage || ($textInLanguage === '') || ($textInLanguage === 0)) {
+                    $textInLanguage = 'If you check this, we will send the content of your order together with your e-mail address to Zboží.cz.';
+                }
+
+                $link = new Link;
+                $parameters = array("action" => "setZboziOpc");
+                $ajax_link = $link->getModuleLink('mergado','ajax', $parameters);
+
+                Media::addJsDef(array(
+                    "mmp_zbozi" => array(
+                        "ajaxLink" => $ajax_link,
+                        "optText" => $textInLanguage,
+                        "checkboxChecked" => $this->context->cookie->mergado_zbozi_consent,
+                    )
+                ));
+
+                // Create a link with ajax path
+                $this->context->controller->addJS($this->_path . 'views/js/order17/zbozi.js');
+            }
+        }
+
+        //Add checkbox for arukereso
+        if (_PS_VERSION_ >= self::PS_V_17) {
+            $lang = Mergado\Tools\SettingsClass::getLangIso();
+            $this->shopId = self::getShopId();
+            $arukeresoClass = new Mergado\Arukereso\ArukeresoClass($this->shopID);
+
+            if ($arukeresoClass->isActive()) {
+                $textInLanguage = $arukeresoClass->getOptOut($lang);
+
+                if (!$textInLanguage || ($textInLanguage === '') || ($textInLanguage === 0)) {
+                    $textInLanguage = 'Do not send a satisfaction questionnaire within the Trusted Shop program.';
+                }
+
+                $link = new Link;
+                $parameters = array("action" => "setArukeresoOpc");
+                $ajax_link = $link->getModuleLink('mergado','ajax', $parameters);
+
+                Media::addJsDef(
+                    array(
+                        "mmp_arukereso" => array (
+                            "ajaxLink" => $ajax_link,
+                            "optText" => $textInLanguage,
+                            "checkboxChecked" => $this->context->cookie->mergado_arukereso_consent
+                        )
+                    )
+                );
+
+                // Create a link with ajax path
+                $this->context->controller->addJS($this->_path . 'views/js/order17/arukereso.js');
             }
         }
 
@@ -1050,6 +1215,8 @@ class Mergado extends Module
 
     function hookExtraCarrier ()
     {
+        $display = '';
+
         //Works just for ps 1.6
         if (_PS_VERSION_ < Mergado::PS_V_17) {
             $lang = Mergado\Tools\SettingsClass::getLangIso();
@@ -1067,14 +1234,66 @@ class Mergado extends Module
                 }
 
                 $this->smarty->assign(array(
-                    'consentText' => $textInLanguage,
+                    'heureka_consentText' => $textInLanguage,
+                    'heureka_checkboxChecked' => $this->context->cookie->mergado_heureka_consent,
                 ));
 
                 $this->context->controller->addJS($this->_path . 'views/js/orderOPC/heureka.js');
 
-                return $this->display(__FILE__, '/views/templates/front/orderCarrier/heureka.tpl');
+                $display .= $this->display(__FILE__, '/views/templates/front/orderCarrier/heureka.tpl');
             }
         }
+
+        //Works just for ps 1.6
+        if (_PS_VERSION_ < Mergado::PS_V_17) {
+            $lang = Mergado\Tools\SettingsClass::getLangIso();
+
+            $ZboziClass = new Mergado\Zbozi\ZboziClass($this->shopId);
+
+            if ($ZboziClass->isActive()) {
+                $textInLanguage = $ZboziClass->getOptOut($lang);
+
+                if (!$textInLanguage || ($textInLanguage === '') || ($textInLanguage === 0) ) {
+                    $textInLanguage = 'If you check this, we will send the content of your order together with your e-mail address to Zboží.cz.';
+                }
+
+                $this->smarty->assign(array(
+                    'zbozi_consentText' => $textInLanguage,
+                    'zbozi_checkboxChecked' => $this->context->cookie->mergado_zbozi_consent,
+                ));
+
+                $this->context->controller->addJS($this->_path . 'views/js/orderOPC/zbozi.js');
+
+                $display .= $this->display(__FILE__, '/views/templates/front/orderCarrier/zbozi.tpl');
+            }
+        }
+
+        //Works just for ps 1.6
+
+        if (_PS_VERSION_ < Mergado::PS_V_17) {
+            $lang = Mergado\Tools\SettingsClass::getLangIso();
+            $this->shopId = self::getShopId();
+            $arukeresoClass = new Mergado\Arukereso\ArukeresoClass($this->shopID);
+
+            if ($arukeresoClass->isActive()) {
+                $textInLanguage = $arukeresoClass->getOptOut($lang);
+
+                if (!$textInLanguage || ($textInLanguage === '') || ($textInLanguage === 0) ) {
+                    $textInLanguage = 'Do not send a satisfaction questionnaire within the Trusted Shop program.';
+                }
+
+                $this->smarty->assign(array(
+                    'arukereso_consentText' => $textInLanguage,
+                    'arukereso_checkboxChecked' => $this->context->cookie->mergado_arukereso_consent,
+                ));
+
+                $this->context->controller->addJS($this->_path . 'views/js/orderOPC/arukereso.js');
+
+                $display .= $this->display(__FILE__, '/views/templates/front/orderCarrier/arukereso.tpl');
+            }
+        }
+
+        return $display;
     }
 
     /**
@@ -1184,7 +1403,7 @@ class Mergado extends Module
         $orderCartId = \Mergado\Tools\HelperClass::getOrderCartId($params);
 
         $this->smarty->assign(array(
-            'useSandbox' => Mergado\Zbozi\ZboziClass::ZBOZI_SANDBOX === true ? 1 : 0,
+            'useSandbox' => Mergado\Zbozi\Zbozi::ZBOZI_SANDBOX === true ? 1 : 0,
             'lang' => strtolower(substr($context->language->language_code, strpos($context->language->language_code, "-") + 1)), // CZ/SK
             'langIsoCode' => $context->language->iso_code, // CS,SK
         ));
@@ -1283,18 +1502,6 @@ class Mergado extends Module
             $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/gtagjs.tpl');
         }
 
-        //GoogleTagManager - Google analytics
-        if(Mergado\Google\GoogleClass::isGTMEcommerceActive(self::getShopId())) {
-            $currency = new CurrencyCore($order->id_currency);
-
-            $this->smarty->assign(array(
-                'gtm_purchase_data' => Mergado\Google\GoogleClass::getGTMPurchaseData($orderId, $order, $products_tmp, (int) $context->language->id, $this->shopID),
-                'gtm_currencyCode' => $currency->iso_code,
-            ));
-
-            $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/gtm.tpl');
-        }
-
         //Biano
         $bianoClass = new \Mergado\Biano\BianoClass();
         if($bianoClass->isActive($this->shopID)) {
@@ -1305,6 +1512,16 @@ class Mergado extends Module
             $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/biano.tpl');
         }
 
+        //Arukereso
+
+        $arukeresoClass = new \Mergado\Arukereso\ArukeresoClass($this->shopID);
+        $test = $arukeresoClass->orderConfirmation($products_tmp, $customer, $this->context->cookie->mergado_arukereso_consent);
+
+        // Null it for next order
+        $this->context->cookie->mergado_arukereso_consent = '0';
+
+        $display .= $test;
+
         // Heureka
         $heurekaCZactive = Mergado\Tools\SettingsClass::getSettings(\Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_CZ'], $this->shopID);
         $heurekaSKactive = Mergado\Tools\SettingsClass::getSettings(\Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_SK'], $this->shopID);
@@ -1312,6 +1529,20 @@ class Mergado extends Module
         if ($heurekaCZactive || $heurekaSKactive) {
             $this->context->controller->addJS($this->_path . 'views/js/heureka.js');
         }
+
+
+        // Google reviews
+        $GoogleReviewsClass = new Mergado\Google\GoogleReviewsClass(self::getShopId());
+        if ($GoogleReviewsClass->isOptInActive()) {
+            $this->smarty->assign(
+                array(
+                    'googleReviewsOptIn' => $GoogleReviewsClass->getOptInSmartyVariables($params, $products_tmp, $this->context->cart),
+                )
+            );
+
+            $display .= $this->display(__FILE__, $GoogleReviewsClass->getOptInTemplatePath());
+        }
+
 
         // All smarty assign merged and assigned
         $data = array_merge($baseData + $specialData + array('PS_VERSION' => _PS_VERSION_));
@@ -1408,22 +1639,17 @@ class Mergado extends Module
             $sorted[$item['key']] = $item['value'];
         }
 
-        $googleAdsCodeSanitized = isset($sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE']]) ? $sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_CODE']] : '';
-        if (preg_match("/^[A-Z]{2}-/i", substr($googleAdsCodeSanitized, 0, 3))) {
-            $googleAdsCodeSanitized = substr($googleAdsCodeSanitized, 3);
-        }
-
         return array(
-            'zboziActive' => isset($sorted[Mergado\Tools\SettingsClass::ZBOZI['CONVERSIONS']]) ? $sorted[Mergado\Tools\SettingsClass::ZBOZI['CONVERSIONS']] : '',
-            'zboziAdvancedActive' => isset($sorted[Mergado\Tools\SettingsClass::ZBOZI['CONVERSIONS_ADVANCED']]) ? $sorted[Mergado\Tools\SettingsClass::ZBOZI['CONVERSIONS_ADVANCED']] : '',
-            'zboziId' => isset($sorted[Mergado\Tools\SettingsClass::ZBOZI['SHOP_ID']]) ? $sorted[Mergado\Tools\SettingsClass::ZBOZI['SHOP_ID']] : '',
+            'zboziActive' => isset($sorted[Mergado\Zbozi\ZboziClass::ACTIVE]) ? $sorted[Mergado\Zbozi\ZboziClass::ACTIVE] : '',
+            'zboziAdvancedActive' => isset($sorted[Mergado\Zbozi\ZboziClass::ADVANCED_ACTIVE]) ? $sorted[Mergado\Zbozi\ZboziClass::ADVANCED_ACTIVE] : '',
+            'zboziId' => isset($sorted[Mergado\Zbozi\ZboziClass::SHOP_ID]) ? $sorted[Mergado\Zbozi\ZboziClass::SHOP_ID] : '',
             'heurekaCzActive' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CZ']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CZ']] : '',
             'heurekaCzCode' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ']] : '',
             'heurekaSkActive' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']] : '',
             'heurekaSkCode' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']] : '',
-            'googleAds' => isset($sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS']]) ? $sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS']] : '',
-            'googleAdsCode' => $googleAdsCodeSanitized,
-            'googleAdsLabel' => isset($sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_LABEL']]) ? $sorted[Mergado\Tools\SettingsClass::GOOGLE_ADS['CONVERSIONS_LABEL']] : '',
+            'googleAds' => isset($sorted[$this->GoogleAdsClass::CONVERSIONS_ACTIVE]) ? $sorted[$this->GoogleAdsClass::CONVERSIONS_ACTIVE] : '',
+            'googleAdsCode' => $this->GoogleAdsClass->getConversionsCode(),
+            'googleAdsLabel' => isset($sorted[$this->GoogleAdsClass::CONVERSIONS_LABEL]) ? $sorted[$this->GoogleAdsClass::CONVERSIONS_LABEL] : '',
         );
     }
 
