@@ -2,7 +2,7 @@
 <module>
     <name>mergado</name>
     <displayName><![CDATA[Mergado Pack]]></displayName>
-    <version><![CDATA[2.5.0]]></version>
+    <version><![CDATA[2.5.2]]></version>
     <description><![CDATA[Modul Mergado Pack pom&aacute;h&aacute; exportovat data o zbož&iacute; z Va&scaron;eho eshopu do aplikace Mergado k dal&scaron;&iacute;mu zpracov&aacute;n&iacute;.]]></description>
     <author><![CDATA[www.mergado.cz]]></author>
     <tab><![CDATA[export]]></tab>
