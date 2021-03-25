@@ -203,7 +203,7 @@ class AdminMergadoController extends \ModuleAdminController
             );
         }
 
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     /**
@@ -329,7 +329,7 @@ class AdminMergadoController extends \ModuleAdminController
             );
         }
 
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     /**
@@ -586,7 +586,7 @@ class AdminMergadoController extends \ModuleAdminController
             );
         }
 
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     /**
@@ -693,7 +693,7 @@ class AdminMergadoController extends \ModuleAdminController
             );
         }
 
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     /**
@@ -798,7 +798,7 @@ class AdminMergadoController extends \ModuleAdminController
             );
         }
 
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     /*******************************************************************************************************************
@@ -807,57 +807,57 @@ class AdminMergadoController extends \ModuleAdminController
 
     public function formAdSys_google() {
         include_once __DIR__ . '/adsys/google.php';
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     public function formAdSys_facebook() {
         include_once __DIR__ . '/adsys/facebook.php';
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     public function formAdSys_heureka() {
         include_once __DIR__ . '/adsys/heureka.php';
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     public function formAdSys_etarget() {
         include_once __DIR__ . '/adsys/etarget.php';
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     public function formAdSys_najnakupsk() {
         include_once __DIR__ . '/adsys/najnakupsk.php';
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     public function formAdSys_seznam() {
         include_once __DIR__ . '/adsys/seznam.php';
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     public function formAdSys_glami() {
         include_once __DIR__ . '/adsys/glami.php';
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     public function formAdSys_kelkoo() {
         include_once __DIR__ . '/adsys/kelkoo.php';
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     public function formAdSys_pricemania() {
         include_once __DIR__ . '/adsys/pricemania.php';
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     public function formAdSys_biano() {
         include_once __DIR__ . '/adsys/biano.php';
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
     public function formAdSys_arukereso() {
         include_once __DIR__ . '/adsys/arukereso.php';
-        return $helper->generateForm($fields_form);
+        return @$helper->generateForm($fields_form);
     }
 
 

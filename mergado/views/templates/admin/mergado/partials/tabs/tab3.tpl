@@ -14,7 +14,7 @@
 
 <div class='mergado-tab' data-tab='3'>
     <div id="mergadoXml">
-        <div class="alert alert-info">{l s='Paste the following XML links into your account at [1]Mergado account[/1]. In the Mergado App you can further modify your feeds and convert them into to hundreds of other formats.' tags=['[1]' => '<a href="https://accounts.mergado.com/login/?utm_source=mp&utm_medium=button&utm_campaign=login" style="font-weight: bold;" target="_blank">', '[/1]' => '</a>'] mod='mergado'}</div>
+        <div class="alert alert-info">{l s='Paste the following XML links into your account at [1]Mergado account[/1]. In the Mergado App you can further modify your feeds and convert them into to hundreds of other formats.' tags=['<a href="https://accounts.mergado.com/login/?utm_source=mp&utm_medium=button&utm_campaign=login" style="font-weight: bold;" target="_blank">'] mod='mergado'}</div>
 
             {foreach from=$xmls item=xmlArray key=k name=mainforeach}
             <div class="panel " id="mergado_fieldset_mergado_lang">
