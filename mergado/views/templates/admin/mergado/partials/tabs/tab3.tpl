@@ -88,14 +88,16 @@
                             </td>
                                 {if $cronsPartial}
                                     <td class="cron-status-td">
-                                        {if $crons[$k][$key]['currentFiles']}
-                                            <div class="rangeSlider rangeSlider-{$smarty.foreach.mainforeach.index}{$smarty.foreach.itemforeach.index}" data-range-index="{$smarty.foreach.mainforeach.index}{$smarty.foreach.itemforeach.index}" data-percentage="{round(($crons[$k][$key]['currentFiles'] / ($crons[$k][$key]['totalFiles'] + 1)) * 100, 2)}">
-                                                <span>{round(($crons[$k][$key]['currentFiles'] / ($crons[$k][$key]['totalFiles'] + 1)) * 100, 2)}%</span>
-                                            </div>
-                                        {else}
-                                            <div class="rangeSlider rangeSlider-{$smarty.foreach.mainforeach.index}{$smarty.foreach.itemforeach.index}" data-range-index="{$smarty.foreach.mainforeach.index}{$smarty.foreach.itemforeach.index}" data-percentage="100">
-                                                <span>100%</span>
-                                            </div>
+                                        {if isset($crons[$k])}
+                                            {if $crons[$k][$key]['currentFiles']}
+                                                <div class="rangeSlider rangeSlider-{$smarty.foreach.mainforeach.index}{$smarty.foreach.itemforeach.index}" data-range-index="{$smarty.foreach.mainforeach.index}{$smarty.foreach.itemforeach.index}" data-percentage="{round(($crons[$k][$key]['currentFiles'] / ($crons[$k][$key]['totalFiles'] + 1)) * 100, 2)}">
+                                                    <span>{round(($crons[$k][$key]['currentFiles'] / ($crons[$k][$key]['totalFiles'] + 1)) * 100, 2)}%</span>
+                                                </div>
+                                            {else}
+                                                <div class="rangeSlider rangeSlider-{$smarty.foreach.mainforeach.index}{$smarty.foreach.itemforeach.index}" data-range-index="{$smarty.foreach.mainforeach.index}{$smarty.foreach.itemforeach.index}" data-percentage="100">
+                                                    <span>100%</span>
+                                                </div>
+                                            {/if}
                                         {/if}
                                     </td>
                                 {/if}
