@@ -74,7 +74,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.5.6',
+        'VERSION' => '2.5.5',
         'PHP_MIN_VERSION' => 7.1
     ];
 
@@ -660,7 +660,7 @@ class Mergado extends Module
         $display = "";
 
         //Heureka Widget
-        $widgetActive = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_' . $langIso], $this->shopID);
+        $widgetActive = isset(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_' . $langIso]) ? Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_' . $langIso], $this->shopID) : false;
 
         if ($widgetActive === Mergado\Tools\SettingsClass::ENABLED) {
             $widgetId = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_ID_' . $langIso], $this->shopID);
@@ -895,7 +895,7 @@ class Mergado extends Module
 
         $display = "";
         $glami = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI['ACTIVE'], self::getShopId());
-        $glamiLangActive = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI_LANGUAGES[$lang], self::getShopId());
+        $glamiLangActive = isset(Mergado\Tools\SettingsClass::GLAMI_LANGUAGES[$lang]) ? Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI_LANGUAGES[$lang], self::getShopId()) : false;
         $categoryId = Tools::getValue('id_category');
         $productId = Tools::getValue('id_product');
 
