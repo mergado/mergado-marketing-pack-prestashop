@@ -74,7 +74,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.5.5',
+        'VERSION' => '2.5.6',
         'PHP_MIN_VERSION' => 7.1
     ];
 
@@ -395,7 +395,7 @@ class Mergado extends Module
         $this->shopId = self::getShopId();
 
         $glami = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI['ACTIVE'], self::getShopId());
-        $glamiLangActive = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI_LANGUAGES[$lang], self::getShopId());
+        $glamiLangActive = isset(Mergado\Tools\SettingsClass::GLAMI_LANGUAGES[$lang]) ? Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI_LANGUAGES[$lang], self::getShopId()) : false;
 
         if($glami === Mergado\Tools\SettingsClass::ENABLED && $glamiLangActive === Mergado\Tools\SettingsClass::ENABLED) {
             ?>
@@ -617,6 +617,7 @@ class Mergado extends Module
         $this->context->cookie->mergado_heureka_consent = '0';
 
 
+        $zboziSent = false;
         if ($this->context->cookie->mergado_zbozi_consent == '1') {
             $zboziSent = Mergado\Zbozi\Zbozi::sendZbozi($params, $this->shopId);
         }
