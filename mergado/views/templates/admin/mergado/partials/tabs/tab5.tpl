@@ -28,10 +28,14 @@
             </div>
         </div>
         <div class="col-side">
-            {$sideAd}
+            {if isset($sideAd)}
+                {$sideAd}
+            {/if}
         </div>
     </div>
     <div class="merwide">
-        {$wideAd}
+        {if isset($wideAd)}
+            {$wideAd}
+        {/if}
     </div>
 </div>

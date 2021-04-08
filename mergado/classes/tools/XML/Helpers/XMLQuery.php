@@ -955,7 +955,7 @@ class XMLQuery extends ObjectModel
 //     * 0 - none
 //     * 1 - use default information
 //     * 2 - use product information
-        $productLableSettingsUsage = $product->additional_delivery_times;
+        $productLableSettingsUsage = isset($product->additional_delivery_times) ? $product->additional_delivery_times : NULL;
         $deliveryDaysDefault = SettingsClass::getSettings('delivery_days', $this->shopID);
 
         // Product is in stock
@@ -1065,11 +1065,11 @@ class XMLQuery extends ObjectModel
             $productAttributeId
         );
 
-        if ($rule['from'] != 0) {
+        if (isset($rule['from']) && $rule['from'] != 0) {
             $from = date(DATE_ISO8601, strtotime($rule['from']));
         }
 
-        if ($rule['to'] != 0) {
+        if (isset($rule['to']) && $rule['to'] != 0) {
             $to = date(DATE_ISO8601, strtotime($rule['to']));
         }
 
