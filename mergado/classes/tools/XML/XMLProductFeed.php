@@ -56,7 +56,7 @@ require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/SettingsClass.php';
 
 class XMLProductFeed extends ObjectModel
 {
-    const FEED_VERSION = 'http://www.mergado.com/ns/1.8';
+    const FEED_VERSION = 'http://www.mergado.com/ns/1.10';
 
     const MAX_PRODUCTS = 'partial_feeds_size';
 

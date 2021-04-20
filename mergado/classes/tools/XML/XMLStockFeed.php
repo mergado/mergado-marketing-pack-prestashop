@@ -188,7 +188,7 @@ class XMLStockFeed extends ObjectModel
      */
     private function mergeXmlFile($storage, $tmpShopDir)
     {
-        $xmlstr = '<CHANNEL xmlns="http://www.mergado.com/ns/1.8">';
+        $xmlstr = '<CHANNEL xmlns="http://www.mergado.com/ns/1.10">';
 
         foreach (glob($tmpShopDir . '*.xml') as $file) {
             $xml = Tools::simplexml_load_file($file);
