@@ -243,14 +243,14 @@ class XMLProductFeed extends ObjectModel
 
                     // Product discount price NO VAT
                     if ($product['discount_price'] != '') {
-                        $xml_new->startElement('DISCOUNT_PRICE');
+                        $xml_new->startElement('PRICE_DISCOUNT');
                         $xml_new->text($product['discount_price']);
                         $xml_new->endElement();
                     }
 
                     // Product discount price VAT
                     if ($product['discount_price_vat']) {
-                        $xml_new->startElement('DISCOUNT_PRICE_VAT');
+                        $xml_new->startElement('PRICE_DISCOUNT_VAT');
                         $xml_new->text($product['discount_price_vat']);
                         $xml_new->endElement();
                     }

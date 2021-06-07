@@ -98,12 +98,14 @@ class XMLQuery extends ObjectModel
             $productsList = Product::getProducts($lang, $start, $limit, 'id_product', 'ASC', false, true);
         }
 
+        $export_both = SettingsClass::getSettings(SettingsClass::EXPORT['BOTH'], $this->shopID);
+        $export_catalog = SettingsClass::getSettings(SettingsClass::EXPORT['CATALOG'], $this->shopID);
+        $export_search = SettingsClass::getSettings(SettingsClass::EXPORT['SEARCH'], $this->shopID);
+        $export_cost = SettingsClass::getSettings(SettingsClass::EXPORT['COST'], $this->shopID);
+
         foreach ($productsList as $productCore) {
             $product = new Product($productCore['id_product']);
 
-            $export_both = SettingsClass::getSettings(SettingsClass::EXPORT['BOTH'], $this->shopID);
-            $export_catalog = SettingsClass::getSettings(SettingsClass::EXPORT['CATALOG'], $this->shopID);
-            $export_search = SettingsClass::getSettings(SettingsClass::EXPORT['SEARCH'], $this->shopID);
 
             $export = false;
 
@@ -127,7 +129,7 @@ class XMLQuery extends ObjectModel
                 continue;
             }
 
-            $base = $this->productBase($product, $lang);
+            $base = $this->productBase($product, $lang, $export_cost);
             if (array_key_exists('item_id', $base)) {
                 $flatProductList[] = $base;
             } else {
@@ -145,7 +147,7 @@ class XMLQuery extends ObjectModel
      * @param $lang
      * @return array|null
      */
-    public function productBase($item, $lang)
+    public function productBase($item, $lang, $export_cost = true)
     {
 
         $accessories = Product::getAccessoriesLight($lang, $item->id);
@@ -292,14 +294,16 @@ class XMLQuery extends ObjectModel
                     $discount_price_novat = '';
                 }
 
-                $cost = $combination['wholesale_price'] != 0 ? $combination['wholesale_price'] : $item->wholesale_price;
+                $cost = null;
+                $cost_vat = null;
 
-                if($cost == 0) {
-                    $cost = null;
+                if ($export_cost) {
+                    $cost = $combination['wholesale_price'] != 0 ? $combination['wholesale_price'] : $item->wholesale_price;
+                    $cost_vat = $this->getProductWholesalePriceWithVat($combination['id_product'], $cost, $id_country, $this->shopID, $context);
+
+                    $cost = $cost == 0 ? null : $cost;
+                    $cost_vat = $cost_vat == 0 ? null : $cost_vat;
                 }
-
-                // TODO:: WHAT IS THIS??
-                $cost_vat = $this->getProductWholesalePriceWithVat($combination['id_product'], $cost, $id_country, $this->shopID, $context);
 
                 $params = array();
 
@@ -428,8 +432,16 @@ class XMLQuery extends ObjectModel
                     $discount_price_novat = '';
                 }
 
-                $cost = $item->wholesale_price != 0 ? $item->wholesale_price : null;
-                $cost_vat = $this->getProductWholesalePriceWithVat($item->id, $cost, $id_country, $this->shopID, $context);
+                $cost = null;
+                $cost_vat = null;
+
+                if ($export_cost) {
+                    $cost = $item->wholesale_price;
+                    $cost_vat = $this->getProductWholesalePriceWithVat($item->id, $cost, $id_country, $this->shopID, $context);
+
+                    $cost = $cost == 0 ? null : $cost;
+                    $cost_vat = $cost_vat == 0 ? null : $cost_vat;
+                }
 
                 $images = array_diff($images, array($mainImage));
 
@@ -595,7 +607,7 @@ class XMLQuery extends ObjectModel
      * @return array|int
      */
     public function getProducts($category, $id_lang, $p, $n, $order_by = null, $order_way = null, $get_total = false,
-                                 $active = true, $random = false, $random_number_products = 1, Context $context = null)
+                                $active = true, $random = false, $random_number_products = 1, Context $context = null)
     {
         if (!$context) {
             $context = Context::getContext();
