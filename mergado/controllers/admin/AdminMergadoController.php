@@ -900,7 +900,7 @@ class AdminMergadoController extends \ModuleAdminController
                     $totalFiles = 0;
                 } else {
                     $xmlQuery = new XMLQuery();
-                    $totalFiles = ceil(count($xmlQuery->productsToFlat(0, 0, false)) / $totalFilesCount);
+                    $totalFiles = ceil(count($xmlQuery->productsToFlat(0, 0)) / $totalFilesCount);
                 }
 
                 $langWithName['base'][$feed['key']] = array(

@@ -56,26 +56,38 @@
     {/if}
 
     {if $p_name == 'product'}
+        document.addEventListener('DOMContentLoaded', function () {
+            var contentName = '';
+            if (typeof sharing_name !== 'undefined') {
+             contentName = [sharing_name]; {* PS 1.6 *}
+            } else {
+              contentName = ['{$product->name}']; {* PS 1.7 *}
+            }
 
-    var contentName = '';
-    if(typeof sharing_name !== 'undefined') {
-        contentName = [sharing_name]; {* PS 1.6 *}
-    } else {
-        contentName = ['{$product->name}']; {* PS 1.7 *}
-    }
+            var productId = '';
 
-    var productId = '';
-    {if $product === NULL}
-        productId = '{$productId}'; {* PS 1.6 *}
-    {else}
-        productId = '{$product->id_product}'; {* PS 1.7 *}
-    {/if}
+            {if $product === NULL}
+              productId = '{$productId}'; {* PS 1.6 *}
+              var combination16 = $('#idCombination');
+              var combination16Value = combination16.val();
 
-    fbq('trackCustom', 'ViewContent', {
-        content_name: contentName,
-        content_type: 'product',
-        content_ids: [productId]
-    });
+              if (combination16.length > 0 && combination16Value !== '' && combination16Value != 0) {
+                productId = productId + '-' + combination16Value;
+              }
+            {else}
+              productId = '{$product->id_product}'; {* PS 1.7 *}
+
+              if ({$product->id_product_attribute} !== 0) {
+                productId = productId + '-' + {$product->id_product_attribute};
+              }
+            {/if}
+
+            fbq('trackCustom', 'ViewContent', {
+              content_name: contentName,
+              content_type: 'product',
+              content_ids: [productId]
+            });
+        });
 
     {elseif $p_name == 'category'}
         {if isset($glami_pixel_productIds)}
@@ -93,19 +105,37 @@
             content_type: 'product',
             content_ids: fbProductsArray
         });
-{*    {elseif $p_name == 'search'}*}
-    {*var fbProducts = {$products|json_encode};*}
-    // var fbProductsArray = new Array();
-    // if (fbProductsArray.length > 0) {
-    //     fbProducts.forEach(function (p) {
-    //         fbProductsArray.push(p.id_product);
-    //     });
-    // }
-    // fbq('track', 'Search', {
-    {*    search_string: '{$searchQuery}',*}
-    //     content_ids: fbProductsArray,
-    //     content_type: 'product'
-    // });
+    {elseif $p_name == 'search'}
+    document.addEventListener('DOMContentLoaded', function () {
+
+        var fbProductsArray = [];
+
+        $('[data-id-product]').each(function () {
+          var $_id = $(this).attr('data-id-product');
+          var $_id_attribute = $(this).attr('data-id-product-attribute');
+          if ($_id_attribute) {
+            if($_id_attribute && $_id_attribute !== '' && $_id_attribute !== '0') {
+              $_id = $_id + '-' + $(this).attr('data-id-product-attribute');
+            }
+          }
+
+          fbProductsArray.push($_id);
+        });
+
+        var query = '';
+
+        if(typeof prestashop != 'undefined') {
+            query = '{$smarty.get['s']|default: '""'}';
+        } else {
+            query = '{$searchQuery}';
+        }
+
+        fbq('track', 'Search', {
+            search_string: query,
+            content_ids: fbProductsArray,
+            content_type: 'product'
+        });
+    });
 {*    {else}*}
     // fbq('track', 'ViewContent', {
     {*    content_name: '{$m_title}'*}

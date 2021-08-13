@@ -81,22 +81,18 @@ class XMLQuery extends ObjectModel
     /**
      * @param $start
      * @param $limit
-     * @param bool $productId
      * @param bool $lang
      * @return array
      */
-    public function productsToFlat($start, $limit, $productId = false, $lang = false)
+    public function productsToFlat($start, $limit, $lang = false)
     {
         $flatProductList = array();
 
         if (!$lang) {
             $lang = $this->defaultLang;
         }
-        if ($productId) {
-            $productsList = $this->getProduct($lang, $productId);
-        } else {
-            $productsList = Product::getProducts($lang, $start, $limit, 'id_product', 'ASC', false, true);
-        }
+
+        $productsList = Product::getProducts($lang, $start, $limit, 'id_product', 'ASC', false, true);
 
         $export_both = SettingsClass::getSettings(SettingsClass::EXPORT['BOTH'], $this->shopID);
         $export_catalog = SettingsClass::getSettings(SettingsClass::EXPORT['CATALOG'], $this->shopID);

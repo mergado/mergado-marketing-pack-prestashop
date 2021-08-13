@@ -105,7 +105,7 @@ class XMLProductFeed extends ObjectModel
             $limit = $stepProducts;
 
             $xmlQuery = new XMLQuery($this->currency);
-            $productsListTotal = $xmlQuery->productsToFlat(0, 0, false, $this->language->id);
+            $productsListTotal = $xmlQuery->productsToFlat(0, 0, $this->language->id);
 
             if($stepProducts !== 0 && $productsListTotal > $stepProducts) {
                 // Get only products we need

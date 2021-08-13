@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 content_name: $_name,
                 content_ids: [$_id],
                 content_type: 'product',
+                contents: [{'id': $_id, 'quantity': 1}],
                 // value: 4.99,
                 currency: $_currency,
             });
@@ -39,6 +40,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
             var $_id = $(this).closest('form').find('#product_page_product_id').val();
             var $_name = $('h1[itemprop="name"]').text();
             var $_price = $(this).closest('form').find('#our_price_display').text().replace(',', '.').replace($('#mergadoSetup').attr('data-currencySymbol'), '').trim();
+            var $_quantity = $(this).closest('form').find('#quantity_wanted').val();
+
 
             if ($(this).closest('form').find('#idCombination').length > 0) {
                 $_id = $_id + '-' + $(this).closest('form').find('#idCombination').val();
@@ -48,10 +51,48 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 content_name: $_name,
                 content_ids: [$_id],
                 content_type: 'product',
+                contents: [{'id': $_id, 'quantity': $_quantity}],
                 // value: 4.99,
                 currency: $_currency,
             });
         });
+
+        //PS 1.7
+        if($('body#checkout').length > 0 || $('body#order').length > 0 || $('body#order-opc').length > 0) {
+            if ($('[data-mscd]').length > 0 && $('[data-mscd-cart-id]').length > 0) {
+                var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+
+                // var content_ids = items.map(function(a) {return a.id;});
+                var content_ids = [];
+                var contents = [];
+                var value = 0;
+                var num_items = 0;
+
+                var curr = '';
+                if(typeof prestashop !== 'undefined') {
+                    curr = prestashop.currency.iso_code;
+                } else {
+                    curr = currency.iso_code;
+                }
+
+                items.forEach(function(element) {
+                    content_ids.push(element.id);
+                    contents.push({'id': element.id, 'quantity': element.quantity});
+                    num_items = num_items + parseInt(element.quantity);
+                    value = value + parseFloat(element.price * element.quantity);
+                });
+
+                value = value.toFixed(2);
+
+                fbq('track', 'InitiateCheckout', {
+                    content_ids: content_ids,
+                    contents: contents,
+                    value: value,
+                    currency: curr,
+                    num_items: num_items,
+                });
+            }
+        }
 
         // In product detail and modal in PS1.7 --------------------------------------------
         $(document).ready(function () {
@@ -60,23 +101,27 @@ document.addEventListener("DOMContentLoaded", function(event) {
             if(typeof prestashop !== 'undefined') {
                 prestashop.on(
                     'updatedProduct',
-                    function() {
-                        $('.add-to-cart').off('click', addEvents);
-                        $('.add-to-cart').on('click', addEvents);
+                    function(event) {
+                        $('.add-to-cart').off('click', { data: event }, addEvents);
+                        $('.add-to-cart').on('click', { data: event }, addEvents);
+                        sendCustomizationEvent(event);
                     }
                 );
+            } else {
+                setMutationObserver();
             }
         });
 
-        function addEvents() {
-            if($('[data-product]').length > 0) {
-                var productJSON = JSON.parse($('[data-product]').attr('data-product'));
+        function addEvents(event) {
+            if($('#product-details[data-product]').length > 0) {
+                var productJSON = JSON.parse($('#product-details[data-product]').attr('data-product'));
                 var $_id = productJSON.id;
                 var $_name = productJSON.name;
                 var $_price = productJSON.price_amount;
                 var $_category = productJSON.category_name;
+                var $_quantity = $(this).closest('form').find('#quantity_wanted').val();
 
-                if(productJSON.id_product_attribute !== "") {
+                if(productJSON.id_product_attribute !== "" && productJSON.id_product_attribute != 0) {
                     $_id = $_id + '-' + productJSON.id_product_attribute;
                 }
             } else {
@@ -89,7 +134,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     $_name = $('.modal-body h1').text();
                 }
 
-                if($(this).closest('form').find('#idCombination').length > 0) {
+                var $_quantity = $(this).closest('form').find('#quantity_wanted').val();
+
+                if (!$_quantity) {
+                    $_quantity = 1;
+                }
+
+                if (event && event.data.data.id_product_attribute) {
+                    $_id = $_id + '-' + event.data.data.id_product_attribute;
+                } else if ($(this).closest('form').find('#idCombination').length > 0) {
                     $_id = $_id + '-' + $(this).closest('form').find('#idCombination').val();
                 }
             }
@@ -100,9 +153,95 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 content_name: $_name,
                 content_category: $_category,
                 content_ids: [$_id],
+                contents: [{'id': $_id, 'quantity': $_quantity}],
                 content_type: 'product',
                 value: $_price,
                 currency: $_currency,
+            });
+        }
+
+        function sendCustomizationEvent(event = null, element = null)
+        {
+            if($('#product-details[data-product]').length > 0) {
+                var productJSON = JSON.parse($('#product-details[data-product]').attr('data-product'));
+                var $_id = productJSON.id;
+                var $_name = productJSON.name;
+                var $_price = productJSON.price_amount;
+                var $_category = productJSON.category_name;
+                var $_quantity = $(this).closest('form').find('#quantity_wanted').val();
+
+                if (!$_quantity) {
+                    if ($('body#product #quantity_wanted').length > 0) {
+                        $_quantity = $('body#product #quantity_wanted').val();
+                    } else {
+                        $_quantity = 1;
+                    }
+                }
+
+                if (event !== null && event.id_product_attribute != 0) {
+                    $_id = $_id + '-' + event.id_product_attribute;
+                } else if (productJSON.id_product_attribute !== "" && productJSON.id_product_attribute != 0) {
+                    $_id = $_id + '-' + productJSON.id_product_attribute;
+                }
+            } else {
+                if (element == null) {
+                    element = $('.modal .add-to-cart');
+                }
+
+                var $_id = $(element).closest('form').find('#product_page_product_id').val();
+                var $_name = $('h1[itemprop="name"]').text();
+                var $_price = $('.product-price').find('[itemprop="price"]').attr('content');
+                var $_quantity = $(element).closest('form').find('#quantity_wanted').val();
+
+                if($_name === '') {
+                    $_name = $('.modal-body h1').text();
+                }
+
+                if (!$_quantity) {
+                    $_quantity = 1;
+                }
+
+                if (event !== null && event.id_product_attribute != 0) {
+                    $_id = $_id + '-' + event.id_product_attribute;
+                } else if($(element).closest('form').find('#idCombination').length > 0) {
+                    $_id = $_id + '-' + $(element).closest('form').find('#idCombination').val();
+                }
+            }
+
+            var $_currency = $('.product-price').find('[itemprop="priceCurrency"]').attr('content');
+
+            fbq('track', 'CustomizeProduct', {
+                content_name: $_name,
+                content_ids: [$_id],
+                contents: [{'id': $_id, 'quantity': $_quantity}],
+                content_type: 'product',
+                value: $_price,
+                currency: $_currency,
+            });
+        }
+
+        function setMutationObserver()
+        {
+            MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+
+            var trackChange = function(element) {
+                var observer = new MutationObserver(function(mutations, observer) {
+                    if(mutations[0].attributeName == "value") {
+                        $(element).trigger("change");
+                    }
+                });
+                observer.observe(element, {
+                    attributes: true
+                });
+            }
+
+            // Just pass an element to the function to start tracking
+            if ($('#idCombination').length > 0) {
+                trackChange( $("#idCombination")[0]);
+            }
+
+            $('#idCombination').on('change', function() {
+                sendCustomizationEvent(null, $(this));
             });
         }
     }

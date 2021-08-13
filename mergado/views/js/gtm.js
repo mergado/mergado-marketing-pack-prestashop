@@ -122,8 +122,8 @@ var m_GTM = {
                 $_quantity = 1;
             }
 
-            if ($('[data-product]').length > 0) {
-                var productJSON = JSON.parse($('[data-product]').attr('data-product'));
+            if ($('#product-details[data-product]').length > 0) {
+                var productJSON = JSON.parse($('#product-details[data-product]').attr('data-product'));
                 $_id = productJSON.id;
                 $_name = productJSON.name;
                 $_price = productJSON.price_amount;
@@ -194,8 +194,8 @@ var m_GTM = {
     initDetailViewed: function() {
         var $_id, $_name, $_category, $_currency;
 
-        if ($('[data-product]').length > 0) {
-            var productJSON = JSON.parse($('[data-product]').attr('data-product'));
+        if ($('#product-details[data-product]').length > 0) {
+            var productJSON = JSON.parse($('#product-details[data-product]').attr('data-product'));
             $_id = productJSON.id;
             $_name = productJSON.name;
             $_category = productJSON.category_name;

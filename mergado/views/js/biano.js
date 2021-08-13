@@ -60,8 +60,8 @@ var biano = {
         function addEvents(target) {
             var $_id, $_quantity, $_price, $_currency;
 
-            if ($('[data-product]').length > 0) {
-                var productJSON = JSON.parse($('[data-product]').attr('data-product'));
+            if ($('#product-details[data-product]').length > 0) {
+                var productJSON = JSON.parse($('#product-details[data-product]').attr('data-product'));
                 $_id = productJSON.id;
                 $_price = productJSON.price_amount;
                 $_quantity = productJSON.quantity_wanted;

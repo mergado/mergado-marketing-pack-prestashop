@@ -141,7 +141,7 @@ class XMLClass extends ObjectModel
                     if (SettingsClass::getSettings(SettingsClass::FEED['STATIC'], $this->shopID) === "1") {
                         $feedBaseStatic = Tools::getAdminTokenLite('AdminModules');
                         $xmlQuery = new XMLQuery();
-                        $staticProducts = $xmlQuery->productsToFlat(0, 0, false, intval(Configuration::get('PS_LANG_DEFAULT')));
+                        $staticProducts = $xmlQuery->productsToFlat(0, 0, intval(Configuration::get('PS_LANG_DEFAULT')));
                         $xmlStaticFeed = new XMLStaticFeed();
                         $xml = $xmlStaticFeed->generateXML($feedBaseStatic, $staticProducts, $this->shopID);
                         LogClass::log("Mergado static feed generated");

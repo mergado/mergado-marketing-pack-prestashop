@@ -18,8 +18,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         if($('body#product').length > 0) {
             var $_id, $_name, $_category, $_currency;
 
-            if($('[data-product]').length > 0) {
-                var productJSON = JSON.parse($('[data-product]').attr('data-product'));
+            if($('#product-details[data-product]').length > 0) {
+                var productJSON = JSON.parse($('#product-details[data-product]').attr('data-product'));
                 $_id = productJSON.id;
                 $_name = productJSON.name;
                 $_category = productJSON.category_name;

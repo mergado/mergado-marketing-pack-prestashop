@@ -74,7 +74,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.5.9',
+        'VERSION' => '2.6.0',
         'PHP_MIN_VERSION' => 7.1
     ];
 
@@ -435,10 +435,13 @@ class Mergado extends Module
                 // In product detail and modal in PS1.7
                 if(typeof $ !== 'undefined') {
                     $('.add-to-cart').on('click', function () {
+                        var $_defaultInitialId = <?= Tools::getValue('id_product_attribute') ?>;
+
                         var $_currency = $('.product-price').find('[itemprop="priceCurrency"]').attr('content');
                         var $_id = $(this).closest('form').find('#product_page_product_id').val();
                         var $_name = $('h1[itemprop="name"]').text();
                         var $_price = $('.product-price').find('[itemprop="price"]').attr('content');
+                        var $_quantity = $(this).closest('form').find('#quantity_wanted').val();
 
                         if($_name === '') {
                             $_name = $('.modal-body h1').text();
@@ -446,11 +449,14 @@ class Mergado extends Module
 
                         if($(this).closest('form').find('#idCombination').length > 0) {
                             $_id = $_id + '-' + $(this).closest('form').find('#idCombination').val();
+                        } else if ($_defaultInitialId && $_defaultInitialId !== '') {
+                            $_id = $_id + '-' + $_defaultInitialId;
                         }
 
                         fbq('track', 'AddToCart', {
                             content_name: $_name,
                             content_ids: [$_id],
+                            contents: [{'id': $_id, 'quantity': $_quantity}],
                             content_type: 'product',
                             value: $_price,
                             currency: $_currency,
@@ -909,7 +915,12 @@ class Mergado extends Module
             $products = array();
 
             foreach ($products_tmp as $product) {
-                $products['ids'][] = $product['id_product'] . '-' . $product['id_product_attribute'];
+                if(isset($product['id_product_attribute']) && $product['id_product_attribute'] !== '' && $product['id_product_attribute'] != 0) {
+                    $products['ids'][] = $product['id_product'] . '-' . $product['id_product_attribute'];
+                } else {
+                    $products['ids'][] = $product['id_product'];
+                }
+
                 $products['name'][] = $product['name'];
             }
 
@@ -1647,7 +1658,7 @@ class Mergado extends Module
             'heurekaCzActive' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CZ']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CZ']] : '',
             'heurekaCzCode' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ']] : '',
             'heurekaSkActive' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']] : '',
-            'heurekaSkCode' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']] : '',
+            'heurekaSkCode' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_SK']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_SK']] : '',
             'googleAds' => isset($sorted[$this->GoogleAdsClass::CONVERSIONS_ACTIVE]) ? $sorted[$this->GoogleAdsClass::CONVERSIONS_ACTIVE] : '',
             'googleAdsCode' => $this->GoogleAdsClass->getConversionsCode(),
             'googleAdsLabel' => isset($sorted[$this->GoogleAdsClass::CONVERSIONS_LABEL]) ? $sorted[$this->GoogleAdsClass::CONVERSIONS_LABEL] : '',

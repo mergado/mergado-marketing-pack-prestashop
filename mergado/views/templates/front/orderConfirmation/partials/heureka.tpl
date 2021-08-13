@@ -16,7 +16,6 @@
     <script>
         var conversionOrderId = '{$conversionOrderId}';
         var heurekaCzCode = '{$heurekaCzCode}';
-        var heurekaSkActive = '{$heurekaSkActive}';
         var heurekaSkCode = '{$heurekaSkCode}';
     </script>
 {/if}
@@ -38,8 +37,7 @@
                 ho.type = 'text/javascript';
                 ho.async =
                     true;
-                ho.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') +
-                    '.heureka.cz/direct/js/ext/1-roi-async.js';
+                ho.src = 'https://im9.cz/js/ext/1-roi-async.js';
                 var s =
                     document.getElementsByTagName('script')[0];
                 s.parentNode.insertBefore(ho, s);
@@ -57,7 +55,7 @@
         _hrq.push(['setOrderId', conversionOrderId]);
         {/literal}
         {foreach from=$heurekaSkProducts item=product}
-        _hrq.push(['addProduct', '{$product['name']|escape:'htmlall':'UTF-8'}', '{$product['unitPrice']|escape:'htmlall':'UTF-8'}', '{$product['qty']|escape:'htmlall':'UTF-8'}']);
+        _hrq.push(['addProduct', '{$product['name']|escape:'htmlall':'UTF-8'}', '{$product['unitPrice']|escape:'htmlall':'UTF-8'}', '{$product['qty']|escape:'htmlall':'UTF-8'}', '{$product['id']|escape:'htmlall':'UTF-8'}']);
         {/foreach}
         {literal}
         _hrq.push(['trackOrder']);
@@ -66,8 +64,7 @@
                 ho.type = 'text/javascript';
                 ho.async =
                     true;
-                ho.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') +
-                    '.heureka.sk/direct/js/ext/1-roi-async.js';
+                ho.src = 'https://im9.cz/sk/js/ext/2-roi-async.js';
                 var s =
                     document.getElementsByTagName('script')[0];
                 s.parentNode.insertBefore(ho, s);

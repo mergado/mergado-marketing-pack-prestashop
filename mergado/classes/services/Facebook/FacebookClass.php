@@ -84,6 +84,7 @@ class FacebookClass
         return array(
             'active' => $this->getActive($shopId),
             'products' => $this->getProducts($products),
+            'productsWithQuantity' => $this->getProductsWithQuantity($products),
             'orderValue' => $orderValue,
         );
     }
@@ -93,6 +94,16 @@ class FacebookClass
 
         foreach ($products as $product) {
             $fbProducts[] = HelperClass::getProductId($product);
+        }
+
+        return $fbProducts;
+    }
+
+    private function getProductsWithQuantity($products) {
+        $fbProducts = array();
+
+        foreach ($products as $product) {
+            $fbProducts[] = json_encode(['id' => HelperClass::getProductId($product), 'quantity' => $product['quantity']]);
         }
 
         return $fbProducts;

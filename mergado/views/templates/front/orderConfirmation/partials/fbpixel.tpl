@@ -28,6 +28,7 @@
                 fbq('track', 'Purchase', {
                     content_ids: [{$fbPixelData['products']|json_encode nofilter}], // Used nofilter because of console errors
                     content_type: 'product',
+                    contents: [{', '|implode:$fbPixelData['productsWithQuantity'] nofilter}],
                     value: {$fbPixelData['orderValue']},
                     currency: '{$c_iso_code}'
                 });

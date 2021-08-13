@@ -68,8 +68,8 @@ $(document).ready(function () {//PS 1.6 category page
         });
 
         function addEvents() {
-            if($('[data-product]').length > 0) {
-                var productJSON = JSON.parse($('[data-product]').attr('data-product'));
+            if($('#product-details[data-product]').length > 0) {
+                var productJSON = JSON.parse($('#product-details[data-product]').attr('data-product'));
                 var $_id = productJSON.id;
                 var $_name = productJSON.name;
                 var $_price = productJSON.price_amount;
