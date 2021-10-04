@@ -22,6 +22,7 @@ use DateTime;
 use LanguageCore as Language;
 use ConfigurationCore as Configuration;
 use CurrencyCore as Currency;
+use Mergado\Tools\SettingsClass;
 use Mergado\Tools\XMLClass;
 use PrestaShop\PrestaShop\Adapter\Entity\Customization;
 use PrestaShop\PrestaShop\Adapter\Entity\Pack;
@@ -50,9 +51,7 @@ use ProductCore;
 use XMLWriter;
 use Mergado;
 
-require_once _PS_MODULE_DIR_ . 'mergado/mergado.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/LogClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/SettingsClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 class XMLProductFeed extends ObjectModel
 {
@@ -105,7 +104,9 @@ class XMLProductFeed extends ObjectModel
             $limit = $stepProducts;
 
             $xmlQuery = new XMLQuery($this->currency);
-            $productsListTotal = $xmlQuery->productsToFlat(0, 0, $this->language->id);
+
+            $export_out_of_stock = SettingsClass::getSettings(SettingsClass::EXPORT['DENIED_PRODUCTS'], $this->shopID);
+            $productsListTotal = $xmlQuery->productsToFlat(0, 0, $this->language->id, $export_out_of_stock);
 
             if($stepProducts !== 0 && $productsListTotal > $stepProducts) {
                 // Get only products we need

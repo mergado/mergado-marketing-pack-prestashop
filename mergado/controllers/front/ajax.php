@@ -14,7 +14,7 @@
  * @license   LICENSE.txt
  */
 
-require_once _PS_MODULE_DIR_.'mergado/mergado.php';
+require_once _PS_MODULE_DIR_ . 'mergado/mergado.php';
 
 class MergadoAjaxModuleFrontController extends ModuleFrontController
 {

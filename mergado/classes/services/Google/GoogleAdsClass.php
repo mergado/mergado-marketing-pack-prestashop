@@ -23,11 +23,18 @@ class GoogleAdsClass
 {
     const CONVERSIONS_ACTIVE = 'mergado_adwords_conversion';
     const REMARKETING_ACTIVE = 'adwords_remarketing';
+    const REMARKETING_TYPE = 'mergado_adwords_remarketing_type';
     const CONVERSIONS_CODE = 'mergado_adwords_conversion_code';
     const CONVERSIONS_LABEL = 'mergado_adwords_conversion_label';
 
+    const REMARKETING_TYPES = array(
+        0 => array('id_option' => 0, 'name' => 'Retail', 'value' => 'retail'),
+        1 => array('id_option' => 1, 'name' => 'Custom', 'value' => 'custom'),
+    );
+
     private $conversionsActive;
     private $remarketingActive;
+    private $remarketingType;
     private $conversionsCode;
     private $conversionsLabel;
 
@@ -140,6 +147,28 @@ class GoogleAdsClass
         $this->conversionsLabel = SettingsClass::getSettings(self::CONVERSIONS_LABEL, $this->multistoreShopId);
 
         return $this->conversionsLabel;
+    }
+
+    /**
+     * @return false|string|null
+     */
+    public function getRemarketingType()
+    {
+        if (!is_null($this->remarketingType)) {
+            return $this->remarketingType;
+        }
+
+        $this->remarketingType = SettingsClass::getSettings(self::REMARKETING_TYPE, $this->multistoreShopId);
+
+        return $this->remarketingType;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRemarketingTypeForTemplate()
+    {
+        return self::REMARKETING_TYPES[$this->getRemarketingType()]['value'];
     }
 
     /*******************************************************************************************************************

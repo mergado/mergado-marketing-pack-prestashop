@@ -22,8 +22,7 @@ use Mergado\Tools\HelperClass;
 use Mergado\Tools\SettingsClass;
 use TrustedShop;
 
-
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Arukereso/TrustedShop.php';
+include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 class ArukeresoClass
 {

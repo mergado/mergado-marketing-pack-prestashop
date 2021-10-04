@@ -21,7 +21,7 @@ use Tools;
 use Module;
 
 require_once '../../config/config.inc.php';
-require_once _PS_MODULE_DIR_.'mergado/classes/tools/XMLClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 if (isset($argv) && $argv != null) {
     $token = $argv[1];

@@ -40,6 +40,8 @@ class GoogleClass
 
     public static function getGtagjsPurchaseData($orderId, $order, $products, $langId, $shopId)
     {
+        $googleAdsClass = new GoogleAdsClass($shopId);
+
         $data = array();
 
         $currency = new CurrencyCore($order->id_currency);
@@ -80,7 +82,7 @@ class GoogleClass
                 "variant" => $productVariant,
 //                "list_position" => "",
                 "quantity" => $product['product_quantity'],
-                "google_business_vertical" => 'retail'
+                "google_business_vertical" => $googleAdsClass->getRemarketingTypeForTemplate()
             );
 
             // If VAT included or not

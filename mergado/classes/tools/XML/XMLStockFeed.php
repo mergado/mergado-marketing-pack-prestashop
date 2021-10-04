@@ -20,6 +20,7 @@ use Exception;
 use LanguageCore as Language;
 use ConfigurationCore as Configuration;
 use CurrencyCore as Currency;
+use Mergado\Tools\SettingsClass;
 use Mergado\Tools\XMLClass;
 use ProductCore as Product;
 use StockAvailableCore as StockAvailable;
@@ -28,9 +29,7 @@ use Tools;
 use XMLWriter;
 use Mergado;
 
-require_once _PS_MODULE_DIR_ . 'mergado/mergado.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/LogClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/SettingsClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 class XMLStockFeed extends ObjectModel
 {
@@ -80,6 +79,8 @@ class XMLStockFeed extends ObjectModel
             $start = $currentFilesCount === 0 ? 0 : ($currentFilesCount * $stepProducts);
             $limit = $stepProducts;
 
+            $export_out_of_stock_other = SettingsClass::getSettings(SettingsClass::EXPORT['DENIED_PRODUCTS_OTHER'], $this->shopID);
+
             $productsListTotal = Product::getProducts($this->defaultLang, 0, 0, 'id_product', 'ASC', false, true);
 
             if($stepProducts !== 0 && $productsListTotal > $stepProducts) {
@@ -119,11 +120,11 @@ class XMLStockFeed extends ObjectModel
                         foreach ($combinations as $combination) {
                             $qty = StockAvailable::getQuantityAvailableByProduct($combination['id_product'], $combination['id_product_attribute']);
 
-                            if ($qty <= 0 && $whenOutOfStock == 0) {
+                            if ($qty <= 0 && $whenOutOfStock == 0 && !$export_out_of_stock_other) {
                                 continue;
                             }
 
-                            if ($qty > 0) {
+                            if ($qty > 0 || $export_out_of_stock_other) {
                                 $xml_new->startElement('item');
                                 $xml_new->writeAttribute('id', $combination['id_product'] . '-' . $combination['id_product_attribute']);
                                 $xml_new->startElement('stock_quantity');
@@ -137,10 +138,10 @@ class XMLStockFeed extends ObjectModel
 
                         $qty = StockAvailable::getQuantityAvailableByProduct($product['id_product']);
 
-                        if ($qty <= 0 && $whenOutOfStock == 0) {
+                        if ($qty <= 0 && $whenOutOfStock == 0 && !$export_out_of_stock_other) {
                             // skip
                         } else {
-                            if ($qty > 0) {
+                            if ($qty > 0 || $export_out_of_stock_other) {
                                 $xml_new->startElement('item');
                                 $xml_new->writeAttribute('id', $product['id_product']);
 

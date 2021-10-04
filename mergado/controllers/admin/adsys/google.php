@@ -64,6 +64,18 @@ $fields_form[0]['form'] = array(
             'visibility' => Shop::CONTEXT_ALL,
         ),
         array(
+            'name' => GoogleAdsClass::REMARKETING_TYPE,
+            'label' => $this->module->l('Select Business type', 'google'),
+            'type' => 'select',
+            'class' => 'w-auto-i',
+            'options' => array(
+                'query' => GoogleAdsClass::REMARKETING_TYPES,
+                'id' => 'id_option',
+                'name' => 'name'
+            ),
+            'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->module->l('Mergado Pack supports tag implementations for ecommerce solutions only. If your business type is not ecommerce, select Custom.', 'google'),
+        ),
+        array(
             'name' => GoogleAdsClass::CONVERSIONS_CODE,
             'label' => $this->module->l('GoogleAds code', 'google'),
             'type' => 'text',

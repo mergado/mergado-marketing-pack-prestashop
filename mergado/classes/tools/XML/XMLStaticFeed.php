@@ -24,9 +24,7 @@ use ObjectModel;
 use XMLWriter;
 use Mergado;
 
-require_once _PS_MODULE_DIR_ . 'mergado/mergado.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/LogClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/SettingsClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 class XMLStaticFeed extends ObjectModel
 {

@@ -41,10 +41,7 @@ use ContextCore as Context;
 use CurrencyCore as Currency;
 use LanguageCore as Language;
 
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XMLClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XML/Helpers/XMLQuery.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/SettingsClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/NewsClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 class AdminMergadoController extends \ModuleAdminController
 {
@@ -496,6 +493,40 @@ class AdminMergadoController extends \ModuleAdminController
                 ),
                 array(
                     'type' => 'checkbox',
+                    'label' => $this->l('Export products with denied orders in Product feeds'),
+                    'name' => 'mmp_export',
+                    'values' => array(
+                        'query' =>
+                            array(
+                                array(
+                                    'id_option' => 'denied_products',
+                                    'name' => $this->l('Yes')
+                                ),
+                            ),
+                        'id' => 'id_option',
+                        'name' =>'name'
+                    ),
+                    'hint' => $this->l('By default, the module generates only products with allowed orders. By enabling this option, the module will also generate products with denied orders')
+                ),
+                array(
+                    'type' => 'checkbox',
+                    'label' => $this->l('Export products with denied orders in Other feeds'),
+                    'name' => 'mmp_export',
+                    'values' => array(
+                        'query' =>
+                            array(
+                                array(
+                                    'id_option' => 'denied_products_other',
+                                    'name' => $this->l('Yes')
+                                ),
+                            ),
+                        'id' => 'id_option',
+                        'name' =>'name'
+                    ),
+                    'hint' => $this->l('By default, the module generates only products with allowed orders. By enabling this option, the module will also generate products with denied orders')
+                ),
+                array(
+                    'type' => 'checkbox',
                     'label' => $this->l('Export visible in'),
                     'name' => 'what_to_export',
                     'values' => array(
@@ -535,6 +566,8 @@ class AdminMergadoController extends \ModuleAdminController
             XMLStockFeed::MAX_PRODUCTS => isset($this->settingsValues['partial_feeds_stock_size']) ? $this->settingsValues['partial_feeds_stock_size'] : false,
             XMLCategoryFeed::MAX_PRODUCTS => isset($this->settingsValues['partial_feeds_category_size']) ? $this->settingsValues['partial_feeds_category_size'] : false,
             'm_export_wholesale_prices' => isset($this->settingsValues['m_export_wholesale_prices']) ? $this->settingsValues['m_export_wholesale_prices'] : null,
+            'mmp_export_denied_products' => isset($this->settingsValues['mmp_export_denied_products']) ? $this->settingsValues['mmp_export_denied_products'] : null,
+            'mmp_export_denied_products_other' => isset($this->settingsValues['mmp_export_denied_products_other']) ? $this->settingsValues['mmp_export_denied_products_other'] : null,
             'delivery_days' => isset($this->settingsValues['delivery_days']) ? $this->settingsValues['delivery_days'] : null,
             'clrCheckboxes' => 1,
             'page' => 1,
@@ -1299,6 +1332,8 @@ class AdminMergadoController extends \ModuleAdminController
 
             if (isset($_POST['clrCheckboxes'])) {
                 SettingsClass::clearSettings(SettingsClass::EXPORT['BOTH'], $this->shopID);
+                SettingsClass::clearSettings(SettingsClass::EXPORT['DENIED_PRODUCTS'], $this->shopID);
+                SettingsClass::clearSettings(SettingsClass::EXPORT['DENIED_PRODUCTS_OTHER'], $this->shopID);
                 SettingsClass::clearSettings(SettingsClass::EXPORT['CATALOG'], $this->shopID);
                 SettingsClass::clearSettings(SettingsClass::EXPORT['SEARCH'], $this->shopID);
                 SettingsClass::clearSettings(SettingsClass::EXPORT['COST'], $this->shopID);

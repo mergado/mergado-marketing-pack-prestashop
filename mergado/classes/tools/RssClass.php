@@ -21,8 +21,7 @@ use Mergado;
 use SimpleXMLElement;
 use Symfony\Component\Config\Util\Exception\InvalidXmlException;
 
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XMLClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/NewsClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 class RssClass
 {
@@ -117,7 +116,7 @@ class RssClass
             }
 
             if ($save) {
-                if ((string)$item['category'] == self::UPDATE_CATEGORY && Mergado::checkUpdate()) {
+                if ((string)$item['category'] == self::UPDATE_CATEGORY) {
                     NewsClass::saveArticle($item, $itemDatetime, $lang);
                 } elseif ((string)$item['category'] != self::UPDATE_CATEGORY) {
                     NewsClass::saveArticle($item, $itemDatetime, $lang);

@@ -41,9 +41,7 @@ use ToolsCore as Tools;
 use ObjectModel;
 use Mergado;
 
-require_once _PS_MODULE_DIR_ . 'mergado/mergado.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/LogClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/SettingsClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 //TODO: Make me real object
 
@@ -84,7 +82,7 @@ class XMLQuery extends ObjectModel
      * @param bool $lang
      * @return array
      */
-    public function productsToFlat($start, $limit, $lang = false)
+    public function productsToFlat($start, $limit, $lang = false, $export_out_of_stock = false)
     {
         $flatProductList = array();
 
@@ -125,7 +123,7 @@ class XMLQuery extends ObjectModel
                 continue;
             }
 
-            $base = $this->productBase($product, $lang, $export_cost);
+            $base = $this->productBase($product, $lang, $export_cost, $export_out_of_stock);
             if (array_key_exists('item_id', $base)) {
                 $flatProductList[] = $base;
             } else {
@@ -143,7 +141,7 @@ class XMLQuery extends ObjectModel
      * @param $lang
      * @return array|null
      */
-    public function productBase($item, $lang, $export_cost = true)
+    public function productBase($item, $lang, $export_cost = true, $export_out_of_stock = false)
     {
 
         $accessories = Product::getAccessoriesLight($lang, $item->id);
@@ -224,7 +222,7 @@ class XMLQuery extends ObjectModel
                 $mainImage = null;
                 $qty = Product::getQuantity($combination['id_product'], $combination['id_product_attribute']);
 
-                if ($qty <= 0 && $whenOutOfStock == 0) {
+                if ($qty <= 0 && $whenOutOfStock == 0 && !$export_out_of_stock) {
                     continue;
                 }
 
@@ -333,7 +331,7 @@ class XMLQuery extends ObjectModel
                     'item_id' => $combination['id_product'] . '-' . $combination['id_product_attribute'],
                     'itemgroup_id' => $itemgroupBase,
                     'accessory' => $accessoriesExtended,
-                    'availability' => $this->getProductAvailability($qty),
+                    'availability' => $this->getProductAvailability($qty, $whenOutOfStock),
                     'stock_quantity' => $qty,
                     'category' => $category,
                     'condition' => $item->condition,
@@ -369,7 +367,7 @@ class XMLQuery extends ObjectModel
         } else {
             $qty = Product::getQuantity($item->id);
 
-            if ($qty <= 0 && $whenOutOfStock == 0) {
+            if ($qty <= 0 && $whenOutOfStock == 0 && !$export_out_of_stock) {
                 // skip
             } else {
                 $imagesList = $item->getImages($lang);
@@ -449,7 +447,7 @@ class XMLQuery extends ObjectModel
                     'item_id' => $item->id,
                     'itemgroup_id' => $itemgroupBase,
                     'accessory' => $accessoriesExtended,
-                    'availability' => $this->getProductAvailability($qty),
+                    'availability' => $this->getProductAvailability($qty, $whenOutOfStock),
                     'stock_quantity' => Product::getQuantity($item->id),
                     'category' => $category,
                     'condition' => $item->condition,
@@ -995,14 +993,14 @@ class XMLQuery extends ObjectModel
 
     }
 
-    public function getProductAvailability($availableQuantity)
+    public function getProductAvailability($availableQuantity, $whenOutOfStock)
     {
-        if ($availableQuantity <= 0) {
+        if ($availableQuantity <= 0 && $whenOutOfStock == 1) {
             $availability = 'preorder';
         } else if ($availableQuantity > 0) {
             $availability = 'in stock';
         } else {
-            $availability = 'out of stock'; // Probably never happens?
+            $availability = 'out of stock';
         }
 
         return $availability;

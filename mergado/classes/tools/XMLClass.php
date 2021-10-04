@@ -31,14 +31,7 @@ use Exception;
 use ObjectModel;
 use Mergado;
 
-require_once _PS_MODULE_DIR_ . 'mergado/mergado.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/LogClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/SettingsClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XML/XMLCategoryFeed.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XML/XMLStockFeed.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XML/XMLProductFeed.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XML/XMLStaticFeed.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XML/Helpers/XMLQuery.php';
+include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 class XMLClass extends ObjectModel
 {
@@ -141,7 +134,8 @@ class XMLClass extends ObjectModel
                     if (SettingsClass::getSettings(SettingsClass::FEED['STATIC'], $this->shopID) === "1") {
                         $feedBaseStatic = Tools::getAdminTokenLite('AdminModules');
                         $xmlQuery = new XMLQuery();
-                        $staticProducts = $xmlQuery->productsToFlat(0, 0, intval(Configuration::get('PS_LANG_DEFAULT')));
+                        $export_out_of_stock_other = SettingsClass::getSettings(SettingsClass::EXPORT['DENIED_PRODUCTS_OTHER'], $this->shopID);
+                        $staticProducts = $xmlQuery->productsToFlat(0, 0, intval(Configuration::get('PS_LANG_DEFAULT')), $export_out_of_stock_other);
                         $xmlStaticFeed = new XMLStaticFeed();
                         $xml = $xmlStaticFeed->generateXML($feedBaseStatic, $staticProducts, $this->shopID);
                         LogClass::log("Mergado static feed generated");

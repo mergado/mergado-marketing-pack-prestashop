@@ -15,28 +15,7 @@
  */
 
 // Do not use USE statements because of PS 1.6.1.12 - error during installation
-
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Arukereso/ArukeresoClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Biano/BianoClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Google/GoogleClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Google/GoogleTagManagerClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Google/GoogleAdsClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Google/GaRefundClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Kelkoo/KelkooClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Glami/GlamiClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Facebook/FacebookClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Heureka/HeurekaClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Etarget/EtargetClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Zbozi/ZboziClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Zbozi/Zbozi.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/NajNakup/NajNakupClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Pricemania/PricemaniaClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Sklik/SklikClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Google/GoogleReviews/GoogleReviewsClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/RssClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/ImportPricesClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/HelperClass.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/tools/SettingsClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -47,10 +26,6 @@ class Mergado extends Module
 {
     protected $controllerClass;
     public $shopId;
-
-    const MERGADO_LATEST_RELEASE = "https://api.github.com/repos/mergado/mergado-marketing-pack-prestashop/releases/latest";
-    const MERGADO_UPDATE = 'https://raw.githubusercontent.com/mergado/mergado-marketing-pack-prestashop/master/mergado/config/mergado_update.xml';
-    const MERGADO_UPDATE_CACHE_ID = 'mergado_remote_version';
 
     // Languages
     const LANG_CS = 'cs';
@@ -74,7 +49,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.6.0',
+        'VERSION' => '2.6.1',
         'PHP_MIN_VERSION' => 7.1
     ];
 
@@ -170,148 +145,6 @@ class Mergado extends Module
         include __DIR__ . "/sql/update-2.3.0.php";
 
         return true;
-    }
-
-    public static function getRepo()
-    {
-        $ch = curl_init();
-        curl_setopt_array($ch, array(
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13',
-            CURLOPT_URL => self::MERGADO_LATEST_RELEASE,
-        ));
-        $response = json_decode(curl_exec($ch));
-        curl_close($ch);
-
-        return $response;
-    }
-
-    /**
-     * @param $url
-     * @param $zipPath
-     * @return bool
-     */
-    public function getZipFile($url, $zipPath)
-    {
-
-        mkdir($zipPath);
-        $zipFile = $zipPath . 'update.zip'; // Local Zip File Path
-        $zipResource = fopen($zipFile, "w+");
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_FILE, $zipResource);
-        $page = curl_exec($ch);
-
-        if (!$page) {
-            echo "Error :- " . curl_error($ch);
-        }
-        curl_close($ch);
-
-        $zip = new ZipArchive;
-        $extractPath = $zipPath;
-        if (!$zip->open($zipFile)) {
-            echo "Error :- Unable to open the Zip File";
-        }
-
-        $result = $zip->extractTo($extractPath);
-        $zip->close();
-
-        return $result;
-    }
-
-    public static function checkUpdate()
-    {
-        $response = self::getRepo();
-        $version = $response->tag_name;
-
-        if ($version > self::MERGADO['VERSION']) {
-            Mergado\Tools\SettingsClass::saveSetting(Mergado\Tools\SettingsClass::NEW_MODULE_VERSION_AVAILABLE, $version, 0);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @return array|bool
-     */
-    public function updateModule()
-    {
-        $response = $this->getRepo();
-        $version = $response->tag_name;
-        $zipUrl = $response->zipball_url;
-        $zipPath = _PS_MODULE_DIR_ . $this->name . '/upgrade/tmp/';
-
-        if ($version > $this->version) {
-            if ($this->getZipFile($zipUrl, $zipPath)) {
-                $dirname = '';
-                foreach (glob($zipPath . '*', GLOB_ONLYDIR) as $dir) {
-                    $dirname = basename($dir);
-                    break;
-                }
-
-                if ($dirname !== '') {
-                    $from = $zipPath . $dirname . '/' . $this->name;
-                    $to = _PS_MODULE_DIR_ . $this->name;
-
-                    AdminController::mergadoCopyFiles($from, $to);
-
-                    return true;
-                }
-            }
-        } else {
-            Mergado\Tools\SettingsClass::saveSetting(Mergado\Tools\SettingsClass::NEW_MODULE_VERSION_AVAILABLE, $version, 0);
-            return false;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param null $addons
-     * @return string
-     */
-    public function updateVersionXml($addons = null)
-    {
-        if (_PS_VERSION_ < Mergado::PS_V_17) {
-            $addons = Tools::addonsRequest('must-have');
-        }
-
-        $mergadoXml = Tools::file_get_contents(self::MERGADO_UPDATE);
-
-        try {
-            if ($addons && $mergadoXml) {
-                $psXml = new \SimpleXMLElement($addons);
-                $mXml = new \SimpleXMLElement($mergadoXml);
-
-                $doc = new DOMDocument();
-                $doc->loadXML($psXml->asXml());
-
-                $mDoc = new DOMDocument();
-                $mDoc->loadXML($mXml->asXml());
-
-                $node = $doc->importNode($mDoc->documentElement, true);
-                $doc->documentElement->appendChild($node);
-
-                $updateXml = $doc->saveXml();
-
-                if (_PS_VERSION_ >= Mergado::PS_V_17) {
-                    return $updateXml;
-                }
-                //            @file_put_contents(_PS_ROOT_DIR_ . ModuleCore::CACHE_FILE_MUST_HAVE_MODULES_LIST, $updateXml);
-            }
-        } catch(Exception $e) {
-            //xml in presta addons not correct or xml in mergado not correct
-        }
     }
 
     /**
@@ -1008,6 +841,7 @@ class Mergado extends Module
                     array (
                         'GoogleAds' => array(
                             'remarketingActive' => $this->GoogleAdsClass->isRemarketingActive(),
+                            'remarketingType' => $this->GoogleAdsClass->getRemarketingTypeForTemplate(),
                         ),
                         'Gtag' => array(
                             'enhancedActive' => Mergado\Google\GoogleClass::isGtagjsEcommerceEnhancedActive($this->shopId),

@@ -21,8 +21,7 @@ use Mergado;
 use Mergado\Tools\SettingsClass;
 use CarrierCore as Carrier;
 
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Zbozi/ZboziCartItem.php';
-require_once _PS_MODULE_DIR_ . 'mergado/classes/services/Zbozi/DeliveryType.php';
+include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 class Zbozi
 {

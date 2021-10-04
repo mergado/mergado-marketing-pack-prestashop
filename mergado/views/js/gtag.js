@@ -578,7 +578,7 @@ var m_GTAG = {
                         }
 
                         item['position'] = key;
-                        item['google_business_vertical'] = 'retail';
+                        item['google_business_vertical'] = mergado.GoogleAds.remarketingType;
 
                         items.push(item);
                     });
@@ -610,7 +610,7 @@ var m_GTAG_events = {
                     // "list_position": 1,
                     "quantity": quantity,
                     "price": price,
-                    'google_business_vertical': 'retail'
+                    'google_business_vertical': mergado.GoogleAds.remarketingType
                 }
             ],
             "send_to": window.mergado.GtagAndGads.send_to,
@@ -648,7 +648,7 @@ var m_GTAG_events = {
                     // "list_position": 1,
                     // "quantity": 2,
                     // "price": '2.0',
-                    'google_business_vertical': 'retail'
+                    'google_business_vertical': mergado.GoogleAds.remarketingType
                 }
             ],
             "send_to": window.mergado.GtagAndGads.send_to,

@@ -128,6 +128,8 @@ class SettingsClass
         'CATALOG' => 'what_to_export_catalog',
         'SEARCH' => 'what_to_export_search',
         'COST' => 'm_export_wholesale_prices',
+        'DENIED_PRODUCTS' => 'mmp_export_denied_products',
+        'DENIED_PRODUCTS_OTHER' => 'mmp_export_denied_products_other',
     );
 
     const IMPORT = array(
