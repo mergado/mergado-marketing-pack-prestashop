@@ -1317,13 +1317,13 @@ class AdminMergadoController extends \ModuleAdminController
     public function postProcess()
     {
 
-        if(isset($_POST['upgradeModule'])) {
-            $mergado = new Mergado();
-
-            if($mergado->updateModule()) {
-                $mergado->updateVersionXml();
-            }
-        }
+//        if(isset($_POST['upgradeModule'])) {
+//            $mergado = new Mergado();
+//
+//            if($mergado->updateModule()) {
+//                $mergado->updateVersionXml();
+//            }
+//        }
 
         if (Tools::isSubmit('submit' . $this->name)) {
             unset($_POST['submit' . $this->name]);

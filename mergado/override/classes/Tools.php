@@ -32,19 +32,19 @@ use Composer\CaBundle\CaBundle;
 class Tools extends ToolsCore
 {
 
-    public static function addonsRequest($request, $params = array())
-    {
-        $addons = parent::addonsRequest($request,$params);
-
-        if (_PS_VERSION_ >= 1.7) {
-            if ($addons && file_exists(_PS_MODULE_DIR_ . 'mergado/mergado.php')) {
-                require_once(_PS_MODULE_DIR_ . 'mergado/mergado.php');
-                $mergado = new Mergado();
-                $addons = $mergado->updateVersionXml($addons);
-            }
-        }
-
-        return $addons;
-    }
+//    public static function addonsRequest($request, $params = array())
+//    {
+//        $addons = parent::addonsRequest($request,$params);
+//
+//        if (_PS_VERSION_ >= 1.7) {
+//            if ($addons && file_exists(_PS_MODULE_DIR_ . 'mergado/mergado.php')) {
+//                require_once(_PS_MODULE_DIR_ . 'mergado/mergado.php');
+//                $mergado = new Mergado();
+//                $addons = $mergado->updateVersionXml($addons);
+//            }
+//        }
+//
+//        return $addons;
+//    }
 
 }

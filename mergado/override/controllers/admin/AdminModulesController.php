@@ -27,16 +27,16 @@
 class AdminModulesController extends AdminModulesControllerCore
 {
 
-    public function ajaxProcessRefreshModuleList($force_reload_cache = false)
-    {
-
-        if (_PS_VERSION_ < 1.7) {
-            parent::ajaxProcessRefreshModuleList($force_reload_cache);
-            if (file_exists(_PS_MODULE_DIR_ . 'mergado/mergado.php')) {
-                require_once(_PS_MODULE_DIR_ . 'mergado/mergado.php');
-                $mergado = new Mergado();
-                $mergado->updateVersionXml();
-            }
-        }
-    }
+//    public function ajaxProcessRefreshModuleList($force_reload_cache = false)
+//    {
+//
+//        if (_PS_VERSION_ < 1.7) {
+//            parent::ajaxProcessRefreshModuleList($force_reload_cache);
+//            if (file_exists(_PS_MODULE_DIR_ . 'mergado/mergado.php')) {
+//                require_once(_PS_MODULE_DIR_ . 'mergado/mergado.php');
+//                $mergado = new Mergado();
+//                $mergado->updateVersionXml();
+//            }
+//        }
+//    }
 }
