@@ -49,7 +49,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.6.2',
+        'VERSION' => '2.6.3',
         'PHP_MIN_VERSION' => 7.1
     ];
 
@@ -145,6 +145,11 @@ class Mergado extends Module
         include __DIR__ . "/sql/update-2.3.0.php";
 
         return true;
+    }
+
+
+    public function updateVersionXml($addons) {
+        return $addons;
     }
 
     /**

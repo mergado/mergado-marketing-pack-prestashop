@@ -203,6 +203,7 @@ class AdminMergadoController extends \ModuleAdminController
         return @$helper->generateForm($fields_form);
     }
 
+
     /**
      * Forms in Dev Tab in admin section
      *
