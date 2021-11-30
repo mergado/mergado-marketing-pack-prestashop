@@ -192,72 +192,73 @@ function tabControl() {
 
 function toggleFieldsInit()
 {
-    var toggleJSON = JSON.parse($('[data-toggle-fields-json]').attr('data-toggle-fields-json'));
+    if ($('[data-toggle-fields-json]').length > 0) {
 
-    var fieldStatusSetter = function setFieldStatus(values, mainStatus)
-    {
-        if(typeof values['fields'] !== "undefined") {
-            Object.keys(values['fields']).forEach(function (key) {
+        var toggleJSON = JSON.parse($('[data-toggle-fields-json]').attr('data-toggle-fields-json'));
 
-                var field = $('[name="' + values['fields'][key] + '"]');
+        var fieldStatusSetter = function setFieldStatus(values, mainStatus) {
+            if (typeof values['fields'] !== "undefined") {
+                Object.keys(values['fields']).forEach(function (key) {
 
-                if (mainStatus) {
-                    field.attr('disabled', false);
-                } else {
-                    field.attr('disabled', true);
-                }
-            });
-        }
+                    var field = $('[name="' + values['fields'][key] + '"]');
 
-        if(typeof values['sub-check'] !== "undefined") {
-            Object.keys(values['sub-check']).forEach(function(k) {
-                var field = $('[name="' + k + '"]');
+                    if (mainStatus) {
+                        field.attr('disabled', false);
+                    } else {
+                        field.attr('disabled', true);
+                    }
+                });
+            }
 
-                if(mainStatus) {
-                    fieldStatusSetter(values['sub-check'][k], getSwitchStatus(field));
-                } else {
-                    field.attr('disabled', true);
-                    fieldStatusSetter(values['sub-check'][k], false);
-                }
-            });
-        }
+            if (typeof values['sub-check'] !== "undefined") {
+                Object.keys(values['sub-check']).forEach(function (k) {
+                    var field = $('[name="' + k + '"]');
 
-        if(typeof values['sub-check-two'] !== "undefined") {
-            Object.keys(values['sub-check-two']).forEach(function(k) {
-                var field = $('[name="' + k + '"]');
+                    if (mainStatus) {
+                        fieldStatusSetter(values['sub-check'][k], getSwitchStatus(field));
+                    } else {
+                        field.attr('disabled', true);
+                        fieldStatusSetter(values['sub-check'][k], false);
+                    }
+                });
+            }
 
-                // Check main status of subchecktwo and status of subcheck main field
-                if(mainStatus && getSwitchStatus($('[name="' + Object.keys(values['sub-check'])[0] + '"]'))) {
-                    return fieldStatusSetter(values['sub-check-two'][k], getSwitchStatus(field));
-                } else {
-                    field.attr('disabled', true);
-                    return fieldStatusSetter(values['sub-check-two'][k], false);
-                }
-            });
-        }
-    };
+            if (typeof values['sub-check-two'] !== "undefined") {
+                Object.keys(values['sub-check-two']).forEach(function (k) {
+                    var field = $('[name="' + k + '"]');
 
-    toggleFieldsMonstrosity();
+                    // Check main status of subchecktwo and status of subcheck main field
+                    if (mainStatus && getSwitchStatus($('[name="' + Object.keys(values['sub-check'])[0] + '"]'))) {
+                        return fieldStatusSetter(values['sub-check-two'][k], getSwitchStatus(field));
+                    } else {
+                        field.attr('disabled', true);
+                        return fieldStatusSetter(values['sub-check-two'][k], false);
+                    }
+                });
+            }
+        };
 
-    $('form input[type="radio"]').on('click', function() {
         toggleFieldsMonstrosity();
-    });
 
-    function toggleFieldsMonstrosity() {
-        Object.keys(toggleJSON).forEach(function(key) {
-            var main = $('[name="' + key + '"]');
-            var values = toggleJSON[key];
-
-            fieldStatusSetter(values, getSwitchStatus(main));
+        $('form input[type="radio"]').on('click', function () {
+            toggleFieldsMonstrosity();
         });
-    }
 
-    function getSwitchStatus(main)
-    {
-        if (main && main.attr('checked') == 'checked') {
-            return true;
-        } else {
-            return false;
+        function toggleFieldsMonstrosity() {
+            Object.keys(toggleJSON).forEach(function (key) {
+                var main = $('[name="' + key + '"]');
+                var values = toggleJSON[key];
+
+                fieldStatusSetter(values, getSwitchStatus(main));
+            });
+        }
+
+        function getSwitchStatus(main) {
+            if (main && main.prop('checked')) {
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }
