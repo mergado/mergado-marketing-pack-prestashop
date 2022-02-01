@@ -839,6 +839,14 @@ class AdminMergadoController extends \ModuleAdminController
      * FORMS - ADSYS
      *******************************************************************************************************************/
 
+    public function pageCookies() {
+        ob_start();
+        include_once __DIR__ . '/adsys/cookies.php';
+        $content = ob_get_contents();
+        ob_end_clean();
+        return $content;
+    }
+
     public function formAdSys_google() {
         include_once __DIR__ . '/adsys/google.php';
         return @$helper->generateForm($fields_form);
@@ -1117,7 +1125,8 @@ class AdminMergadoController extends \ModuleAdminController
 
         //TAB6
         $tab6 = array(
-            'google' => array('title' => $this->l('Google'), 'form' => $this->formAdSys_google(), 'active' => true),
+            'cookies' => array('title' => $this->l('Cookies'), 'form' => $this->pageCookies()),
+            'google' => array('title' => $this->l('Google'), 'form' => $this->formAdSys_google()),
             'facebook' => array('title' => $this->l('Facebook'), 'form' => $this->formAdSys_facebook()),
             'heureka' => array('title' => $this->l('Heureka'),'form' => $this->formAdSys_heureka()),
             'glami' => array('title' => $this->l('GLAMI'),'form' => $this->formAdSys_glami()),
@@ -1129,6 +1138,12 @@ class AdminMergadoController extends \ModuleAdminController
             'biano' => array('title' => $this->l('Biano'),'form' => $this->formAdSys_biano()),
             'arukereso' => array('title' => $this->l('Árukereső'),'form' => $this->formAdSys_arukereso()),
         );
+
+        if (isset($_GET['mergadoTab']) && $_GET['mergadoTab'] === '6-cookies') {
+            $tab6['cookies']['active'] = true;
+        } else {
+            $tab6['google']['active'] = true;
+        }
 
         $tab4 = $this->formDevelopers();
 

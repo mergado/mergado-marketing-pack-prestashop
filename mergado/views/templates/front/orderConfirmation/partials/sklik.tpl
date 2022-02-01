@@ -17,6 +17,12 @@
     <script type="text/javascript">
         var seznam_cId = '{$sklikData['conversionCode']}';
         var seznam_value = {$sklikData['conversionValue']};
+        var rc = rc || {'{}'};
+        rc.consent = {$sklikConsent};
+
+        window.mmp.cookies.sections.advertisement.functions.sklikRetargeting = function () {
+          rc.consent = 1;
+        };
     </script>
 
     <script type="text/javascript" src="https://www.seznam.cz/rs/static/rc.js" async></script>

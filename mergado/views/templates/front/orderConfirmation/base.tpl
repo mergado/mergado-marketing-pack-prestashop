@@ -14,9 +14,12 @@
 
 <div class="mergadoOrderConfirmation">
     {include file='./partials/zbozi.tpl'}
-    {include file='./partials/heureka.tpl'}
-    {include file='./partials/googleAds.tpl'}
-    {include file='./partials/glami.tpl'}
-    {include file='./partials/glamiTop.tpl'}
+
+    {if $advertisementCookieConsent}
+        {include file='./partials/heureka.tpl'}
+        {include file='./partials/googleAds.tpl'}
+        {include file='./partials/glami.tpl'}
+        {include file='./partials/glamiTop.tpl'}
+    {/if}
 </div>
 

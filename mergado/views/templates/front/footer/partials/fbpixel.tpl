@@ -35,6 +35,22 @@
         s.parentNode.insertBefore(t, s)
     }(window,
         document, 'script', '//connect.facebook.net/en_US/fbevents.js');
+    {/literal}
+
+    {if $fbPixel_advertisement_consent}
+        fbq('consent', 'grant');
+    {else}
+        fbq('consent', 'revoke');
+    {/if}
+
+    {if !$fbPixel_advertisement_consent}
+        window.mmp.cookies.sections.advertisement.functions.fbpixel = function () {
+          fbq('consent', 'grant');
+          fbq('track', 'PageView');
+        };
+    {/if}
+
+    {literal}
     fbq('init', fbPixelCode);
     fbq('track', 'PageView');
     {/literal}

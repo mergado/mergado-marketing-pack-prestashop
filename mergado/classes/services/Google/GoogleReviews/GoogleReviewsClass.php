@@ -247,11 +247,14 @@ class GoogleReviewsClass
 
     public function getBadgeSmartyVariables()
     {
+        $cookieClass = new Mergado\Tools\CookieClass($this->shopId);
+
         return array(
             'MERCHANT_ID' => $this->getMerchantId(),
             'POSITION' => $this->getBadgePosition(),
             'IS_INLINE' => $this->isPositionInline(),
-            'LANGUAGE' => $this->getLanguage()
+            'LANGUAGE' => $this->getLanguage(),
+            'ADVERTISEMENT_ENABLED' => $cookieClass->advertismentEnabled(),
         );
     }
 

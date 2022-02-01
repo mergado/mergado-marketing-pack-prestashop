@@ -20,18 +20,38 @@
     var widgetId = '{$widgetId}';
     var marginTop = '{(trim($marginTop) === '') ? 60 : $marginTop}';
     var position = '{(trim($position) === '') ? 21 : $position}';
-    //<![CDATA[
-    var _hwq = _hwq || [];
-    _hwq.push(['setKey', widgetId]);
-    _hwq.push(['setTopPos', marginTop]);
-    _hwq.push(['showWidget', position]);
-    (function () {
-        var ho = document.createElement('script');
-        ho.type = 'text/javascript';
-        ho.async = true;
-        ho.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.heureka.{$langIso}/direct/i/gjs.php?n=wdgt&sak=' + widgetId;
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(ho, s);
-    })();
-    //]]>
+
+    if (window.mmp.cookies.sections.functional.onloadStatus) {
+        //<![CDATA[
+        var _hwq = _hwq || [];
+        _hwq.push(['setKey', widgetId]);
+        _hwq.push(['setTopPos', marginTop]);
+        _hwq.push(['showWidget', position]);
+        (function () {
+            var ho = document.createElement('script');
+            ho.type = 'text/javascript';
+            ho.async = true;
+            ho.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.heureka.{$langIso}/direct/i/gjs.php?n=wdgt&sak=' + widgetId;
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ho, s);
+        })();
+        //]]>
+    } else {
+      window.mmp.cookies.sections.functional.functions.heurekaWidget = function () {
+        //<![CDATA[
+        var _hwq = _hwq || [];
+        _hwq.push(['setKey', widgetId]);
+        _hwq.push(['setTopPos', marginTop]);
+        _hwq.push(['showWidget', position]);
+        (function () {
+          var ho = document.createElement('script');
+          ho.type = 'text/javascript';
+          ho.async = true;
+          ho.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.heureka.{$langIso}/direct/i/gjs.php?n=wdgt&sak=' + widgetId;
+          var s = document.getElementsByTagName('script')[0];
+          s.parentNode.insertBefore(ho, s);
+        })();
+        //]]>
+      };
+    }
 </script>

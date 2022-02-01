@@ -34,6 +34,7 @@ include_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XML/XMLProductFeed.php';
 include_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XML/XMLStaticFeed.php';
 include_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XML/XMLStockFeed.php';
 include_once _PS_MODULE_DIR_ . 'mergado/classes/tools/XMLClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/classes/tools/CookieClass.php';
 
 // Main
 include_once _PS_MODULE_DIR_ . 'mergado/mergado.php';

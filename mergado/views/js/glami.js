@@ -28,7 +28,8 @@ $(document).ready(function () {//PS 1.6 category page
                 item_ids: [$_id],
                 product_names: [$_name],
                 //value: $_price,
-                currency: $_currency
+                currency: $_currency,
+                consent: window.mmp.cookies.sections.advertisement.onloadStatus
             });
         });
         //PS 1.6 product detail
@@ -48,7 +49,8 @@ $(document).ready(function () {//PS 1.6 category page
                 item_ids: [$_id],
                 product_names: [$_name],
                 value: $_price,
-                currency: $_currency
+                currency: $_currency,
+                consent: window.mmp.cookies.sections.advertisement.onloadStatus
             });
         });
 
@@ -97,7 +99,8 @@ $(document).ready(function () {//PS 1.6 category page
                 item_ids: [$_id],
                 product_names: [$_name],
                 value: $_price,
-                currency: $_currency
+                currency: $_currency,
+                consent: window.mmp.cookies.sections.advertisement.onloadStatus
             });
         }
     }

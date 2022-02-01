@@ -14,8 +14,16 @@
 
 // PS 1.7 - start on document ready when jQuery is already loaded
 document.addEventListener("DOMContentLoaded", function (event) {
-    if (typeof bianoTrack !== 'undefined') {
-        biano.init();
+    if (window.mmp.cookies.sections.advertisement.onloadStatus) {
+        if (typeof bianoTrack !== 'undefined') {
+            biano.init();
+        }
+    } else {
+        window.mmp.cookies.sections.advertisement.functions.bianoTrack = function () {
+            if (typeof bianoTrack !== 'undefined') {
+                biano.init();
+            }
+        };
     }
 });
 

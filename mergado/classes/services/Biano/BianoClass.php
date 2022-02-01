@@ -87,11 +87,12 @@ class BianoClass
      *
      * @param $orderId
      * @param $order
+     * @param $email
      * @param $products
      * @param $shopId
      * @return false|string
      */
-    public function getPurchaseData($orderId, $order, $products, $shopId)
+    public function getPurchaseData($orderId, $order, $email, $products, $shopId)
     {
         $data = array();
 
@@ -112,6 +113,7 @@ class BianoClass
         foreach ($products as $product) {
             $product_item = array(
                 "id" => $product['product_id'] . '-' . $product['product_attribute_id'],
+                "customer_email" => $email,
                 "quantity" => (int) $product['product_quantity'],
             );
 

@@ -916,3 +916,7 @@ h2 {
     border-radius: 3px;
     padding: 10px 15px;
 }
+
+.mmp_singleCookie .form-group {
+    margin-bottom: 0;
+}

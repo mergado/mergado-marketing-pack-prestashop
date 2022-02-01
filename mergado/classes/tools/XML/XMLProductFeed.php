@@ -162,6 +162,12 @@ class XMLProductFeed extends ObjectModel
                         $xml_new->endElement();
                     }
 
+                    if($product['mpn'] != "") {
+                        $xml_new->startElement('MPN');
+                        $xml_new->text($product['mpn']);
+                        $xml_new->endElement();
+                    }
+
                     $xml_new->startElement('PRODUCTNO');
                     $xml_new->text($product['reference']);
                     $xml_new->endElement();
@@ -327,6 +333,7 @@ class XMLProductFeed extends ObjectModel
 
                 $xml_new->flush();
                 unset($xml_new);
+
 
             } elseif (count($productsList) == 0) {
                 if ($this->mergeXmlFile($storage, $this->tmpShopDir)) {

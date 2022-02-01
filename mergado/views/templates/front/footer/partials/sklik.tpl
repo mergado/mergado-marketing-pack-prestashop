@@ -16,7 +16,13 @@
     <script text='text/javascript'>
         /* <![CDATA[ */
         var seznam_retargeting_id = {$seznam_retargeting_id};
+        var rc = rc || {'{}'};
+        rc.consent = {$seznam_consent_advertisement};
         /* ]]> */
+
+        window.mmp.cookies.sections.advertisement.functions.sklikRetargeting = function () {
+          rc.consent = 1;
+        };
     </script>
     <script type='text/javascript' src='//c.imedia.cz/js/retargeting.js'></script>
 {/if}

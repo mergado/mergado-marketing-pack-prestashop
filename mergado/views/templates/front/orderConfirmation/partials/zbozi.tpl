@@ -71,7 +71,8 @@
                 }
 
                 zbozi("setOrder", {
-                    "orderId": conversionOrderId,
+                  "orderId": conversionOrderId,
+                  "consent": {$advertisementCookieConsent}
                 });
 
                 zbozi("send");
@@ -101,7 +102,8 @@
                 }
 
                 zbozi("setOrder", {
-                    "orderId": conversionOrderId
+                  "orderId": conversionOrderId,
+                  "consent": {$advertisementCookieConsent}
                 });
 
                 zbozi("send");

@@ -25,8 +25,10 @@
             o.async = 1;
             o.src = h;
             n.parentNode.insertBefore(o, n)
-        })(window, document, 'script', '//www.glami.cz/js/compiled/pt.js', 'glami');{/literal}
-        glami('create', '{$glami_pixel_code}', '{$glami_lang}');
+        })(window, document, 'script', '//www.glami.cz/js/compiled/pt.js', 'glami');
+        {/literal}
+
+        glami('create', '{$glami_pixel_code}', '{$glami_lang}', {'{ consent: window.mmp.cookies.sections.advertisement.onloadStatus }'});
         glami('track', 'PageView');
 
         {if isset($glami_pixel_category) && $glami_pixel_category}
@@ -35,7 +37,8 @@
                 item_ids: [{$glami_pixel_productIds nofilter}],
                 product_names: [{$glami_pixel_productNames nofilter}],
                 category_id: '{$glami_pixel_category->id}',
-                category_text: '{$glami_pixel_category->name}'
+                category_text: '{$glami_pixel_category->name}',
+                consent: window.mmp.cookies.sections.advertisement.onloadStatus
             });
         {/if}
 
@@ -44,6 +47,7 @@
                 content_type: 'product',
                 item_ids: ['{$glami_pixel_product->id}'],
                 product_names: ['{$glami_pixel_product->name}'],
+                consent: window.mmp.cookies.sections.advertisement.onloadStatus
             });
         {/if}
     </script>

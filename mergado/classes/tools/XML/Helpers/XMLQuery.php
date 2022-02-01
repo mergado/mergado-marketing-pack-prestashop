@@ -327,6 +327,18 @@ class XMLQuery extends ObjectModel
                 $originalLangId = Context::getContext()->language->id;
                 Context::getContext()->language->id = $lang;
 
+                if (isset($item->mpn) || isset($combination['mpn'])) {  // only from version PS 1.7.7.0+ but check if not manually exist
+                    if (isset($combination['mpn']) && $combination['mpn'] == "") {
+                        if (isset($item->mpn)) {
+                            $mpn = $item->mpn;
+                        } else {
+                            $mpn = "";
+                        }
+                    }
+                } else {
+                    $mpn = '';
+                }
+
                 $productBase[] = array(
                     'item_id' => $combination['id_product'] . '-' . $combination['id_product_attribute'],
                     'itemgroup_id' => $itemgroupBase,
@@ -338,6 +350,7 @@ class XMLQuery extends ObjectModel
                     'delivery_days' => $this->getProductDeliveryDays($combination, $qty),
                     'description_short' => strip_tags($item->description_short[$lang]),
                     'description' => strip_tags($item->description[$lang]),
+                    'mpn' => $mpn,
                     'ean' => ($combination['ean13'] == "" ? $item->ean13 : $combination['ean13']),
                     'reference' => ($combination['reference'] == "" ? $item->reference : $combination['reference']),
                     'image' => $mainImage,
@@ -358,7 +371,7 @@ class XMLQuery extends ObjectModel
                     'wholesale_price' => $combination['wholesale_price'] != 0 ? $combination['wholesale_price'] : $item->wholesale_price,
                     'shipping_size' => ($item->depth != 0 && $item->width != 0 && $item->height != 0) ? ($item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' . Configuration::get('PS_DIMENSION_UNIT')) : false,
                     'shipping_weight' => (($item->weight + $combination['weight']) != 0) ? ($item->weight + $combination['weight']) . ' ' . Configuration::get('PS_WEIGHT_UNIT') : false,
-                    'vat' => $tax_calculator->taxes[0]->rate,
+                    'vat' => $tax_calculator->taxes[0]->rate ?? null, // ? null if undefined ?
                 );
 
                 //Return original lang id
@@ -443,6 +456,12 @@ class XMLQuery extends ObjectModel
                 $originalLangId = Context::getContext()->language->id;
                 Context::getContext()->language->id = $lang;
 
+                if (isset($item->mpn)) {  // only from version PS 1.7.7.0+ but check if not manually exist
+                    $mpn = $item->mpn;
+                } else {
+                    $mpn = '';
+                }
+
                 $productBase = array(
                     'item_id' => $item->id,
                     'itemgroup_id' => $itemgroupBase,
@@ -454,6 +473,7 @@ class XMLQuery extends ObjectModel
                     'delivery_days' => $this->getProductDeliveryDays($item, $qty),
                     'description_short' => strip_tags($item->description_short[$lang]),
                     'description' => strip_tags($item->description[$lang]),
+                    'mpn' => $mpn,
                     'ean' => $item->ean13,
                     'reference' => $item->reference,
                     'image' => $mainImage,
@@ -472,7 +492,7 @@ class XMLQuery extends ObjectModel
                     'wholesale_price' => $item->wholesale_price,
                     'shipping_size' => ($item->depth != 0 || $item->width != 0 || $item->height != 0) ? ($item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' . Configuration::get('PS_DIMENSION_UNIT')) : false,
                     'shipping_weight' => ($item->weight != 0) ? ($item->weight . ' ' . Configuration::get('PS_WEIGHT_UNIT')) : false,
-                    'vat' => $tax_calculator->taxes[0]->rate,
+                    'vat' => $tax_calculator->taxes[0]->rate ?? null, // ? null if undefined ?
                 );
 
                 //Return original lang id
@@ -523,12 +543,19 @@ class XMLQuery extends ObjectModel
             if (is_array($combinations)) {
                 foreach ($combinations as $combination) {
 
+                    if (isset($combination['mpn'])) {  // only from version PS 1.7.7.0+ but check if not manually exist
+                        $mpn = $combination['mpn'];
+                    } else {
+                        $mpn = '';
+                    }
+
                     $comb_array[$combination['id_product_attribute']]['id_product_attribute'] = $combination['id_product_attribute'];
                     $comb_array[$combination['id_product_attribute']]['unit_price_impact'] = $combination['unit_price_impact'];
                     $comb_array[$combination['id_product_attribute']]['price'] = $combination['price'];
                     $comb_array[$combination['id_product_attribute']]['minimal_quantity'] = $combination['minimal_quantity'];
                     $comb_array[$combination['id_product_attribute']]['quantity'] = $combination['quantity'];
                     $comb_array[$combination['id_product_attribute']]['ecotax'] = $combination['ecotax'];
+                    $comb_array[$combination['id_product_attribute']]['mpn'] = $mpn;
                     $comb_array[$combination['id_product_attribute']]['ean13'] = $combination['ean13'];
                     $comb_array[$combination['id_product_attribute']]['weight'] = $combination['weight'];
                     $comb_array[$combination['id_product_attribute']]['reference'] = $combination['reference'];
@@ -568,6 +595,7 @@ class XMLQuery extends ObjectModel
                         'id_product' => $combination['id_product'],
                         'name' => $product->name[$lang] . ': ' . $list,
                         'ean13' => $comb_array[$id_product_attribute]['ean13'],
+                        'mpn' => $comb_array[$id_product_attribute]['mpn'],
                         'reference' => $comb_array[$id_product_attribute]['reference'],
                         'price' => $comb_array[$id_product_attribute]['price'],
                         'ecotax' => $comb_array[$id_product_attribute]['ecotax'],

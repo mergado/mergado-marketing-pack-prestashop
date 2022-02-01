@@ -1,5 +1,14 @@
 <!-- BEGIN GCR Opt-in Module Code -->
-<script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer></script>
+
+{if $googleReviewsFunctionalCookies}
+    <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer></script>
+{else}
+    <script>
+      window.mmp.cookies.sections.functional.functions.googleReviewsOptIn = function () {
+        $('body').append('<script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer><\/script>');
+      };
+    </script>
+{/if}
 
 <script>
   window.renderOptIn = function() {

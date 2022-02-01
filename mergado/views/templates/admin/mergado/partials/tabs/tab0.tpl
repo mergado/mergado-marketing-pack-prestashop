@@ -27,6 +27,7 @@
             <a href="#" data-tab-link="2" class="button button-large">{l s='Cron tasks' mod='mergado'}</a>
             <a href="#" data-tab-link="3" class="button button-large">{l s='XML feeds' mod='mergado'}</a>
             <a href="#" data-tab-link="6" class="button button-large">{l s='Advertising systems' mod='mergado'}</a>
+            <a href="#" data-tab-link="6-cookies" class="button button-large">{l s='Cookies' mod='mergado'}</a>
             <a href="#" data-tab-link="4" class="button button-large">{l s='Support' mod='mergado'}</a>
             <a href="#" data-tab-link="7" class="button button-large">{l s='News' mod='mergado'}</a>
             <a href="#" data-tab-link="5" class="button button-large">{l s='Licence' mod='mergado'}</a>

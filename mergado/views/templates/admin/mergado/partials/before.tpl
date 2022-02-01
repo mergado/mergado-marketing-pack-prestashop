@@ -77,6 +77,7 @@
             <li><a href="#" data-tab="2">{l s='Cron tasks' mod='mergado'}</a></li>
             <li><a href="#" data-tab="3">{l s='XML feeds' mod='mergado'}</a></li>
             <li><a href="#" data-tab="6">{l s='Advertising systems' mod='mergado'}</a></li>
+            <li><a href="#" data-tab="6-cookies">{l s='Cookies' mod='mergado'}</a></li>
             <li><a href="#" data-tab="4">{l s='Support' mod='mergado'}</a></li>
             <li><a href="#" data-tab="7">{l s='News' mod='mergado'}</a></li>
             <li><a href="#" data-tab="5">{l s='Licence' mod='mergado'}</a></li>

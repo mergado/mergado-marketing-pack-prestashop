@@ -19,8 +19,14 @@ $(document).ready(function () {
     var currentTab = getUrlVars('mergadoTab');
 
     if (currentTab !== undefined) {
-        $('#mergadoController .mergado-tab[data-tab=' + currentTab + ']').stop().show();
         $('#mergadoController .tabControl a[data-tab=' + currentTab + ']').addClass('active');
+
+        if (currentTab === '6-cookies') {
+            currentTab = 6;
+        }
+
+        $('#mergadoController .mergado-tab[data-tab=' + currentTab + ']').stop().show();
+
         $('.mmp-header-bot').show();
         checkChanges = currentTab === 1 || currentTab === 6;
 
