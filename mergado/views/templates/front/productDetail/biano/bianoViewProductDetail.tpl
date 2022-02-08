@@ -14,20 +14,10 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-      if (window.mmp.cookies.sections.advertisement.onloadStatus) {
-        if (typeof bianoTrack !== 'undefined') {
-          if ($('body#product').length > 0) {
-            bianoTrack('track', 'product_view', {ldelim}id: '{$productId}'{rdelim});
-          }
+      if (typeof bianoTrack !== 'undefined') {
+        if ($('body#product').length > 0) {
+          bianoTrack('track', 'product_view', {ldelim}id: '{$productId}'{rdelim});
         }
-      } else {
-        window.mmp.cookies.sections.advertisement.functions.bianoTrackPageView = function () {
-          if (typeof bianoTrack !== 'undefined') {
-            if ($('body#product').length > 0) {
-              bianoTrack('track', 'product_view', {ldelim}id: '{$productId}'{rdelim});
-            }
-          }
-        };
       }
     });
 </script>

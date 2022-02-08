@@ -15,7 +15,6 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
     //Dont call on product page (product view triggered there)
-      if (window.mmp.cookies.sections.advertisement.onloadStatus) {
         if (typeof bianoTrack !== 'undefined') {
           if ($('body#product').length == 0) {
               {literal}
@@ -23,16 +22,5 @@
               {/literal}
           }
         }
-      } else {
-        window.mmp.cookies.sections.advertisement.functions.bianoTrackPageView = function () {
-          if (typeof bianoTrack !== 'undefined') {
-            if ($('body#product').length == 0) {
-                {literal}
-              bianoTrack('track', 'page_view');
-                {/literal}
-            }
-          }
-        };
-      }
     });
 </script>

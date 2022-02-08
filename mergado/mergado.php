@@ -49,7 +49,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.6.5',
+        'VERSION' => '2.6.6',
         'PHP_MIN_VERSION' => 7.1
     ];
 
@@ -390,21 +390,18 @@ class Mergado extends Module
         $display = "";
         $this->shopId = self::getShopId();
 
-        if ($this->cookieClass->advertismentEnabled()) {
+        // Biano
+        $bianoClass = new \Mergado\Biano\BianoClass();
 
-            // Biano
-            $bianoClass = new \Mergado\Biano\BianoClass();
+        if ($bianoClass->isActive($this->shopId)) {
+            $langCode = Mergado\Tools\SettingsClass::getLangIso(strtoupper($this->context->language->iso_code));
 
-            if ($bianoClass->isActive($this->shopId)) {
-                $langCode = Mergado\Tools\SettingsClass::getLangIso(strtoupper($this->context->language->iso_code));
+            if ($bianoClass->isLanguageActive($langCode, $this->shopId)) {
+                $this->smarty->assign(array(
+                    'productId' => \Mergado\Tools\HelperClass::getProductId($params['product']),
+                ));
 
-                if ($bianoClass->isLanguageActive($langCode, $this->shopId)) {
-                    $this->smarty->assign(array(
-                        'productId' => \Mergado\Tools\HelperClass::getProductId($params['product']),
-                    ));
-
-                    $display .= $this->display(__FILE__, 'views/templates/front/productDetail/biano/bianoViewProductDetail.tpl');
-                }
+                $display .= $this->display(__FILE__, 'views/templates/front/productDetail/biano/bianoViewProductDetail.tpl');
             }
         }
 
@@ -934,19 +931,19 @@ class Mergado extends Module
 
             if ($bianoClass->isLanguageActive($langCode, $this->shopId)) {
                 $this->smarty->assign(array(
-                    'merchantId' => $bianoClass->getMerchantId($langCode, $this->shopId),
                     'langCode' => $langCode,
-                    'bianoLangOptions' => \Mergado\Biano\BianoClass::LANG_OPTIONS,
                 ));
 
                 $display .= $this->display(__FILE__, 'views/templates/front/header/biano/biano.tpl');
             } else {
-                $this->smarty->assign(array(
-                    'langCode' => $langCode,
-                ));
-
                 $display .= $this->display(__FILE__, 'views/templates/front/header/biano/bianoDefault.tpl');
             }
+
+            $this->smarty->assign(array(
+                'merchantId' => $bianoClass->getMerchantId($langCode, $this->shopId),
+            ));
+
+            $display .= $this->display(__FILE__, 'views/templates/front/header/biano/bianoInit.tpl');
 
             $this->context->controller->addJS($this->_path . 'views/js/biano.js');
         }

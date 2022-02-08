@@ -11,37 +11,37 @@
 *  @copyright 2016 Mergado technologies, s. r. o.
 *  @license   LICENSE.txt
 *}
-{if in_array($langCode, $bianoLangOptions)}
-    <!-- Biano Pixel Code -->
-    <script>
-        if (window.mmp.cookies.sections.advertisement.onloadStatus) {
-            var merchantId = '{$merchantId}';
-            {literal}
-            !function(b,i,a,n,o,p,x)
-                    {if(b.bianoTrack)return;o=b.bianoTrack=function(){o.callMethod?
-                    o.callMethod.apply(o,arguments):o.queue.push(arguments)};
-                    o.push=o;o.queue=[];p=i.createElement(a);p.async=!0;p.src=n;
-                    x=i.getElementsByTagName(a)[0];x.parentNode.insertBefore(p,x)
-            {/literal}{literal} }(window,document,'script','https://pixel.biano.{/literal}{strtolower($langCode)}{literal}/min/pixel.js');
-        {/literal}
-            {*(window,document,'script','https://pixel.biano.{strtolower($langCode)}/debug/pixel.js'); // Debug*}
-            bianoTrack('init', merchantId);
-        } else {
-          window.mmp.cookies.sections.advertisement.functions.biano = function () {
-              var merchantId = '{$merchantId}';
-                {literal}
-              !function(b,i,a,n,o,p,x)
-              {if(b.bianoTrack)return;o=b.bianoTrack=function(){o.callMethod?
-                  o.callMethod.apply(o,arguments):o.queue.push(arguments)};
-                o.push=o;o.queue=[];p=i.createElement(a);p.async=!0;p.src=n;
-                x=i.getElementsByTagName(a)[0];x.parentNode.insertBefore(p,x)
-                  {/literal}{literal} }(window,document,'script','https://pixel.biano.{/literal}{strtolower($langCode)}{literal}/min/pixel.js');
-              // }
-            {/literal}
-          {*(window,document,'script','https://pixel.biano.{strtolower($langCode)}/debug/pixel.js'); // Debug*}
-              bianoTrack('init', merchantId);
-          }
-        }
-    </script>
-    <!-- End Biano Pixel Code -->
-{/if}
+
+<!-- Biano Pixel Code -->
+<script>
+  const bianoPixelConfig = {
+    consent: window.mmp.cookies.sections.advertisement.onloadStatus,
+    debug: false
+  };
+
+  const bianoLang = '{$langCode|lower}';
+
+  {literal}
+  !function (b, i, a, n, o, p, x, s) {
+    if (b.bianoTrack) return;
+    o = b.bianoTrack = function () {
+      o.callMethod ?
+        o.callMethod.apply(o, arguments) : o.queue.push(arguments)
+    };
+    o.push = o;
+    o.queue = [];
+    a = a || {};
+    n = a.consent === void (0) ? !0 : !!a.consent;
+    o.push('consent', n);
+    s = 'script';
+    p = i.createElement(s);
+    p.async = !0;
+    p.src = 'https://' + (n ? 'pixel.biano.' + bianoLang : 'bianopixel.com') +
+      '/' + (a.debug ? 'debug' : 'min') + '/pixel.js';
+    x = i.getElementsByTagName(s)[0];
+    x.parentNode.insertBefore(p, x);
+  }(window, document, bianoPixelConfig);
+  {/literal}
+
+</script>
+<!-- End Biano Pixel Code -->
