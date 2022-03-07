@@ -13,41 +13,41 @@
 
 use Mergado\Tools\CookieClass;
 
-$fields_form[0]['form'] = array(
-    'input' => array(
-        array(
+$fields_form[0]['form'] = [
+    'input' => [
+        [
             'type' => 'hidden',
             'name' => 'page'
-        ),
-        array(
+        ],
+        [
             'type' => 'hidden',
             'name' => 'id_shop'
-        ),
-        array(
+        ],
+        [
             'name' => CookieClass::FIELD_COOKIES_ENABLE,
             'label' => $this->module->l('Activate cookie consent settings', 'cookies'),
             'validation' => 'isBool',
             'cast' => 'intval',
             'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
             'class' => 'switch15',
-            'values' => array(
-                array(
+            'values' => [
+                [
                     'id' => 'mergado_cookies_on',
                     'value' => 1,
                     'label' => $this->module->l('Yes')
-                ),
-                array(
+                ],
+                [
                     'id' => 'mergado_cookies_off',
                     'value' => 0,
                     'label' => $this->module->l('No')
-                )
-            ),
+                ]
+            ],
             'visibility' => Shop::CONTEXT_ALL,
-        ),
-    ),
-);
+        ],
+    ],
+];
 
-include __DIR__ . '/partials/helperForm.php';
+include __MERGADO_FORMS_DIR__ . 'helpers/helperForm.php';
 ?>
 <div class="mmp_singleCookie">
     <?php
@@ -78,46 +78,61 @@ include __DIR__ . '/partials/helperForm.php';
     <h3 style="margin-left: 0; margin-right: 0; padding-left: 0; border-bottom: 0; margin-bottom: 0; margin-top: 15px;"><?php echo $this->module->l('Set cookie values manually', 'cookies'); ?></h3>
     <p><?php echo $this->module->l('Manually type name of the cookie that corresponds to selected category.', 'cookies'); ?></p>
 
-    <p>To activate scripts after change of user consent call javascript code <code>window.mmp.cookies.functions.checkAndSetCookies()</code> or reload the page.</p>
+    <p>
+        <?php
+        $this->module->l('To activate scripts after change of user consent call javascript code [1]window.mmp.cookies.functions.checkAndSetCookies()[/1] or reload the page.', 'cookies');
+
+        echo TranslateCore::getModuleTranslation(
+            $this->module,
+            'To activate scripts after change of user consent call javascript code [1]window.mmp.cookies.functions.checkAndSetCookies()[/1] or reload the page.',
+            'cookies',
+            ['[1]' => '<code>', '[/1]' => '</code>'],
+            false,
+            null,
+            true,
+            false
+        );
+        ?>
+    </p>
 </div>
 
 <?php
-$fields_form1[0]['form'] = array(
-    'input' => array(
-        array(
+$fields_form1[0]['form'] = [
+    'input' => [
+        [
             'type' => 'hidden',
             'name' => 'page'
-        ),
-        array(
+        ],
+        [
             'type' => 'hidden',
             'name' => 'id_shop'
-        ),
-        array(
+        ],
+        [
             'name' => CookieClass::FIELD_ANALYTICAL_USER,
             'label' => $this->module->l('Analytics', 'cookies'),
             'type' => 'text',
             'visibility' => Shop::CONTEXT_ALL,
-        ),
-        array(
+        ],
+        [
             'name' => CookieClass::FIELD_ADVERTISEMENT_USER,
             'label' => $this->module->l('Advertisement', 'cookies'),
             'type' => 'text',
             'visibility' => Shop::CONTEXT_ALL,
-        ),
-        array(
+        ],
+        [
             'name' => CookieClass::FIELD_FUNCTIONAL_USER,
             'label' => $this->module->l('Functional', 'cookies'),
             'type' => 'text',
             'visibility' => Shop::CONTEXT_ALL,
-        ),
-    ),
-    'submit' => array(
+        ],
+    ],
+    'submit' => [
         'title' => $this->module->l('Save'),
         'name' => 'submit' . $this->name
-    )
-);
+    ]
+];
 
-include __DIR__ . '/partials/helperForm.php';
+include __MERGADO_FORMS_DIR__ . 'helpers/helperForm.php';
 echo @$helper->generateForm($fields_form1);
 
 ?>

@@ -1,0 +1,55 @@
+.mmp_import {
+    box-sizing: border-box;
+    width: 800px;
+    max-width: 100%;
+}
+
+.mmp_mt-30 {
+    margin-top: 30px;
+}
+
+.priceImportLabel {
+    padding: 9px 0 4px;
+    display: block;
+    width: 100%;
+}
+
+.priceImportLabel > span {
+    color: var(--mmp-grey);
+    font-size: 12px;
+}
+
+.priceImportLabel svg {
+    height: 15px;
+    width: 15px;
+    fill: white;
+    margin-right: 7px;
+}
+
+.priceImport__copy svg {
+    margin-right: 10px;
+}
+
+.priceImportLabel__bottom {
+    display: flex;
+    justify-content: space-between;
+}
+
+.priceImportLabel input {
+    height: 30px;
+    display: block;
+    line-height: 30px;
+    min-height: unset;
+    width: 560px;
+    max-width: 100%;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.mmp_tabs__tab[data-mmp-tab="import"] .mmp_feedBox__url {
+    width: 450px !important;
+}
+
+.mmp_tabs__tab[data-mmp-tab="import"] .mmp_feedBox__button {
+    box-sizing: content-box !important;
+}

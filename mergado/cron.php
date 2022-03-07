@@ -25,6 +25,7 @@ include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 
 $feed = null;
+
 if (isset($argv) && $argv != null) {
     $token = $argv[1];
     $token = str_replace('--token=', '', $token);
@@ -46,7 +47,7 @@ if (isset($argv) && $argv != null) {
 }
 
 $mergado = new XMLClass();
-if ($mergado->generateMergadoFeed($feed)) {
+if ($mergado->generateFeed($feed)) {
     echo '<div style="height: 16px; width: 16px; border-radius: 100%; background: green;display:inline-block;margin-right:4px;"></div> Feed generated';
     die();
 } else {

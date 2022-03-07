@@ -13,9 +13,9 @@
  *  @copyright 2016 Mergado technologies, s. r. o.
  *  @license   LICENSE.txt
  */
-$sql = array();
+$sql = [];
 $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'mergado` ADD UNIQUE (`key`)';
-$sql[] = 'INSERT INTO `' . _DB_PREFIX_ . 'mergado` (`key`, `value`) VALUES ("what_to_export_both", 1)';
+$sql[] = 'INSERT INTO `' . _DB_PREFIX_ . 'mergado` (`key`, `value`) VALUES ("what_to_export_both", "on")';
 
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {

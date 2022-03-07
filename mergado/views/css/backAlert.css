@@ -1,0 +1,115 @@
+
+/*Alert*/
+.mmp_alert {
+    font-size: 16px;
+    padding: 15px 25px;
+    border-radius: 5px;
+    border: 1px solid grey;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    line-height: 1.4;
+    box-sizing: border-box;
+}
+
+.mmp_alert__wrapper {
+    position: relative;
+    max-width: 100%;
+    width: 800px;
+    margin-bottom: 15px;
+}
+
+.mmp_alert strong {
+    font-weight: 700;
+}
+
+.mmp_alert--warning {
+    background-color: var(--mmp-alert--warning);
+    color: black;
+}
+
+.mmp_alert--danger {
+    background-color: var(--mmp-alert--danger);
+    color: #ea4e4b;
+}
+
+.mmp_alert--danger svg {
+    fill: #ea4e4b;
+}
+
+.mmp_alert--success {
+    background-color: var(--mmp-alert--success);
+    color: #5b8925;
+}
+
+.mmp_alert--success svg {
+    fill: #5b9825;
+}
+
+.mmp_alert--info {
+    background-color: var(--mmp-alert--info);
+    color: white;
+}
+
+.mmp_alert .mmp_alert__closer {
+    color: grey;
+}
+
+.mmp_alert__wrapper--warning,
+.mmp_alert__wrapper--warning .mmp_alert__closerFull a {
+    background-color: var(--mmp-alert--warningDark);
+    color: black;
+    border-radius: 7px;
+}
+
+.mmp_alert__wrapper--danger,
+.mmp_alert__wrapper--danger .mmp_alert__closerFull a {
+    background-color: var(--mmp-alert--danger);
+    color: #ea4e4b;
+    border-radius: 7px;
+}
+
+.mmp_alert__wrapper--success,
+.mmp_alert__wrapper--success .mmp_alert__closerFull a {
+    background-color: var(--mmp-alert--successDark);
+    color: #5b8925;
+    border-radius: 7px;
+}
+
+.mmp_alert__icon {
+    min-width: 32px;
+    height: 32px;
+    width: 32px;
+    margin: 0 15px 0 0;
+}
+
+.mmp_alert__icon {
+    fill: #8e8e8e;
+}
+
+.mmp_alert__closer {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    border: 1px solid black;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 3px;
+    font-size: 12px;
+    text-decoration: none;
+    color: black;
+}
+
+.mmp_alert__closerFull {
+    text-align: center;
+    font-size: 15px;
+    padding: 5px;
+    font-style: italic;
+}
+
+.mmp_alert--disabled {
+    display: none;
+}

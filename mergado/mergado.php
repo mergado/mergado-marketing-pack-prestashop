@@ -15,6 +15,11 @@
  */
 
 // Do not use USE statements because of PS 1.6.1.12 - error during installation
+
+define( '__MERGADO_DIR__', _PS_MODULE_DIR_ . 'mergado' );
+define( '__MERGADO_FORMS_DIR__', _PS_MODULE_DIR_ . 'mergado/controllers/admin/forms/');
+define( '__MERGADO_ALERT_DIR__', _PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/pages/partials/components/alerts/');
+
 include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 if (!defined('_PS_VERSION_')) {
@@ -49,7 +54,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '2.6.6',
+        'VERSION' => '3.0.0',
         'PHP_MIN_VERSION' => 7.1
     ];
 
@@ -146,11 +151,27 @@ class Mergado extends Module
         include __DIR__ . "/sql/update-1.6.5.php";
         include __DIR__ . "/sql/update-2.0.0.php"; // 2.0.1 not added (because of version missmatch fix)
         include __DIR__ . "/sql/update-2.3.0.php";
+        include __DIR__ . "/sql/update-3.0.0.php";
 
         return true;
     }
 
-
+    /**
+     * @version 3.0.0
+     * @date 19.11.2021
+     *
+     * !!! NEVER DELETE THIS FUNCTION !!!
+     *
+     * uninstallOverrides and installOverride do not work for TOOLS.php override,
+     * This function is still used and called in every UPDATE in older instalations of Mergado Pack!!!
+     * Deleting it will breaks the plugin.
+     *
+     * Explanation: Older version had CUSTOM updates that stopped to work one day..
+     * After deletion, this remained as a fix ...
+     *
+     * @param $addons
+     * @return mixed
+     */
     public function updateVersionXml($addons) {
         return $addons;
     }
@@ -226,7 +247,7 @@ class Mergado extends Module
     }
 
     public function hookDisplayProductAdditionalInfo($product) {
-        $lang = Mergado\Tools\SettingsClass::getLangIso();
+        $lang = Mergado\Tools\LanguagesClass::getLangIso();
         $this->shopId = self::getShopId();
 
         $glami = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::GLAMI['ACTIVE'], self::getShopId());
@@ -321,9 +342,21 @@ class Mergado extends Module
         if (Tools::getValue('controller') == $this->controllerClass) {
             $this->context->controller->addJquery();
             $this->context->controller->addJS($this->_path . 'views/js/back.js');
+            $this->context->controller->addJS($this->_path . 'views/vendors/yesno/src/index.js');
+            $this->context->controller->addJS($this->_path . 'views/js/wizard.js');
+            $this->context->controller->addJS($this->_path . 'views/js/alerts.js');
+            $this->context->controller->addJS($this->_path . 'views/js/iframe.js');
+            $this->context->controller->addJS($this->_path . 'views/js/import.js');
             $this->context->controller->addJS($this->_path . 'views/vendors/iframe-resizer/js/iframeResizer.min.js');
             $this->context->controller->addJS($this->_path . 'views/js/iframe-resizer.js');
             $this->context->controller->addCSS($this->_path . 'views/css/back.css');
+            $this->context->controller->addCSS($this->_path . 'views/css/backWizard.css');
+            $this->context->controller->addCSS($this->_path . 'views/css/backSettings.css');
+            $this->context->controller->addCSS($this->_path . 'views/css/backImport.css');
+            $this->context->controller->addCSS($this->_path . 'views/vendors/yesno/src/index.css');
+            $this->context->controller->addCSS($this->_path . 'views/css/backWizardDialog.css');
+            $this->context->controller->addCSS($this->_path . 'views/css/backWizardRadio.css');
+            $this->context->controller->addCSS($this->_path . 'views/css/backAlert.css');
         } else {
             $this->context->controller->addJquery();
         }
@@ -336,7 +369,7 @@ class Mergado extends Module
             $this->context->controller->addCSS($this->_path . 'views/css/notifications17.css');
         }
 
-        $lang = Mergado\Tools\SettingsClass::getLangIso();
+        $lang = Mergado\Tools\LanguagesClass::getLangIso();
         $this->smarty->assign(array(
             'langCode' => $lang,
         ));
@@ -362,7 +395,7 @@ class Mergado extends Module
                 var admin_mergado_news = "' . $this->l('NEWS') . '";
                 var admin_mergado_no_new = "' . $this->l('No new messages.') . '";
                 var admin_mergado_all_messages_url = ' . (string) json_encode($this->context->link->getAdminLink('AdminMergado')) . ';
-                var admin_mergado_all_messages_id_tab = 7;
+                var admin_mergado_all_messages_id_tab = "news";
                 
                 var admin_mergado_prices_imported = "' . $this->l('Prices successfully imported.') . '";
                 var admin_mergado_back_running = "' . $this->l('Error generate XML. Selected cron already running.') . '";
@@ -393,8 +426,8 @@ class Mergado extends Module
         // Biano
         $bianoClass = new \Mergado\Biano\BianoClass();
 
-        if ($bianoClass->isActive($this->shopId)) {
-            $langCode = Mergado\Tools\SettingsClass::getLangIso(strtoupper($this->context->language->iso_code));
+            if ($bianoClass->isActive($this->shopId)) {
+                $langCode = Mergado\Tools\LanguagesClass::getLangIso(strtoupper($this->context->language->iso_code));
 
             if ($bianoClass->isLanguageActive($langCode, $this->shopId)) {
                 $this->smarty->assign(array(
@@ -486,7 +519,7 @@ class Mergado extends Module
         $this->shopId = self::getShopId();
 
         $iso_code = LanguageCore::getIsoById((int)$cookie->id_lang);
-        $langIso = \Mergado\Tools\SettingsClass::getLangIso($iso_code); // for heureka CZ/SK etc..
+        $langIso = Mergado\Tools\LanguagesClass::getLangIso($iso_code); // for heureka CZ/SK etc..
 
         $display = "";
 
@@ -619,18 +652,18 @@ class Mergado extends Module
                     "variant" => $variant,
                     "list_position" => $i,
                     "quantity" => $product['cart_quantity'],
-                    "price" => $product['total_wt'] / $product['cart_quantity'],
+                    "price" => (string)($product['total_wt'] / $product['cart_quantity']),
                 );
             }
 
             if (_PS_VERSION_ < self::PS_V_17) {
                 $this->smarty->assign(array(
-                    'data' => htmlspecialchars(json_encode($exportProducts), ENT_QUOTES, 'UTF-8'),
+                    'data' => htmlspecialchars(json_encode($exportProducts, JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
                     'cart_id' => $cart->id,
                 ));
             } else {
                 $this->smarty->assign(array(
-                    'data' => json_encode($exportProducts),
+                    'data' => json_encode($exportProducts, JSON_NUMERIC_CHECK),
                     'cart_id' => $cart->id,
                 ));
             }
@@ -678,18 +711,18 @@ class Mergado extends Module
                     "variant" => $variant,
                     "list_position" => $i,
                     "quantity" => $product['cart_quantity'],
-                    "price" => $product['total_wt'] / $product['cart_quantity'],
+                    "price" => (string)($product['total_wt'] / $product['cart_quantity']),
                 );
             }
 
             if (_PS_VERSION_ < self::PS_V_17) {
                 $this->smarty->assign(array(
-                    'data' => htmlspecialchars(json_encode($exportProducts), ENT_QUOTES, 'UTF-8'),
+                    'data' => htmlspecialchars(json_encode($exportProducts, JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
                     'cart_id' => $cart->id,
                 ));
             } else {
                 $this->smarty->assign(array(
-                    'data' => json_encode($exportProducts),
+                    'data' => json_encode($exportProducts, JSON_NUMERIC_CHECK),
                     'cart_id' => $cart->id,
                 ));
             }
@@ -721,7 +754,7 @@ class Mergado extends Module
      */
     public function hookDisplayHeader($params)
     {
-        $lang = Mergado\Tools\SettingsClass::getLangIso();
+        $lang = Mergado\Tools\LanguagesClass::getLangIso();
 
         $this->shopId = self::getShopId();
 
@@ -927,7 +960,7 @@ class Mergado extends Module
         //BIANO
         $bianoClass = new \Mergado\Biano\BianoClass();
         if ($bianoClass->isActive($this->shopId)) {
-            $langCode = Mergado\Tools\SettingsClass::getLangIso(strtoupper($this->context->language->iso_code));
+            $langCode = Mergado\Tools\LanguagesClass::getLangIso(strtoupper($this->context->language->iso_code));
 
             if ($bianoClass->isLanguageActive($langCode, $this->shopId)) {
                 $this->smarty->assign(array(
@@ -967,7 +1000,7 @@ class Mergado extends Module
 
         //Add checkbox for heureka
         if (_PS_VERSION_ >= self::PS_V_17) {
-            $lang = Mergado\Tools\SettingsClass::getLangIso();
+            $lang = Mergado\Tools\LanguagesClass::getLangIso();
 
             $CZactive = Mergado\Tools\SettingsClass::getSettings(\Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_CZ'], self::getShopId());
             $SKactive = Mergado\Tools\SettingsClass::getSettings(\Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_SK'], self::getShopId());
@@ -1002,7 +1035,7 @@ class Mergado extends Module
         if (_PS_VERSION_ >= self::PS_V_17) {
             $this->shopId = self::getShopId();
             $ZboziClass = new \Mergado\Zbozi\ZboziClass($this->shopId);
-            $lang = Mergado\Tools\SettingsClass::getLangIso();
+            $lang = Mergado\Tools\LanguagesClass::getLangIso();
 
             if ($ZboziClass->isActive()) {
                 $textInLanguage = $ZboziClass->getOptOut($lang);
@@ -1030,7 +1063,7 @@ class Mergado extends Module
 
         //Add checkbox for arukereso
         if (_PS_VERSION_ >= self::PS_V_17) {
-            $lang = Mergado\Tools\SettingsClass::getLangIso();
+            $lang = Mergado\Tools\LanguagesClass::getLangIso();
             $this->shopId = self::getShopId();
             $arukeresoClass = new Mergado\Arukereso\ArukeresoClass($this->shopID);
 
@@ -1091,7 +1124,7 @@ class Mergado extends Module
 
         //Works just for ps 1.6
         if (_PS_VERSION_ < Mergado::PS_V_17) {
-            $lang = Mergado\Tools\SettingsClass::getLangIso();
+            $lang = Mergado\Tools\LanguagesClass::getLangIso();
 
             $CZactive = Mergado\Tools\SettingsClass::getSettings(\Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_CZ'], self::getShopId());
             $SKactive = Mergado\Tools\SettingsClass::getSettings(\Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_SK'], self::getShopId());
@@ -1118,7 +1151,7 @@ class Mergado extends Module
 
         //Works just for ps 1.6
         if (_PS_VERSION_ < Mergado::PS_V_17) {
-            $lang = Mergado\Tools\SettingsClass::getLangIso();
+            $lang = Mergado\Tools\LanguagesClass::getLangIso();
 
             $ZboziClass = new Mergado\Zbozi\ZboziClass($this->shopId);
 
@@ -1143,7 +1176,7 @@ class Mergado extends Module
         //Works just for ps 1.6
 
         if (_PS_VERSION_ < Mergado::PS_V_17) {
-            $lang = Mergado\Tools\SettingsClass::getLangIso();
+            $lang = Mergado\Tools\LanguagesClass::getLangIso();
             $this->shopId = self::getShopId();
             $arukeresoClass = new Mergado\Arukereso\ArukeresoClass($this->shopID);
 
@@ -1304,13 +1337,13 @@ class Mergado extends Module
         $cartSk = new CartCore($orderCartId, LanguageCore::getIdByIso(self::LANG_SK));
 
         if ($cartCz && $options['heurekaCzActive']) {
-            $heurekaCzProducts = $this->getOrderConfirmationHeurekaProducts($cartCz->getProducts(), \Mergado\Tools\SettingsClass::getLangIso(strtoupper(self::LANG_CS)));
+            $heurekaCzProducts = $this->getOrderConfirmationHeurekaProducts($cartCz->getProducts(), Mergado\Tools\LanguagesClass::getLangIso(strtoupper(self::LANG_CS)));
         } else {
             $heurekaCzProducts = array();
         }
 
         if ($cartSk && $options['heurekaSkActive']) {
-            $heurekaSkProducts = $this->getOrderConfirmationHeurekaProducts($cartSk->getProducts(), \Mergado\Tools\SettingsClass::getLangIso(strtoupper(self::LANG_SK)));
+            $heurekaSkProducts = $this->getOrderConfirmationHeurekaProducts($cartSk->getProducts(), Mergado\Tools\LanguagesClass::getLangIso(strtoupper(self::LANG_SK)));
         } else {
             $heurekaSkProducts = array();
         }
@@ -1463,18 +1496,18 @@ class Mergado extends Module
                     "variant" => $variant,
                     "list_position" => $i,
                     "quantity" => $product['cart_quantity'],
-                    "price" => $product['total_wt'] / $product['cart_quantity'],
+                    "price" => (string) ($product['total_wt'] / $product['cart_quantity']),
                 );
             }
 
             if (_PS_VERSION_ < self::PS_V_17) {
                 $this->smarty->assign(array(
-                    'data' => htmlspecialchars(json_encode($exportProducts), ENT_QUOTES, 'UTF-8'),
+                    'data' => htmlspecialchars(json_encode($exportProducts, JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
                     'cart_id' => $cart->id,
                 ));
             } else {
                 $this->smarty->assign(array(
-                    'data' => json_encode($exportProducts),
+                    'data' => json_encode($exportProducts, JSON_NUMERIC_CHECK),
                     'cart_id' => $cart->id,
                 ));
             }
@@ -1507,26 +1540,24 @@ class Mergado extends Module
         $shopId = self::getShopId();
         $settings = Mergado\Tools\SettingsClass::getWholeSettings($shopId);
 
-        // @TODO Rewrite if only php 7+ support - like: isset($settings[Mergado\Tools\SettingsClass::ZBOZI['CONVERSION']]) ?? '',
-
-        $sorted = array();
+        $sorted = [];
 
         foreach($settings as $item) {
             $sorted[$item['key']] = $item['value'];
         }
 
-        return array(
-            'zboziActive' => isset($sorted[Mergado\Zbozi\ZboziClass::ACTIVE]) ? $sorted[Mergado\Zbozi\ZboziClass::ACTIVE] : '',
-            'zboziAdvancedActive' => isset($sorted[Mergado\Zbozi\ZboziClass::ADVANCED_ACTIVE]) ? $sorted[Mergado\Zbozi\ZboziClass::ADVANCED_ACTIVE] : '',
-            'zboziId' => isset($sorted[Mergado\Zbozi\ZboziClass::SHOP_ID]) ? $sorted[Mergado\Zbozi\ZboziClass::SHOP_ID] : '',
-            'heurekaCzActive' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CZ']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CZ']] : '',
-            'heurekaCzCode' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ']] : '',
-            'heurekaSkActive' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']] : '',
-            'heurekaSkCode' => isset($sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_SK']]) ? $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_SK']] : '',
-            'googleAds' => isset($sorted[$this->GoogleAdsClass::CONVERSIONS_ACTIVE]) ? $sorted[$this->GoogleAdsClass::CONVERSIONS_ACTIVE] : '',
+        return [
+            'zboziActive' => $sorted[Mergado\Zbozi\ZboziClass::ACTIVE] ?? '',
+            'zboziAdvancedActive' => $sorted[Mergado\Zbozi\ZboziClass::ADVANCED_ACTIVE] ?? '',
+            'zboziId' => $sorted[Mergado\Zbozi\ZboziClass::SHOP_ID] ?? '',
+            'heurekaCzActive' => $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CZ']] ?? '',
+            'heurekaCzCode' => $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_CZ']] ?? '',
+            'heurekaSkActive' => $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_SK']] ?? '',
+            'heurekaSkCode' => $sorted[Mergado\Tools\SettingsClass::HEUREKA['CONVERSIONS_CODE_SK']] ?? '',
+            'googleAds' => $sorted[$this->GoogleAdsClass::CONVERSIONS_ACTIVE] ?? '',
             'googleAdsCode' => $this->GoogleAdsClass->getConversionsCode(),
-            'googleAdsLabel' => isset($sorted[$this->GoogleAdsClass::CONVERSIONS_LABEL]) ? $sorted[$this->GoogleAdsClass::CONVERSIONS_LABEL] : '',
-        );
+            'googleAdsLabel' => $sorted[$this->GoogleAdsClass::CONVERSIONS_LABEL] ?? '',
+        ];
     }
 
     /**
@@ -1537,9 +1568,9 @@ class Mergado extends Module
      * @param array $heurekaCzProducts
      * @return array
      */
-    public function getOrderConfirmationBaseData(array $options, array $params, $context, array $heurekaSkProducts, array $heurekaCzProducts)
+    public function getOrderConfirmationBaseData(array $options, array $params, $context, array $heurekaSkProducts, array $heurekaCzProducts): array
     {
-        return array(
+        return [
             'advertisementCookieConsent' => (bool) $this->cookieClass->advertismentEnabled(),
             'conversionZboziShopId' => $options['zboziId'],
             'conversionZboziActive' => $options['zboziActive'],
@@ -1554,7 +1585,7 @@ class Mergado extends Module
             'googleAdsCode' => $options['googleAdsCode'],
             'googleAdsLabel' => $options['googleAdsLabel'],
             'languageCode' => str_replace('-', '_', $context->language->language_code),
-        );
+        ];
     }
 
     /**

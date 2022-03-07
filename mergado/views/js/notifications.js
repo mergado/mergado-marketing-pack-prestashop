@@ -25,7 +25,7 @@ function notifications()
         '<span class="no_notifs">' + admin_mergado_no_new + '</span>' +
         '</div>' +
         '<div class="notifs_panel_footer">' +
-        '<a href="' + admin_mergado_all_messages_url + '&mergadoTab=' + admin_mergado_all_messages_id_tab + '">' + admin_mergado_show_more_message + '</a>' +
+        '<a href="' + admin_mergado_all_messages_url + '&page=' + admin_mergado_all_messages_id_tab + '">' + admin_mergado_show_more_message + '</a>' +
         '</div>' +
         '</li>';
     } else {
@@ -45,7 +45,7 @@ function notifications()
             '<span class="no_notifs">' + admin_mergado_no_new + '</span>' +
             '</div>' +
             '<footer class="panel-footer">' +
-            '<a href="' + admin_mergado_all_messages_url + '&mergadoTab=' + admin_mergado_all_messages_id_tab + '">' + admin_mergado_show_more_message + '</a>' +
+            '<a href="' + admin_mergado_all_messages_url + '&page=' + admin_mergado_all_messages_id_tab + '">' + admin_mergado_show_more_message + '</a>' +
             '</footer>' +
             '</section>' +
             '</li>';
@@ -58,7 +58,7 @@ function notifications()
         dataType: 'json',
         data: {
             controller : 'AdminMergado',
-            action : 'mergadoNews',
+            action : 'mmp-get-news',
             ajax : true,
         },
         success: function(jsonData)
@@ -70,7 +70,7 @@ function notifications()
                 $(jsonData).each(function(i) {
                     if(jsonData[i]['description'].length >= 251) {
                         jsonData[i]['description'] = jsonData[i]['description'].substring(0, 250) + '...';
-                        var more = '<a class="mergado__read_more" href="' + admin_mergado_all_messages_url + '&mergadoTab=' + admin_mergado_all_messages_id_tab + '">' + admin_mergado_read_more + '</a>'
+                        var more = '<a class="mergado__read_more" href="' + admin_mergado_all_messages_url + '&page=' + admin_mergado_all_messages_id_tab + '">' + admin_mergado_read_more + '</a>'
                     } else {
                         var more = '';
                     }
@@ -125,7 +125,7 @@ function disableMergadoNotification(ids)
         url: admin_mergado_ajax_url,
         data: {
             controller : 'AdminMergado',
-            action : 'disableNotification',
+            action : 'mmp-set-readed',
             ajax : true,
             ids: ids,
         }

@@ -42,7 +42,7 @@ class AdminController extends AdminControllerCore
     public static function mergadoCopyFiles($from, $to)
     {
 
-        foreach (array_diff(scandir($from), array('..', '.')) as $file) {
+        foreach (array_diff(scandir($from), ['..', '.']) as $file) {
             if (is_dir($from . '/' . $file))
                 self::mergadoCopyFiles($from . '/' . $file, $to . '/' . $file);
             else {

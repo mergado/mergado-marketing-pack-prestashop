@@ -1,0 +1,58 @@
+{
+  "name": "yesno-dialog",
+  "version": "0.2.1",
+  "description": "Javascript yes no dialog",
+  "main": "dist/bundle.js",
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack -w",
+    "test": "jest",
+    "start:example": "cd example && webpack-dev-server",
+    "lint": "eslint './src/**/*.js'"
+  },
+  "author": "Alex Sidorenko",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SidKH/yesno-dialog"
+  },
+  "keywords": [
+    "js",
+    "javascript",
+    "vanilla",
+    "yesno",
+    "dialog"
+  ],
+  "jest": {
+    "moduleNameMapper": {
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged --pattern '**/*.js'"
+    }
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.10.5",
+    "@babel/polyfill": "^7.10.4",
+    "@babel/preset-env": "^7.10.4",
+    "babel-loader": "^8.1.0",
+    "css-loader": "^4.2.0",
+    "eslint": "^7.6.0",
+    "eslint-loader": "^4.0.2",
+    "eslint-plugin-jest": "^23.20.0",
+    "html-webpack-plugin": "^4.3.0",
+    "husky": "^4.2.5",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^26.2.2",
+    "path": "^0.12.7",
+    "prettier": "2.0.5",
+    "pretty-quick": "^2.0.1",
+    "style-loader": "^1.2.1",
+    "webpack": "^4.44.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  }
+}

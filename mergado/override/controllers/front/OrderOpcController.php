@@ -53,7 +53,7 @@ class OrderOpcController extends OrderOpcControllerCore
                         } else {
                             $this->context->cookie->mergado_zbozi_consent = '0';
                         }
-
+                        
                         unset($_POST['ajax']);
                         unset($_GET['ajax']);
                     }

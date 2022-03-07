@@ -22,13 +22,13 @@ if (!defined('_PS_VERSION_')) {
  * usefull when you modify your database, or register a new hook ...
  * Don't forget to create one file per version.
  */
-function upgrade_module_2_3_4($module)
+function upgrade_module_2_4_0($module)
 {
     $module->uninstallOverrides();
     $module->installOverrides();
 
-    $this->registerHook('extraCarrier');
-    $this->registerHook('actionOrderStatusUpdate');
+    $module->registerHook('extraCarrier');
+    $module->registerHook('actionOrderStatusUpdate');
 //    $this->registerHook('actionProductCancel');
 
     Tools::clearCache();

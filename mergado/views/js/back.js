@@ -13,41 +13,51 @@
  */
 
 $(document).ready(function () {
-    var mergadoTab = $('#mergadoController .mergado-tab');
+    var page = $('#mergadoController .mergado-page');
 
-    mergadoTab.hide();
-    var currentTab = getUrlVars('mergadoTab');
+    // page.hide();
+    var currentTab = getUrlVars('page');
 
     if (currentTab !== undefined) {
-        $('#mergadoController .tabControl a[data-tab=' + currentTab + ']').addClass('active');
 
-        if (currentTab === '6-cookies') {
+        $('#mergadoController .pageControl a[data-page=' + currentTab + ']').addClass('active');
+        
+        if (currentTab === 'cookies') {
             currentTab = 6;
         }
-
-        $('#mergadoController .mergado-tab[data-tab=' + currentTab + ']').stop().show();
-
-        $('.mmp-header-bot').show();
+        
+        $('#mergadoController .mergado-page[data-page=' + currentTab + ']').stop().show();
+        // $('#mergadoController .pageControl a[data-page=' + currentTab + ']').addClass('active');
+        // $('.mmp-header-bot').show();
         checkChanges = currentTab === 1 || currentTab === 6;
 
     } else {
-        $('.mmp-header-bot').hide();
-        mergadoTab.stop().first().show();
-        $('#mergadoController .tabControl a').first().addClass('active');
+        // $('.mmp-header-bot').hide();
+        page.stop().first().show();
+        // $('#mergadoController .pageControl a').first().addClass('active');
         checkChanges = true;
     }
 
     generateCron();
-    tabControl();
+    pageControl();
     toggleFieldsInit();
     initFormChangeChecker();
     closeCronPopup();
     copyToClipboard();
-    initRangeScript();
+    // initRangeScript();
     setSettings();
     tab1FormSend();
     confirmMessage();
     generateInlineCodeForGoogleReviews();
+
+    $('.mmp_feedBox__toggler').on('click', function () {
+        toggleFeedBox($(this));
+    });
+
+    function toggleFeedBox(element)
+    {
+        element.closest('.mmp_feedBox').toggleClass('mmp_feedBox--opened');
+    }
 });
 
 function getUrlVars(variable) {
@@ -185,7 +195,7 @@ function closeCronPopup() {
     });
 }
 
-function tabControl() {
+function pageControl() {
     // Tab control
     $('.mmp_tabs__menu li').on('click', function(e) {
         e.preventDefault();
@@ -194,12 +204,17 @@ function tabControl() {
         $(this).addClass('active');
         $('[data-mmp-tab="' + $(this).children('a').attr('data-mmp-tab-button') + '"]').addClass('active');
     });
+
+    $('[data-mmp-tab-button]').on('click', function () {
+        var urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('mmp-tab', $(this).attr('data-mmp-tab-button'));
+        window.history.pushState('', '',  'index.php?' + urlParams);
+    });
 }
 
 function toggleFieldsInit()
 {
     if ($('[data-toggle-fields-json]').length > 0) {
-
         var toggleJSON = JSON.parse($('[data-toggle-fields-json]').attr('data-toggle-fields-json'));
 
         var fieldStatusSetter = function setFieldStatus(values, mainStatus) {
@@ -274,7 +289,7 @@ function initFormChangeChecker()
 {
     clickedSubmit = false;
 
-    $(".mergado-tab form :input").change(function() {
+    $(".mergado-page form :input").change(function() {
         $(this).closest('form').data('changed', true);
     });
 
@@ -315,13 +330,13 @@ function copyToClipboard()
     }
 }
 
-function initRangeScript()
-{
-    // Range slider init
-   $('[class*="rangeSlider-"]').each(function() {
-        $(this).append('<style>.rangeSlider-' + $(this).attr('data-range-index') + '::before{width: ' + $(this).attr('data-percentage') + '%;}</style>');
-   });
-}
+// function initRangeScript()
+// {
+//     // Range slider init
+//    $('[class*="rangeSlider-"]').each(function() {
+//         $(this).append('<style>.rangeSlider-' + $(this).attr('data-range-index') + '::before{width: ' + $(this).attr('data-percentage') + '%;}</style>');
+//    });
+// }
 
 function confirmMessage() {
     $('[data-confirm-message]').on('click', function() {
@@ -336,8 +351,8 @@ function tab1FormSend()
 {
     var locker = false;
 
-    $('.mergado-tab form').submit(function(e) {
-        var tab = $(this).closest('.mergado-tab').attr('data-tab');
+    $('.mergado-page form').submit(function(e) {
+        var tab = $(this).closest('.mergado-page').attr('data-page');
 
         if(tab === '6' || tab === '1') {
             e.preventDefault();
@@ -352,7 +367,7 @@ function tab1FormSend()
             var shopIdSet = false;
             var formData = [];
 
-            $('.mergado-tab[data-tab="' + tab + '"] form').each(function() {
+            $('.mergado-page[data-page="' + tab + '"] form').each(function() {
                 var disabled = $(this).find(':input:disabled').removeAttr('disabled');
                 formData.push($(this).serializeArray());
                 disabled.attr('disabled','disabled');

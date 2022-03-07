@@ -1,0 +1,336 @@
+/*Wizard*/
+.mmp_wizard {
+    display: none;
+}
+
+.mmp_wizard.active {
+    display: block;
+}
+
+.mmp_wizard h1 {
+    font-size: 23px;
+    font-weight: 400;
+    line-height: 1.3;
+    margin: 0;
+    padding: 9px 0 4px 0;
+}
+
+.mmp_wizard__content {
+    width: 800px;
+    max-width: 100%;
+}
+
+.mmp_wizard__heading {
+    font-weight: 700 !important;
+    margin-bottom: 15px !important;
+}
+
+.mmp_wizard[data-mmp-wizard-step="1"] .mmp_wizard__content {
+    border: 1px solid var(--mmp-wizard-border);
+}
+
+.mmp_wizard__content_body {
+    margin-top: 40px;
+    padding: 10px;
+    border: 1px solid var(--mmp-wizard-border);
+    border-radius: 5px;
+}
+
+.mmp_wizard__content_heading {
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 5px;
+    color: black;
+    border-bottom: 1px solid var(--mmp-wizard-border);
+}
+
+.mmp_wizard__wp_cron {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 500px;
+    margin-top: 17px;
+    margin-right: auto;
+    margin-bottom: 17px;
+    margin-left: auto;
+}
+
+.mmp_wizard__cron {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 17px;
+    margin-bottom: 17px;
+}
+
+.mmp_wizard__wp_cron div {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 30px;
+    margin-bottom: 5px;
+}
+
+.mmp_wizard__wp_cron_heading {
+    display: flex;
+}
+
+.mmp_wizard__wp_cron_heading svg {
+    width: 35px;
+    height: 26px;
+    margin-right: 5px;
+}
+
+.mmp_wizard__wp_cron div div {
+    width: 50%;
+}
+
+.mmp_wizard__cronLink {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mmp_wizard__cron_left {
+    display: flex;
+    align-items: center;
+}
+
+.mmp_wizard__cronLink_name {
+    font-weight: 500;
+    padding: 6px 10px;
+    white-space: nowrap;
+    border-radius: 3px 0 0 3px;
+    background-color: var(--mmp-wizard-grey);
+}
+
+.mmp_wizard__cronLink_link {
+    font-size: 12px;
+    overflow: hidden;
+    width: 480px !important;
+    padding: 3px 5px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    border: 1px solid var(--mmp-wizard-border);
+}
+
+.mmp_wizard__cronLink_copy {
+
+}
+
+.mmp_wizard__wp_cron h3 {
+    margin: 0;
+}
+
+.mmp_wizard__wp_cron select,
+.mmp_wizard__wp_cron input:not([type=checkbox]) {
+    font-weight: 500;
+    width: 100%;
+}
+
+.mmp_wizard__cronItem {
+    width: 220px;
+    padding: 0 10px;
+    border: 1px solid var(--mmp-wizard-border);
+    border-radius: 6px;
+}
+
+.mmp_wizard__cronArrow {
+    width: 30px;
+    height: 20px;
+    margin: 0 12px;
+}
+
+.mmp_wizard__cronArrow svg {
+    width: 27px;
+    height: 26px;
+    fill: black;
+}
+
+.mmp_wizard__cronItemTop {
+    font-size: 1.4em !important;
+    font-weight: 500 !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0.8em 0;
+}
+
+.mmp_wizard__cronItemTop svg {
+    width: 100%;
+    height: 40px;
+}
+
+.mmp_wizard__buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 70px;
+}
+
+.mmp_wizard__divider {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.mmp_wizard__divider::before {
+    width: 48%;
+    height: 1px;
+    margin-right: 2%;
+    content: '';
+    background-color: var(--mmp-wizard-border);
+}
+
+.mmp_wizard__divider::after {
+    width: 48%;
+    height: 1px;
+    margin-left: 2%;
+    content: '';
+    background-color: var(--mmp-wizard-border);
+}
+
+.mmp_wizard__bottom {
+    padding: 10px;
+    text-align: center;
+}
+
+[data-feed-finished="true"] {
+    display: none;
+}
+
+.mmp_wizard__generating_status {
+    min-width: 22px;
+    height: 22px;
+    margin-right: 10px;
+    border-radius: 100%;
+}
+
+[data-status="inactive"] .mmp_wizard__generating_status {
+    background-color: var(--mmp-status--danger);
+}
+
+[data-status="active"] .mmp_wizard__generating_status {
+    background-color: var(--mmp-status--warning);
+}
+
+[data-status="done"] .mmp_wizard__generating_status {
+    background-color: var(--mmp-status--success);
+}
+
+/* ROTATE ANIMATION */
+@-webkit-keyframes rotating /* Safari and Chrome */
+{
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes rotating {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rotating {
+    animation: rotating 2s linear infinite;
+}
+
+.mmp_wizard__generating {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.mmp_wizard__generating_svg {
+    width: 26px;
+    height: 68px;
+    margin-right: 15px;
+    margin-left: 15px;
+}
+
+.mmp_wizard__generating_done_svg {
+    width: 26px;
+    height: 68px;
+    margin-right: 15px;
+    margin-left: 15px;
+}
+
+[data-status="inactive"] .mmp_wizard__generating_svg,
+[data-status="active"] .mmp_wizard__generating_svg {
+    display: block;
+}
+
+
+[data-status="inactive"] .mmp_wizard__generating_done_svg,
+[data-status="active"] .mmp_wizard__generating_done_svg {
+    display: none;
+}
+
+[data-status="done"] .mmp_wizard__generating_svg {
+    display: none;
+}
+
+[data-status="done"] .mmp_wizard__generating_done_svg {
+    display: block;
+}
+
+
+/* RangeSlider */
+.rangeSlider span {
+    font-size: 14px;
+    position: relative;
+    z-index: 9;
+    color: black;
+}
+
+.rangeSlider {
+    position: relative;
+    width: 100%;
+    padding: 5px 10px;
+    text-align: center;
+    border: 1px solid #ccd0d4;
+    border-radius: 3px;
+    background-color: white;
+}
+
+.rangeSliderBg {
+    position: absolute !important;
+    z-index: 1 !important;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 100%;
+    transition: width 1s ease;
+    background-color: var(--mmp-blue);
+}
+
+.rangeSliderPercentage {
+    font-size: 14px;
+    font-weight: bold;
+    position: relative;
+    z-index: 9;
+    color: black;
+}
+
+.mmp_wizard__radio {
+    position: relative;
+    width: 800px;
+    max-width: 100%;
+    padding: 15px 25px;
+    border: 1px solid #d3d8db;
+    border-radius: 5px;
+}

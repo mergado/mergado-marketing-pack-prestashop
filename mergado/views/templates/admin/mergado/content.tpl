@@ -13,22 +13,38 @@
 *}
 
 <div id="mergadoController">
-        {include file='./partials/before.tpl'}
-    {if !$disableFeatures || !$disablePlugin}
-        {if $disablePlugin}
+        {include file='./partials/header.tpl'}
+        {include file='./partials/popup.tpl'}
+
+    {if $mmp['base']['multistoreShopSelected'] || $mmp['base']['moduleEnabled']}
+
+
+        {if !$mmp['base']['moduleEnabled']} {* Plugin disabled *}
             {include file='./partials/disabledPlugin.tpl'}
-        {elseif $disableFeatures}
+        {elseif !$mmp['base']['multistoreShopSelected']} {* Shop not selected *}
             {include file='./partials/disabled.tpl'}
         {else}
-            {include file='./partials/tabs/tab0.tpl'}
-            {include file='./partials/tabs/tab1.tpl'}
-            {include file='./partials/tabs/tab2.tpl'}
-            {include file='./partials/tabs/tab3.tpl'}
-            {include file='./partials/tabs/tab4.tpl'}
-            {include file='./partials/tabs/tab6.tpl'}
+            {if !isset($smarty.get.page) || $smarty.get.page === 'info' || !$smarty.get.page} {* If nothing selected set Info as shown *}
+                {include file='./pages/info.tpl'}
+            {elseif $smarty.get.page === 'feeds-product'}
+                {include file='./pages/feeds-product.tpl'}
+            {elseif $smarty.get.page === 'feeds-other'}
+                {include file='./pages/feeds-other.tpl'}
+            {elseif $smarty.get.page === 'adsys' || $smarty.get.page === 'cookies'}
+                {include file='./pages/adsys.tpl'}
+            {elseif $smarty.get.page === 'news'}
+                {include file='./pages/news.tpl'}
+            {/if}
         {/if}
     {/if}
-        {include file='./partials/tabs/tab5.tpl'}
-        {include file='./partials/tabs/tab7.tpl'}
-        {include file='./partials/after.tpl'}
+
+    {if isset($smarty.get.page)}
+        {if $smarty.get.page === 'licence'}
+            {include file='./pages/licence.tpl'}
+        {elseif $smarty.get.page === 'support'}
+            {include file='./pages/support.tpl'}
+        {/if}
+    {/if}
+
+    {include file='./partials/footer.tpl'}
 </div>

@@ -13,7 +13,7 @@
  *  @license   LICENSE.txt
  */
 
-$sql = array();
+$sql = [];
 
 $sql[] = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'mergado` (
     `id` int(11) NOT NULL AUTO_INCREMENT,

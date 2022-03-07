@@ -18,6 +18,7 @@ use Mergado\Arukereso\ArukeresoClass;
 use Mergado\Biano\BianoClass;
 use Mergado\Etarget\EtargetClass;
 use Mergado\Facebook\FacebookClass;
+use Mergado\Forms\SupportForm;
 use Mergado\Google\GaRefundClass;
 use Mergado\Google\GoogleReviewsClass;
 use Mergado\Google\GoogleAdsClass;
@@ -25,15 +26,21 @@ use Mergado\Google\GoogleTagManagerClass;
 use Mergado\Kelkoo\KelkooClass;
 use Mergado\NajNakup\NajNakupClass;
 use Mergado\Sklik\SklikClass;
+use Mergado\Tools\DirectoryManager;
+use Mergado\Tools\FeedQuery;
 use Mergado\Tools\ImportPricesClass;
+use Mergado\Tools\LanguagesClass;
 use Mergado\Tools\LogClass;
+use Mergado\Tools\NavigationClass;
 use Mergado\Tools\NewsClass;
+use Mergado\Tools\TabsClass;
 use Mergado\Tools\XML\XMLCategoryFeed;
 use Mergado\Tools\XML\XMLProductFeed;
-use Mergado\Tools\XML\XMLQuery;
+use Mergado\Tools\XML\XMLStaticFeed;
 use Mergado\Tools\XML\XMLStockFeed;
 use Mergado\Tools\XMLClass;
 use Mergado\Tools\SettingsClass;
+use Mergado\Tools\UrlManager;
 use Mergado\Zbozi\ZboziClass;
 use ShopCore as Shop;
 use ConfigurationCore as Configuration;
@@ -50,11 +57,18 @@ class AdminMergadoController extends \ModuleAdminController
     protected $modulePath;
     protected $settingsValues;
     protected $defaultLang;
+    public $name;
 
     protected $shopID;
-    protected $disableFeatures = false;
-    protected $disablePlugin = false;
+    protected $multistoreShopSelected = true;
+    protected $moduleEnabled = true;
 
+    protected $navigationClass;
+    protected $supportForm;
+    protected $tabsClass;
+    protected $xmlClass;
+    protected $feedQuery;
+    protected $importPricesClass;
 
     public function __construct()
     {
@@ -65,7 +79,7 @@ class AdminMergadoController extends \ModuleAdminController
         $this->bootstrap = true;
         $this->languages = new Language();
         $this->currencies = new Currency();
-        $this->modulePath = _PS_MODULE_DIR_ . 'mergado/';
+        $this->modulePath = __MERGADO_DIR__ . '/';
         $this->defaultLang = Configuration::get('PS_LANG_DEFAULT');
 
         if (Shop::isFeatureActive()) {
@@ -75,11 +89,11 @@ class AdminMergadoController extends \ModuleAdminController
 
             // If not single shop selected => disable module settings
             if (substr(Context::getContext()->cookie->shopContext, 0, 1) !== 's') {
-                $this->disableFeatures = true;
+                $this->multistoreShopSelected = false;
             }
 
             if (!Module::isEnabled($this->name)) {
-                $this->disablePlugin = true;
+                $this->moduleEnabled = false;
             }
         }
 
@@ -92,1081 +106,153 @@ class AdminMergadoController extends \ModuleAdminController
 
         parent::__construct();
 
-        if (!Configuration::get('MERGADO_LOG_TOKEN')) {
-            Configuration::updateValue('MERGADO_LOG_TOKEN', Tools::getAdminTokenLite('AdminMergadoLog'));
+        if (!LogClass::getLogToken()) {
+            LogClass::setLogToken();
         }
+
+        $this->navigationClass = new NavigationClass($this->context);
+        $this->supportForm = new SupportForm();
+        $this->tabsClass = new TabsClass($this->module);
+        $this->xmlClass = new XmlClass();
+        $this->feedQuery = new FeedQuery();
+        $this->importPricesClass = new ImportPricesClass();
     }
-
-    /*******************************************************************************************************************
-     * FORMS
-     *******************************************************************************************************************/
-
-    /**
-     * Forms in Dev Tab in admin section
-     *
-     * @return mixed
-     */
-    public function formImportPrices()
-    {
-        $fields_form[0]['form'] = array(
-            'legend' => array(
-                'title' => $this->l('Price import'),
-                'icon' => 'icon-flag',
-            ),
-            'description' => $this->l('Price import from Mergado XML feed'),
-            'input' => array(
-                array(
-                    'type' => 'hidden',
-                    'name' => 'page'
-                ),
-                array(
-                    'type' => 'hidden',
-                    'name' => 'id_shop'
-                ),
-                array(
-                    'label' => $this->l('Import prices feed URL'),
-                    'name' => SettingsClass::IMPORT['URL'],
-                    'type' => 'text',
-                    'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->l('Insert URL of import prices feed from Mergado webpage.'),
-                    'visibility' => Shop::CONTEXT_ALL
-                ),
-                array(
-                    'label' => $this->l('Number of products imported in one cron run'),
-                    'name' => SettingsClass::IMPORT['COUNT'],
-                    'validation' => 'isInt',
-                    'cast' => 'intval',
-                    'type' => 'text',
-                    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Leave blank or 0 if you don\'t have problem with importing product prices.'),
-                    'visibility' => Shop::CONTEXT_ALL
-                ),
-            ),
-            'submit' => array(
-                'title' => $this->l('Save'),
-                'name' => 'submit' . $this->name
-            )
-        );
-
-        $fields_value = array(
-//            SettingsClass::IMPORT['ENABLED'] => isset($this->settingsValues[SettingsClass::IMPORT['ENABLED']]) ? $this->settingsValues[SettingsClass::IMPORT['ENABLED']] : false,
-            SettingsClass::IMPORT['COUNT'] => isset($this->settingsValues[SettingsClass::IMPORT['COUNT']]) ? $this->settingsValues[SettingsClass::IMPORT['COUNT']] : false,
-            SettingsClass::IMPORT['URL'] => isset($this->settingsValues[SettingsClass::IMPORT['URL']]) ? $this->settingsValues[SettingsClass::IMPORT['URL']] : false,
-            'page' => 1,
-            'id_shop' => $this->shopID,
-        );
-
-        //Fill in empty fields
-        include __DIR__ . '/partials/helperFormEmptyFieldsFiller.php';
-
-        $this->show_toolbar = true;
-        $this->show_form_cancel_button = false;
-
-        $helper = new HelperForm();
-
-        $helper->module = $this;
-        $helper->name_controller = $this->name;
-
-        $helper->tpl_vars = array('fields_value' => $fields_value);
-        $helper->default_form_language = $this->defaultLang;
-        $helper->allow_employee_form_lang = $this->defaultLang;
-
-        if (isset($this->displayName)) {
-            $helper->title = $this->displayName;
-        }
-
-        $helper->show_toolbar = true;
-        $helper->toolbar_scroll = true;
-        $helper->submit_action = 'submit' . $this->name;
-
-        if (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) {
-            $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
-            $helper->submit_action = 'save' . $this->name;
-            $helper->token = Tools::getValue('token');
-        }
-
-        if (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) {
-
-        } else {
-            $helper->toolbar_btn = array(
-                'save' =>
-                    array(
-                        'desc' => $this->l('Save'),
-                        'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
-                            '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                    ),
-                'back' => array(
-                    'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                    'desc' => $this->l('Back to list')
-                )
-            );
-        }
-
-        return @$helper->generateForm($fields_form);
-    }
-
-
-    /**
-     * Forms in Dev Tab in admin section
-     *
-     * @return mixed
-     */
-    public function formDevelopers()
-    {
-        $fields_form[0]['form'] = array(
-            'legend' => array(
-                'title' => $this->l('Help'),
-                'icon' => 'icon-bug'
-            ),
-            'input' => array(
-                array(
-                    'type' => 'hidden',
-                    'name' => 'page'
-                ),
-                array(
-                    'type' => 'hidden',
-                    'name' => 'id_shop'
-                ),
-                array(
-                    'name' => 'mergado_dev_log',
-                    'label' => $this->l('Enable log'),
-                    'validation' => 'isBool',
-                    'cast' => 'intval',
-                    'class' => 'switch15',
-                    'desc' => $this->l('Send this to support:') . " " . LogClass::getLogLite(),
-                    'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
-                    'values' => array(
-                        array(
-                            'id' => 'mergado_dev_log_on',
-                            'value' => 1,
-                            'label' => $this->l('Yes')
-                        ),
-                        array(
-                            'id' => 'mergado_dev_log_off',
-                            'value' => 0,
-                            'label' => $this->l('No')
-                        )
-                    ),
-                    'visibility' => Shop::CONTEXT_ALL
-                ),
-                array(
-                    'label' => $this->l('Delete log file when saving'),
-                    'name' => 'mergado_del_log',
-                    'validation' => 'isBool',
-                    'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
-                    'class' => 'switch15',
-                    'values' => array(
-                        array(
-                            'id' => 'mergado_del_log_on',
-                            'value' => 1,
-                            'label' => $this->l('Yes')
-                        ),
-                        array(
-                            'id' => 'mergado_del_log_off',
-                            'value' => 0,
-                            'label' => $this->l('No')
-                        )
-                    ),
-                ),
-            ),
-            'submit' => array(
-                'title' => $this->l('Save'),
-                'name' => 'submit' . $this->name
-            )
-        );
-
-        $fields_value = array(
-            'mergado_dev_log' => isset($this->settingsValues['mergado_dev_log']) ? $this->settingsValues['mergado_dev_log'] : 0,
-            'mergado_del_log' => 0,
-            'page' => 4,
-            'id_shop' => $this->shopID,
-        );
-
-        //Fill in empty fields
-        include __DIR__ . '/partials/helperFormEmptyFieldsFiller.php';
-
-        $this->show_toolbar = true;
-        $this->show_form_cancel_button = false;
-
-        $helper = new HelperForm();
-
-        $helper->module = $this;
-        $helper->name_controller = $this->name;
-
-        $helper->tpl_vars = array('fields_value' => $fields_value);
-        $helper->default_form_language = $this->defaultLang;
-        $helper->allow_employee_form_lang = $this->defaultLang;
-
-        if (isset($this->displayName)) {
-            $helper->title = $this->displayName;
-        }
-
-        $helper->show_toolbar = true;
-        $helper->toolbar_scroll = true;
-        $helper->submit_action = 'submit' . $this->name;
-
-        if (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) {
-            $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
-            $helper->submit_action = 'save' . $this->name;
-            $helper->token = Tools::getValue('token');
-        }
-
-        if (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) {
-
-        } else {
-            $helper->toolbar_btn = array(
-                'save' =>
-                    array(
-                        'desc' => $this->l('Save'),
-                        'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
-                            '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                    ),
-                'back' => array(
-                    'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                    'desc' => $this->l('Back to list')
-                )
-            );
-        }
-
-        return @$helper->generateForm($fields_form);
-    }
-
-    /**
-     * Forms in Export Tab in admin section
-     *
-     * @return mixed
-     */
-    public function formExportProducts()
-    {
-
-        $options = array(
-            array(
-                'id_option' => 'both',
-                'name' => $this->l('Everywhere')
-            ),
-            array(
-                'id_option' => 'catalog',
-                'name' => $this->l('Catalog')
-            ),
-            array(
-                'id_option' => 'search',
-                'name' => $this->l('Search')
-            )
-        );
-
-        $feedLang = array();
-        $defaultValues = array();
-
-        foreach ($this->languages->getLanguages(true) as $lang) {
-            foreach ($this->currencies->getCurrencies(false, true, true) as $currency) {
-
-                $feedLang = array_merge($feedLang, array(
-                    array(
-                        'label' => $lang['name'] . ' - ' . $currency['iso_code'],
-                        'hint' => $this->l('Export to this language?'),
-                        'name' => XMLClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'],
-                        'validation' => 'isBool',
-                        'cast' => 'intval',
-                        'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
-                        'class' => 'switch15',
-                        'is_bool' => true,
-                        'values' => array(
-                            array(
-                                'id' => XMLClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'] . '_on',
-                                'value' => 1,
-                                'label' => $this->l('Yes')
-                            ),
-                            array(
-                                'id' => XMLClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'] . '_off',
-                                'value' => 0,
-                                'label' => $this->l('No')
-                            )
-                        ),
-                        'visibility' => Shop::CONTEXT_ALL
-                    ),
-                ));
-
-                if (isset($this->settingsValues[XMLClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code']])) {
-                    $defaultValues = array_merge($defaultValues, array(
-                        XMLClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code'] => $this->settingsValues[XMLClass::$feedPrefix . $lang['iso_code'] . '-' . $currency['iso_code']]
-                    ));
-                }
-            }
-        }
-
-        $fields_value = $defaultValues;
-
-        $fields_form[0]['form'] = array(
-            'legend' => array(
-                'title' => $this->l('Language & currency settings'),
-                'icon' => 'icon-flag'
-            ),
-            'description' => $this->l('Select which combinations you want to activate for generating exports.'),
-            'input' => $feedLang,
-            'submit' => array(
-                'title' => $this->l('Save'),
-                'name' => 'submit' . $this->name
-            )
-        );
-
-        $fields_form[1]['form'] = array(
-            'legend' => array(
-                'title' => $this->l('Generate export in batches'),
-                'icon' => 'icon-bug'
-            ),
-            'description' => $this->l('Set how many products will be generated per export batch. Leave blank to generate the entire XML feed at once.'),
-            'input' => array(
-                array(
-                    'type' => 'hidden',
-                    'name' => 'page'
-                ),
-                array(
-                    'type' => 'hidden',
-                    'name' => 'id_shop'
-                ),
-                array(
-                    'label' => $this->l('Number of products for Mergado Feed'),
-                    'name' => XMLProductFeed::MAX_PRODUCTS,
-                    'validation' => 'isInt',
-                    'cast' => 'intval',
-                    'type' => 'text',
-                    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Leave blank or 0 if you don\'t have problem with generating mergado feed. Use lower number of products in one cron run if your feed is still too big and server cant generate it. Changing this value will delete all current temporary files!!!'),
-                    'visibility' => Shop::CONTEXT_ALL
-                ),
-                array(
-                    'label' => $this->l('Number of products for Heureka stock feed'),
-                    'name' => XMLStockFeed::MAX_PRODUCTS,
-                    'validation' => 'isInt',
-                    'cast' => 'intval',
-                    'type' => 'text',
-                    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Leave blank or 0 if you don\'t have problem with generating Heureka stock feed. Use lower number of products in one cron run if your feed is still too big and server cant generate it. Changing this value will delete all current temporary files!!!'),
-                    'visibility' => Shop::CONTEXT_ALL
-                ),
-                array(
-                    'label' => $this->l('Number of categories for Category feed'),
-                    'name' => XMLCategoryFeed::MAX_PRODUCTS,
-                    'validation' => 'isInt',
-                    'cast' => 'intval',
-                    'type' => 'text',
-                    'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->l('Leave blank or 0 if you don\'t have problem with generating category feed. Use lower number of categories in one cron run if your feed is still too big and server cant generate it. Changing this value will delete all current temporary files!!!'),
-                    'visibility' => Shop::CONTEXT_ALL
-                ),
-            ),
-            'submit' => array(
-                'title' => $this->l('Save'),
-                'name' => 'submit' . $this->name
-            )
-        );
-
-        $fields_form[2]['form'] = array(
-            'legend' => array(
-                'title' => $this->l('Additional settings'),
-                'icon' => 'icon-cogs'
-            ),
-            'input' => array(
-                array(
-                    'type' => 'hidden',
-                    'name' => 'clrCheckboxes'
-                ),
-                array(
-                    'type' => 'hidden',
-                    'name' => 'page'
-                ),
-                array(
-                    'type' => 'hidden',
-                    'name' => 'id_shop'
-                ),
-                array(
-                    'type' => 'checkbox',
-                    'label' => $this->l('Export cost elements'),
-                    'name' => 'm_export',
-                    'values' => array(
-                        'query' =>
-                            array(
-                                array(
-                                    'id_option' => 'wholesale_prices',
-                                    'name' => $this->l('Yes')
-                                ),
-                            ),
-                        'id' => 'id_option',
-                        'name' =>'name'
-                    ),
-                    'hint' => $this->l('Choose whether to export COST and COST_VAT elements to the product feed.')
-                ),
-                array(
-                    'type' => 'checkbox',
-                    'label' => $this->l('Export products with denied orders in Product feeds'),
-                    'name' => 'mmp_export',
-                    'values' => array(
-                        'query' =>
-                            array(
-                                array(
-                                    'id_option' => 'denied_products',
-                                    'name' => $this->l('Yes')
-                                ),
-                            ),
-                        'id' => 'id_option',
-                        'name' =>'name'
-                    ),
-                    'hint' => $this->l('By default, the module generates only products with allowed orders. By enabling this option, the module will also generate products with denied orders')
-                ),
-                array(
-                    'type' => 'checkbox',
-                    'label' => $this->l('Export products with denied orders in Other feeds'),
-                    'name' => 'mmp_export',
-                    'values' => array(
-                        'query' =>
-                            array(
-                                array(
-                                    'id_option' => 'denied_products_other',
-                                    'name' => $this->l('Yes')
-                                ),
-                            ),
-                        'id' => 'id_option',
-                        'name' =>'name'
-                    ),
-                    'hint' => $this->l('By default, the module generates only products with allowed orders. By enabling this option, the module will also generate products with denied orders')
-                ),
-                array(
-                    'type' => 'checkbox',
-                    'label' => $this->l('Export visible in'),
-                    'name' => 'what_to_export',
-                    'values' => array(
-                        'query' => $options,
-                        'id' => 'id_option',
-                        'name' => 'name'),
-                    'hint' => $this->l('Choose which products will be exported by visibility.')
-                ),
-                array(
-                    'label' => $this->l('Delivery days'),
-                    'type' => 'text',
-                    'name' => 'delivery_days',
-                    'hint' => $this->l('In how many days can you delivery the product when it is out of stock'),
-                    'desc' => '<span class="mmp-tag mmp-tag--info"></span><strong>' . $this->l('If not filled in, the value from the field "Label of out-of-stock products with allowed backorders"') . '</strong>',
-                    'visibility' => Shop::CONTEXT_ALL
-                )
-            ),
-            'submit' => array(
-                'title' => $this->l('Save'),
-                'name' => 'submit' . $this->name
-            )
-        );
-
-        $optionsArray = array();
-        foreach ($options as $option) {
-            if (isset($this->settingsValues['what_to_export_' . $option['id_option']])) {
-                $optionsArray = array_merge(
-                    $optionsArray, array(
-                        'what_to_export_' . $option['id_option'] => $this->settingsValues['what_to_export_' . $option['id_option']]
-                    )
-                );
-            }
-        }
-
-        $fields_value = array(
-            XMLProductFeed::MAX_PRODUCTS => isset($this->settingsValues['partial_feeds_size']) ? $this->settingsValues['partial_feeds_size'] : false,
-            XMLStockFeed::MAX_PRODUCTS => isset($this->settingsValues['partial_feeds_stock_size']) ? $this->settingsValues['partial_feeds_stock_size'] : false,
-            XMLCategoryFeed::MAX_PRODUCTS => isset($this->settingsValues['partial_feeds_category_size']) ? $this->settingsValues['partial_feeds_category_size'] : false,
-            'm_export_wholesale_prices' => isset($this->settingsValues['m_export_wholesale_prices']) ? $this->settingsValues['m_export_wholesale_prices'] : null,
-            'mmp_export_denied_products' => isset($this->settingsValues['mmp_export_denied_products']) ? $this->settingsValues['mmp_export_denied_products'] : null,
-            'mmp_export_denied_products_other' => isset($this->settingsValues['mmp_export_denied_products_other']) ? $this->settingsValues['mmp_export_denied_products_other'] : null,
-            'delivery_days' => isset($this->settingsValues['delivery_days']) ? $this->settingsValues['delivery_days'] : null,
-            'clrCheckboxes' => 1,
-            'page' => 1,
-            'id_shop' => $this->shopID,
-        );
-
-        //Fill in empty fields
-        include __DIR__ . '/partials/helperFormEmptyFieldsFiller.php';
-
-        $helper = new HelperForm();
-
-        $helper->module = $this;
-        $helper->name_controller = $this->name;
-
-        $helper->tpl_vars = array('fields_value' => array_merge($fields_value, $optionsArray, $defaultValues));
-
-        if (isset($this->defaultLang)) {
-            $helper->default_form_language = $this->defaultLang;
-            $helper->allow_employee_form_lang = $this->defaultLang;
-        }
-
-        if (isset($this->displayName)) {
-            $helper->title = $this->displayName;
-        }
-        $helper->show_toolbar = true;
-        $helper->toolbar_scroll = true;
-        $helper->submit_action = 'submit' . $this->name;
-
-        if (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) {
-            $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
-            $helper->submit_action = 'save' . $this->name;
-            $helper->token = Tools::getValue('token');
-        }
-
-        if (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) {
-
-        } else {
-            $helper->toolbar_btn = array(
-                'save' =>
-                    array(
-                        'desc' => $this->l('Save'),
-                        'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
-                            '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                    ),
-                'back' => array(
-                    'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                    'desc' => $this->l('Back to list')
-                )
-            );
-        }
-
-        return @$helper->generateForm($fields_form);
-    }
-
-    /**
-     * Forms in Export Tab in admin section
-     *
-     * @return mixed
-     */
-    public function formExportStatic()
-    {
-
-        $fields_form[0]['form'] = array(
-            'legend' => array(
-                'title' => $this->l('Mergado\'s analytic feed'),
-                'icon' => 'icon-flag'
-            ),
-            'description' => $this->l('Activation of Mergado Analytical XML export.'),
-            'input' => array(
-                array(
-                    'type' => 'hidden',
-                    'name' => 'page'
-                ),
-                array(
-                    'type' => 'hidden',
-                    'name' => 'id_shop'
-                ),
-                array(
-                    'label' => $this->l('Export Mergado\'s anayltic feed?'),
-                    'name' => SettingsClass::FEED['STATIC'],
-                    'validation' => 'isBool',
-                    'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
-                    'class' => 'switch15',
-                    'is_bool' => true,
-                    'values' => array(
-                        array(
-                            'id' => 'static_feed_on',
-                            'value' => 1,
-                            'label' => $this->l('Yes')
-                        ),
-                        array(
-                            'id' => 'static_feed_off',
-                            'value' => 0,
-                            'label' => $this->l('No')
-                        )
-                    ),
-                    'visibility' => Shop::CONTEXT_ALL
-                ),
-            ),
-            'submit' => array(
-                'title' => $this->l('Save'),
-                'name' => 'submit' . $this->name
-            )
-        );
-
-        $fields_value = array(
-            'static_feed' => isset($this->settingsValues[SettingsClass::FEED['STATIC']]) ? $this->settingsValues[SettingsClass::FEED['STATIC']] : null,
-            'clrCheckboxes' => 1,
-            'page' => 1,
-            'id_shop' => $this->shopID,
-        );
-
-        //Fill in empty fields
-        include __DIR__ . '/partials/helperFormEmptyFieldsFiller.php';
-
-        $helper = new HelperForm();
-
-        $helper->module = $this;
-        $helper->name_controller = $this->name;
-
-        $helper->tpl_vars = array('fields_value' => $fields_value);
-
-        if (isset($this->defaultLang)) {
-            $helper->default_form_language = $this->defaultLang;
-            $helper->allow_employee_form_lang = $this->defaultLang;
-        }
-
-        if (isset($this->displayName)) {
-            $helper->title = $this->displayName;
-        }
-        $helper->show_toolbar = true;
-        $helper->toolbar_scroll = true;
-        $helper->submit_action = 'submit' . $this->name;
-
-        if (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) {
-            $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
-            $helper->submit_action = 'save' . $this->name;
-            $helper->token = Tools::getValue('token');
-        }
-
-        if (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) {
-
-        } else {
-            $helper->toolbar_btn = array(
-                'save' =>
-                    array(
-                        'desc' => $this->l('Save'),
-                        'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
-                            '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                    ),
-                'back' => array(
-                    'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                    'desc' => $this->l('Back to list')
-                )
-            );
-        }
-
-        return @$helper->generateForm($fields_form);
-    }
-
-    /**
-     * Forms in Export Tab in admin section
-     *
-     * @return mixed
-     */
-    public function formExportCategory()
-    {
-        $fields_form[0]['form'] = array(
-            'legend' => array(
-                'title' => $this->l('Mergado\'s category feed'),
-                'icon' => 'icon-flag'
-            ),
-            'input' => array(
-                array(
-                    'type' => 'hidden',
-                    'name' => 'page'
-                ),
-                array(
-                    'type' => 'hidden',
-                    'name' => 'id_shop'
-                ),
-                array(
-                    'label' => $this->l('Export Mergado\'s category feed?'),
-                    'name' => SettingsClass::FEED['CATEGORY'],
-                    'validation' => 'isBool',
-                    'cast' => 'intval',
-                    'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
-                    'class' => 'switch15',
-                    'is_bool' => true,
-                    'values' => array(
-                        array(
-                            'id' => 'category_feed_on',
-                            'value' => 1,
-                            'label' => $this->l('Yes')
-                        ),
-                        array(
-                            'id' => 'category_feed_off',
-                            'value' => 0,
-                            'label' => $this->l('No')
-                        )
-                    ),
-                    'visibility' => Shop::CONTEXT_ALL
-                ),
-            ),
-            'submit' => array(
-                'title' => $this->l('Save'),
-                'name' => 'submit' . $this->name
-            )
-        );
-
-        $fields_value = array(
-            'category_feed' => isset($this->settingsValues[SettingsClass::FEED['CATEGORY']]) ? $this->settingsValues[SettingsClass::FEED['CATEGORY']] : null,
-            'clrCheckboxes' => 1,
-            'page' => 1,
-            'id_shop' => $this->shopID,
-        );
-
-        //Fill in empty fields
-        include __DIR__ . '/partials/helperFormEmptyFieldsFiller.php';
-
-        $helper = new HelperForm();
-
-        $helper->module = $this;
-        $helper->name_controller = $this->name;
-
-        $helper->tpl_vars = array('fields_value' => $fields_value);
-
-        if (isset($this->defaultLang)) {
-            $helper->default_form_language = $this->defaultLang;
-            $helper->allow_employee_form_lang = $this->defaultLang;
-        }
-
-        if (isset($this->displayName)) {
-            $helper->title = $this->displayName;
-        }
-        $helper->show_toolbar = true;
-        $helper->toolbar_scroll = true;
-        $helper->submit_action = 'submit' . $this->name;
-
-        if (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) {
-            $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
-            $helper->submit_action = 'save' . $this->name;
-            $helper->token = Tools::getValue('token');
-        }
-
-        if (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) {
-
-        } else {
-            $helper->toolbar_btn = array(
-                'save' =>
-                    array(
-                        'desc' => $this->l('Save'),
-                        'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
-                            '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                    ),
-                'back' => array(
-                    'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                    'desc' => $this->l('Back to list')
-                )
-            );
-        }
-
-        return @$helper->generateForm($fields_form);
-    }
-
-    /*******************************************************************************************************************
-     * FORMS - ADSYS
-     *******************************************************************************************************************/
-
-    public function pageCookies() {
-        ob_start();
-        include_once __DIR__ . '/adsys/cookies.php';
-        $content = ob_get_contents();
-        ob_end_clean();
-        return $content;
-    }
-
-    public function formAdSys_google() {
-        include_once __DIR__ . '/adsys/google.php';
-        return @$helper->generateForm($fields_form);
-    }
-
-    public function formAdSys_facebook() {
-        include_once __DIR__ . '/adsys/facebook.php';
-        return @$helper->generateForm($fields_form);
-    }
-
-    public function formAdSys_heureka() {
-        include_once __DIR__ . '/adsys/heureka.php';
-        return @$helper->generateForm($fields_form);
-    }
-
-    public function formAdSys_etarget() {
-        include_once __DIR__ . '/adsys/etarget.php';
-        return @$helper->generateForm($fields_form);
-    }
-
-    public function formAdSys_najnakupsk() {
-        include_once __DIR__ . '/adsys/najnakupsk.php';
-        return @$helper->generateForm($fields_form);
-    }
-
-    public function formAdSys_seznam() {
-        include_once __DIR__ . '/adsys/seznam.php';
-        return @$helper->generateForm($fields_form);
-    }
-
-    public function formAdSys_glami() {
-        include_once __DIR__ . '/adsys/glami.php';
-        return @$helper->generateForm($fields_form);
-    }
-
-    public function formAdSys_kelkoo() {
-        include_once __DIR__ . '/adsys/kelkoo.php';
-        return @$helper->generateForm($fields_form);
-    }
-
-    public function formAdSys_pricemania() {
-        include_once __DIR__ . '/adsys/pricemania.php';
-        return @$helper->generateForm($fields_form);
-    }
-
-    public function formAdSys_biano() {
-        include_once __DIR__ . '/adsys/biano.php';
-        return @$helper->generateForm($fields_form);
-    }
-
-    public function formAdSys_arukereso() {
-        include_once __DIR__ . '/adsys/arukereso.php';
-        return @$helper->generateForm($fields_form);
-    }
-
 
     /**
      *  Prepare content for admin section
      */
     public function initContent()
     {
-        $sql = 'SELECT `key` FROM `' . _DB_PREFIX_ . $this->table . '` WHERE `key` LIKE "';
-        $sql .= pSQL(XMLClass::$feedPrefix) . '%" AND `value` = 1 AND `id_shop` = ' . $this->shopID;
-        $feeds = Db::getInstance()->executeS($sql);
+        // Check if all feed was updated
+        $alertClass = new AlertClass();
+        $alertClass->checkIfErrorsShouldBeActive();
+
+        // Check if form is subbmited
+        $supportFormSubmitted = $this->supportForm->sendEmailIfSubmited($this->shopID, $this->module);
+
+        $moduleUrl = UrlManager::getModuleUrl();
 
         $mergadoModule = new Mergado();
-        $version = $mergadoModule->version;
-        $remoteVersion = SettingsClass::getSettings(SettingsClass::NEW_MODULE_VERSION_AVAILABLE, 0);
 
-        if(isset($_GET['mergadoTab']) && $_GET['mergadoTab'] == '7') {
+        if(isset($_GET['page']) && $_GET['page'] == 'news') {
             NewsClass::setArticlesShownByLanguage($this->context->language->iso_code);
         }
 
-        $xmlClass = new XMLClass();
+        $supportData = SupportClass::getInformationsForSupport($this->shopID, $this->module);
 
-        $categoryFeed = SettingsClass::getSettings(SettingsClass::FEED['CATEGORY'], $this->shopID);
-        $categoryCron = array();
-
-        $langWithName = array();
-
-        foreach ($feeds as $feed) {
-            $iso = str_replace('category_', '', $feed['key']);
-            $iso = str_replace(XMLClass::$feedPrefix, '', $iso);
-            $iso = explode('-', $iso);
-
-            $currencyId = CurrencyCore::getIdByIsoCode($iso[1], $this->shopID);
-            $currency = CurrencyCore::getCurrency($currencyId);
-            if(isset($currency) && $currency['active']) {
-
-                $xmlProductFeed = new XMLProductFeed($this->shopID);
-                $totalFilesCount = $xmlProductFeed->getTotalFilesCount();
-                if($totalFilesCount === 0) {
-                    $totalFiles = 0;
-                } else {
-                    $xmlQuery = new XMLQuery();
-                    $totalFiles = ceil(count($xmlQuery->productsToFlat(0, 0)) / $totalFilesCount);
-                }
-
-                $langWithName['base'][$feed['key']] = array(
-                    'totalFiles' => $totalFiles,
-                    'currentFiles' => XMLClass::getTempNumber(XMLClass::TMP_DIR . 'xml/' . $this->shopID . '/' . $feed['key'] . '/'),
-                    'xml' => $feed['key'],
-                    'url' => $this->getCronUrl($feed['key']),
-                    'name' => $this->languages->getLanguageByIETFCode(
-                            $this->languages->getLanguageCodeByIso($iso[0])
-                        )->name . ' - ' . $iso[1]
-                );
-
-                if ($categoryFeed == "1") {
-                    $xmlCategoryFeed = new XMLCategoryFeed($this->shopID);
-                    $totalFilesCount = $xmlCategoryFeed->getTotalFilesCount();
-                    if($totalFilesCount === 0) {
-                        $totalFiles = 0;
-                    } else {
-                        $totalFiles = ceil(count(Category::getSimpleCategories($this->context->language->id)) / $totalFilesCount);
-                    }
-
-                    $categoryData = array(
-                        'totalFiles' => $totalFiles,
-                        'currentFiles' => XMLClass::getTempNumber(XMLClass::TMP_DIR . 'xml/' . $this->shopID . '/' . 'category_' . $feed['key'] . '/'),
-                        'xml' => 'category_' . $feed['key'],
-                        'url' => $this->getCronUrl('category_' . $feed['key']),
-                        'name' => $this->languages->getLanguageByIETFCode(
-                                $this->languages->getLanguageCodeByIso($iso[0])
-                            )->name . ' - ' . $iso[1]);
-
-                    $langWithName['category']['category_' . $feed['key']] = $categoryData;
-                    $categoryCron[] = $categoryData;
-                }
-            }
-        }
-
-
-        $stockFeed = SettingsClass::getSettings('mergado_heureka_dostupnostni_feed', $this->shopID);
-        if ($stockFeed) {
-            $xmlStockFeed = new XMLStockFeed($this->shopID);
-            $maxProductsPerStep = $xmlStockFeed->getTotalFilesCount();
-
-            if($maxProductsPerStep === 0) {
-                $totalFiles = 0;
-            } else {
-                $totalFiles = ceil(count(ProductCore::getSimpleProducts($this->context->language->id, $this->context)) / $maxProductsPerStep);
-            }
-
-            $langWithName['stock']['stock'] = array(
-                'totalFiles' => $totalFiles,
-                'currentFiles' => XMLClass::getTempNumber(XMLClass::TMP_DIR . 'xml/' . $this->shopID . '/' . 'stock' . '/'),
-                'xml' => 'stock',
-                'url' => $this->getCronUrl('stock'),
-                'name' => $this->l('Stock feed')
-            );
-        }
-
-        $files = glob($this->modulePath . 'xml/' . $this->shopID . '/*xml');
-
-        $xmlList = array();
-        if (is_array($files)) {
-            foreach ($files as $filename) {
-                $tmpName = str_replace(XMLClass::$feedPrefix, '', basename($filename, '.xml'));
-                $name = explode('-', $tmpName);
-                if(isset($name[1])) {
-                    $name[1] = explode('_', $name[1]);
-                } else {
-                    $name[1] = null;
-                }
-                $codedName = explode('_', $tmpName);
-                $code = Tools::strtoupper(
-                    '_' . Tools::substr(hash('md5', $codedName[0] . Configuration::get('PS_SHOP_NAME')), 1, 11)
-                );
-
-                if ($codedName[0] == 'stock') {
-                    $xmlList['stock'][substr(basename($filename), 0, strrpos( basename($filename), '_'))] = array(
-                        'language' => $this->l('Stock feed'),
-                        'url' => $this->getBaseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . $this->shopID . '/' . basename($filename),
-                        'file' => $this->shopID . '/' . basename($filename),
-                        'name' => basename($filename),
-                        'date' => filemtime($filename),
-                    );
-                } else if ($codedName[0] == 'static') {
-                    $xmlList['static'][substr(basename($filename), 0, strrpos( basename($filename), '_'))] = array(
-                        'language' => $this->l('Mergado analytic feed'),
-                        'url' => $this->getBaseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . $this->shopID . '/' . basename($filename),
-                        'file' => $this->shopID . '/' . basename($filename),
-                        'name' => basename($filename),
-                        'date' => filemtime($filename),
-                    );
-                } else if ($codedName[0] == 'category') {
-                    $name[0] = str_replace('category_', '', $name[0]);
-                    $xmlList['category'][substr(basename($filename), 0, strrpos( basename($filename), '_'))] = array(
-                        'language' => str_replace(
-                            $code, '', $this->languages->getLanguageByIETFCode(
-                                $this->languages->getLanguageCodeByIso($name[0])
-                            )->name . ' - ' . Tools::strtoupper($name[1][0])
-                        ),
-                        'url' => $this->getBaseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . $this->shopID . '/' . basename($filename),
-                        'file' => $this->shopID . '/' . basename($filename),
-                        'name' => basename($filename),
-                        'date' => filemtime($filename),
-                    );
-                } else {
-                    $xmlList['base'][substr(basename($filename), 0, strrpos( basename($filename), '_'))] = array(
-                        'language' => str_replace(
-                            $code, '', $this->languages->getLanguageByIETFCode(
-                                $this->languages->getLanguageCodeByIso($name[0])
-                            )->name . ' - ' . Tools::strtoupper($name[1][0])
-                        ),
-                        'url' => $this->getBaseUrl() . _MODULE_DIR_ . $this->name . '/xml/' . $this->shopID . '/' . basename($filename),
-                        'file' => $this->shopID . '/' . basename($filename),
-                        'name' => basename($filename),
-                        'date' => filemtime($filename),
-                    );
-                }
-            }
-        }
-
-        $newXml = array();
-
-
-        if (isset($xmlList['base'])) {
-            $newXml['base'] = $xmlList['base'];
-        }
-
-        if (isset($xmlList['static'])) {
-            $newXml['static'] = $xmlList['static'];
-        }
-
-        if (isset($xmlList['stock'])) {
-            $newXml['stock'] = $xmlList['stock'];
-        }
-
-        if (isset($xmlList['category'])) {
-            $newXml['category'] = $xmlList['category'];
-        }
-
-        $cookieNewsTime = SettingsClass::getSettings(SettingsClass::COOKIE_NEWS, 0);
-
-        if($cookieNewsTime != 0) {
-            $cookieNews = new DateTime($cookieNewsTime);
-        } else {
-            $cookieNews = new DateTime();
-        }
-
-        $this->context->smarty->assign(array(
-            'crons' => $langWithName,
-            'cronsPartial' => (bool) ($xmlClass->getTotalFilesCount('partial_feeds_size', $this->shopID) > 0),
-            'importCron' => $this->getImportCronUrl(),
-            'setSettings' => $this->getBaseUrl() . '/modules/' . $this->name . '/setSettings.php?' . '&token=' . Tools::substr(Tools::encrypt('mergado/setSettings'), 0, 10),
-            'categoryCron' => $categoryCron,
-            'xmls' => $newXml,
-            'moduleUrl' => $this->getBaseUrl() . _MODULE_DIR_ . $this->name . '/',
-            'moduleVersion' => $version,
-            'remoteVersion' => $remoteVersion,
-            'phpMinVersion' => Mergado::MERGADO['PHP_MIN_VERSION'],
-            'unreadedNews' => NewsClass::getNewsByStatusAndLanguageAndCategory(false, $this->context->language->iso_code, 'news', 1,true, 'DESC'),
-            'unreadedUpdates' => NewsClass::getNewsByStatusAndLanguageAndCategory(false, $this->context->language->iso_code, 'update', 1,true, 'DESC'),
-            'unreadedTopNews' => NewsClass::getNewsByStatusAndLanguageAndCategory(false, $this->context->language->iso_code, 'TOP'),
-            'disableFeatures' => $this->disableFeatures,
-            'disablePlugin' => $this->disablePlugin,
-            'lang' => SettingsClass::getLangIso(),
-            'domain_type' => SettingsClass::LANG_TO_DOMAIN[strtolower(SettingsClass::getLangIso())],
-            'cookieNews' => $cookieNews,
-            'now' => new DateTime(),
-            'toggleFieldsJSON' => $this->toggleFieldsJSON(),
-            'formattedDate' => NewsClass::DATE_OUTPUT_FORMAT, // Because of ps1.6 smarty
-        ));
-
-        parent::initContent();
-
-        //TAB1
-        $tab1 = [
-            'exportProducts' => $this->formExportProducts(),
-            'exportStatic' => $this->formExportStatic(),
-            'exportCategory' => $this->formExportCategory(),
-            'importPrices' => $this->formImportPrices(),
+        $templateData = [
+            'mmp' => [
+                'base' => [
+                    'lang' => LanguagesClass::getLangIso(),
+                    'multistoreShopSelected' => $this->multistoreShopSelected,
+                    'moduleEnabled' => $this->moduleEnabled,
+                ],
+                'dirs' => [
+                    'alertDir' => __MERGADO_ALERT_DIR__,
+                ],
+                'version' => [
+                    'module' => $mergadoModule->version,
+                    'remote' => SettingsClass::getSettings(SettingsClass::NEW_MODULE_VERSION_AVAILABLE, 0), // probably not needed anymore
+                    'phpMin' => Mergado::MERGADO['PHP_MIN_VERSION']
+                ],
+                'url' => [
+                    'module' => $moduleUrl,
+                    'importCron' => UrlManager::getImportCronUrl($this->shopID),
+                ],
+                'formatting' => [
+                    'date' => NewsClass::DATE_OUTPUT_FORMAT, // Because of ps1.6 smarty,
+                ],
+                'domains' => [
+                    'pack' => LanguagesClass::getPackDomain(), //header
+                    'mergado' => LanguagesClass::getMergadoDomain() //header
+                ],
+                // SVG IMAGES
+                'images' => [
+                    'baseImageUrl' => $moduleUrl . 'views/img/icons.svg#',
+                    'baseMmpImageUrl' => $moduleUrl . 'views/img/mmp_icons.svg#',
+                ],
+                // MAIN MENU
+                'menu' => [
+                    'left' => [
+                        'feeds-product' => ['text' => $this->l('Product feeds'), 'icon' => 'product', 'page' => 'feeds-product', 'link' => $this->navigationClass->getPageLink('feeds-product')],
+                        'feeds-other' => ['text' => $this->l('Other feeds'), 'icon' => 'other_feeds', 'page' => 'feeds-other', 'link' => $this->navigationClass->getPageLink('feeds-other')],
+                        'adsys' => ['text' => $this->l('Ad Systems'), 'icon' => 'elements', 'page' => 'adsys', 'link' => $this->navigationClass->getPageLink('adsys')],
+                    ],
+                    'right' => [
+                        'cookies' => ['text' => $this->l('Cookies'), 'file' => 'baseMmpImageUrl', 'icon' => 'cookies', 'page' => 'cookies', 'link' => $this->navigationClass->getPageLinkWithTab('cookies', 'cookies')],
+                        'news' => ['text' => $this->l('News'), 'icon' => 'notification', 'page' => 'news', 'link' => $this->navigationClass->getPageLink('news')],
+                        'support' => ['text' => $this->l('Support'), 'icon' => 'help', 'page' => 'support', 'link' => $this->navigationClass->getPageLink('support')],
+                        'licence' => ['text' => $this->l('Licence'), 'icon' => 'info', 'page' => 'licence', 'link' => $this->navigationClass->getPageLink('licence')],
+                    ]
+                ],
+                // TABS (FEEDS-OTHER, feeds-PRODUCT)
+                'tabs' => $this->tabsClass->getTabs(),
+                'pageContent' => [
+                    // SUPPORT PAGE
+                    'support' => [
+                        'form' => [
+                            'submitted' => $supportFormSubmitted,
+                        ],
+                        'data' => [
+                            'default' => $supportData,
+                            'json' => json_encode($supportData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+                        ],
+                    ],
+                    'adsys' => [
+                        'cookies' => ['title' => '', 'form' => $this->pageCookies(), 'icon' => 'cookies'],
+                        'google' => ['title' => $this->l('Google'), 'form' => $this->formAdSys_google()],
+                        'facebook' => ['title' => $this->l('Facebook'), 'form' => $this->formAdSys_facebook()],
+                        'heureka' => ['title' => $this->l('Heureka'),'form' => $this->formAdSys_heureka()],
+                        'glami' => ['title' => $this->l('GLAMI'),'form' => $this->formAdSys_glami()],
+                        'seznam' => ['title' => $this->l('Seznam'),'form' => $this->formAdSys_seznam()],
+                        'etarget' => ['title' => $this->l('Etarget'),'form' => $this->formAdSys_etarget()],
+                        'najnakupsk' => ['title' => $this->l('Najnakup.sk'), 'form' => $this->formAdSys_najnakupsk()],
+                        'pricemania' => ['title' => $this->l('Pricemania'), 'form' => $this->formAdSys_pricemania()],
+                        'kelkoo' => ['title' => $this->l('Kelkoo'),'form' => $this->formAdSys_kelkoo()],
+                        'biano' => ['title' => $this->l('Biano'),'form' => $this->formAdSys_biano()],
+                        'arukereso' => ['title' => $this->l('Árukereső'),'form' => $this->formAdSys_arukereso()],
+                    ],
+                    'feeds-product' => [
+                        'product' => $this->feedQuery->getProductFeedsData(),
+                        'settings' => $this->formProductSettings(), // maybe will be array/different
+                    ],
+                    'feeds-other' => [
+                        'category' => $this->feedQuery->getCategoryFeedsData(),
+                        'static' => $this->feedQuery->getStaticFeedData(),
+                        'stock' => $this->feedQuery->getStockFeedData(),
+                        'import' => [
+                            'data' => $this->importPricesClass->getWizardData()
+                        ],
+                        'settings' => $this->formOtherSettings(), // maybe will be array/different
+                    ],
+                    'ads' => [
+                        'side' => @file_get_contents('https://platforms.mergado.com/prestashop/sidebar'),
+                        'wide' => @file_get_contents('https://platforms.mergado.com/prestashop/wide'),
+                    ],
+                    'news' => [
+                        'news' => NewsClass::getNewsWithFormatedDate($this->context->language->iso_code, 15),
+                    ]
+                ],
+                'hideNews' => NewsClass::areNewsHidden(),
+                'toggleFieldsJSON' => $this->toggleFieldsJSON(),
+                'news' => [
+                    'unreadedNews' => NewsClass::getNewsByStatusAndLanguageAndCategory(false, $this->context->language->iso_code, 'news', 1, true, 'DESC'),
+                    'unreadedUpdates' => NewsClass::getNewsByStatusAndLanguageAndCategory(false, $this->context->language->iso_code, 'update', 1, true, 'DESC'),
+                    'unreadedTopNews' => NewsClass::getNewsByStatusAndLanguageAndCategory(false, $this->context->language->iso_code, 'TOP'),
+                ]
+            ],
+            'alertClass' => new AlertClass()
         ];
 
-        //TAB6
-        $tab6 = array(
-            'cookies' => array('title' => $this->l('Cookies'), 'form' => $this->pageCookies()),
-            'google' => array('title' => $this->l('Google'), 'form' => $this->formAdSys_google()),
-            'facebook' => array('title' => $this->l('Facebook'), 'form' => $this->formAdSys_facebook()),
-            'heureka' => array('title' => $this->l('Heureka'),'form' => $this->formAdSys_heureka()),
-            'glami' => array('title' => $this->l('GLAMI'),'form' => $this->formAdSys_glami()),
-            'seznam' => array('title' => $this->l('Seznam'),'form' => $this->formAdSys_seznam()),
-            'etarget' => array('title' => $this->l('Etarget'),'form' => $this->formAdSys_etarget()),
-            'najnakupsk' => array('title' => $this->l('Najnakup.sk'), 'form' => $this->formAdSys_najnakupsk()),
-            'pricemania' => array('title' => $this->l('Pricemania'), 'form' => $this->formAdSys_pricemania()),
-            'kelkoo' => array('title' => $this->l('Kelkoo'),'form' => $this->formAdSys_kelkoo()),
-            'biano' => array('title' => $this->l('Biano'),'form' => $this->formAdSys_biano()),
-            'arukereso' => array('title' => $this->l('Árukereső'),'form' => $this->formAdSys_arukereso()),
-        );
-
-        if (isset($_GET['mergadoTab']) && $_GET['mergadoTab'] === '6-cookies') {
-            $tab6['cookies']['active'] = true;
+        if (isset($_GET['mmp-tab']) && isset($templateData['mmp']['pageContent']['adsys'][$_GET['mmp-tab']])) {
+            $templateData['mmp']['pageContent']['adsys'][$_GET['mmp-tab']]['active'] = true;
         } else {
-            $tab6['google']['active'] = true;
+            $templateData['mmp']['pageContent']['adsys']['google']['active'] = true;
         }
 
-        $tab4 = $this->formDevelopers();
+        $this->context->smarty->assign($templateData);
 
-        $tab7 = NewsClass::getNewsWithFormatedDate($this->context->language->iso_code, 15);
-
-        $this->context->smarty->assign(array(
-            'tab1' => $tab1,
-            'tab6' => $tab6,
-            'tab4' => $tab4,
-            'tab7' => $tab7,
-            'noMessages' => $this->l('No new messages'),
-            'staticFeed' => SettingsClass::getSettings(SettingsClass::FEED['STATIC'], $this->shopID),
-            'categoryFeed' => SettingsClass::getSettings(SettingsClass::FEED['CATEGORY'], $this->shopID),
-        ));
-
-        try {
-            $this->context->smarty->assign(array(
-                'sideAd' => file_get_contents('https://platforms.mergado.com/prestashop/sidebar'),
-                'wideAd' => file_get_contents('https://platforms.mergado.com/prestashop/wide'),
-            ));
-        } catch (Exception $e){
-
-        }
+        parent::initContent();
     }
 
 
@@ -1332,35 +418,46 @@ class AdminMergadoController extends \ModuleAdminController
      */
     public function postProcess()
     {
-
-//        if(isset($_POST['upgradeModule'])) {
-//            $mergado = new Mergado();
-//
-//            if($mergado->updateModule()) {
-//                $mergado->updateVersionXml();
-//            }
-//        }
-
+        // PS FORM SUBMIT
         if (Tools::isSubmit('submit' . $this->name)) {
             unset($_POST['submit' . $this->name]);
 
             LogClass::log("Settings saved:\n" . json_encode($_POST) . "\n");
 
-            if (isset($_POST['clrCheckboxes'])) {
+            // Delete checkbox values manually, because $_POST does not contain empty checkboxes
+            if (isset($_POST['clrCheckboxesProduct'])) {
                 SettingsClass::clearSettings(SettingsClass::EXPORT['BOTH'], $this->shopID);
                 SettingsClass::clearSettings(SettingsClass::EXPORT['DENIED_PRODUCTS'], $this->shopID);
-                SettingsClass::clearSettings(SettingsClass::EXPORT['DENIED_PRODUCTS_OTHER'], $this->shopID);
                 SettingsClass::clearSettings(SettingsClass::EXPORT['CATALOG'], $this->shopID);
                 SettingsClass::clearSettings(SettingsClass::EXPORT['SEARCH'], $this->shopID);
                 SettingsClass::clearSettings(SettingsClass::EXPORT['COST'], $this->shopID);
             }
 
+            // Delete checkbox values manually, because $_POST does not contain empty checkboxes
+            if (isset($_POST['clrCheckboxesOther'])) {
+                SettingsClass::clearSettings(SettingsClass::EXPORT['DENIED_PRODUCTS_OTHER'], $this->shopID);
+            }
+
+            // Not used anymore
             if (isset($_POST['mergado_del_log']) && $_POST['mergado_del_log'] === SettingsClass::ENABLED) {
                 LogClass::deleteLog();
             }
 
-            if (isset($_POST['partial_feeds_size']) && $_POST['partial_feeds_size'] !== SettingsClass::getSettings('partial_feeds_size', $_POST['id_shop'])) {
-                XMLClass::removeFilesInDirectory(XMLClass::TMP_DIR . 'xml/' . $_POST['id_shop'] . '/');
+            // Remove temporary files when changed the ITEMS PER STEP FIELDS
+            if (isset($_POST[XMLClass::OPTIMIZATION['PRODUCT_FEED']]) && $_POST[XMLClass::OPTIMIZATION['PRODUCT_FEED']] !== SettingsClass::getSettings(XMLClass::OPTIMIZATION['PRODUCT_FEED'], $_POST['id_shop'])) {
+                XMLProductFeed::deleteTmpFiles('mergado_feed_', $_POST['id_shop']);
+            }
+
+            if (isset($_POST[XMLClass::OPTIMIZATION['CATEGORY_FEED']]) && $_POST[XMLClass::OPTIMIZATION['CATEGORY_FEED']] !== SettingsClass::getSettings(XMLClass::OPTIMIZATION['CATEGORY_FEED'], $_POST['id_shop'])) {
+                XMLCategoryFeed::deleteTmpFiles('category_mergado_feed_',$_POST['id_shop']);
+            }
+
+            if (isset($_POST[XMLClass::OPTIMIZATION['STOCK_FEED']]) && $_POST[XMLClass::OPTIMIZATION['STOCK_FEED']] !== SettingsClass::getSettings(XMLClass::OPTIMIZATION['STOCK_FEED'], $_POST['id_shop'])) {
+                XMLStockFeed::deleteTmpFiles('stock',$_POST['id_shop']);
+            }
+
+            if (isset($_POST[XMLClass::OPTIMIZATION['STATIC_FEED']]) && $_POST[XMLClass::OPTIMIZATION['STATIC_FEED']] !== SettingsClass::getSettings(XMLClass::OPTIMIZATION['STATIC_FEED'], $_POST['id_shop'])) {
+                XMLStaticFeed::deleteTmpFiles('static_feed', $_POST['id_shop']);
             }
 
             if(isset($_POST['id_shop'])) {
@@ -1390,7 +487,10 @@ class AdminMergadoController extends \ModuleAdminController
                 }
             }
 
-            $this->redirect_after = self::$currentIndex . '&token=' . $this->token . (Tools::isSubmit('submitFilter' . $this->list_id) ? '&submitFilter' . $this->list_id . '=' . (int)Tools::getValue('submitFilter' . $this->list_id) : '') . '&mergadoTab=' . $_POST['page'];
+            $this->redirect_after = self::$currentIndex . '&token=' . $this->token . (Tools::isSubmit('submitFilter' . $this->list_id) ? '&submitFilter' . $this->list_id . '=' . (int)Tools::getValue('submitFilter' . $this->list_id) : '') . '&page=' . $_POST['page'];
+            if (isset($_POST['mmp-tab']) && $_POST['mmp-tab']) {
+                $this->redirect_after = $this->redirect_after . '&mmp-tab=' . $_POST['mmp-tab'];
+            }
         }
 
         if (Tools::isSubmit('submit' . $this->name . 'delete')) {
@@ -1401,112 +501,237 @@ class AdminMergadoController extends \ModuleAdminController
             }
         }
 
-        if(isset($_POST['controller']) && $_POST['controller'] === 'AdminMergado') {
-            if($_POST['action'] === 'mergadoNews') {
-                $this->ajaxProcessMergadoNews();
-            } elseif($_POST['action'] === 'disableNotification') {
-
-                $this->ajaxProcessMergadoDisableNews($_POST['ids']);
-            }
-
-            if (in_array($_POST['action'], array('generate_xml'))) {
-                $mergado = new XMLClass();
-                $generated = $mergado->generateMergadoFeed($_POST['feedBase']);
-
-                if ($generated && $generated !== 'running') {
-                    echo true;
-                } elseif ($generated == 'running') {
-                    echo $generated;
-                } else {
-                    echo false;
-                }
-            } elseif ($_POST['action'] === 'import_prices') {
-                $pricesClass = new ImportPricesClass();
-                $generated = $pricesClass->importPrices();
-
-                if($generated) {
-                    echo true;
-                } else {
-                    echo false;
-                }
-            } elseif ($_POST['action'] === 'mmp-cookie-news') {
-                $now = new DateTime();
-                $date = $now->modify('+14 days')->format(NewsClass::DATE_FORMAT);
-                SettingsClass::saveSetting(SettingsClass::COOKIE_NEWS, $date, 0);
-            }
+        if (isset($_GET['action'])) {
+            include_once __MERGADO_DIR__ . '/includes/api/DeleteFeed.php';
         }
-    }
 
-    public function ajaxProcessMergadoNews()
-    {
-        echo json_encode(NewsClass::getNewsByStatusAndLanguageAndCategory(false, $this->context->language->iso_code));
-        exit;
-    }
+        if(isset($_POST['controller']) && $_POST['controller'] === 'AdminMergado') {
+            // Feed generation
+            include_once __MERGADO_DIR__ . '/includes/api/FeedGeneration.php';
 
-    public function ajaxProcessMergadoDisableNews($ids)
-    {
-        NewsClass::setArticlesShown($ids);
+            // Wizard
+            include_once __MERGADO_DIR__ . '/includes/api/Wizard.php';
+
+            // Import prices
+            include_once __MERGADO_DIR__ . '/includes/api/importPrices.php';
+
+            // News
+            include_once __MERGADO_DIR__ . '/includes/api/News.php';
+
+            // Cookie - for news banner and other services
+            include_once __MERGADO_DIR__ . '/includes/api/Cookies.php';
+
+            // Alerts
+            include_once __MERGADO_DIR__ . '/includes/api/Alerts.php';
+        }
     }
 
     /*******************************************************************************************************************
-     * GET URL
+     * FORMS
      *******************************************************************************************************************/
 
-    /**
-     * Returns url for crons
-     *
-     * @param $key
-     * @return string
-     */
-    public function getCronUrl($key)
+    public function formOtherSettings()
     {
-        if (Shop::isFeatureActive()) {
-            return $this->getMultistoreShopUrl() . 'modules/' . $this->name . '/cron.php?feed=' . $key .
-                '&token=' . Tools::substr(Tools::encrypt('mergado/cron'), 0, 10);
-        } else {
-            return $this->getBaseUrl() . '/modules/' . $this->name . '/cron.php?feed=' . $key .
-                '&token=' . Tools::substr(Tools::encrypt('mergado/cron'), 0, 10);
-        }
+        include_once __DIR__ . '/forms/settings/feeds-other.php';
+        return @$helper->generateForm($fields_form);
     }
 
-    public function getImportCronUrl()
+    public function formProductSettings()
     {
-        if (Shop::isFeatureActive()) {
-            return $this->getMultistoreShopUrl() . 'modules/' . $this->name . '/importPrices.php?' .
-                '&token=' . Tools::substr(Tools::encrypt('mergado/importPrices'), 0, 10);
-        } else {
-            return $this->getBaseUrl() . '/modules/' . $this->name . '/importPrices.php?' .
-                '&token=' . Tools::substr(Tools::encrypt('mergado/importPrices'), 0, 10);
-        }
+        include_once __DIR__ . '/forms/settings/feeds-product.php';
+        return @$helper->generateForm($fields_form);
     }
 
-    /**
-     * Return Base url of MainShop
-     *
-     * @return string
-     */
-    public function getBaseUrl()
-    {
-        return 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' . Tools::getShopDomain(false, true);
+//    /**
+//     * Forms in Dev Tab in admin section
+//     *
+//     * @return mixed
+//     */
+//    public function formDevelopers()
+//    {
+//        $fields_form[0]['form'] = array(
+//            'legend' => array(
+//                'title' => $this->l('Help'),
+//                'icon' => 'icon-bug'
+//            ),
+//            'input' => array(
+//                array(
+//                    'type' => 'hidden',
+//                    'name' => 'page'
+//                ),
+//                array(
+//                    'type' => 'hidden',
+//                    'name' => 'id_shop'
+//                ),
+//                array(
+//                    'name' => 'mergado_dev_log',
+//                    'label' => $this->l('Enable log'),
+//                    'validation' => 'isBool',
+//                    'cast' => 'intval',
+//                    'class' => 'switch15',
+//                    'desc' => $this->l('Send this to support:') . " " . LogClass::getLogLite(),
+//                    'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
+//                    'values' => array(
+//                        array(
+//                            'id' => 'mergado_dev_log_on',
+//                            'value' => 1,
+//                            'label' => $this->l('Yes')
+//                        ),
+//                        array(
+//                            'id' => 'mergado_dev_log_off',
+//                            'value' => 0,
+//                            'label' => $this->l('No')
+//                        )
+//                    ),
+//                    'visibility' => Shop::CONTEXT_ALL
+//                ),
+//                array(
+//                    'label' => $this->l('Delete log file when saving'),
+//                    'name' => 'mergado_del_log',
+//                    'validation' => 'isBool',
+//                    'cast' => 'intval',
+//                    'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
+//                    'class' => 'switch15',
+//                    'values' => array(
+//                        array(
+//                            'id' => 'mergado_del_log_on',
+//                            'value' => 1,
+//                            'label' => $this->l('Yes')
+//                        ),
+//                        array(
+//                            'id' => 'mergado_del_log_off',
+//                            'value' => 0,
+//                            'label' => $this->l('No')
+//                        )
+//                    ),
+//                ),
+//            ),
+//            'submit' => array(
+//                'title' => $this->l('Save'),
+//                'name' => 'submit' . $this->name
+//            )
+//        );
+//
+//        $fields_value = array(
+//            'mergado_dev_log' => isset($this->settingsValues['mergado_dev_log']) ? $this->settingsValues['mergado_dev_log'] : 0,
+//            'mergado_del_log' => 0,
+//            'page' => 4,
+//            'id_shop' => $this->shopID,
+//        );
+//
+//        //Fill in empty fields
+//        include __MERGADO_FORMS_DIR__ . '/helpers/helperFormEmptyFieldsFiller.php';
+//
+//        $this->show_toolbar = true;
+//        $this->show_form_cancel_button = false;
+//
+//        $helper = new HelperForm();
+//
+//        $helper->module = $this;
+//        $helper->name_controller = $this->name;
+//
+//        $helper->tpl_vars = array('fields_value' => $fields_value);
+//        $helper->default_form_language = $this->defaultLang;
+//        $helper->allow_employee_form_lang = $this->defaultLang;
+//
+//        if (isset($this->displayName)) {
+//            $helper->title = $this->displayName;
+//        }
+//
+//        $helper->show_toolbar = true;
+//        $helper->toolbar_scroll = true;
+//        $helper->submit_action = 'submit' . $this->name;
+//
+//        if (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) {
+//            $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
+//            $helper->submit_action = 'save' . $this->name;
+//            $helper->token = Tools::getValue('token');
+//        }
+//
+//        if (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) {
+//
+//        } else {
+//            $helper->toolbar_btn = array(
+//                'save' =>
+//                    array(
+//                        'desc' => $this->l('Save'),
+//                        'href' => AdminController::$currentIndex . '&configure=' . $this->name . '&save' . $this->name .
+//                            '&token=' . Tools::getAdminTokenLite('AdminModules'),
+//                    ),
+//                'back' => array(
+//                    'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
+//                    'desc' => $this->l('Back to list')
+//                )
+//            );
+//        }
+//
+//        return @$helper->generateForm($fields_form);
+//    }
+
+    /*******************************************************************************************************************
+     * FORMS - ADSYS
+     *******************************************************************************************************************/
+
+    public function pageCookies() {
+        ob_start();
+        include_once __DIR__ . '/adsys/cookies.php';
+        $content = ob_get_contents();
+        ob_end_clean();
+        return $content;
     }
 
-    /**
-     * Return Specific ShopUrl with domains, physical urls and virtual urls
-     *
-     * @return string
-     */
-    public function getMultistoreShopUrl()
-    {
-        $shop_urls = array();
+    public function formAdSys_google() {
+        include_once __DIR__ . '/forms/adsys/google.php';
+        return @$helper->generateForm($fields_form);
+    }
 
-        foreach (ShopUrlCore::getShopUrls() as $shopUrl) {
-            if ($shopUrl->id_shop == $this->shopID) {
-                $shop_urls['domain'] = $shopUrl->domain;
-                $shop_urls['physical_uri'] = $shopUrl->physical_uri;
-                $shop_urls['virtual_uri'] = $shopUrl->virtual_uri;
-            }
-        }
+    public function formAdSys_facebook() {
+        include_once __DIR__ . '/forms/adsys/facebook.php';
+        return @$helper->generateForm($fields_form);
+    }
 
-        return 'http' . (Configuration::get('PS_SSL_ENABLED') ? 's' : '') . '://' . $shop_urls['domain'] . $shop_urls['physical_uri'] . $shop_urls['virtual_uri'];
+    public function formAdSys_heureka() {
+        include_once __DIR__ . '/forms/adsys/heureka.php';
+        return @$helper->generateForm($fields_form);
+    }
+
+    public function formAdSys_etarget() {
+        include_once __DIR__ . '/forms/adsys/etarget.php';
+        return @$helper->generateForm($fields_form);
+    }
+
+    public function formAdSys_najnakupsk() {
+        include_once __DIR__ . '/forms/adsys/najnakupsk.php';
+        return @$helper->generateForm($fields_form);
+    }
+
+    public function formAdSys_seznam() {
+        include_once __DIR__ . '/forms/adsys/seznam.php';
+        return @$helper->generateForm($fields_form);
+    }
+
+    public function formAdSys_glami() {
+        include_once __DIR__ . '/forms/adsys/glami.php';
+        return @$helper->generateForm($fields_form);
+    }
+
+    public function formAdSys_kelkoo() {
+        include_once __DIR__ . '/forms/adsys/kelkoo.php';
+        return @$helper->generateForm($fields_form);
+    }
+
+    public function formAdSys_pricemania() {
+        include_once __DIR__ . '/forms/adsys/pricemania.php';
+        return @$helper->generateForm($fields_form);
+    }
+
+    public function formAdSys_biano() {
+        include_once __DIR__ . '/forms/adsys/biano.php';
+        return @$helper->generateForm($fields_form);
+    }
+
+    public function formAdSys_arukereso() {
+        include_once __DIR__ . '/forms/adsys/arukereso.php';
+        return @$helper->generateForm($fields_form);
     }
 }
