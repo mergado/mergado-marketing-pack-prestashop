@@ -12,9 +12,9 @@ function notifications()
     var html = '<li id="mergado_notif" class="dropdown" data-type="mergado_notifications">' +
         '<a href="javascript:void(0);" class="dropdown-toggle notifs" data-toggle="dropdown">' +
         '<img id="mergado_logoimage" src="' + m_logoPath + '"/>' +
-        '<span id="customer_messages_notif_number_wrapper" class="notifs_badge hide">' +
+        '<span id="customer_messages_notif_number_wrapper" class="notifs_badge">' +
         // '<span id="customer_messages_notif_value">0</span>' +
-        // '</span>' +
+        '</span>' +
         '</a>' +
         '<div class="dropdown-menu notifs_dropdown">' +
         '<section id="customer_messages_notif_wrapper" class="notifs_panel">' +
@@ -32,9 +32,9 @@ function notifications()
         var html = '<li id="mergado_notif" class="dropdown" data-type="mergado_notifications">' +
             '<a href="javascript:void(0);" class="dropdown-toggle notifs" data-toggle="dropdown">' +
             '<img id="mergado_logoimage" src="' + m_logoPath + '"/>' +
-            '<span id="customer_messages_notif_number_wrapper" class="notifs_badge hide">' +
+            '<span id="customer_messages_notif_number_wrapper" class="notifs_badge">' +
             // '<span id="customer_messages_notif_value">0</span>' +
-            // '</span>' +
+            '</span>' +
             '</a>' +
             '<div class="dropdown-menu notifs_dropdown">' +
             '<section class="notifs_panel">' +
@@ -93,6 +93,8 @@ function notifications()
                 });
 
                 $('#mergado_notif').prepend('<span class="mergado__news">' + admin_mergado_news + '</span>');
+
+                $('#customer_messages_notif_number_wrapper').html('<span id="customer_messages_notif_value">' + jsonData.length + '</span>');
             }
         },
     });

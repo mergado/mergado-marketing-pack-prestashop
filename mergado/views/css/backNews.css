@@ -1,0 +1,54 @@
+.mergado_card__footer {
+    text-align: right;
+}
+
+.mergado_card__updateButton {
+    margin-top: 10px;
+    font-size: 0.8rem !important;
+    text-decoration: none !important;
+    background-color: var(--mmp-blue);
+    color: white !important;
+    padding: 10px 22px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mergado_card__updateButton svg {
+    width: 17px;
+    height: 19px;
+    fill: white;
+    margin-right: 13px;
+}
+
+.mergado_card__updateButton:hover {
+    background-color: var(--mmp-blue--darken);
+}
+
+.mergado_card__commonButton {
+    margin-top: 10px;
+    font-size: 0.91rem !important;
+    color: var(--mmp-blue) !important;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mergado_card__commonButton:hover {
+    text-decoration: underline;
+}
+
+@media only screen and (min-width: 1200px) {
+  .mergado_card__updateButton {
+      margin-top: 0;
+  }
+
+  .mergado_card__commonButton {
+      margin-top: 0;
+  }
+}

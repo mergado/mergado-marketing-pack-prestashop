@@ -50,6 +50,12 @@ class OrderController extends OrderControllerCore
             } else {
                 $this->context->cookie->mergado_arukereso_consent = false;
             }
+
+            if (Tools::getValue('bianoStar_consent') == 'on') {
+                $this->context->cookie->mergado_biano_star_consent = true;
+            } else {
+                $this->context->cookie->mergado_biano_star_consent = false;
+            }
         }
 
         parent::init();

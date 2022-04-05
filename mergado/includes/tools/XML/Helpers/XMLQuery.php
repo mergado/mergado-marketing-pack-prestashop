@@ -18,6 +18,7 @@ namespace Mergado\Tools\XML;
 
 use ConfigurationCore as Configuration;
 use CurrencyCore as Currency;
+use Mergado\Tools\HelperClass;
 use Mergado\Tools\SettingsClass;
 use PrestaShop\PrestaShop\Adapter\Entity\Customization;
 use PrestaShop\PrestaShop\Adapter\Entity\Pack;
@@ -204,14 +205,7 @@ class XMLQuery extends ObjectModel
         }
         $itemgroupBase = $item->id;
 
-        $whenOutOfStock = StockAvailable::outOfStock($item->id);
-
-        // 0 - no orders if out of stock
-        // 1 - orders if out of stock allowed
-        // 2 - settings of product is same as main global settings
-        if ($whenOutOfStock == 2) {
-            $whenOutOfStock = Configuration::get('PS_ORDER_OUT_OF_STOCK'); // set global settings as the used one
-        }
+        $whenOutOfStock = HelperClass::getStockStatusLogic($item->id);
 
         if (!empty($combinations)) {
             foreach ($combinations as $combination) {
@@ -339,7 +333,7 @@ class XMLQuery extends ObjectModel
                     'item_id' => $combination['id_product'] . '-' . $combination['id_product_attribute'],
                     'itemgroup_id' => $itemgroupBase,
                     'accessory' => $accessoriesExtended,
-                    'availability' => $this->getProductAvailability($qty, $whenOutOfStock),
+                    'availability' => HelperClass::getProductStockStatus($combination['id_product'], $combination['id_product_attribute']),
                     'stock_quantity' => $qty,
                     'category' => $category,
                     'condition' => $item->condition,
@@ -462,7 +456,7 @@ class XMLQuery extends ObjectModel
                     'item_id' => $item->id,
                     'itemgroup_id' => $itemgroupBase,
                     'accessory' => $accessoriesExtended,
-                    'availability' => $this->getProductAvailability($qty, $whenOutOfStock),
+                    'availability' => HelperClass::getProductStockStatus($item->id),
                     'stock_quantity' => Product::getQuantity($item->id),
                     'category' => $category,
                     'condition' => $item->condition,

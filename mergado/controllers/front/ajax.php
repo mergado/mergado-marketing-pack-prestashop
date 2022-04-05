@@ -55,6 +55,15 @@ class MergadoAjaxModuleFrontController extends ModuleFrontController
 
                             $response = true;
                             break;
+                        case 'setBianoStarOpc':
+                            if (Tools::getValue('bianoStarData') == '1') {
+                                $this->context->cookie->mergado_biano_star_consent = true;
+                            } else {
+                                $this->context->cookie->mergado_biano_star_consent = false;
+                            }
+
+                            $response = true;
+                            break;
                         default:
                             break;
 

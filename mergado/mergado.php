@@ -54,13 +54,14 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '3.0.0',
+        'VERSION' => '3.1.0',
         'PHP_MIN_VERSION' => 7.1
     ];
 
     public $GoogleAdsClass;
     public $GoogleTagManagerClass;
     public $cookieClass;
+    public $bianoStarServiceIntegration;
 
     public function __construct()
     {
@@ -103,6 +104,7 @@ class Mergado extends Module
         $this->GoogleTagManagerClass = new Mergado\Google\GoogleTagManagerClass($this->shopID);
 
         $this->cookieClass = new \Mergado\Tools\CookieClass($this->shopID);
+        $this->bianoStarServiceIntegration = new \Mergado\Biano\BianoStarServiceIntegration();
     }
 
     /**
@@ -152,6 +154,7 @@ class Mergado extends Module
         include __DIR__ . "/sql/update-2.0.0.php"; // 2.0.1 not added (because of version missmatch fix)
         include __DIR__ . "/sql/update-2.3.0.php";
         include __DIR__ . "/sql/update-3.0.0.php";
+        include __DIR__ . "/sql/update-3.1.0.php";
 
         return true;
     }
@@ -341,32 +344,34 @@ class Mergado extends Module
 
         if (Tools::getValue('controller') == $this->controllerClass) {
             $this->context->controller->addJquery();
-            $this->context->controller->addJS($this->_path . 'views/js/back.js');
-            $this->context->controller->addJS($this->_path . 'views/vendors/yesno/src/index.js');
-            $this->context->controller->addJS($this->_path . 'views/js/wizard.js');
-            $this->context->controller->addJS($this->_path . 'views/js/alerts.js');
-            $this->context->controller->addJS($this->_path . 'views/js/iframe.js');
-            $this->context->controller->addJS($this->_path . 'views/js/import.js');
-            $this->context->controller->addJS($this->_path . 'views/vendors/iframe-resizer/js/iframeResizer.min.js');
-            $this->context->controller->addJS($this->_path . 'views/js/iframe-resizer.js');
-            $this->context->controller->addCSS($this->_path . 'views/css/back.css');
-            $this->context->controller->addCSS($this->_path . 'views/css/backWizard.css');
-            $this->context->controller->addCSS($this->_path . 'views/css/backSettings.css');
-            $this->context->controller->addCSS($this->_path . 'views/css/backImport.css');
-            $this->context->controller->addCSS($this->_path . 'views/vendors/yesno/src/index.css');
-            $this->context->controller->addCSS($this->_path . 'views/css/backWizardDialog.css');
-            $this->context->controller->addCSS($this->_path . 'views/css/backWizardRadio.css');
-            $this->context->controller->addCSS($this->_path . 'views/css/backAlert.css');
+            $this->context->controller->addJS($this->_path . 'views/js/back.js?v=' . MERGADO::MERGADO['VERSION'], false);
+            $this->context->controller->addJS($this->_path . 'views/vendors/yesno/src/index.js?v=' . MERGADO::MERGADO['VERSION'], false);
+            $this->context->controller->addJS($this->_path . 'views/js/wizard.js?v=' . MERGADO::MERGADO['VERSION'], false);
+            $this->context->controller->addJS($this->_path . 'views/js/alerts.js?v=' . MERGADO::MERGADO['VERSION'], false);
+            $this->context->controller->addJS($this->_path . 'views/js/iframe.js?v=' . MERGADO::MERGADO['VERSION'], false);
+            $this->context->controller->addJS($this->_path . 'views/js/import.js?v=' . MERGADO::MERGADO['VERSION'], false);
+            $this->context->controller->addJS($this->_path . 'views/vendors/iframe-resizer/js/iframeResizer.min.js?v=' . MERGADO::MERGADO['VERSION'], false);
+            $this->context->controller->addJS($this->_path . 'views/js/iframe-resizer.js?v=' . MERGADO::MERGADO['VERSION'], false);
+            $this->context->controller->addCSS($this->_path . 'views/css/back.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
+            $this->context->controller->addCSS($this->_path . 'views/css/backNews.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
+            $this->context->controller->addCSS($this->_path . 'views/css/backNewsHeader.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
+            $this->context->controller->addCSS($this->_path . 'views/css/backWizard.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
+            $this->context->controller->addCSS($this->_path . 'views/css/backSettings.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
+            $this->context->controller->addCSS($this->_path . 'views/css/backImport.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
+            $this->context->controller->addCSS($this->_path . 'views/vendors/yesno/src/index.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
+            $this->context->controller->addCSS($this->_path . 'views/css/backWizardDialog.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
+            $this->context->controller->addCSS($this->_path . 'views/css/backWizardRadio.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
+            $this->context->controller->addCSS($this->_path . 'views/css/backAlert.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
         } else {
             $this->context->controller->addJquery();
         }
 
-        $this->context->controller->addJS($this->_path . 'views/js/notifications.js');
+        $this->context->controller->addJS($this->_path . 'views/js/notifications.js?v=' . MERGADO::MERGADO['VERSION'], false);
 
         if(_PS_VERSION_ < Mergado::PS_V_17) {
-            $this->context->controller->addCSS($this->_path . 'views/css/notifications16.css');
+            $this->context->controller->addCSS($this->_path . 'views/css/notifications16.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
         } else {
-            $this->context->controller->addCSS($this->_path . 'views/css/notifications17.css');
+            $this->context->controller->addCSS($this->_path . 'views/css/notifications17.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
         }
 
         $lang = Mergado\Tools\LanguagesClass::getLangIso();
@@ -483,7 +488,8 @@ class Mergado extends Module
 
 
         $zboziSent = false;
-        if ($this->context->cookie->mergado_zbozi_consent == '1') {
+
+        if ($this->context->cookie->mergado_zbozi_consent !== '1') {
             $zboziSent = Mergado\Zbozi\Zbozi::sendZbozi($params, $this->shopId);
         }
 
@@ -1038,10 +1044,15 @@ class Mergado extends Module
             $lang = Mergado\Tools\LanguagesClass::getLangIso();
 
             if ($ZboziClass->isActive()) {
-                $textInLanguage = $ZboziClass->getOptOut($lang);
+                $defaultText = $ZboziClass->getOptOut('en_US');
+                $checkboxText = $ZboziClass->getOptOut($lang);
 
-                if (!$textInLanguage || ($textInLanguage === '') || ($textInLanguage === 0)) {
-                    $textInLanguage = 'If you check this, we will send the content of your order together with your e-mail address to Zboží.cz.';
+                if (!$checkboxText || ($checkboxText === '') || ($checkboxText === 0)) {
+                    $checkboxText = $defaultText;
+                }
+
+                if (!$checkboxText || ($checkboxText === '') || ($checkboxText === 0)) {
+                    $checkboxText = \Mergado\Zbozi\ZboziClass::DEFAULT_OPT;
                 }
 
                 $link = new Link;
@@ -1051,7 +1062,7 @@ class Mergado extends Module
                 Media::addJsDef(array(
                     "mmp_zbozi" => array(
                         "ajaxLink" => $ajax_link,
-                        "optText" => $textInLanguage,
+                        "optText" => $checkboxText,
                         "checkboxChecked" => $this->context->cookie->mergado_zbozi_consent,
                     )
                 ));
@@ -1092,6 +1103,8 @@ class Mergado extends Module
                 $this->context->controller->addJS($this->_path . 'views/js/order17/arukereso.js');
             }
         }
+
+        $this->bianoStarServiceIntegration->addCheckboxForPS17($this->context, $this->_path);
 
         return $display;
     }
@@ -1197,6 +1210,8 @@ class Mergado extends Module
                 $display .= $this->display(__FILE__, '/views/templates/front/orderCarrier/arukereso.tpl');
             }
         }
+
+        $display .= $this->bianoStarServiceIntegration->addCheckboxForPS16($this, $this->smarty, $this->context, $this->_path);
 
         return $display;
     }
@@ -1414,7 +1429,7 @@ class Mergado extends Module
             $bianoClass = new \Mergado\Biano\BianoClass();
             if ($bianoClass->isActive($this->shopID)) {
                 $this->smarty->assign(array(
-                    'bianoPurchaseData' => $bianoClass->getPurchaseData($orderId, $order, $customer->email, $products_tmp, $this->shopID),
+                    'bianoPurchaseData' => $bianoClass->getPurchaseData($orderId, $order, $customer->email, $products_tmp, $this->shopID, $this->context->cookie->mergado_biano_star_consent),
                 ));
 
                 $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/biano.tpl');
@@ -1429,6 +1444,9 @@ class Mergado extends Module
         $this->context->cookie->mergado_arukereso_consent = '0';
 
         $display .= $test;
+
+        //Biano star
+
 
         // Heureka
 //        $heurekaCZactive = Mergado\Tools\SettingsClass::getSettings(\Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_CZ'], $this->shopID);
@@ -1571,7 +1589,7 @@ class Mergado extends Module
     public function getOrderConfirmationBaseData(array $options, array $params, $context, array $heurekaSkProducts, array $heurekaCzProducts): array
     {
         return [
-            'advertisementCookieConsent' => (bool) $this->cookieClass->advertismentEnabled(),
+            'advertisementCookieConsent' => (int) $this->cookieClass->advertismentEnabled(),
             'conversionZboziShopId' => $options['zboziId'],
             'conversionZboziActive' => $options['zboziActive'],
             'conversionZboziAdvancedActive' => $options['zboziAdvancedActive'],

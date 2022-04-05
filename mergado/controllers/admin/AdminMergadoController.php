@@ -16,6 +16,7 @@
 
 use Mergado\Arukereso\ArukeresoClass;
 use Mergado\Biano\BianoClass;
+use Mergado\Biano\BianoStarClass;
 use Mergado\Etarget\EtargetClass;
 use Mergado\Facebook\FacebookClass;
 use Mergado\Forms\SupportForm;
@@ -335,8 +336,6 @@ class AdminMergadoController extends \ModuleAdminController
                     SettingsClass::HEUREKA['WIDGET_ID_CZ'],
                     SettingsClass::HEUREKA['WIDGET_POSITION_CZ'],
                     SettingsClass::HEUREKA['WIDGET_TOP_MARGIN_CZ'],
-                    SettingsClass::HEUREKA['WIDGET_MOBILE_CZ'],
-                    SettingsClass::HEUREKA['WIDGET_SCREEN_WIDTH_CZ'],
                 ],
             ],
 
@@ -350,8 +349,6 @@ class AdminMergadoController extends \ModuleAdminController
                     SettingsClass::HEUREKA['WIDGET_ID_SK'],
                     SettingsClass::HEUREKA['WIDGET_POSITION_SK'],
                     SettingsClass::HEUREKA['WIDGET_TOP_MARGIN_SK'],
-                    SettingsClass::HEUREKA['WIDGET_MOBILE_SK'],
-                    SettingsClass::HEUREKA['WIDGET_SCREEN_WIDTH_SK'],
                 ],
             ],
 
@@ -395,6 +392,7 @@ class AdminMergadoController extends \ModuleAdminController
             SklikClass::getToggleFields(),
             KelkooClass::getToggleFields(),
             BianoClass::getToggleFields($this->languages->getLanguages(true)),
+            BianoStarClass::getToggleFields($this->languages->getLanguages(true)),
             NajNakupClass::getToggleFields(),
             EtargetClass::getToggleFields(),
             GoogleReviewsClass::getToggleFields(),

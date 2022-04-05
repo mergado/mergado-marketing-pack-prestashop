@@ -12,9 +12,28 @@
  *  @license   LICENSE.txt
  */
 
+#mergado_notif .notifs_badge:empty {
+    display: none !important;
+}
+
+#mergado_notif .notifs_badge {
+    display: inline-block;
+    position: absolute;
+    top: 3px;
+    right: -3px;
+    color: #fff;
+    background: #25b9d7;
+    font-size: .625rem;
+    line-height: 1;
+    padding: 0.2rem 0.325rem;
+    border-radius: 1rem;
+    border: 0.05rem solid #fff;
+}
+
 #mergado_notif .notifs {
     padding: 11px 13px !important;
     min-width: auto !important;
+    position: static;
 }
 
 #mergado_notif .notifs img {

@@ -73,6 +73,12 @@ var biano = {
             } else {
                 $_id = target.closest('form').find('#product_page_product_id').val();
                 $_price = parseInt($('.product-price').find('[itemprop="price"]').attr('content'));
+
+                // Source from 1783
+                if (isNaN($_price)) {
+                    $_price = parseInt($('.product-price').find('[content]').attr('content'));
+                }
+
                 $_quantity = parseInt(target.closest('form').find('#quantity_wanted').val());
                 $_currency = prestashop.currency.iso_code;
 

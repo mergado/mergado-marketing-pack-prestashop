@@ -16,10 +16,14 @@
 
 namespace Mergado\Biano;
 
+use Context;
 use CurrencyCore;
+use Link;
 use Mergado;
+use Mergado\Tools\HelperClass;
 use Mergado\Tools\LanguagesClass;
 use Mergado\Tools\SettingsClass;
+use Product;
 
 class BianoClass
 {
@@ -91,9 +95,10 @@ class BianoClass
      * @param $email
      * @param $products
      * @param $shopId
+     * @param $consent
      * @return false|string
      */
-    public function getPurchaseData($orderId, $order, $email, $products, $shopId)
+    public function getPurchaseData($orderId, $order, $email, $products, $shopId, $consent)
     {
         $data = [];
 
@@ -114,7 +119,6 @@ class BianoClass
         foreach ($products as $product) {
             $product_item = [
                 "id" => $product['product_id'] . '-' . $product['product_attribute_id'],
-                "customer_email" => $email,
                 "quantity" => (int) $product['product_quantity'],
             ];
 
@@ -125,12 +129,59 @@ class BianoClass
                 $product_item['unit_price'] = (string) $product['unit_price_tax_excl'];
             }
 
+            $product_item['name'] = $product['product_name'];
+
+            $productObject = new Product($product['id_product']);
+
+            $link = new Link();
+            $product_item['image'] = $link->getImageLink($productObject->link_rewrite[Context::getContext()->language->id], $product['image']->id_image);
+
             $productData[] = $product_item;
         }
 
         $data['items'] = $productData;
 
-        return json_encode($data, JSON_NUMERIC_CHECK);
+        // Biano star
+        $bianoStarServiceIntegration = new BianoStarServiceIntegration();
+        $shippingDate = 0;
+
+        if ($bianoStarServiceIntegration->shouldBeSent($consent)) {
+            $bianoStarService = $bianoStarServiceIntegration->getService();
+
+            foreach($products as $product) {
+                if ($product['product_attribute_id'] && $product['product_attribute_id'] !== '' && $product['product_attribute_id'] !== '0') {
+                    $productStatus = HelperClass::getProductStockStatus($product['product_id'], $product['product_attribute_id']);
+                } else {
+                    $productStatus = HelperClass::getProductStockStatus($product['product_id']);
+                }
+
+                if ($productStatus === 'in stock') {
+                    if ($shippingDate < $bianoStarService->getShipmentInStock()) {
+                        $shippingDate = $bianoStarService->getShipmentInStock();
+                    }
+                } else if ($productStatus === 'out of stock') {
+                    if ($shippingDate < $bianoStarService->getShipmentOutOfStock()) {
+                        $shippingDate = $bianoStarService->getShipmentOutOfStock();
+                    }
+                } else if ($productStatus === 'preorder') {
+                    if ($shippingDate < $bianoStarService->getShipmentBackorder()) {
+                        $shippingDate = $bianoStarService->getShipmentBackorder();
+                    }
+                }
+
+            }
+
+            $data['customer_email'] = $email;
+            $data['shipping_date'] = Date('Y-m-d', strtotime('+' . $shippingDate . ' days'));;
+        }
+
+        // Encode strings to numbers
+        $data = json_decode(json_encode($data, JSON_NUMERIC_CHECK), true);
+
+        // Change id to String because Biano needs that
+        $data['id'] = (string)$data['id'];
+
+        return json_encode($data);
     }
 
 
@@ -249,7 +300,7 @@ class BianoClass
         $bianoFields = [];
         $bianoMainFields = [];
 
-        foreach($languages as $key => $lang) {
+        foreach($languages as $lang) {
             $langName = LanguagesClass::getLangIso(strtoupper($lang['iso_code']));
 
             //Get names for language
@@ -270,3 +321,4 @@ class BianoClass
         ];
     }
 }
+

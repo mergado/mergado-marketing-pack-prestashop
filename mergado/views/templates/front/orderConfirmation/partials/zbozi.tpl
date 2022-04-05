@@ -70,9 +70,10 @@
                     zbozi("useSandbox");
                 }
 
+
                 zbozi("setOrder", {
                   "orderId": conversionOrderId,
-                  "consent": {$advertisementCookieConsent}
+                  "consent": {/literal}{$advertisementCookieConsent}{literal}
                 });
 
                 zbozi("send");
@@ -103,7 +104,7 @@
 
                 zbozi("setOrder", {
                   "orderId": conversionOrderId,
-                  "consent": {$advertisementCookieConsent}
+                  "consent": {/literal}{$advertisementCookieConsent}{literal}
                 });
 
                 zbozi("send");

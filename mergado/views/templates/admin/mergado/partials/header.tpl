@@ -157,26 +157,46 @@
                     {if $mmp['news']['unreadedUpdates']}
                         <div style="border-right: 1px solid #ddd; padding-right: 20px; margin-right: 20px;">
                             {foreach from=$mmp['news']['unreadedUpdates'] item=item}
-                                <a href="#" data-page-link="7" class="mergado-link mmp-news__item">
-                                    <p class="mmp-news__title">{$item['title']}</p>
-                                    <p>
-                                        <span class="mmp-badge mmp-badge--{$item['category']}">{$item['category']}</span>
-                                        <span class="mmp-news__date">
-                        {$item['pubDate']|date_format:$mmp['formatting']['date']}
-                    </span></p>
-                                </a>
+                                <div class="mmp-news__item mmp-news__itemUpdate">
+                                    <div class="mmp-news__itemUpdateContent">
+                                        <a href="#" data-page-link="7" class="mergado-link">
+                                            <p class="mmp-news__title">{$item['title']}</p>
+                                        </a>
+                                            <p>
+                                                <span class="mmp-badge mmp-badge--{$item['category']}">{$item['category']}</span>
+                                                <span class="mmp-news__date">
+                                {$item['pubDate']|date_format:$mmp['formatting']['date']}
+                            </span></p>
+                                    </div>
+
+                                        {if $item['link'] && $item['link'] !== ''}
+                                                <div class="mmp-news__linkContainer">
+                                                    <a class="mmp-news__link--update" href="{$item['link']}" target="_blank">
+                                                        {l s='Download latest version' mod='mergado'}</a>
+                                                </div>
+                                        {/if}
+                                    </a>
+                                </div>
                             {/foreach}
                         </div>
                     {/if}
                     <div>
                         {foreach from=$mmp['news']['unreadedNews'] item=item}
-                            <a href="#" data-page-link="7" class="mergado-link mmp-news__item">
-                                <p class="mmp-news__title">{$item['title']}</p>
-                                <p><span class="mmp-badge mmp-badge--{$item['category']}">{$item['category']}</span>
-                                    <span class="mmp-news__date">
-                {$item['pubDate']|date_format:$mmp['formatting']['date']}
-            </span></p>
-                            </a>
+                            <div class="mmp-news__item">
+                                <a href="#" data-page-link="7" class="mergado-link">
+                                    <p class="mmp-news__title">{$item['title']}</p>
+                                </a>
+                                    <p><span class="mmp-badge mmp-badge--{$item['category']}">{$item['category']}</span>
+                                        <span class="mmp-news__date">
+                    {$item['pubDate']|date_format:$mmp['formatting']['date']}
+                </span></p>
+
+                                    {if $item['link'] && $item['link'] !== ''}
+                                            <div class="mmp-news__linkContainer">
+                                                <a class="mmp-news__link--common" href="{$item['link']}" target="_blank">{l s='Continue reading...' mod='mergado'}</a>
+                                            </div>
+                                    {/if}
+                            </div>
                         {/foreach}
                     </div>
                 </div>

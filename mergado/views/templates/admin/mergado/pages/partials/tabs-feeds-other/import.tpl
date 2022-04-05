@@ -4,7 +4,9 @@
 
         <div class="mmp_wizard__content_body">
             <div class="mmp_wizard__content_heading">
-                {l s='Insert URL of XML price import feed from Mergado App' mod='mergado'}
+                <span>
+                    {l s='Insert URL of XML price import feed from Mergado App' mod='mergado'}
+                </span>
             </div>
 
             <label class="priceImportLabel">
@@ -23,7 +25,9 @@
 
         <div class="mmp_wizard__content_body">
             <div class="mmp_wizard__content_heading">
-                {l s='Set Cron for periodically downloading an XML file.' mod='mergado'}
+                <span>
+                    {l s='Set Cron for periodically downloading an XML file.' mod='mergado'}
+                </span>
                 <a href="{l s='https://pack.mergado.com/support#Export%20XML%20feeds' mod='mergado'}" target="_blank">{l s='Read more on our Support page.' mod='mergado'}</a>
             </div>
 

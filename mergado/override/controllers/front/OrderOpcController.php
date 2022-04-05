@@ -53,7 +53,7 @@ class OrderOpcController extends OrderOpcControllerCore
                         } else {
                             $this->context->cookie->mergado_zbozi_consent = '0';
                         }
-                        
+
                         unset($_POST['ajax']);
                         unset($_GET['ajax']);
                     }
@@ -63,6 +63,18 @@ class OrderOpcController extends OrderOpcControllerCore
                             $this->context->cookie->mergado_arukereso_consent = '1';
                         } else {
                             $this->context->cookie->mergado_arukereso_consent = '0';
+                        }
+
+                        unset($_POST['ajax']);
+                        unset($_GET['ajax']);
+                    }
+
+
+                    if (Tools::getValue('method') === 'bianoStarConsent')  {
+                        if (Tools::getValue('bianoStarData') == '1') {
+                            $this->context->cookie->mergado_biano_star_consent = '1';
+                        } else {
+                            $this->context->cookie->mergado_biano_star_consent = '0';
                         }
 
                         unset($_POST['ajax']);

@@ -1483,6 +1483,7 @@ button.mmp_btn__blue--small svg {
 }
 
 .mmp_feedBox__line {
+    gap: 15px;
     width: 100%;
     display: flex;
     align-items: center;
@@ -1495,6 +1496,7 @@ button.mmp_btn__blue--small svg {
     max-width: 100%;
     justify-content: flex-start;
     align-items: center;
+    flex-grow: 1;
 }
 
 .mmp_feedBox__name {
@@ -1518,7 +1520,6 @@ button.mmp_btn__blue--small svg {
     line-height: 24px;
     padding: 0 10px;
     height: 30px;
-    width: 633px !important;
     /*width: 100%;*/
     max-width: 100%;
 }
@@ -1548,7 +1549,6 @@ button.mmp_btn__blue--small svg {
     align-items: center;
     justify-content: space-between;
     border: 1px solid var(--mmp-wizard-border);
-    margin-left: 15px;
     text-align: center;
     min-height: 16px;
     height: auto;

@@ -33,6 +33,7 @@
 .priceImportLabel__bottom {
     display: flex;
     justify-content: space-between;
+    gap: 15px;
 }
 
 .priceImportLabel input {
@@ -40,14 +41,10 @@
     display: block;
     line-height: 30px;
     min-height: unset;
-    width: 560px;
+    flex-grow: 1;
     max-width: 100%;
     font-size: 12px;
     font-weight: 400;
-}
-
-.mmp_tabs__tab[data-mmp-tab="import"] .mmp_feedBox__url {
-    width: 450px !important;
 }
 
 .mmp_tabs__tab[data-mmp-tab="import"] .mmp_feedBox__button {

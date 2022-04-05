@@ -29,6 +29,8 @@ class ZboziClass
     const KEY = 'mergado_zbozi_secret';
     const OPT_OUT = 'zbozi_opt_out_text-';
 
+    const DEFAULT_OPT = 'Do not send a satisfaction questionnaire within the Zboží.cz program.';
+
     // Input variables
     private $active;
     private $advancedActive;

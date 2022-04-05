@@ -26,10 +26,11 @@ include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 class RssClass
 {
     const FEED_URLS = [
-        'en' => 'https://feeds.mergado.com/pres-en-a54e4d67391189dcaa03c177cb0d728b.xml',
-        'cs' => 'https://feeds.mergado.com/pres-cs-588aee3e934a2cac2c5218119a81b430.xml',
-        'sk' => 'https://feeds.mergado.com/pres-sk-318b4f8deed4eaaae3e0349a50925258.xml',
-        'pl' => 'https://feeds.mergado.com/pres-pl-b661e96b5522065fedf2f96ce5d75d06.xml',
+        'en' => 'https://pack.mergado.cz/custom-platform/prestashop/en',
+        'cs' => 'https://pack.mergado.cz/custom-platform/prestashop/cs',
+        'sk' => 'https://pack.mergado.cz/custom-platform/prestashop/sk',
+        'pl' => 'https://pack.mergado.cz/custom-platform/prestashop/pl',
+        'hu' => 'https://pack.mergado.cz/custom-platform/prestashop/hu',
     ];
 
     const UPDATE_CATEGORY = 'update';
@@ -116,11 +117,7 @@ class RssClass
             }
 
             if ($save) {
-                if ((string)$item['category'] == self::UPDATE_CATEGORY) {
-                    NewsClass::saveArticle($item, $itemDatetime, $lang);
-                } elseif ((string)$item['category'] != self::UPDATE_CATEGORY) {
-                    NewsClass::saveArticle($item, $itemDatetime, $lang);
-                }
+                NewsClass::saveArticle($item, $itemDatetime, $lang);
             }
         }
     }
@@ -153,7 +150,7 @@ class RssClass
             $x = new SimpleXMLElement($feed, LIBXML_NOERROR);
 
             $data = [];
-            foreach ($x->channel->item as $item) {
+            foreach ($x->item as $item) {
                 $data[] = $item;
             }
         } catch (Exception $ex) {

@@ -43,10 +43,6 @@ class SettingsClass
         'WIDGET_POSITION_SK' => 'mergado_heureka_widget_position_sk',
         'WIDGET_TOP_MARGIN_CZ' => 'mergado_heureka_widget_top_margin_cz',
         'WIDGET_TOP_MARGIN_SK' => 'mergado_heureka_widget_top_margin_sk',
-        'WIDGET_MOBILE_CZ' => 'mergado_heureka_widget_mobile_cz',
-        'WIDGET_MOBILE_SK' => 'mergado_heureka_widget_mobile_sk',
-        'WIDGET_SCREEN_WIDTH_CZ' => 'mergado_heureka_widget_screen_width_cz',
-        'WIDGET_SCREEN_WIDTH_SK' => 'mergado_heureka_widget_screen_width_sk',
         'CONVERSION_VAT_INCL_CZ' => 'mergado_heureka_conversion_vat_incl_cz',
         'CONVERSION_VAT_INCL_SK' => 'mergado_heureka_conversion_vat_incl_sk',
     ];

@@ -16,7 +16,10 @@
 
 namespace Mergado\Tools;
 use CombinationCore;
+use Configuration;
 use Mergado;
+use Product;
+use StockAvailable;
 
 class HelperClass
 {
@@ -116,5 +119,39 @@ class HelperClass
         }
 
         return implode(", ", $names);
+    }
+
+    public static function getProductStockStatus($productId, $productAttributeId = null)
+    {
+        if ($productAttributeId !== null) {
+            $availableQuantity = Product::getQuantity($productId, $productAttributeId);
+        } else {
+            $availableQuantity = Product::getQuantity($productId);
+        }
+
+        $whenOutOfStock = self::getStockStatusLogic($productId);
+
+        if ($availableQuantity <= 0 && $whenOutOfStock == 1) {
+            $availability = 'preorder';
+        } else if ($availableQuantity > 0) {
+            $availability = 'in stock';
+        } else {
+            $availability = 'out of stock';
+        }
+
+        return $availability;
+    }
+
+    public static function getStockStatusLogic($productId) {
+        $whenOutOfStock = StockAvailable::outOfStock($productId);
+
+        // 0 - no orders if out of stock
+        // 1 - orders if out of stock allowed
+        // 2 - settings of product is same as main global settings
+        if ($whenOutOfStock == 2) {
+            $whenOutOfStock = Configuration::get('PS_ORDER_OUT_OF_STOCK'); // set global settings as the used one
+        }
+
+        return $whenOutOfStock;
     }
 }

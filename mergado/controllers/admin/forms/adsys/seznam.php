@@ -200,7 +200,7 @@ $fields_form[1]['form'] = [
             'type' => 'text',
             'class' => 'mff-d-none',
             'visibility' => Shop::CONTEXT_ALL,
-            'desc' => '<span class="mmp-tag mmp-tag--field mmp-tag--question"></span>' . $this->module->l('Here you can edit the sentence of the consent to the sending of the questionnaire, displayed on the checkout page. This is an opt-in consent, ie the customer must agree to participate in the program.', 'seznam'),
+            'desc' => '<span class="mmp-tag mmp-tag--field mmp-tag--question"></span>' . $this->module->l('Here you can edit the text of the sentence of consent to the sending of the questionnaire, displayed in the checkout page. This is an opt-out consent, ie the customer must confirm that he does not want to be involved in the program.', 'seznam'),
         ],
     ],
     'submit' => [

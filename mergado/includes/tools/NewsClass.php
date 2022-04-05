@@ -60,12 +60,12 @@ class NewsClass
         $sql = self::getNewsBase($lang, $limit);
         $return = Db::getInstance()->executeS($sql);
 
-        foreach($return as $item => $val) {
+        foreach($return as &$val) {
             $date = new DateTime();
-            $date = $date::createFromFormat('Y-m-d H:m:s',$return[$item]['pubDate']);
-            $formatted = $date->format('d.m.Y H:m:s');
+            $date = $date::createFromFormat('Y-m-d H:i:s', $val['pubDate']);
+            $formatted = $date->format('d.m.Y H:i:s');
 
-            $return[$item]['pubDate'] = $formatted;
+            $val['pubDate'] = $formatted;
         }
 
         return $return;
@@ -178,6 +178,7 @@ class NewsClass
             'category' => (string) $item['category'],
             'pubDate' => $date->format(self::DATE_FORMAT),
             'language' => $lang,
+            'link' => pSQL(str_replace(']]>','', str_replace('<![CDATA[', '', $item['link']))),
             'shown' => 0,
         ]);
     }

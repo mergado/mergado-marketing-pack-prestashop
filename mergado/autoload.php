@@ -3,6 +3,7 @@
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Arukereso/ArukeresoClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Arukereso/TrustedShop.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Biano/BianoClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Biano/BianoStarClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Etarget/EtargetClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Facebook/FacebookClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Glami/GlamiClass.php';
@@ -20,6 +21,9 @@ include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Zbozi/DeliveryType.php
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Zbozi/Zbozi.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Zbozi/ZboziCartItem.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Zbozi/ZboziClass.php';
+
+// Service integration
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Biano/BianoStarServiceIntegration.php';
 
 // Tools
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/HelperClass.php';

@@ -98,38 +98,6 @@ $fields_form[0]['form'] = [
             'suffix' => 'px',
             'visibility' => Shop::CONTEXT_ALL,
         ],
-        [
-            'name' => SettingsClass::HEUREKA['WIDGET_MOBILE_CZ'],
-            'label' => $this->module->l('Show widget on mobile', 'heureka'),
-            'hint' => $this->module->l('You need to turn on widget switch to enable this feature', 'heureka'),
-            'validation' => 'isBool',
-            'cast' => 'intval',
-            'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
-            'class' => 'switch15',
-            'values' => [
-                [
-                    'id' => 'mergado_heureka_widget_mobile_cz_on',
-                    'value' => 1,
-                    'label' => $this->module->l('Yes')
-                ],
-                [
-                    'id' => 'mergado_heureka_widget_mobile_cz_off',
-                    'value' => 0,
-                    'label' => $this->module->l('No')
-                ]
-            ],
-            'visibility' => Shop::CONTEXT_ALL,
-            'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->module->l('If this option is enabled, the widget will appear on mobile devices regardless of the width setting for hiding the widget.', 'heureka')
-        ],
-        [
-            'name' => SettingsClass::HEUREKA['WIDGET_SCREEN_WIDTH_CZ'],
-            'label' => $this->module->l('Hide on screens smaller than'),
-            'type' => 'text',
-            'placeholder' => 'Min. width to show',
-            'suffix' => 'px',
-            'visibility' => Shop::CONTEXT_ALL,
-            'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->module->l('The setting to hide the widget below a certain screen width (in px) is only valid for desktops. On mobile devices, this setting is ignored.', 'heureka')
-        ],
     ],
     'submit' => [
         'title' => $this->module->l('Save'),
@@ -289,38 +257,6 @@ $fields_form[2]['form'] = [
             'placeholder' => '60',
             'suffix' => 'px',
             'visibility' => Shop::CONTEXT_ALL,
-        ],
-        [
-            'name' => SettingsClass::HEUREKA['WIDGET_MOBILE_SK'],
-            'label' => $this->module->l('Show widget on mobile', 'heureka'),
-            'hint' => $this->module->l('You need to turn on widget switch to enable this feature', 'heureka'),
-            'validation' => 'isBool',
-            'cast' => 'intval',
-            'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
-            'class' => 'switch15',
-            'values' => [
-                [
-                    'id' => 'mergado_heureka_widget_mobile_sk_on',
-                    'value' => 1,
-                    'label' => $this->module->l('Yes')
-                ],
-                [
-                    'id' => 'mergado_heureka_widget_mobile_sk_off',
-                    'value' => 0,
-                    'label' => $this->module->l('No')
-                ]
-            ],
-            'visibility' => Shop::CONTEXT_ALL,
-            'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->module->l('If this option is enabled, the widget will appear on mobile devices regardless of the width setting for hiding the widget.', 'heureka')
-        ],
-        [
-            'name' => SettingsClass::HEUREKA['WIDGET_SCREEN_WIDTH_SK'],
-            'label' => $this->module->l('Hide on screens smaller than', 'heureka'),
-            'type' => 'text',
-            'placeholder' => 'Min. width to show',
-            'suffix' => 'px',
-            'visibility' => Shop::CONTEXT_ALL,
-            'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->module->l('The setting to hide the widget below a certain screen width (in px) is only valid for desktops. On mobile devices, this setting is ignored.', 'heureka')
         ],
     ],
     'submit' => [
