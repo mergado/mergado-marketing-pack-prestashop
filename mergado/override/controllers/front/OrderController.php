@@ -24,6 +24,15 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
+use Mergado\includes\services\Biano\BianoStar\BianoStarService;
+use Mergado\Heureka\HeurekaClass;
+use Mergado\includes\services\ArukeresoFamily\Arukereso\ArukeresoService;
+use Mergado\includes\services\ArukeresoFamily\Compari\CompariService;
+use Mergado\includes\services\ArukeresoFamily\Pazaruvaj\PazaruvajService;
+use Mergado\Zbozi\ZboziClass;
+
+include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
+
 class OrderController extends OrderControllerCore
 {
     /**
@@ -32,32 +41,26 @@ class OrderController extends OrderControllerCore
      */
     public function init()
     {
+
         if (_PS_VERSION_ < 1.7) {
-            if (Tools::getValue('heureka_consent') == 'on') {
-                $this->context->cookie->mergado_heureka_consent = true;
-            } else {
-                $this->context->cookie->mergado_heureka_consent = false;
-            }
-
-            if (Tools::getValue('zbozi_consent') == 'on') {
-                $this->context->cookie->mergado_zbozi_consent = true;
-            } else {
-                $this->context->cookie->mergado_zbozi_consent = false;
-            }
-
-            if (Tools::getValue('arukereso_consent') == 'on') {
-                $this->context->cookie->mergado_arukereso_consent = true;
-            } else {
-                $this->context->cookie->mergado_arukereso_consent = false;
-            }
-
-            if (Tools::getValue('bianoStar_consent') == 'on') {
-                $this->context->cookie->mergado_biano_star_consent = true;
-            } else {
-                $this->context->cookie->mergado_biano_star_consent = false;
-            }
+             $this->setConsentCookie(HeurekaClass::SERVICE_NAME, HeurekaClass::CONSENT_NAME);
+             $this->setConsentCookie(ZboziClass::SERVICE_NAME, ZboziClass::CONSENT_NAME);
+             $this->setConsentCookie(ArukeresoService::SERVICE_NAME, ArukeresoService::CONSENT_NAME);
+             $this->setConsentCookie(CompariService::SERVICE_NAME, CompariService::CONSENT_NAME);
+             $this->setConsentCookie(PazaruvajService::SERVICE_NAME, PazaruvajService::CONSENT_NAME);
+             $this->setConsentCookie(BianoStarService::SERVICE_NAME, BianoStarService::CONSENT_NAME);
         }
 
         parent::init();
+    }
+
+    public function setConsentCookie($serviceName, $consentName) {
+        if (Tools::getValue($serviceName . '_consent') == 'on') {
+            $this->context->cookie->__set($consentName, '1');
+        } else {
+            $this->context->cookie->__set($consentName, '0');
+        }
+
+        return true;
     }
 }

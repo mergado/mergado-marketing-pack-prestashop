@@ -14,8 +14,11 @@
 
 <div class="mergado-page" data-page="6" data-toggle-fields-json={$mmp['toggleFieldsJSON']}>
     <div class="rowmer">
-        <div class="col-content">
-            <ul class="mmp_tabs mmp_tabs__menu">
+        <div class="col-content mmp-tabs--horizontal
+            {if version_compare(_PS_VERSION_, Mergado::PS_V_16) > 0}
+                ps17
+            {/if}">
+            <ul class="mmp-tabs mmp-tabs__menu">
                 {if version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0}
                     {foreach $mmp['pageContent']['adsys'] as $key => $tab}
                         <li class="{if isset($tab['active']) && $tab['active']}active{/if}">
@@ -24,9 +27,9 @@
                             <svg class="mmp_icon">
                                 <use xlink:href="{$mmp['images']['baseMmpImageUrl']}{$tab['icon']}"></use>
                             </svg>
-                        {else}
-                            {$tab['title']}
                         {/if}
+
+                            {$tab['title']}
                             </a>
                         </li>
                     {/foreach}
@@ -38,26 +41,25 @@
                                     <svg class="mmp_icon">
                                         <use xlink:href="{$mmp['images']['baseMmpImageUrl']}{$tab['icon']}"></use>
                                     </svg>
-                                {else}
-                                    {$tab['title']}
                                 {/if}
+                                    {$tab['title']}
                             </a>
                         </li>
                     {/foreach}
                 {/if}
             </ul>
 
-            <div class="mmp_tabs mmp_tabs__content">
+            <div class="mmp-tabs mmp-tabs__content">
                 {if version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0}
                     {foreach $mmp['pageContent']['adsys'] as $key => $tab}
-                        <div class="mmp_tabs__tab {if isset($tab['active']) && $tab['active']}active{/if}"
+                        <div class="mmp-tabs__tab {if isset($tab['active']) && $tab['active']}active{/if}"
                              data-mmp-tab="{$key}">
                             {$tab['form']}
                         </div>
                     {/foreach}
                 {else}
                     {foreach from=$mmp['pageContent']['adsys'] key=$key item=$tab}
-                        <div class="mmp_tabs__tab {if isset($tab['active']) && $tab['active']}active{/if}"
+                        <div class="mmp-tabs__tab {if isset($tab['active']) && $tab['active']}active{/if}"
                              data-mmp-tab="{$key}">
                             {$tab['form']}
                         </div>

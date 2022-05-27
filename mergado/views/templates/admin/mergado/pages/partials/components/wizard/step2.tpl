@@ -11,7 +11,7 @@
                 </div>
 
                 <div class="mmp_wizard__radio">
-                    {foreach from=$wizardData item=$wizard name=feedTypeLoop}
+                    {foreach from=$wizardData item=wizard name=feedTypeLoop}
                         <label for="{$wizard['feedName']}" class="mmp_radio">{$wizard['feedFullName']}
 
                             {if $smarty.foreach.feedTypeLoop.first}

@@ -21,11 +21,11 @@ $(document).ready(function () {
     if (currentTab !== undefined) {
 
         $('#mergadoController .pageControl a[data-page=' + currentTab + ']').addClass('active');
-        
+
         if (currentTab === 'cookies') {
             currentTab = 6;
         }
-        
+
         $('#mergadoController .mergado-page[data-page=' + currentTab + ']').stop().show();
         // $('#mergadoController .pageControl a[data-page=' + currentTab + ']').addClass('active');
         // $('.mmp-header-bot').show();
@@ -197,10 +197,10 @@ function closeCronPopup() {
 
 function pageControl() {
     // Tab control
-    $('.mmp_tabs__menu li').on('click', function(e) {
+    $('.mmp-tabs__menu li').on('click', function(e) {
         e.preventDefault();
-        $('.mmp_tabs li.active').removeClass('active');
-        $('.mmp_tabs__tab.active').removeClass('active');
+        $('.mmp-tabs li.active').removeClass('active');
+        $('.mmp-tabs__tab.active').removeClass('active');
         $(this).addClass('active');
         $('[data-mmp-tab="' + $(this).children('a').attr('data-mmp-tab-button') + '"]').addClass('active');
     });

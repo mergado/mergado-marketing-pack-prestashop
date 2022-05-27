@@ -27,6 +27,7 @@ use CategoryCore as Category;
 use ManufacturerCore as Manufacturer;
 use LinkCore as Link;
 use SpecificPrice;
+use TagCore as Tag;
 use ValidateCore as Validate;
 use CombinationCore as Combination;
 use ShopCore as Shop;
@@ -92,6 +93,7 @@ class XMLQuery extends ObjectModel
         $productsList = Product::getProducts($lang, $start, $limit, 'id_product', 'ASC', false, true);
 
         $export_both = SettingsClass::getSettings(SettingsClass::EXPORT['BOTH'], $this->shopID);
+        $export_none = SettingsClass::getSettings(SettingsClass::EXPORT['NONE'], $this->shopID);
         $export_catalog = SettingsClass::getSettings(SettingsClass::EXPORT['CATALOG'], $this->shopID);
         $export_search = SettingsClass::getSettings(SettingsClass::EXPORT['SEARCH'], $this->shopID);
         $export_cost = SettingsClass::getSettings(SettingsClass::EXPORT['COST'], $this->shopID);
@@ -110,6 +112,10 @@ class XMLQuery extends ObjectModel
             }
 
             if ($product->visibility === 'both' && ($export_both === 'on' || $export_both == 1)) {
+                $export = true;
+            }
+
+            if ($product->visibility === 'none' && ($export_none == 'on' || $export_none == 1)) {
                 $export = true;
             }
 
@@ -207,8 +213,17 @@ class XMLQuery extends ObjectModel
 
         $whenOutOfStock = HelperClass::getStockStatusLogic($item->id);
 
+        $productTags = Tag::getProductTags($item->id);
+
+        if (isset($productTags[intval($lang)])) {
+            $productTags = $productTags[intval($lang)];
+        } else {
+            $productTags = false;
+        }
+
         if (!empty($combinations)) {
             foreach ($combinations as $combination) {
+
                 $mainImage = null;
                 $qty = Product::getQuantity($combination['id_product'], $combination['id_product_attribute']);
 
@@ -347,6 +362,7 @@ class XMLQuery extends ObjectModel
                     'image_alternative' => $images,
                     'name_exact' => $combination['name'],
                     'params' => $params,
+//                    'catalog_visibility' => ,
                     'producer' => $manufacturer->name,
                     'url' => $link->getProductLink($item->id, null, null, null, $lang, null, $combination['id_product_attribute'], false, false, true),
 //                    'url' => $link->getProductLink($item->id, null, $defaultCategoryName, null, $lang, null, $combination['id_product_attribute'], false, false, true),
@@ -362,6 +378,8 @@ class XMLQuery extends ObjectModel
                     'shipping_size' => ($item->depth != 0 && $item->width != 0 && $item->height != 0) ? ($item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' . Configuration::get('PS_DIMENSION_UNIT')) : false,
                     'shipping_weight' => (($item->weight + $combination['weight']) != 0) ? ($item->weight + $combination['weight']) . ' ' . Configuration::get('PS_WEIGHT_UNIT') : false,
                     'vat' => $this->getVat($tax_calculator),
+                    'catalog_visibility' => $visibility = $item->visibility,
+                    'tags' => $productTags
                 ];
 
                 //Return original lang id
@@ -483,6 +501,8 @@ class XMLQuery extends ObjectModel
                     'shipping_size' => ($item->depth != 0 || $item->width != 0 || $item->height != 0) ? ($item->depth . ' x ' . $item->width . ' x ' . $item->height . ' ' . Configuration::get('PS_DIMENSION_UNIT')) : false,
                     'shipping_weight' => ($item->weight != 0) ? ($item->weight . ' ' . Configuration::get('PS_WEIGHT_UNIT')) : false,
                     'vat' => $this->getVat($tax_calculator),
+                    'tags' => $productTags,
+                    'catalog_visibility' => $visibility = $item->visibility
                 ];
 
                 //Return original lang id

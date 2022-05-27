@@ -309,7 +309,7 @@
           data: data,
           success: function () {
             return true;
-          },
+          }
         });
       },
 

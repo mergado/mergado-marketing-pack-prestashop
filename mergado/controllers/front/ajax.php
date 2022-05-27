@@ -14,6 +14,13 @@
  * @license   LICENSE.txt
  */
 
+use Mergado\includes\services\Biano\BianoStar\BianoStarService;
+use Mergado\Heureka\HeurekaClass;
+use Mergado\includes\services\ArukeresoFamily\Arukereso\ArukeresoService;
+use Mergado\includes\services\ArukeresoFamily\Compari\CompariService;
+use Mergado\includes\services\ArukeresoFamily\Pazaruvaj\PazaruvajService;
+use Mergado\Zbozi\ZboziClass;
+
 require_once _PS_MODULE_DIR_ . 'mergado/mergado.php';
 
 class MergadoAjaxModuleFrontController extends ModuleFrontController
@@ -23,51 +30,28 @@ class MergadoAjaxModuleFrontController extends ModuleFrontController
         $response = false;
 
         if (_PS_VERSION_ >= 1.7) {
-            if (_PS_VERSION_ >= 1.7) {
-                if (Tools::isSubmit('action')) {
-                    switch (Tools::getValue('action')) {
-                        case 'setHeurekaOpc':
-                            if (Tools::getValue('heurekaData') == '1') {
-                                $this->context->cookie->mergado_heureka_consent = true;
-                            } else {
-                                $this->context->cookie->mergado_heureka_consent = false;
-                            }
-
-                            $response = true;
-                            break;
-
-                        case 'setZboziOpc':
-                            if (Tools::getValue('zboziData') == '1') {
-                                $this->context->cookie->mergado_zbozi_consent = true;
-                            } else {
-                                $this->context->cookie->mergado_zbozi_consent = false;
-                            }
-
-                            $response = true;
-                            break;
-
-                        case 'setArukeresoOpc':
-                            if (Tools::getValue('arukeresoData') == '1') {
-                                $this->context->cookie->mergado_arukereso_consent = true;
-                            } else {
-                                $this->context->cookie->mergado_arukereso_consent = false;
-                            }
-
-                            $response = true;
-                            break;
-                        case 'setBianoStarOpc':
-                            if (Tools::getValue('bianoStarData') == '1') {
-                                $this->context->cookie->mergado_biano_star_consent = true;
-                            } else {
-                                $this->context->cookie->mergado_biano_star_consent = false;
-                            }
-
-                            $response = true;
-                            break;
-                        default:
-                            break;
-
-                    }
+            if (Tools::isSubmit('action')) {
+                switch (Tools::getValue('action')) {
+                    case 'setArukeresoOpc':
+                        $response = $this->setConsentCookie(ArukeresoService::SERVICE_NAME, ArukeresoService::CONSENT_NAME);
+                        break;
+                    case 'setCompariOpc':
+                        $response = $this->setConsentCookie(CompariService::SERVICE_NAME, CompariService::CONSENT_NAME);
+                        break;
+                    case 'setPazaruvajOpc':
+                        $response = $this->setConsentCookie(PazaruvajService::SERVICE_NAME, PazaruvajService::CONSENT_NAME);
+                        break;
+                    case 'setHeurekaOpc':
+                        $response = $this->setConsentCookie(HeurekaClass::SERVICE_NAME, HeurekaClass::CONSENT_NAME);
+                        break;
+                    case 'setZboziOpc':
+                        $response = $this->setConsentCookie(ZboziClass::SERVICE_NAME, ZboziClass::CONSENT_NAME);
+                        break;
+                    case 'setBianoStarOpc':
+                        $response = $this->setConsentCookie(BianoStarService::SERVICE_NAME, BianoStarService::CONSENT_NAME);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -76,5 +60,15 @@ class MergadoAjaxModuleFrontController extends ModuleFrontController
             echo $json;
             die;
         }
+    }
+
+    public function setConsentCookie($serviceName, $consentName) {
+        if (Tools::getValue($serviceName . 'Data') == '1') {
+            $this->context->cookie->__set($consentName, '1');
+        } else {
+            $this->context->cookie->__set($consentName, '0');
+        }
+
+        return true;
     }
 }

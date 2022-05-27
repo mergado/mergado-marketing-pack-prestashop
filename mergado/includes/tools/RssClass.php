@@ -136,15 +136,25 @@ class RssClass
         $agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.1) Gecko/20061204 Firefox/2.0.0.1';
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_USERAGENT, $agent); //make it act decent
+        curl_setopt($ch, CURLOPT_USERAGENT, $agent);
         curl_setopt($ch, CURLOPT_URL, self::FEED_URLS[$lang]);
         curl_setopt($ch, CURLOPT_FAILONERROR,1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION,1);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //set this flag for results to the variable
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); //This is required for HTTPS certs if
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0); //you don't have some key/password action
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 5);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         $feed = curl_exec($ch);
+
+        $errorCount = curl_errno($ch);
+        $error = curl_error($ch);
+
         curl_close($ch);
+
+        if ($feed === false || $errorCount > 0) {
+            throw new Exception('Curl error: ' . $error);
+        }
 
         try {
             $x = new SimpleXMLElement($feed, LIBXML_NOERROR);

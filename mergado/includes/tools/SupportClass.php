@@ -1,7 +1,6 @@
 <?php
 
-use Mergado\Arukereso\ArukeresoClass;
-use Mergado\Biano\BianoClass;
+use Mergado\includes\services\Biano\Biano\BianoClass;
 use Mergado\Etarget\EtargetClass;
 use Mergado\Facebook\FacebookClass;
 //use Mergado\Glami\GlamiPixelClass;
@@ -11,6 +10,9 @@ use Mergado\Google\GoogleAdsClass;
 use Mergado\Google\GoogleReviewsClass;
 use Mergado\Google\GoogleTagManagerClass;
 //use Mergado\Tools\Crons;
+use Mergado\includes\services\ArukeresoFamily\Arukereso\ArukeresoService;
+use Mergado\includes\services\ArukeresoFamily\Compari\CompariService;
+use Mergado\includes\services\ArukeresoFamily\Pazaruvaj\PazaruvajService;
 use Mergado\Kelkoo\KelkooClass;
 use Mergado\NajNakup\NajNakupClass;
 use Mergado\Sklik\SklikClass;
@@ -34,7 +36,9 @@ class SupportClass {
         $googleAds = new GoogleAdsClass($shopId);
         $googleTagManager = new GoogleTagManagerClass($shopId);
         $googleReviewsClass = new GoogleReviewsClass($shopId);
-        $arukeresoClass = new ArukeresoClass($shopId);
+        $arukeresoService = new ArukeresoService();
+        $compariService = new CompariService();
+        $pazaruvajService = new PazaruvajService();
         $zboziClass = new ZboziClass($shopId);
         $facebookClass = new FacebookClass();
         $gaRefundsClass = new GaRefundClass();
@@ -83,8 +87,12 @@ class SupportClass {
             'pricemania' => self::boolToActive(SettingsClass::getSettings(SettingsClass::PRICEMANIA['VERIFIED'], $shopId)),
             'kelkoo' => self::boolToActive($kelkoClass->getActive($shopId)),
             'biano' => self::boolToActive($bianoClass->getActive($shopId)),
-            'arukereso' => self::boolToActive($arukeresoClass->getActive()),
-            'arukeresoWidget' => self::boolToActive($arukeresoClass->getWidgetActive()),
+            'arukereso' => self::boolToActive($arukeresoService->getActive()),
+            'arukeresoWidget' => self::boolToActive($arukeresoService->getWidgetActive()),
+            'compari' => self::boolToActive($compariService->getActive()),
+            'compariWidget' => self::boolToActive($compariService->getWidgetActive()),
+            'pazaruvaj' => self::boolToActive($pazaruvajService->getActive()),
+            'pazaruvajWidget' => self::boolToActive($pazaruvajService->getWidgetActive()),
         ];
 
 

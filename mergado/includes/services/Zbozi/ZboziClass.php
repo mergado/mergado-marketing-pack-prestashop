@@ -22,6 +22,9 @@ use Mergado\Tools\SettingsClass;
 
 class ZboziClass
 {
+    const SERVICE_NAME = 'zbozi';
+    const CONSENT_NAME = 'mergado_zbozi_consent';
+
     const ACTIVE = 'mergado_zbozi_konverze';
     const ADVANCED_ACTIVE = 'mergado_zbozi_advanced_konverze';
     const VAT_INCL = 'mergado_zbozi_conversion_vat_incl';

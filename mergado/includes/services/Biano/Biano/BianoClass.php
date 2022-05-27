@@ -14,12 +14,13 @@
  * @license   LICENSE.txt
  */
 
-namespace Mergado\Biano;
+namespace Mergado\includes\services\Biano\Biano;
 
 use Context;
 use CurrencyCore;
 use Link;
 use Mergado;
+use Mergado\includes\services\Biano\BianoStar\BianoStarServiceIntegration;
 use Mergado\Tools\HelperClass;
 use Mergado\Tools\LanguagesClass;
 use Mergado\Tools\SettingsClass;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Mergado\Biano;
+namespace Mergado\includes\services\Biano\BianoStar;
 
 use Link;
 use Media;
@@ -10,9 +10,9 @@ use Mergado\Tools\LanguagesClass;
 class BianoStarServiceIntegration
 {
     /**
-     * BianoStarClass
+     * BianoStarService
      */
-    private $bianoStarClass;
+    private $bianoStarService;
 
     /**
      * @var string
@@ -21,21 +21,20 @@ class BianoStarServiceIntegration
 
     public function __construct()
     {
-        $this->bianoStarClass = new BianoStarClass(Mergado::getShopId());
+        $this->bianoStarService = new BianoStarService(Mergado::getShopId());
         $this->lang = LanguagesClass::getLangIso();
     }
 
-    public function getService(): BianoStarClass
+    public function getService(): BianoStarService
     {
-        return $this->bianoStarClass;
+        return $this->bianoStarService;
     }
 
     public function addCheckboxForPS17($context, $path) {
-        //Add checkbox for arukereso
         if (_PS_VERSION_ >= Mergado::PS_V_17) {
 
-            if ($this->bianoStarClass->isActive($this->lang)) {
-                $textInLanguage = $this->bianoStarClass->getOptOut($this->lang);
+            if ($this->bianoStarService->isActive($this->lang)) {
+                $textInLanguage = $this->bianoStarService->getOptOut($this->lang);
 
                 if (!$textInLanguage || ($textInLanguage === '') || ($textInLanguage === 0)) {
                     $textInLanguage = 'Do not send a satisfaction questionnaire within the Trusted Shop program.';
@@ -50,24 +49,24 @@ class BianoStarServiceIntegration
                         "mmp_bianoStar" => array (
                             "ajaxLink" => $ajax_link,
                             "optText" => $textInLanguage,
-                            "checkboxChecked" => $context->cookie->mergado_biano_star_consent
+                            "checkboxChecked" => $context->cookie->__get(BianoStarService::CONSENT_NAME)
                         )
                     )
                 );
 
                 // Create a link with ajax path
-                $context->controller->addJS($path . 'views/js/order17/bianoStar.js');
+                $context->controller->addJS($path . BianoStarService::TEMPLATES_PATH . 'order17.js');
             }
         }
     }
 
     public function addCheckboxForPS16($module, $smarty, $context, $path) {
         if (_PS_VERSION_ < Mergado::PS_V_17) {
-            if ($this->bianoStarClass->isActive($this->lang)) {
-                $textInLanguage = $this->bianoStarClass->getOptOut($this->lang);
+            if ($this->bianoStarService->isActive($this->lang)) {
+                $textInLanguage = $this->bianoStarService->getOptOut($this->lang);
 
                 if (!$textInLanguage || ($textInLanguage === '') || ($textInLanguage === 0) ) {
-                    $textInLanguage = BianoStarClass::DEFAULT_OPT;
+                    $textInLanguage = BianoStarService::DEFAULT_OPT;
                 }
 
                 $smarty->assign(array(
@@ -75,9 +74,9 @@ class BianoStarServiceIntegration
                     'bianoStar_checkboxChecked' => $context->cookie->mergado_arukereso_consent,
                 ));
 
-                $context->controller->addJS($path . 'views/js/orderOPC/bianoStar.js');
+                $context->controller->addJS($path . BianoStarService::TEMPLATES_PATH . 'orderOPC.js');
 
-                return $module->display($path, '/views/templates/front/orderCarrier/bianoStar.tpl');
+                return $module->display($path, BianoStarService::TEMPLATES_PATH . 'orderCarrier.tpl');
             }
         }
 
@@ -86,7 +85,7 @@ class BianoStarServiceIntegration
 
     public function shouldBeSent($consent) {
         // OPT OUT
-        if ($consent !== '1' && $this->bianoStarClass->isActive($this->lang)) {
+        if ($consent !== '1' && $this->bianoStarService->isActive($this->lang)) {
             return true;
         }
 

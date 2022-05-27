@@ -25,8 +25,8 @@ if ($_POST['action'] === 'ajax_set_wizard_complete') {
                     break;
         }
 
-        JsonResponse::send_json_success(["success" => $this->trans('Settings saved', [], 'mergado')]);
+        JsonResponse::send_json_success(["success" => 'Settings saved']);
     } catch (Exception $e) {
-        JsonResponse::send_json_error(['error' => $this->trans('Something went wrong during save.', [], 'mergado')]);
+        JsonResponse::send_json_error(['error' => 'Something went wrong during save.']);
     }
 }

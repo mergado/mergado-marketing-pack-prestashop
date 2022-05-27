@@ -24,6 +24,15 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
+use Mergado\includes\services\Biano\BianoStar\BianoStarService;
+use Mergado\Heureka\HeurekaClass;
+use Mergado\includes\services\ArukeresoFamily\Arukereso\ArukeresoService;
+use Mergado\includes\services\ArukeresoFamily\Compari\CompariService;
+use Mergado\includes\services\ArukeresoFamily\Pazaruvaj\PazaruvajService;
+use Mergado\Zbozi\ZboziClass;
+
+include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
+
 class OrderOpcController extends OrderOpcControllerCore
 {
 
@@ -33,56 +42,33 @@ class OrderOpcController extends OrderOpcControllerCore
      */
     public function init()
     {
+
         if (_PS_VERSION_ < 1.7) {
             if (Tools::isSubmit('ajax')) {
                 if (Tools::isSubmit('method')) {
-                    if (Tools::getValue('method') === 'heurekaConsent')  {
-                        if (Tools::getValue('heurekaData') == '1') {
-                            $this->context->cookie->mergado_heureka_consent = '1';
-                        } else {
-                            $this->context->cookie->mergado_heureka_consent = '0';
-                        }
-
-                        unset($_POST['ajax']);
-                        unset($_GET['ajax']);
-                    }
-
-                    if (Tools::getValue('method') === 'zboziConsent')  {
-                        if (Tools::getValue('zboziData') == '1') {
-                            $this->context->cookie->mergado_zbozi_consent = '1';
-                        } else {
-                            $this->context->cookie->mergado_zbozi_consent = '0';
-                        }
-
-                        unset($_POST['ajax']);
-                        unset($_GET['ajax']);
-                    }
-
-                    if (Tools::getValue('method') === 'arukeresoConsent')  {
-                        if (Tools::getValue('arukeresoData') == '1') {
-                            $this->context->cookie->mergado_arukereso_consent = '1';
-                        } else {
-                            $this->context->cookie->mergado_arukereso_consent = '0';
-                        }
-
-                        unset($_POST['ajax']);
-                        unset($_GET['ajax']);
-                    }
-
-
-                    if (Tools::getValue('method') === 'bianoStarConsent')  {
-                        if (Tools::getValue('bianoStarData') == '1') {
-                            $this->context->cookie->mergado_biano_star_consent = '1';
-                        } else {
-                            $this->context->cookie->mergado_biano_star_consent = '0';
-                        }
-
-                        unset($_POST['ajax']);
-                        unset($_GET['ajax']);
-                    }
+                    $this->setConsentCookie(HeurekaClass::SERVICE_NAME, HeurekaClass::CONSENT_NAME);
+                    $this->setConsentCookie(ZboziClass::SERVICE_NAME, ZboziClass::CONSENT_NAME);
+                    $this->setConsentCookie(ArukeresoService::SERVICE_NAME, ArukeresoService::CONSENT_NAME);
+                    $this->setConsentCookie(CompariService::SERVICE_NAME, CompariService::CONSENT_NAME);
+                    $this->setConsentCookie(PazaruvajService::SERVICE_NAME, PazaruvajService::CONSENT_NAME);
+                    $this->setConsentCookie(BianoStarService::SERVICE_NAME, BianoStarService::CONSENT_NAME);
                 }
             }
         }
+
         parent::init();
+    }
+
+    public function setConsentCookie($serviceName, $consentName) {
+        if (Tools::getValue('method') === $serviceName . 'Consent') {
+            if (Tools::getValue($serviceName . 'Data') == '1') {
+                $this->context->cookie->__set($consentName, '1');
+            } else {
+                $this->context->cookie->__set($consentName, '0');
+            }
+
+            unset($_POST['ajax']);
+            unset($_GET['ajax']);
+        }
     }
 }

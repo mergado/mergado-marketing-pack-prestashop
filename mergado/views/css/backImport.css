@@ -46,7 +46,3 @@
     font-size: 12px;
     font-weight: 400;
 }
-
-.mmp_tabs__tab[data-mmp-tab="import"] .mmp_feedBox__button {
-    box-sizing: content-box !important;
-}

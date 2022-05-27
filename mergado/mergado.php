@@ -54,14 +54,19 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '3.1.0',
+        'VERSION' => '3.2.0',
         'PHP_MIN_VERSION' => 7.1
     ];
 
     public $GoogleAdsClass;
     public $GoogleTagManagerClass;
     public $cookieClass;
+
     public $bianoStarServiceIntegration;
+    public $arukeresoServiceIntegration;
+    public $compariServiceIntegration;
+    public $pazaruvajServiceIntegration;
+
 
     public function __construct()
     {
@@ -93,18 +98,15 @@ class Mergado extends Module
 
         $this->ps_versions_compliancy = array('min' => self::PS_V_16, 'max' => '1.7.9.99');
 
-        try {
-            $cronRss = new Mergado\Tools\RssClass();
-            $cronRss->getFeed();
-        } catch (Exception $ex) {
-            // Error during installation
-        }
-
         $this->GoogleAdsClass = new Mergado\Google\GoogleAdsClass($this->shopID);
         $this->GoogleTagManagerClass = new Mergado\Google\GoogleTagManagerClass($this->shopID);
 
         $this->cookieClass = new \Mergado\Tools\CookieClass($this->shopID);
-        $this->bianoStarServiceIntegration = new \Mergado\Biano\BianoStarServiceIntegration();
+
+        $this->bianoStarServiceIntegration = new \Mergado\includes\services\Biano\BianoStar\BianoStarServiceIntegration();
+        $this->arukeresoServiceIntegration = new \Mergado\includes\services\ArukeresoFamily\Arukereso\ArukeresoServiceIntegration();
+        $this->compariServiceIntegration = new \Mergado\includes\services\ArukeresoFamily\Compari\CompariServiceIntegration();
+        $this->pazaruvajServiceIntegration = new \Mergado\includes\services\ArukeresoFamily\Pazaruvaj\PazaruvajServiceIntegration();
     }
 
     /**
@@ -353,6 +355,7 @@ class Mergado extends Module
             $this->context->controller->addJS($this->_path . 'views/vendors/iframe-resizer/js/iframeResizer.min.js?v=' . MERGADO::MERGADO['VERSION'], false);
             $this->context->controller->addJS($this->_path . 'views/js/iframe-resizer.js?v=' . MERGADO::MERGADO['VERSION'], false);
             $this->context->controller->addCSS($this->_path . 'views/css/back.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
+            $this->context->controller->addCSS($this->_path . 'views/css/mmp-tabs.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
             $this->context->controller->addCSS($this->_path . 'views/css/backNews.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
             $this->context->controller->addCSS($this->_path . 'views/css/backNewsHeader.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
             $this->context->controller->addCSS($this->_path . 'views/css/backWizard.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
@@ -429,7 +432,7 @@ class Mergado extends Module
         $this->shopId = self::getShopId();
 
         // Biano
-        $bianoClass = new \Mergado\Biano\BianoClass();
+        $bianoClass = new \Mergado\includes\services\Biano\Biano\BianoClass();
 
             if ($bianoClass->isActive($this->shopId)) {
                 $langCode = Mergado\Tools\LanguagesClass::getLangIso(strtoupper($this->context->language->iso_code));
@@ -463,7 +466,7 @@ class Mergado extends Module
         $verifiedSk = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_SK'], $this->shopID);
 
         //If user don't want the heureka document ... dont send data
-        if ($this->context->cookie->mergado_heureka_consent != '1') {
+        if ($this->context->cookie->__get(\Mergado\Heureka\HeurekaClass::CONSENT_NAME) != '1') {
 
             /* Heureka verified by users */
             if ($verifiedCz && $verifiedCz === Mergado\Tools\SettingsClass::ENABLED) {
@@ -484,17 +487,16 @@ class Mergado extends Module
         }
 
         // Unset cookie becuase of next buy
-        $this->context->cookie->mergado_heureka_consent = '0';
-
+        $this->context->cookie->__set(\Mergado\Heureka\HeurekaClass::CONSENT_NAME, '0');
 
         $zboziSent = false;
 
-        if ($this->context->cookie->mergado_zbozi_consent !== '1') {
+        if ($this->context->cookie->__get(\Mergado\Zbozi\ZboziClass::CONSENT_NAME) !== '1') {
             $zboziSent = Mergado\Zbozi\Zbozi::sendZbozi($params, $this->shopId);
         }
 
         // Unset cookie because of next buy
-        $this->context->cookie->mergado_zbozi_consent = '0';
+        $this->context->cookie->__set(\Mergado\Zbozi\ZboziClass::CONSENT_NAME, '0');
 
         // NajNakup
         $najNakupClass = new \Mergado\NajNakup\NajNakupClass();
@@ -588,24 +590,15 @@ class Mergado extends Module
         $display .= $this->cartDataPs16($params);
 
         //BIANO
-        $bianoClass = new \Mergado\Biano\BianoClass();
+        $bianoClass = new \Mergado\includes\services\Biano\Biano\BianoClass();
         if ($bianoClass->isActive($this->shopId)) {
             $display .= $this->display(__FILE__, 'views/templates/front/header/biano/bianoView.tpl');
             $this->context->controller->addJS($this->_path . 'views/js/biano.js');
         }
 
-        // Arukereso
-        $arukeresoClass = new Mergado\Arukereso\ArukeresoClass(self::getShopId());
-
-        if ($arukeresoClass->isWidgetActive()) {
-            $this->smarty->assign(
-                array(
-                    'arukeresoWidget' => $arukeresoClass->getWidgetSmartyVariables(),
-                )
-            );
-
-            $display .= $this->display(__FILE__, $arukeresoClass->getWidgetTemplatePath());
-        }
+        $display .= $this->arukeresoServiceIntegration->addWidget($this, $this->smarty, $this->_path);
+        $display .= $this->compariServiceIntegration->addWidget($this, $this->smarty, $this->_path);
+        $display .= $this->pazaruvajServiceIntegration->addWidget($this, $this->smarty, $this->_path);
 
         // Google reviews
         $GoogleReviewsClass = new Mergado\Google\GoogleReviewsClass(self::getShopId());
@@ -739,11 +732,7 @@ class Mergado extends Module
                 $discounts[] = $item['name'];
             }
 
-            global $smarty;
-            $url = array_key_exists('urls', $smarty->tpl_vars) ? $smarty->tpl_vars['urls']->value['pages']['order'] : null;
-
             $this->smarty->assign(array(
-                'orderUrl' => $url,
                 'coupons' => join(', ', $discounts),
             ));
 
@@ -964,7 +953,7 @@ class Mergado extends Module
         }
 
         //BIANO
-        $bianoClass = new \Mergado\Biano\BianoClass();
+        $bianoClass = new \Mergado\includes\services\Biano\Biano\BianoClass();
         if ($bianoClass->isActive($this->shopId)) {
             $langCode = Mergado\Tools\LanguagesClass::getLangIso(strtoupper($this->context->language->iso_code));
 
@@ -1028,7 +1017,7 @@ class Mergado extends Module
                     "mmp_heureka" => array(
                         "ajaxLink" => $ajax_link,
                         "optText" => $textInLanguage,
-                        "checkboxChecked" => $this->context->cookie->mergado_heureka_consent,
+                        "checkboxChecked" => $this->context->cookie->__get(\Mergado\Heureka\HeurekaClass::CONSENT_NAME),
                     )
             ));
 
@@ -1063,7 +1052,7 @@ class Mergado extends Module
                     "mmp_zbozi" => array(
                         "ajaxLink" => $ajax_link,
                         "optText" => $checkboxText,
-                        "checkboxChecked" => $this->context->cookie->mergado_zbozi_consent,
+                        "checkboxChecked" => $this->context->cookie->__get(\Mergado\Zbozi\ZboziClass::CONSENT_NAME),
                     )
                 ));
 
@@ -1072,38 +1061,9 @@ class Mergado extends Module
             }
         }
 
-        //Add checkbox for arukereso
-        if (_PS_VERSION_ >= self::PS_V_17) {
-            $lang = Mergado\Tools\LanguagesClass::getLangIso();
-            $this->shopId = self::getShopId();
-            $arukeresoClass = new Mergado\Arukereso\ArukeresoClass($this->shopID);
-
-            if ($arukeresoClass->isActive()) {
-                $textInLanguage = $arukeresoClass->getOptOut($lang);
-
-                if (!$textInLanguage || ($textInLanguage === '') || ($textInLanguage === 0)) {
-                    $textInLanguage = 'Do not send a satisfaction questionnaire within the Trusted Shop program.';
-                }
-
-                $link = new Link;
-                $parameters = array("action" => "setArukeresoOpc");
-                $ajax_link = $link->getModuleLink('mergado','ajax', $parameters);
-
-                Media::addJsDef(
-                    array(
-                        "mmp_arukereso" => array (
-                            "ajaxLink" => $ajax_link,
-                            "optText" => $textInLanguage,
-                            "checkboxChecked" => $this->context->cookie->mergado_arukereso_consent
-                        )
-                    )
-                );
-
-                // Create a link with ajax path
-                $this->context->controller->addJS($this->_path . 'views/js/order17/arukereso.js');
-            }
-        }
-
+        $this->arukeresoServiceIntegration->addCheckboxForPs17($this->context, $this->_path);
+        $this->compariServiceIntegration->addCheckboxForPs17($this->context, $this->_path);
+        $this->pazaruvajServiceIntegration->addCheckboxForPs17($this->context, $this->_path);
         $this->bianoStarServiceIntegration->addCheckboxForPS17($this->context, $this->_path);
 
         return $display;
@@ -1153,7 +1113,7 @@ class Mergado extends Module
 
                 $this->smarty->assign(array(
                     'heureka_consentText' => $textInLanguage,
-                    'heureka_checkboxChecked' => $this->context->cookie->mergado_heureka_consent,
+                    'heureka_checkboxChecked' => $this->context->cookie->__get(\Mergado\Heureka\HeurekaClass::CONSENT_NAME),
                 ));
 
                 $this->context->controller->addJS($this->_path . 'views/js/orderOPC/heureka.js');
@@ -1177,7 +1137,7 @@ class Mergado extends Module
 
                 $this->smarty->assign(array(
                     'zbozi_consentText' => $textInLanguage,
-                    'zbozi_checkboxChecked' => $this->context->cookie->mergado_zbozi_consent,
+                    'zbozi_checkboxChecked' => $this->context->cookie->__get(\Mergado\Zbozi\ZboziClass::CONSENT_NAME),
                 ));
 
                 $this->context->controller->addJS($this->_path . 'views/js/orderOPC/zbozi.js');
@@ -1186,31 +1146,9 @@ class Mergado extends Module
             }
         }
 
-        //Works just for ps 1.6
-
-        if (_PS_VERSION_ < Mergado::PS_V_17) {
-            $lang = Mergado\Tools\LanguagesClass::getLangIso();
-            $this->shopId = self::getShopId();
-            $arukeresoClass = new Mergado\Arukereso\ArukeresoClass($this->shopID);
-
-            if ($arukeresoClass->isActive()) {
-                $textInLanguage = $arukeresoClass->getOptOut($lang);
-
-                if (!$textInLanguage || ($textInLanguage === '') || ($textInLanguage === 0) ) {
-                    $textInLanguage = 'Do not send a satisfaction questionnaire within the Trusted Shop program.';
-                }
-
-                $this->smarty->assign(array(
-                    'arukereso_consentText' => $textInLanguage,
-                    'arukereso_checkboxChecked' => $this->context->cookie->mergado_arukereso_consent,
-                ));
-
-                $this->context->controller->addJS($this->_path . 'views/js/orderOPC/arukereso.js');
-
-                $display .= $this->display(__FILE__, '/views/templates/front/orderCarrier/arukereso.tpl');
-            }
-        }
-
+        $display .= $this->arukeresoServiceIntegration->addCheckboxForPs16($this, $this->smarty, $this->context, $this->_path);
+        $display .= $this->compariServiceIntegration->addCheckboxForPs16($this, $this->smarty, $this->context, $this->_path);
+        $display .= $this->pazaruvajServiceIntegration->addCheckboxForPs16($this, $this->smarty, $this->context, $this->_path);
         $display .= $this->bianoStarServiceIntegration->addCheckboxForPS16($this, $this->smarty, $this->context, $this->_path);
 
         return $display;
@@ -1426,27 +1364,20 @@ class Mergado extends Module
 
         //Biano
         if ($this->cookieClass->advertismentEnabled()) {
-            $bianoClass = new \Mergado\Biano\BianoClass();
+            $bianoClass = new \Mergado\includes\services\Biano\Biano\BianoClass();
             if ($bianoClass->isActive($this->shopID)) {
                 $this->smarty->assign(array(
-                    'bianoPurchaseData' => $bianoClass->getPurchaseData($orderId, $order, $customer->email, $products_tmp, $this->shopID, $this->context->cookie->mergado_biano_star_consent),
+                    'bianoPurchaseData' => $bianoClass->getPurchaseData($orderId, $order, $customer->email, $products_tmp, $this->shopID, $this->context->cookie->__get(\Mergado\includes\services\Biano\BianoStar\BianoStarService::CONSENT_NAME)),
                 ));
 
                 $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/biano.tpl');
             }
         }
 
-        //Arukereso
-        $arukeresoClass = new \Mergado\Arukereso\ArukeresoClass($this->shopID);
-        $test = $arukeresoClass->orderConfirmation($products_tmp, $customer, $this->context->cookie->mergado_arukereso_consent);
-
-        // Null it for next order
-        $this->context->cookie->mergado_arukereso_consent = '0';
-
-        $display .= $test;
-
-        //Biano star
-
+        //Arukereso, Compari, Pazaruvaj
+        $this->arukeresoServiceIntegration->orderConfirmation($products_tmp, $customer, $this->context->cookie);
+        $this->compariServiceIntegration->orderConfirmation($products_tmp, $customer, $this->context->cookie);
+        $this->pazaruvajServiceIntegration->orderConfirmation($products_tmp, $customer, $this->context->cookie);
 
         // Heureka
 //        $heurekaCZactive = Mergado\Tools\SettingsClass::getSettings(\Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_CZ'], $this->shopID);
@@ -1536,11 +1467,7 @@ class Mergado extends Module
                 $discounts[] = $item['name'];
             }
 
-            global $smarty;
-            $url = $smarty->tpl_vars['urls']->value['pages']['order'];
-
             $this->smarty->assign(array(
-                'orderUrl' => $url,
                 'coupons' => join(', ', $discounts),
             ));
 

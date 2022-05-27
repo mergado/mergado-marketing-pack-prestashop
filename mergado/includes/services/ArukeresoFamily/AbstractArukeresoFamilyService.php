@@ -14,31 +14,16 @@
  * @license   LICENSE.txt
  */
 
-namespace Mergado\Arukereso;
+namespace Mergado\includes\services\ArukeresoFamily;
 
-use Exception;
 use Mergado;
-use Mergado\Tools\HelperClass;
 use Mergado\Tools\LanguagesClass;
 use Mergado\Tools\SettingsClass;
-use TrustedShop;
 
 include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
-class ArukeresoClass
+abstract class AbstractArukeresoFamilyService
 {
-    // BASE
-    const ACTIVE = 'arukereso-active';
-    const WEB_API_KEY = 'arukereso-web-api-key';
-    const OPT_OUT = 'arukereso-verify-opt-out-text-';
-
-    //WIDGET
-    const WIDGET_ACTIVE = 'arukereso-widget-active';
-    const WIDGET_DESKTOP_POSITION = 'arukereso-widget-desktop-position';
-    const WIDGET_MOBILE_POSITION = 'arukereso-widget-mobile-position';
-    const WIDGET_MOBILE_WIDTH = 'arukereso-widget-mobile-width';
-    const WIDGET_APPEARANCE_TYPE = 'arukereso-widget-appearance-type';
-
     // Input variables
     private $active;
     private $webApiKey;
@@ -51,9 +36,9 @@ class ArukeresoClass
     // Main settings variables
     private $multistoreShopId;
 
-    public function __construct($multistoreShopId)
+    public function __construct()
     {
-        $this->multistoreShopId = $multistoreShopId;
+        $this->multistoreShopId = Mergado::getShopId();
     }
 
     /*******************************************************************************************************************
@@ -185,7 +170,7 @@ class ArukeresoClass
             return $this->active;
         }
 
-        $this->active = SettingsClass::getSettings(self::ACTIVE, $this->multistoreShopId);
+        $this->active = SettingsClass::getSettings(static::ACTIVE, $this->multistoreShopId);
 
         return $this->active;
     }
@@ -199,7 +184,7 @@ class ArukeresoClass
             return $this->webApiKey;
         }
 
-        $this->webApiKey = SettingsClass::getSettings(self::WEB_API_KEY, $this->multistoreShopId);
+        $this->webApiKey = SettingsClass::getSettings(static::WEB_API_KEY, $this->multistoreShopId);
 
         return $this->webApiKey;
     }
@@ -210,7 +195,7 @@ class ArukeresoClass
      */
     public function getOptOut($lang)
     {
-        return SettingsClass::getSettings(self::OPT_OUT . $lang, $this->multistoreShopId);
+        return SettingsClass::getSettings(static::OPT_OUT . $lang, $this->multistoreShopId);
     }
 
     /**
@@ -222,7 +207,7 @@ class ArukeresoClass
             return $this->widgetActive;
         }
 
-        $this->widgetActive = SettingsClass::getSettings(self::WIDGET_ACTIVE, $this->multistoreShopId);
+        $this->widgetActive = SettingsClass::getSettings(static::WIDGET_ACTIVE, $this->multistoreShopId);
 
         return $this->widgetActive;
     }
@@ -236,7 +221,7 @@ class ArukeresoClass
             return $this->widgetDesktopPosition;
         }
 
-        $this->widgetDesktopPosition = SettingsClass::getSettings(self::WIDGET_DESKTOP_POSITION, $this->multistoreShopId);
+        $this->widgetDesktopPosition = SettingsClass::getSettings(static::WIDGET_DESKTOP_POSITION, $this->multistoreShopId);
 
         return $this->widgetDesktopPosition;
     }
@@ -250,7 +235,7 @@ class ArukeresoClass
             return $this->widgetMobilePosition;
         }
 
-        $this->widgetMobilePosition = SettingsClass::getSettings(self::WIDGET_MOBILE_POSITION, $this->multistoreShopId);
+        $this->widgetMobilePosition = SettingsClass::getSettings(static::WIDGET_MOBILE_POSITION, $this->multistoreShopId);
 
         return $this->widgetMobilePosition;
     }
@@ -264,7 +249,7 @@ class ArukeresoClass
             return $this->widgetMobileWidth;
         }
 
-        $this->widgetMobileWidth = SettingsClass::getSettings(self::WIDGET_MOBILE_WIDTH, $this->multistoreShopId);
+        $this->widgetMobileWidth = SettingsClass::getSettings(static::WIDGET_MOBILE_WIDTH, $this->multistoreShopId);
 
         return $this->widgetMobileWidth;
     }
@@ -278,89 +263,10 @@ class ArukeresoClass
             return $this->widgetAppearanceType;
         }
 
-        $this->widgetAppearanceType = SettingsClass::getSettings(self::WIDGET_APPEARANCE_TYPE, $this->multistoreShopId);
+        $this->widgetAppearanceType = SettingsClass::getSettings(static::WIDGET_APPEARANCE_TYPE, $this->multistoreShopId);
 
         return $this->widgetAppearanceType;
     }
-
-    /*******************************************************************************************************************
-     * GET SMARTY VARIABLES
-     ******************************************************************************************************************/
-
-    public function getWidgetSmartyVariables()
-    {
-        return [
-            "WEB_API_KEY" => $this->getWebApiKey(),
-            "DESKTOP_POSITION" => self::DESKTOP_POSITIONS()[$this->getWidgetDesktopPosition()]['value'],
-            "MOBILE_POSITION" => self::MOBILE_POSITIONS()[$this->getWidgetMobilePosition()]['value'],
-            "MOBILE_WIDTH" => $this->getWidgetMobileWidth(),
-            "APPEARANCE_TYPE" => self::APPEARANCE_TYPES()[$this->getWidgetAppearanceType()]['value']
-        ];
-    }
-
-    /*******************************************************************************************************************
-     * GET TEMPLATE
-     ******************************************************************************************************************/
-
-    public function getWidgetTemplatePath()
-    {
-        return 'classes/services/Arukereso/templates/widget.tpl';
-    }
-
-    /*******************************************************************************************************************
-     * FUNCTIONS
-     ******************************************************************************************************************/
-
-    /**
-     * @param $items
-     * @param $customer
-     * @param $arukeresoConsent
-     * @return string
-     */
-    public function orderConfirmation($items, $customer, $arukeresoConsent)
-    {
-        if ($this->isActive() && ($arukeresoConsent == '0')) {
-            $products = [];
-
-            foreach($items as $item) {
-                $id = HelperClass::getProductId($item);
-                $name = $item['product_name'];
-
-                /** Assign product to array */
-                $products[$id] = $name;
-            }
-
-            try {
-                /** Provide your own WebAPI key. You can find your WebAPI key on your partner portal. */
-                $Client = new TrustedShop($this->getWebApiKey());
-
-                /** Provide the e-mail address of your customer. You can retrieve the e-amil address from the webshop engine. */
-                $Client->SetEmail($customer->email);
-
-                /** Customer's cart example. */
-                $Cart = $products;
-
-                /** Provide the name and the identifier of the purchased products.
-                 * You can get those from the webshop engine.
-                 * It must be called for each of the purchased products. */
-                foreach($Cart as $ProductIdentifier => $ProductName) {
-                    /** If both product name and identifier are available, you can provide them this way: */
-                    $Client->AddProduct($ProductName, $ProductIdentifier);
-                    /** If neither is available, you can leave out these calls. */
-                }
-
-                /** This method perpares to send us the e-mail address and the name of the purchased products set above.
-                 *  It returns an HTML code snippet which must be added to the webshop's source.
-                 *  After the generated code is downloaded into the customer's browser it begins to send purchase information. */
-
-                return $Client->Prepare();
-                /** Here you can implement error handling. The error message can be obtained in the manner shown below. This step is optional. */
-            } catch (Exception $Ex) {
-                $ErrorMessage = $Ex->getMessage();
-            }
-        }
-    }
-
 
     /*******************************************************************************************************************
      * TOGGLE FIELDS JSON
@@ -376,24 +282,24 @@ class ArukeresoClass
 
         foreach ($languages as $key => $lang) {
             $langName = LanguagesClass::getLangIso(strtoupper($lang['iso_code']));
-            $langFields[] = self::OPT_OUT . $langName;
+            $langFields[] = static::OPT_OUT . $langName;
         }
 
         $otherFields = [
-            self::WEB_API_KEY,
-            self::WIDGET_ACTIVE,
+            static::WEB_API_KEY,
+            static::WIDGET_ACTIVE,
         ];
 
         return [
-            self::ACTIVE => [
+            static::ACTIVE => [
                 'fields' => array_merge($langFields, $otherFields),
                 'sub-check' => [
-                    self::WIDGET_ACTIVE => [
+                    static::WIDGET_ACTIVE => [
                         'fields' => [
-                            self::WIDGET_DESKTOP_POSITION,
-                            self::WIDGET_MOBILE_POSITION,
-                            self::WIDGET_MOBILE_WIDTH,
-                            self::WIDGET_APPEARANCE_TYPE
+                            static::WIDGET_DESKTOP_POSITION,
+                            static::WIDGET_MOBILE_POSITION,
+                            static::WIDGET_MOBILE_WIDTH,
+                            static::WIDGET_APPEARANCE_TYPE
                         ]
                     ]
                 ]

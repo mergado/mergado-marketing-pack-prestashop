@@ -15,6 +15,10 @@ $options = [
     [
         'id_option' => 'search',
         'name' => $this->module->l('Search', 'feeds-product')
+    ],
+    [
+        'id_option' => 'none',
+        'name' => $this->module->l('Nowhere', 'feeds-product')
     ]
 ];
 

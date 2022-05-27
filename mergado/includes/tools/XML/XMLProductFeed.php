@@ -335,6 +335,18 @@ class XMLProductFeed extends BaseFeedMulti
                 $xml_new->endElement();
             }
 
+            if ($product['tags']) {
+                foreach ($product['tags'] as $tag) {
+                    $xml_new->startElement('TAG');
+                    $xml_new->text($tag);
+                    $xml_new->endElement();
+                }
+            }
+
+            $xml_new->startElement('CATALOG_VISIBILITY');
+            $xml_new->text($product['catalog_visibility']);
+            $xml_new->endElement();
+
             // END ITEM
             $xml_new->endElement();
         }

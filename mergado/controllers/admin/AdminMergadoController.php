@@ -14,9 +14,8 @@
  * @license   LICENSE.txt
  */
 
-use Mergado\Arukereso\ArukeresoClass;
-use Mergado\Biano\BianoClass;
-use Mergado\Biano\BianoStarClass;
+use Mergado\includes\services\Biano\Biano\BianoClass;
+use Mergado\includes\services\Biano\BianoStar\BianoStarService;
 use Mergado\Etarget\EtargetClass;
 use Mergado\Facebook\FacebookClass;
 use Mergado\Forms\SupportForm;
@@ -24,10 +23,12 @@ use Mergado\Google\GaRefundClass;
 use Mergado\Google\GoogleReviewsClass;
 use Mergado\Google\GoogleAdsClass;
 use Mergado\Google\GoogleTagManagerClass;
+use Mergado\includes\services\ArukeresoFamily\Arukereso\ArukeresoService;
+use Mergado\includes\services\ArukeresoFamily\Compari\CompariService;
+use Mergado\includes\services\ArukeresoFamily\Pazaruvaj\PazaruvajService;
 use Mergado\Kelkoo\KelkooClass;
 use Mergado\NajNakup\NajNakupClass;
 use Mergado\Sklik\SklikClass;
-use Mergado\Tools\DirectoryManager;
 use Mergado\Tools\FeedQuery;
 use Mergado\Tools\ImportPricesClass;
 use Mergado\Tools\LanguagesClass;
@@ -73,7 +74,6 @@ class AdminMergadoController extends \ModuleAdminController
 
     public function __construct()
     {
-        $this->bootstrap = true;
         $this->className = 'AdminMergado';
         $this->table = Mergado::MERGADO['TABLE_NAME'];
         $this->name = Mergado::MERGADO['MODULE_NAME'];
@@ -117,6 +117,13 @@ class AdminMergadoController extends \ModuleAdminController
         $this->xmlClass = new XmlClass();
         $this->feedQuery = new FeedQuery();
         $this->importPricesClass = new ImportPricesClass();
+
+        try {
+            $cronRss = new Mergado\Tools\RssClass();
+            $cronRss->getFeed();
+        } catch (Exception $ex) {
+            // Error during installation  ()
+        }
     }
 
     /**
@@ -200,7 +207,7 @@ class AdminMergadoController extends \ModuleAdminController
                         ],
                     ],
                     'adsys' => [
-                        'cookies' => ['title' => '', 'form' => $this->pageCookies(), 'icon' => 'cookies'],
+                        'cookies' => ['title' => $this->l('Cookies'), 'form' => $this->pageCookies(), 'icon' => 'cookies'],
                         'google' => ['title' => $this->l('Google'), 'form' => $this->formAdSys_google()],
                         'facebook' => ['title' => $this->l('Facebook'), 'form' => $this->formAdSys_facebook()],
                         'heureka' => ['title' => $this->l('Heureka'),'form' => $this->formAdSys_heureka()],
@@ -212,6 +219,8 @@ class AdminMergadoController extends \ModuleAdminController
                         'kelkoo' => ['title' => $this->l('Kelkoo'),'form' => $this->formAdSys_kelkoo()],
                         'biano' => ['title' => $this->l('Biano'),'form' => $this->formAdSys_biano()],
                         'arukereso' => ['title' => $this->l('Árukereső'),'form' => $this->formAdSys_arukereso()],
+                        'compari' => ['title' => $this->l('Compari'),'form' => $this->formAdSys_compari()],
+                        'pazaruvaj' => ['title' => $this->l('Pazaruvaj'),'form' => $this->formAdSys_pazaruvaj()],
                     ],
                     'feeds-product' => [
                         'product' => $this->feedQuery->getProductFeedsData(),
@@ -392,13 +401,15 @@ class AdminMergadoController extends \ModuleAdminController
             SklikClass::getToggleFields(),
             KelkooClass::getToggleFields(),
             BianoClass::getToggleFields($this->languages->getLanguages(true)),
-            BianoStarClass::getToggleFields($this->languages->getLanguages(true)),
+            BianoStarService::getToggleFields($this->languages->getLanguages(true)),
             NajNakupClass::getToggleFields(),
             EtargetClass::getToggleFields(),
             GoogleReviewsClass::getToggleFields(),
             GaRefundClass::getToggleFields(),
             ZboziClass::getToggleFields($this->languages->getLanguages(true)),
-            ArukeresoClass::getToggleFields($this->languages->getLanguages(true)),
+            ArukeresoService::getToggleFields($this->languages->getLanguages(true)),
+            CompariService::getToggleFields($this->languages->getLanguages(true)),
+            PazaruvajService::getToggleFields($this->languages->getLanguages(true)),
             GoogleAdsClass::getToggleFields(),
             GoogleTagManagerClass::getToggleFields()
         );
@@ -425,6 +436,7 @@ class AdminMergadoController extends \ModuleAdminController
             // Delete checkbox values manually, because $_POST does not contain empty checkboxes
             if (isset($_POST['clrCheckboxesProduct'])) {
                 SettingsClass::clearSettings(SettingsClass::EXPORT['BOTH'], $this->shopID);
+                SettingsClass::clearSettings(SettingsClass::EXPORT['NONE'], $this->shopID);
                 SettingsClass::clearSettings(SettingsClass::EXPORT['DENIED_PRODUCTS'], $this->shopID);
                 SettingsClass::clearSettings(SettingsClass::EXPORT['CATALOG'], $this->shopID);
                 SettingsClass::clearSettings(SettingsClass::EXPORT['SEARCH'], $this->shopID);
@@ -730,6 +742,16 @@ class AdminMergadoController extends \ModuleAdminController
 
     public function formAdSys_arukereso() {
         include_once __DIR__ . '/forms/adsys/arukereso.php';
+        return @$helper->generateForm($fields_form);
+    }
+
+    public function formAdSys_compari() {
+        include_once __DIR__ . '/forms/adsys/compari.php';
+        return @$helper->generateForm($fields_form);
+    }
+
+    public function formAdSys_pazaruvaj() {
+        include_once __DIR__ . '/forms/adsys/pazaruvaj.php';
         return @$helper->generateForm($fields_form);
     }
 }

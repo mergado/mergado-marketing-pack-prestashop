@@ -48,6 +48,14 @@ $fields_form[0]['form'] = [
             'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->module->l('You can find your store key in the Heureka account administration under Verified customers > Settings and questionnaire data > Secret Key for verified customers.', 'heureka')
         ],
         [
+            'name' => 'mergado_fake_field',
+            'label' => $this->module->l('Text of the customer\'s consent to sending the questionnaire', 'heureka'),
+            'type' => 'text',
+            'class' => 'mff-d-none',
+            'visibility' => Shop::CONTEXT_ALL,
+            'desc' => '<a href="#consent-text" class="mmp_btn__blue mmp_btn__blue--small" style="font-style: normal;">' . $this->module->l('Edit consent text', 'heureka') . '</a>',
+        ],
+        [
             'name' => SettingsClass::HEUREKA['WIDGET_CZ'],
             'label' => $this->module->l('Heureka.cz - widget', 'heureka'),
             'hint' => $this->module->l('You need conversion code to enable this feature', 'heureka'),
@@ -229,6 +237,14 @@ $fields_form[2]['form'] = [
             'visibility' => Shop::CONTEXT_ALL,
         ],
         [
+            'name' => 'mergado_fake_field',
+            'label' => $this->module->l('Text of the customer\'s consent to sending the questionnaire', 'heureka'),
+            'type' => 'text',
+            'class' => 'mff-d-none',
+            'visibility' => Shop::CONTEXT_ALL,
+            'desc' => '<a href="#consent-text" class="mmp_btn__blue mmp_btn__blue--small" style="font-style: normal;">' . $this->module->l('Edit consent text', 'heureka') . '</a>',
+        ],
+        [
             'name' => SettingsClass::HEUREKA['WIDGET_ID_SK'],
             'label' => $this->module->l('Widget Id', 'heureka'),
             'type' => 'text',
@@ -360,6 +376,7 @@ $fields_form[4]['form'] = [
             'name' => 'mergado_fake_field',
             'label' => $this->module->l('Edit text of consent', 'heureka'),
             'type' => 'text',
+            'id' => 'consent-text',
             'class' => 'mff-d-none',
             'visibility' => Shop::CONTEXT_ALL,
             'desc' => '<span class="mmp-tag mmp-tag--field mmp-tag--question"></span>' . $this->module->l('Here you can edit the text of the sentence of consent to the sending of the questionnaire, displayed in the checkout page. This is an opt-out consent, ie the customer must confirm that he does not want to be involved in the program.', 'heureka'),

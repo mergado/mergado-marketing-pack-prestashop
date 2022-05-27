@@ -14,16 +14,20 @@
  * @license   LICENSE.txt
  */
 
-namespace Mergado\Biano;
+namespace Mergado\includes\services\Biano\BianoStar;
 
 include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
+use Mergado\includes\services\Biano\Biano\BianoClass;
 use Mergado\Tools\LanguagesClass;
 use Mergado\Tools\SettingsClass;
 
 
-class BianoStarClass
+class BianoStarService
 {
+    const SERVICE_NAME = 'bianoStar';
+    const CONSENT_NAME = 'mergado_biano_star_consent';
+
     const ACTIVE = 'mmp_biano_star_active';
     const SHIPMENT_IN_STOCK = 'mmp_biano_star_shipment_in_stock';
     const SHIPMENT_BACKORDER = 'mmp_biano_star_shipment_backorder';
@@ -32,6 +36,8 @@ class BianoStarClass
     const OPT_OUT = 'mmp_biano_start_opt_out_text_';
 
     const DEFAULT_OPT = 'Do not send a satisfaction questionnaire within the Biano Star program.';
+
+    const TEMPLATES_PATH = 'includes/services/Biano/BianoStar/templates/';
 
     private $active;
     private $shipmentInStock;

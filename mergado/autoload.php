@@ -1,9 +1,15 @@
 <?php
+// Abstract
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/AbstractArukeresoFamilyService.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/AbstractArukeresoFamilyServiceIntegration.php';
+
 // Services
-include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Arukereso/ArukeresoClass.php';
-include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Arukereso/TrustedShop.php';
-include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Biano/BianoClass.php';
-include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Biano/BianoStarClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/Arukereso/ArukeresoService.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/Compari/CompariService.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/Pazaruvaj/PazaruvajService.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/TrustedShop.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Biano/Biano/BianoClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Biano/BianoStar/BianoStarService.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Etarget/EtargetClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Facebook/FacebookClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Glami/GlamiClass.php';
@@ -23,7 +29,10 @@ include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Zbozi/ZboziCartItem.ph
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Zbozi/ZboziClass.php';
 
 // Service integration
-include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Biano/BianoStarServiceIntegration.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/Arukereso/ArukeresoServiceIntegration.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/Compari/CompariServiceIntegration.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/Pazaruvaj/PazaruvajServiceIntegration.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Biano/BianoStar/BianoStarServiceIntegration.php';
 
 // Tools
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/HelperClass.php';

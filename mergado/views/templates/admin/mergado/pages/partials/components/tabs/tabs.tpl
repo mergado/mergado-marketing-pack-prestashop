@@ -1,4 +1,4 @@
-<ul class="mmp_tabs mmp_tabs__menu">
+<ul class="mmp-tabs mmp-tabs__menu">
     {foreach $mmpTabsSettings as $key => $tab }
         {if $tab['active']}
             <li class="active">
@@ -15,7 +15,7 @@
             {/if}
 
                 {if isset($tab['title']) && $tab['title'] !== ''}
-                    <div class="mmp_tabs__title">
+                    <div class="mmp-tabs__title">
                         {$tab['title']}
                     </div>
                 {/if}
@@ -24,12 +24,12 @@
     {/foreach}
 </ul>
 
-<div class="mmp_tabs mmp_tabs__content">
+<div class="mmp-tabs mmp-tabs__content">
     {foreach $mmpTabsSettings as $key => $tab}
         {if $tab['active']}
-            <div class="mmp_tabs__tab active" data-mmp-tab="{$key}">
+            <div class="mmp-tabs__tab active" data-mmp-tab="{$key}">
         {else}
-            <div class="mmp_tabs__tab" data-mmp-tab="{$key}">
+            <div class="mmp-tabs__tab" data-mmp-tab="{$key}">
         {/if}
             {include file=$tab['contentPath']}
         </div>

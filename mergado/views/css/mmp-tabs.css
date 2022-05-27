@@ -1,0 +1,206 @@
+/* MERGADO TABS */
+.mmp-tabs.mmp-tabs__menu {
+  display: flex;
+  margin-bottom: 0;
+  list-style-type: none;
+  margin-left: 25px;
+}
+
+.mmp-tabs.mmp-tabs__menu li {
+  position: relative;
+  margin-bottom: 0;
+  border-top: 1px solid #ccd0d4;
+  border-right: 1px solid #ccd0d4;
+  display: flex;
+  align-items: center;
+}
+
+.mmp-tabs.mmp-tabs__menu li:first-of-type {
+  border-top: 1px solid #ccd0d4;
+  border-right: 1px solid #ccd0d4;
+  border-left: 1px solid #ccd0d4;
+}
+
+.mmp-tabs.mmp-tabs__menu a {
+  font-weight: 600;
+  padding: 5px 16px;
+  text-decoration: none;
+  color: grey;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  height: 100%;
+  min-width: 25px;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.mmp-tabs.mmp-tabs__menu a:hover,
+.mmp-tabs.mmp-tabs__menu a:focus,
+.mmp-tabs.mmp-tabs__menu a:active {
+  outline: none;
+  box-shadow: none;
+}
+
+.mmp-tabs.mmp-tabs__menu a svg {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+}
+
+.mmp-tabs__title {
+  font-size: 13px;
+}
+
+.mmp-tabs .hasIcon .mmp-tabs__title {
+  margin-left: 10px;
+}
+
+.mmp-tabs.mmp-tabs__menu li.active a {
+  color: black;
+}
+
+.mmp-tabs.mmp-tabs__menu li.active::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: 4px;
+  content: '';
+  background-color: var(--mmp-blue);;
+}
+
+.mmp-tabs.mmp-tabs__menu li.active::after {
+  position: absolute;
+  z-index: 9;
+  bottom: -2px;
+  left: 1px;
+  display: block;
+  width: calc(100% - 2px);
+  height: 4px;
+  content: '';
+  background-color: white;
+}
+
+.mmp-tabs__tab {
+  display: none;
+}
+
+.mmp-tabs__tab.active {
+  display: block;
+}
+
+.mmp-tabs__tab .card:first-child {
+  margin-top: 0;
+}
+
+.mmp-tabs__tab[data-mmp-tab="import"] .mmp_feedBox__button {
+  box-sizing: content-box !important;
+}
+
+/*------------- Horizontal -------------*/
+.mmp-tabs--horizontal {
+  display: flex;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__menu {
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  margin-left: 0;
+  margin-top: 0;
+  padding-left: 0;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__menu li {
+  border-top: 1px solid #ccd0d4 !important;
+  border-right: none !important;
+  border-left: 1px solid #ccd0d4 !important;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__menu li:last-of-type {
+  border-bottom: 1px solid #ccd0d4 !important;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__menu li a {
+  width: 100%;
+  justify-content: space-between;
+  opacity: 0.65;
+  min-height: 44px !important;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__menu li a .mmp-tabs__title {
+  order: 1;
+}
+.mmp-tabs--horizontal .mmp-tabs__menu li a svg {
+  order: 2;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__menu li a.hasIcon .mmp-tabs__title {
+  margin-left: 0;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__menu li.active a {
+  /*background-color: #e1f5f7;*/
+  opacity: 1;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__menu li.active::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 4px;
+  height: 100%;
+  content: '';
+  background-color: var(--mmp-blue);
+}
+
+.mmp-tabs--horizontal .mmp-tabs__menu li.active::after {
+  position: absolute;
+  z-index: 9;
+  bottom: 0;
+  right: -2px;
+  left: auto;
+  display: block;
+  width: 4px;
+  height: 100%;
+  content: '';
+  background-color: white;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__menu li:first-of-type {
+  border: none;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__content {
+  width: 100%;
+  background-color: white;
+  border: 1px solid #c3c4c7;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__content .card {
+  border: none;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__content .panel {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__tab:first-child .panel-heading {
+  position: relative;
+}
+
+.mmp-tabs--horizontal.ps17 .mmp-tabs__tab:first-child .panel-heading::before {
+  content: '';
+  height: 100%;
+  width: 1px;
+  background-color: #dfdfdf;
+  position: absolute;
+  top: 0;
+  left: -1px;
+  z-index: 1000;
+}

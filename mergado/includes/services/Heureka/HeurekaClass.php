@@ -26,6 +26,9 @@ use Mergado\Tools\SettingsClass;
 
 class HeurekaClass
 {
+    const SERVICE_NAME = 'heureka';
+    const CONSENT_NAME = 'mergado_heureka_consent';
+
     const HEUREKA_URL = 'https://www.heureka.cz/direct/dotaznik/objednavka.php';
     const HEUREKA_URL_SK = 'https://www.heureka.sk/direct/dotaznik/objednavka.php';
 

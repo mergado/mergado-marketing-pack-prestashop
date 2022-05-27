@@ -344,105 +344,6 @@ h2 {
     margin: 0 0 15px !important;
 }
 
-
-/* MERGADO TABS */
-.mmp_tabs.mmp_tabs__menu {
-    display: flex;
-    margin-bottom: 0;
-    list-style-type: none;
-    margin-left: 25px;
-}
-
-.mmp_tabs.mmp_tabs__menu li {
-    position: relative;
-    margin-bottom: 0;
-    border-top: 1px solid #ccd0d4;
-    border-right: 1px solid #ccd0d4;
-    display: flex;
-    align-items: center;
-}
-
-.mmp_tabs.mmp_tabs__menu li:first-of-type {
-    border-top: 1px solid #ccd0d4;
-    border-right: 1px solid #ccd0d4;
-    border-left: 1px solid #ccd0d4;
-}
-
-.mmp_tabs.mmp_tabs__menu a {
-    font-weight: 600;
-    padding: 5px 16px;
-    text-decoration: none;
-    color: grey;
-    background-color: white;
-    display: flex;
-    align-items: center;
-    min-height: 46px;
-    height: 100%;
-    min-width: 25px;
-    justify-content: center;
-    font-size: 13px;
-}
-
-.mmp_tabs.mmp_tabs__menu a:hover,
-.mmp_tabs.mmp_tabs__menu a:focus,
-.mmp_tabs.mmp_tabs__menu a:active {
-    outline: none;
-    box-shadow: none;
-}
-
-.mmp_tabs.mmp_tabs__menu a svg {
-    width: 18px;
-    height: 18px;
-    display: inline-block;
-}
-
-.mmp_tabs__title {
-    font-size: 13px;
-}
-
-.mmp_tabs .hasIcon .mmp_tabs__title {
-    margin-left: 10px;
-}
-
-.mmp_tabs.mmp_tabs__menu li.active a {
-    color: black;
-}
-
-.mmp_tabs.mmp_tabs__menu li.active::before {
-    position: absolute;
-    top: 0;
-    left: 0;
-    display: block;
-    width: 100%;
-    height: 4px;
-    content: '';
-    background-color: var(--mmp-blue);;
-}
-
-.mmp_tabs.mmp_tabs__menu li.active::after {
-    position: absolute;
-    z-index: 9;
-    bottom: -2px;
-    left: 1px;
-    display: block;
-    width: calc(100% - 2px);
-    height: 4px;
-    content: '';
-    background-color: white;
-}
-
-.mmp_tabs__tab {
-    display: none;
-}
-
-.mmp_tabs__tab.active {
-    display: block;
-}
-
-.mmp_tabs__tab .card:first-child {
-    margin-top: 0;
-}
-
 .col-content {
     width: 100%;
 }
@@ -476,7 +377,7 @@ h2 {
 }
 
 .mmp-popup__box {
-    min-width: 300px;
+    min-width: 320px;
     max-width: 100vw;
     max-height: 100vh;
     margin: 20px;
@@ -1007,7 +908,7 @@ h2 {
 
 #mmpabout .mmpabout__left,
 #mmpabout .mmpabout__right {
-    width: 300px;
+    width: 310px;
     display: flex;
     flex-direction: column;
 }
