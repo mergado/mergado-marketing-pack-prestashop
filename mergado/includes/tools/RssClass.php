@@ -39,45 +39,46 @@ class RssClass
     {
 
         $now = new DateTime();
-        $date = $now->format(NewsClass::DATE_FORMAT);
-
-        $lastDownload = SettingsClass::getSettings(SettingsClass::RSS_FEED, 0);
-
-        $lastDate = new DateTime($lastDownload);
-
-        if ($this->getDownloadLock() < count(self::FEED_URLS) * 3) {
-            $dateFormatted = $lastDate->modify('+5 minutes')->format(NewsClass::DATE_FORMAT);
-        } else {
-            $dateFormatted = $lastDate->modify('+30 minutes')->format(NewsClass::DATE_FORMAT);
-        }
 
         try {
-            if ($lastDownload && $lastDownload !== '') {
-                if ($dateFormatted <= $date) {
-                    foreach(self::FEED_URLS as $item_lang => $val) {
+            $lastDownload = SettingsClass::getSettings(SettingsClass::RSS_FEED, 0);
 
+            if ($lastDownload) {
+                $lastDownloadDateTime = new DateTime($lastDownload);
+
+                if ($this->getDownloadLock() === 0) {
+                    $dateFormatted = $this->getTimeWithModify($lastDownloadDateTime, '+60 minutes');
+                } else {
+                    $minutes = 120 * $this->getDownloadLock();
+                    $dateFormatted = $this->getTimeWithModify($lastDownloadDateTime, '+' . $minutes . ' minutes');
+                }
+
+                if ($dateFormatted <= $now) {
+                    foreach(self::FEED_URLS as $item_lang => $val) {
                         $this->saveFeed($item_lang);
                     }
 
+                    // Set lock on null and download time to now
                     $this->nullDownloadLock();
-                    $this->setLastDownload($date);
+                    $this->setLastDownload($now->format(NewsClass::DATE_FORMAT));
                 }
             } else {
                 foreach(self::FEED_URLS as $item_lang => $val) {
                     $this->saveFeed($item_lang);
                 }
 
+                // Set lock on null and download time to now
                 $this->nullDownloadLock();
-                $this->setLastDownload($date);
+                $this->setLastDownload($now->format(NewsClass::DATE_FORMAT));
             }
         } catch (InvalidXmlException $e) {
             LogClass::log("Mergado XML parse RSS feed ERROR:\n" . $e->getMessage());
             $this->increaseDownloadLock();
-            $this->setLastDownload($date);
+            $this->setLastDownload($now->format(NewsClass::DATE_FORMAT));
         } catch (Exception $e) {
             LogClass::log("Mergado save downloaded RSS feed ERROR:\n" . $e->getMessage());
             $this->increaseDownloadLock();
-            $this->setLastDownload($date);
+            $this->setLastDownload($now->format(NewsClass::DATE_FORMAT));
         }
     }
 
@@ -198,11 +199,18 @@ class RssClass
     }
 
     /**
-     * Return current downlaod lock number
+     * Return current download lock number
      * @return false|string|null
      */
     private function getDownloadLock()
     {
         return SettingsClass::getSettings(SettingsClass::RSS_FEED_LOCK, 0);
+    }
+
+    private function getTimeWithModify(DateTime $dateTime, string $modifyString)
+    {
+        $clonedDate = clone $dateTime;
+
+        return $clonedDate->modify($modifyString);
     }
 }

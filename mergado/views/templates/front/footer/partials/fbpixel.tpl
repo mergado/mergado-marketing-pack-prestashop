@@ -74,15 +74,25 @@
     {if $p_name == 'product'}
         document.addEventListener('DOMContentLoaded', function () {
             var contentName = '';
-            if (typeof sharing_name !== 'undefined') {
-             contentName = [sharing_name]; {* PS 1.6 *}
-            } else {
-              contentName = ['{$product->name}']; {* PS 1.7 *}
-            }
+
+            {if (float)_PS_VERSION_ >= Mergado::PS_V_17}
+                contentName = ['{$product->name}']; {* PS 1.7 *}
+            {else}
+                if (typeof sharing_name !== 'undefined') {
+                    contentName = [sharing_name]; {* PS 1.6 *}
+                } else {
+                  if ($('#product-details[data-product]').length > 0) {
+                    var productJSON = JSON.parse($('#product-details[data-product]').attr('data-product'));
+                    contentName = productJSON.name;
+                  } else {
+                    contentName = $('h1[itemprop="name"]').text();
+                  }
+                }
+            {/if}
 
             var productId = '';
 
-            {if $product === NULL}
+            {if (float)_PS_VERSION_ < Mergado::PS_V_17}
               productId = '{$productId}'; {* PS 1.6 *}
               var combination16 = $('#idCombination');
               var combination16Value = combination16.val();
