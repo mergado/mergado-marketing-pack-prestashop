@@ -186,7 +186,7 @@
             ajax: true,
             controller: 'AdminMergado',
             action: 'ajax_lower_cron_product_step',
-            feed: data.feed,
+            feed: data.feedName,
             token: data.token,
             dataType: 'json'
           },

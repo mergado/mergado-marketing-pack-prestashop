@@ -54,7 +54,7 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '3.2.1',
+        'VERSION' => '3.2.2',
         'PHP_MIN_VERSION' => 7.1
     ];
 
@@ -763,6 +763,9 @@ class Mergado extends Module
 
         $display .= $this->cartDataPs17($params);
 
+
+        $jsDef = [];
+
         if ($this->cookieClass->isCookieBlockingEnabled()) {
             $this->context->controller->addJS($this->_path . 'views/js/cookies.js');
         }
@@ -870,21 +873,19 @@ class Mergado extends Module
                 $send_to = $this->GoogleAdsClass->getConversionsCode();
             }
 
-            Media::addJsDef(
-                array('mergado' =>
-                    array (
-                        'GoogleAds' => array(
-                            'remarketingActive' => $this->GoogleAdsClass->isRemarketingActive(),
-                            'remarketingType' => $this->GoogleAdsClass->getRemarketingTypeForTemplate(),
-                        ),
-                        'Gtag' => array(
-                            'enhancedActive' => Mergado\Google\GoogleClass::isGtagjsEcommerceEnhancedActive($this->shopId),
-                        ),
-                        'GtagAndGads' => array (
-                            'send_to' => $send_to,
-                        )
+            $jsDef = array_merge(
+            array (
+                    'GoogleAds' => array(
+                        'remarketingActive' => $this->GoogleAdsClass->isRemarketingActive(),
+                        'remarketingType' => $this->GoogleAdsClass->getRemarketingTypeForTemplate(),
+                    ),
+                    'Gtag' => array(
+                        'enhancedActive' => Mergado\Google\GoogleClass::isGtagjsEcommerceEnhancedActive($this->shopId),
+                    ),
+                    'GtagAndGads' => array (
+                        'send_to' => $send_to,
                     )
-                )
+                ), $jsDef
             );
 
             $this->context->controller->addJS($this->_path . 'views/js/gtag.js');
@@ -934,13 +935,9 @@ class Mergado extends Module
 
             //Google Tag Manager - ecommerce enhanced
             if ($this->GoogleTagManagerClass->isEnhancedEcommerceActive()) {
-                Media::addJsDef(
-                    array('mergado' =>
-                        array(
-                            'GoogleTagManager' => array('maxViewListItems' => $this->GoogleTagManagerClass->getViewListItemsCount()),
-                        )
-                    )
-                );
+                $jsDef = array_merge(array(
+                    'GoogleTagManager' => array('maxViewListItems' => $this->GoogleTagManagerClass->getViewListItemsCount()),
+                ), $jsDef);
 
                 $this->context->controller->addJS($this->_path . 'views/js/gtm.js');
             }
@@ -1065,6 +1062,10 @@ class Mergado extends Module
         $this->compariServiceIntegration->addCheckboxForPs17($this->context, $this->_path);
         $this->pazaruvajServiceIntegration->addCheckboxForPs17($this->context, $this->_path);
         $this->bianoStarServiceIntegration->addCheckboxForPS17($this->context, $this->_path);
+
+        Media::addJsDef(
+            array('mergado' => $jsDef)
+        );
 
         return $display;
     }

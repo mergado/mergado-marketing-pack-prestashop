@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 var m_GTAG = {
     couponCookie: 'mergado_gtag_ps_coupons',
     init: function () {
+        // if ((typeof mergado.GoogleAds.remarketingActive !== 'undefined' && mergado.GoogleAds.remarketingActive ) || (typeof mergado.Gtag.enhancedActive !== 'undefined' && mergado.Gtag.enhancedActive)) {
         if (mergado.GoogleAds.remarketingActive || mergado.Gtag.enhancedActive) {
             //Add to cart
             this.initAddToCartPs16();
