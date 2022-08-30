@@ -54,12 +54,21 @@ class MergadoAjaxModuleFrontController extends ModuleFrontController
                         break;
                 }
             }
-
-            // Classic json response
-            $json = Tools::jsonEncode($response);
-            echo $json;
-            die;
         }
+
+        if (Tools::isSubmit('action')) {
+            switch (Tools::getValue('action')) {
+                case 'getCartData';
+                    $response = \Mergado\includes\helpers\CartHelper::getAjaxCartData();
+                default:
+                    break;
+            }
+        }
+
+        // Classic json response
+        $json = Tools::jsonEncode($response);
+        echo $json;
+        die;
     }
 
     public function setConsentCookie($serviceName, $consentName) {

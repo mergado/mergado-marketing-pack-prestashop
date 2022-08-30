@@ -52,24 +52,6 @@ class SettingsClass
         'SHOP_ID' => 'mergado_pricemania_shop_id'
     ];
 
-    const GOOGLE_GTAGJS = [
-        'ACTIVE' => 'mergado_google_analytics_active',
-        'CODE' => 'mergado_google_analytics_code',
-        'TRACKING' => 'mergado_google_analytics_tracking',
-        'ECOMMERCE' => 'mergado_google_analytics_ecommerce',
-        'ECOMMERCE_ENHANCED' => 'mergado_google_analytics_ecommerce_enhanced',
-        'CONVERSION_VAT_INCL' => 'mergado_google_analytics_conversion_vat_incl',
-    ];
-
-    const GOOGLE_TAG_MANAGER = [
-        'ACTIVE' => 'mergado_google_tag_manager_active',
-        'CODE' => 'mergado_google_tag_manager_code',
-        'TRACKING' => 'mergado_google_tag_manager_tracking',
-        'ECOMMERCE' => 'mergado_google_tag_manager_ecommerce',
-        'ECOMMERCE_ENHANCED' => 'mergado_google_tag_manager_ecommerce_enhanced',
-        'CONVERSION_VAT_INCL' => 'mergado_google_tag_manager_conversion_vat_incl',
-    ];
-
     const GLAMI = [
         'ACTIVE' => 'glami_active', // Activation of module
         'CODE' => 'glami_pixel_code', // Helper for code variables

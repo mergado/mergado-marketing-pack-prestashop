@@ -6,6 +6,7 @@ use Address;
 use Country;
 use DateTime;
 use Mergado;
+use Mergado\includes\traits\SingletonTrait;
 use Mergado\Tools\SettingsClass;
 
 class GoogleReviewsClass
@@ -65,13 +66,14 @@ class GoogleReviewsClass
     private $badgePosition;
     private $language;
 
+    use SingletonTrait;
+
     /**
      * GoogleReviews constructor.
-     * @param $shopId
      */
-    public function __construct($shopId)
+    protected function __construct()
     {
-        $this->shopId = $shopId;
+        $this->shopId = Mergado::getShopId();
     }
 
     /*******************************************************************************************************************
@@ -247,14 +249,14 @@ class GoogleReviewsClass
 
     public function getBadgeSmartyVariables()
     {
-        $cookieClass = new Mergado\Tools\CookieClass($this->shopId);
+        $cookieService = Mergado\includes\tools\CookieService::getInstance();
 
         return [
             'MERCHANT_ID' => $this->getMerchantId(),
             'POSITION' => $this->getBadgePosition(),
             'IS_INLINE' => $this->isPositionInline(),
             'LANGUAGE' => $this->getLanguage(),
-            'ADVERTISEMENT_ENABLED' => $cookieClass->advertismentEnabled(),
+            'ADVERTISEMENT_ENABLED' => $cookieService->advertismentEnabled(),
         ];
     }
 

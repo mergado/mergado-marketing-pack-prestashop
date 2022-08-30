@@ -11,7 +11,7 @@
 
 <?php
 
-use Mergado\Tools\CookieClass;
+use Mergado\includes\tools\CookieService;
 
 $fields_form[0]['form'] = [
     'input' => [
@@ -24,7 +24,7 @@ $fields_form[0]['form'] = [
             'name' => 'id_shop'
         ],
         [
-            'name' => CookieClass::FIELD_COOKIES_ENABLE,
+            'name' => CookieService::FIELD_COOKIES_ENABLE,
             'label' => $this->module->l('Activate cookie consent settings', 'cookies'),
             'validation' => 'isBool',
             'cast' => 'intval',
@@ -108,19 +108,19 @@ $fields_form1[0]['form'] = [
             'name' => 'id_shop'
         ],
         [
-            'name' => CookieClass::FIELD_ANALYTICAL_USER,
+            'name' => CookieService::FIELD_ANALYTICAL_USER,
             'label' => $this->module->l('Analytics', 'cookies'),
             'type' => 'text',
             'visibility' => Shop::CONTEXT_ALL,
         ],
         [
-            'name' => CookieClass::FIELD_ADVERTISEMENT_USER,
+            'name' => CookieService::FIELD_ADVERTISEMENT_USER,
             'label' => $this->module->l('Advertisement', 'cookies'),
             'type' => 'text',
             'visibility' => Shop::CONTEXT_ALL,
         ],
         [
-            'name' => CookieClass::FIELD_FUNCTIONAL_USER,
+            'name' => CookieService::FIELD_FUNCTIONAL_USER,
             'label' => $this->module->l('Functional', 'cookies'),
             'type' => 'text',
             'visibility' => Shop::CONTEXT_ALL,

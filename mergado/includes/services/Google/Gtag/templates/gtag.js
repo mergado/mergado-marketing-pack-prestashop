@@ -24,58 +24,74 @@ document.addEventListener("DOMContentLoaded", function (event) {
  **********************************************************************************************************************/
 
 var m_GTAG = {
-    couponCookie: 'mergado_gtag_ps_coupons',
     init: function () {
-        // if ((typeof mergado.GoogleAds.remarketingActive !== 'undefined' && mergado.GoogleAds.remarketingActive ) || (typeof mergado.Gtag.enhancedActive !== 'undefined' && mergado.Gtag.enhancedActive)) {
-        if (mergado.GoogleAds.remarketingActive || mergado.Gtag.enhancedActive) {
+        if (mmp_gua.enhancedActive) {
             //Add to cart
-            this.initAddToCartPs16();
-            this.initAddToCartPs17();
+            this.initAddToCartPs16(mmp_gua.sendTo);
+            this.initAddToCartPs17(mmp_gua.sendTo);
 
             //List view
             if(typeof prestashop != 'undefined') {
-                this.initViewListPs17();
+                this.initViewListPs17(mmp_gua.sendTo);
             } else {
-                this.initViewListPs16();
+                this.initViewListPs16(mmp_gua.sendTo);
             }
 
             //Detail of product
             if ($('body#product').length > 0) {
-                this.initDetailViewed();
+                this.initDetailViewed(mmp_gua.sendTo);
             }
         }
 
-        if (mergado.Gtag.enhancedActive) {
-            this.initRemoveFromCartPs16();
-            this.initRemoveFromCartPs17();
+        if (mmp_gads.remarketingActive) {
+            //Add to cart
+            this.initAddToCartPs16(mmp_gads.sendTo);
+            this.initAddToCartPs17(mmp_gads.sendTo);
+
+            //List view
+            if(typeof prestashop != 'undefined') {
+                this.initViewListPs17(mmp_gads.sendTo);
+            } else {
+                this.initViewListPs16(mmp_gads.sendTo);
+            }
+
+            //Detail of product
+            if ($('body#product').length > 0) {
+                this.initDetailViewed(mmp_gads.sendTo);
+            }
+        }
+
+        if (mmp_gua.enhancedActive) {
+            this.initRemoveFromCartPs16(mmp_gua.sendTo);
+            this.initRemoveFromCartPs17(mmp_gua.sendTo);
 
             //PS 1.6
             //Standard checkout page and one page checkout
             if ($('body#order').length > 0 || $('body#order-opc').length > 0) {
                 // Init - carrier and payment select options
-                this.initCarrierSetPs16();
-                this.initPaymentSetPs16();
+                this.initCarrierSetPs16(mmp_gua.sendTo);
+                this.initPaymentSetPs16(mmp_gua.sendTo);
 
                 if ($('[data-mscd]').length > 0 && $('[data-mscd-cart-id]').length > 0) {
                     // Init - start of checkout, add of coupon to cart and remove of coupon from cart
-                    this.initCheckoutStarted16();
-                    this.initCheckoutReviewStepPs16();
-                    this.initCheckoutLoginStepPs16();
-                    this.initCheckoutAddressStepPs16();
-                    this.initCheckoutDeliveryStepPs16();
-                    this.initCheckoutPaymentStepPs16();
-                    this.initCouponAdded();
-                    this.initCouponRemoved();
+                    this.initCheckoutStarted16(mmp_gua.sendTo);
+                    this.initCheckoutReviewStepPs16(mmp_gua.sendTo);
+                    this.initCheckoutLoginStepPs16(mmp_gua.sendTo);
+                    this.initCheckoutAddressStepPs16(mmp_gua.sendTo);
+                    this.initCheckoutDeliveryStepPs16(mmp_gua.sendTo);
+                    this.initCheckoutPaymentStepPs16(mmp_gua.sendTo);
+                    this.initCouponAdded(mmp_gua.sendTo);
+                    this.initCouponRemoved(mmp_gua.sendTo);
                 }
             }
 
             //PS 1.7
             if($('body#cart').length > 0) {
                 //Checkout step 1 - cart click on button
-                this.initCheckoutStarted17();
+                this.initCheckoutStarted17(mmp_gua.sendTo);
 
                 if ($('[data-mscd]').length > 0 && $('[data-mscd-cart-id]').length > 0) {
-                    this.initCouponChangePs17();
+                    this.initCouponChangePs17(mmp_gua.sendTo);
                 }
             }
 
@@ -83,19 +99,19 @@ var m_GTAG = {
             if($('body#checkout').length > 0) {
                 //Checkout steps
                 //2 - selected/create address page
-                this.initCheckoutAddressStep17();
+                this.initCheckoutAddressStep17(mmp_gua.sendTo);
 
                 //3 - delivery page
-                this.initCheckoutDeliveryStep17();
-                this.initCarrierSetPs17();
+                this.initCheckoutDeliveryStep17(mmp_gua.sendTo);
+                this.initCarrierSetPs17(mmp_gua.sendTo);
 
                 //4 - payment page
-                this.initCheckoutPaymentStep17();
-                this.initPaymentSetPs17();
+                this.initCheckoutPaymentStep17(mmp_gua.sendTo);
+                this.initPaymentSetPs17(mmp_gua.sendTo);
             }
         }
     },
-    initAddToCartPs16: function () {
+    initAddToCartPs16: function (sendTo) {
         //PS 1.6
         $('.ajax_add_to_cart_button').on('click', function () {
             var $_id = $(this).attr('data-id-product');
@@ -109,7 +125,7 @@ var m_GTAG = {
                 $_id = $_id + '-' + $(this).attr('data-id-product-attribute');
             }
 
-            m_GTAG_events.sendAddToCart($_id, $_name, $_category, $_price, $_quantity, $_currency);
+            mmp_GUA_events.sendAddToCart($_id, $_name, $_category, $_price, $_quantity, $_currency, sendTo);
         });
 
         //PS 1.6
@@ -127,10 +143,10 @@ var m_GTAG = {
                 $_id = $_id + '-' + buyBlock.find('#idCombination').val();
             }
 
-            m_GTAG_events.sendAddToCart($_id, $_name, $_category, $_price, $_quantity, $_currency);
+            mmp_GUA_events.sendAddToCart($_id, $_name, $_category, $_price, $_quantity, $_currency, sendTo);
         });
     },
-    initAddToCartPs17: function () {
+    initAddToCartPs17: function (sendTo) {
         // PS 1.7
         $('body').on('click', '.add-to-cart', function () {
             addEvents($(this))
@@ -178,10 +194,10 @@ var m_GTAG = {
                 }
             }
 
-            m_GTAG_events.sendAddToCart($_id, $_name, $_category, $_price, $_quantity, $_currency);
+            mmp_GUA_events.sendAddToCart($_id, $_name, $_category, $_price, $_quantity, $_currency, sendTo);
         }
     },
-    initRemoveFromCartPs16: function() {
+    initRemoveFromCartPs16: function(sendTo) {
         //PS 1.6
         $('.ajax_cart_block_remove_link, .cart_quantity_delete').on('click', function () {
             var urlParams = new URLSearchParams($(this).attr('href'));
@@ -194,10 +210,10 @@ var m_GTAG = {
                 $_id += "-" + $_ipa;
             }
 
-            m_GTAG_events.sendRemoveFromCart($_id, $_currency);
+            mmp_GUA_events.sendRemoveFromCart($_id, $_currency, sendTo);
         });
     },
-    initRemoveFromCartPs17: function() {
+    initRemoveFromCartPs17: function(sendTo) {
         //PS 1.7
         $('body').on('click', '.remove-from-cart[data-link-action="delete-from-cart"]', function () {
             var urlParams = new URLSearchParams($(this).attr('href'));
@@ -211,10 +227,10 @@ var m_GTAG = {
                 $_id += "-" + $_ipa;
             }
 
-            m_GTAG_events.sendRemoveFromCart($_id, $_currency);
+            mmp_GUA_events.sendRemoveFromCart($_id, $_currency, sendTo);
         });
     },
-    initDetailViewed: function() {
+    initDetailViewed: function(sendTo) {
         var $_id, $_name, $_currency;
 
         if ($('#product-details[data-product]').length > 0) {
@@ -242,16 +258,16 @@ var m_GTAG = {
             }
         }
 
-        m_GTAG_events.sendViewItem($_id, $_name, $_currency);
+        mmp_GUA_events.sendViewItem($_id, $_name, $_currency, sendTo);
     },
-    initPaymentSetPs16: function () {
+    initPaymentSetPs16: function (sendTo) {
         //PS 1.6
         //Multistep
         if($('body#order').length > 0) {
             $('.payment_module a').on('click', function () {
                 var value = $(this).attr('title');
 
-                m_GTAG_events.sendCheckoutOptionSelected('payment method', 4, value);
+                mmp_GUA_events.sendCheckoutOptionSelected('payment method', 4, value, sendTo);
             });
         }
 
@@ -262,22 +278,22 @@ var m_GTAG = {
                 var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
                 var $_currency = currency.iso_code;
 
-                m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
-                m_GTAG_events.sendCheckoutOptionSelected('payment method', 3, value);
+                mmp_GUA_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency, sendTo);
+                mmp_GUA_events.sendCheckoutOptionSelected('payment method', 3, value, sendTo);
             });
         }
     },
-    initPaymentSetPs17: function () {
+    initPaymentSetPs17: function (sendTo) {
         //PS 1.7
         $('.payment-options input').on('click', function () {
             // var value = $(this).closest('.payment-option').find('label span').text();
             var value = $(this).attr('id');
             var label = $('label[for="' + value + '"] span').text();
 
-            m_GTAG_events.sendCheckoutOptionSelected('payment method', 4, label);
+            mmp_GUA_events.sendCheckoutOptionSelected('payment method', 4, label, sendTo);
         });
     },
-    initCarrierSetPs16: function () {
+    initCarrierSetPs16: function (sendTo) {
         //Mutlipage checkout
 
         if($('body#order')) {
@@ -289,7 +305,7 @@ var m_GTAG = {
 
                     var value = $(this).val().replace(',', '');
 
-                    m_GTAG_events.sendCheckoutOptionSelected('shipping method', 3 ,value);
+                    mmp_GUA_events.sendCheckoutOptionSelected('shipping method', 3 ,value, sendTo);
 
                     setTimeout(function () {
                         lock = false;
@@ -308,8 +324,8 @@ var m_GTAG = {
                         var $_currency = currency.iso_code;
                         var value = $(this).val().replace(',', '');
                         var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
-                        m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency)
-                        m_GTAG_events.sendCheckoutOptionSelected('shipping method', 2, value);
+                        mmp_GUA_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency, sendTo);
+                        mmp_GUA_events.sendCheckoutOptionSelected('shipping method', 2, value, sendTo);
 
                     setTimeout(function () {
                         lock = false;
@@ -318,23 +334,23 @@ var m_GTAG = {
             });
         }
     },
-    initCarrierSetPs17: function () {
+    initCarrierSetPs17: function (sendTo) {
         $('.delivery-option input').on('click', function () {
             // var value = $(this).closest('.delivery-option').find('.carrier-name').text();
             var value = $(this).attr('id');
             var label = $('label[for="' + value + '"]').find('.carrier-name').text();
 
-            m_GTAG_events.sendCheckoutOptionSelected('payment method', 3, label);
+            mmp_GUA_events.sendCheckoutOptionSelected('payment method', 3, label, sendTo);
         });
     },
-    initCheckoutStarted16: function () {
+    initCheckoutStarted16: function (sendTo) {
         //Multistep
         $('body#order .cart_navigation .standard-checkout').on('click', function () {
             if (typeof $(this).attr('name') == 'undefined' || $(this).attr('name') === '') {
                 var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
                 var $_currency = currency.iso_code;
 
-                m_GTAG_events.sendBeginCheckout(items, m_GTAG.getCoupon(), $_currency);
+                mmp_GUA_events.sendBeginCheckout(items, m_GTAG.getCoupon(), $_currency, sendTo);
             }
         });
 
@@ -343,47 +359,47 @@ var m_GTAG = {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
             var $_currency = currency.iso_code;
 
-            m_GTAG_events.sendBeginCheckout(items, m_GTAG.getCoupon(), $_currency);
+            mmp_GUA_events.sendBeginCheckout(items, m_GTAG.getCoupon(), $_currency, sendTo);
         }
     },
-    initCheckoutLoginStepPs16: function () {
+    initCheckoutLoginStepPs16: function (sendTo) {
         if($('body#authentication').length > 0) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
             var $_currency = currency.iso_code;
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
+            mmp_GUA_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency, sendTo);
         }
     },
-    initCheckoutAddressStepPs16: function () {
+    initCheckoutAddressStepPs16: function (sendTo) {
         if($('body#order [name="processAddress"]').length > 0) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
             var $_currency = currency.iso_code;
 
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
+            mmp_GUA_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency, sendTo);
         }
     },
-    initCheckoutDeliveryStepPs16: function () {
+    initCheckoutDeliveryStepPs16: function (sendTo) {
         if($('body#order [name="processCarrier"]').length > 0) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
             var $_currency = currency.iso_code;
 
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
+            mmp_GUA_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency, sendTo);
         }
     },
-    initCheckoutPaymentStepPs16: function () {
+    initCheckoutPaymentStepPs16: function (sendTo) {
         if($('body#order .payment_module a').length > 0) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
             var $_currency = currency.iso_code;
 
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
+            mmp_GUA_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency, sendTo);
         }
     },
-    initCheckoutReviewStepPs16: function () {
+    initCheckoutReviewStepPs16: function (sendTo) {
         //Multistep
         $('body#order .payment_module a').on('click', function () {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
             var $_currency = currency.iso_code;
 
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
+            mmp_GUA_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency, sendTo);
         });
 
         //One page checkout payment/review page before confirm order
@@ -391,46 +407,39 @@ var m_GTAG = {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
             var $_currency = currency.iso_code;
 
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
+            mmp_GUA_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency, sendTo);
         });
     },
-    initCheckoutStarted17: function () {
+    initCheckoutStarted17: function (sendTo) {
         var orderUrl = $('[data-morder-url]').attr('data-morder-url');
         $('a[href="' + orderUrl + '"]').on('click', function () {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
             var $_currency = prestashop.currency.iso_code;
-            m_GTAG_events.sendBeginCheckout(items, m_GTAG.getCoupon(), $_currency)
+            mmp_GUA_events.sendBeginCheckout(items, m_GTAG.getCoupon(), $_currency, sendTo);
         });
-
-        // Triggering this can be skipped if already logged in .. so button probably better
-        // if($('#checkout-personal-information-step').hasClass('-current') || $('#checkout-personal-information-step').hasClass('js-currenct-step')) {
-        //     var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
-        //     var cartId = $('[data-mscd-cart-id]').attr('data-mscd-cart-id');
-        //     m_GTAG_events.sendBeginCheckout(items, m_GTAG.getCouponFromCookie(cartId))
-        // }
     },
-    initCheckoutAddressStep17: function () {
+    initCheckoutAddressStep17: function (sendTo) {
         if($('#checkout-addresses-step').hasClass('-current') || $('#checkout-addresses-step').hasClass('js-currenct-step')) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
             var currency = prestashop.currency.iso_code;
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), currency)
+            mmp_GUA_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), currency, sendTo);
         }
     },
-    initCheckoutDeliveryStep17: function () {
+    initCheckoutDeliveryStep17: function (sendTo) {
         if($('#checkout-delivery-step').hasClass('-current') || $('#checkout-delivery-step').hasClass('js-currenct-step')) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
             var currency = prestashop.currency.iso_code;
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), currency)
+            mmp_GUA_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), currency, sendTo);
         }
     },
-    initCheckoutPaymentStep17: function () {
+    initCheckoutPaymentStep17: function (sendTo) {
         if($('#checkout-payment-step').hasClass('-current') || $('#checkout-payment-step').hasClass('js-currenct-step')) {
             var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
             var currency = prestashop.currency.iso_code;
-            m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), currency)
+            mmp_GUA_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), currency, sendTo);
         }
     },
-    initCouponChangePs17: function() {
+    initCouponChangePs17: function(sendTo) {
         //One method for add/remove in ps1.7
         if(typeof prestashop !== 'undefined') {
             prestashop.on(
@@ -439,12 +448,12 @@ var m_GTAG = {
                     var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
                     var currency = prestashop.currency.iso_code;
 
-                    m_GTAG_events.sendDiscountRemoved(items, m_GTAG.getCoupon(), currency);
+                    mmp_GUA_events.sendDiscountRemoved(items, m_GTAG.getCoupon(), currency, sendTo);
                 }
             );
         }
     },
-    initCouponAdded: function () {
+    initCouponAdded: function (sendTo) {
         //Only for ps 1.6
 
         //Checkout coupon
@@ -454,10 +463,10 @@ var m_GTAG = {
         var $_currency = currency.iso_code;
 
         if (couponAdded) {
-                m_GTAG_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency);
+                mmp_GUA_events.sendCheckoutProgress(items, m_GTAG.getCoupon(), $_currency, sendTo);
         }
     },
-    initCouponRemoved: function () {
+    initCouponRemoved: function (sendTo) {
         //Only for ps 1.6
 
         $('.price_discount_delete').on('click', function () {
@@ -465,19 +474,19 @@ var m_GTAG = {
             var $_currency = currency.iso_code;
 
             //Send new discount change
-            m_GTAG_events.sendDiscountRemoved(items, m_GTAG.getCoupon(), $_currency);
+            mmp_GUA_events.sendDiscountRemoved(items, m_GTAG.getCoupon(), $_currency, sendTo);
         });
     },
     getCoupon: function () {
         return $('[data-mcoupons]').attr('data-mcoupons');
     },
-    initViewListPs16: function () {
+    initViewListPs16: function (sendTo) {
         var products = $('.ajax_block_product');
         var $_currency = currency.iso_code;
 
         if(products.length > 0) {
             var items = getProductsData(products);
-            m_GTAG_events.sendViewList(items, $_currency);
+            mmp_GUA_events.sendViewList(items, $_currency, sendTo);
         }
 
         $(document).ajaxComplete(function() {
@@ -486,7 +495,7 @@ var m_GTAG = {
             var $_currency = currency.iso_code;
 
             if(items !== newProducts && currentProducts.length > 0) {
-                m_GTAG_events.sendViewList(newProducts, $_currency);
+                mmp_GUA_events.sendViewList(newProducts, $_currency, sendTo);
             }
         });
 
@@ -530,14 +539,14 @@ var m_GTAG = {
             return items;
         }
     },
-    initViewListPs17: function () {
+    initViewListPs17: function (sendTo) {
         if(typeof prestashop !== 'undefined') {
             var products = $('.product-miniature[data-id-product]');
             var currency = prestashop.currency.iso_code;
 
             if (products.length > 0) {
                 var items = getProductsData(products);
-                m_GTAG_events.sendViewList(items, currency);
+                mmp_GUA_events.sendViewList(items, currency, sendTo);
             }
 
             $(document).ajaxComplete(function () {
@@ -545,7 +554,7 @@ var m_GTAG = {
                 var newProducts = getProductsData(currentProducts)
 
                 if (items !== newProducts && currentProducts.length > 0) {
-                    m_GTAG_events.sendViewList(newProducts, currency);
+                    mmp_GUA_events.sendViewList(newProducts, currency, sendTo);
                 }
             });
 
@@ -579,7 +588,7 @@ var m_GTAG = {
                         }
 
                         item['position'] = key;
-                        item['google_business_vertical'] = mergado.GoogleAds.remarketingType;
+                        item['google_business_vertical'] = mmp_gua.remarketingType;
 
                         items.push(item);
                     });
@@ -595,126 +604,84 @@ var m_GTAG = {
  * GTAG FUNCTIONS
  **********************************************************************************************************************/
 
-var m_GTAG_events = {
-    sendAddToCart: function (id, name, category, price, quantity, currency) {
-
+var mmp_GUA_events = {
+    sendAddToCart: function (id, name, category, price, quantity, currency, sendTo) {
         gtag('event', 'add_to_cart', {
             "currency" : currency,
             "items": [
                 {
                     "id": id,
                     "name": name,
-                    // "list_name": "Search Results",
-                    // "brand": "Google",
                     "category": category,
-                    // "variant": "Black",
-                    // "list_position": 1,
                     "quantity": quantity,
                     "price": price,
-                    'google_business_vertical': mergado.GoogleAds.remarketingType
+                    "google_business_vertical": mmp_gads.remarketingType,
                 }
             ],
-            "send_to": window.mergado.GtagAndGads.send_to,
+            "send_to": sendTo,
         });
     },
-    sendRemoveFromCart: function(id, currency) {
+    sendRemoveFromCart: function(id, currency, sendTo) {
         gtag('event', 'remove_from_cart', {
             "currency" : currency,
             "items": [
                 {
                     "id": id,
-                    // "name": name,
-                    // "list_name": "Search Results",
-                    // "brand": "Google",
-                    // "category": $_category,
-                    // "variant": "Black",
-                    // "list_position": 1,
-                    // "quantity": 1,
-                    // "price": $_price
                 }
-            ]
+            ],
+            "send_to": sendTo
         });
     },
-    sendViewItem: function(id, name, currency) {
+    sendViewItem: function(id, name, currency, sendTo) {
         gtag('event', 'view_item', {
             "currency" : currency,
             "items": [
                 {
                     "id": id,
                     "name": name,
-                    // "list_name": "Search Results",
-                    // "brand": "Google",
-                    // "category": "Apparel/T-Shirts",
-                    // "variant": "Black",
-                    // "list_position": 1,
-                    // "quantity": 2,
-                    // "price": '2.0',
-                    'google_business_vertical': mergado.GoogleAds.remarketingType
+                    'google_business_vertical': mmp_gads.remarketingType
                 }
             ],
-            "send_to": window.mergado.GtagAndGads.send_to,
+            "send_to": sendTo,
         });
     },
-    sendCheckoutOptionSelected: function (option, step, value) {
+    sendCheckoutOptionSelected: function (option, step, value, sendTo) {
         gtag('event', 'set_checkout_option', {
             "checkout_step": step,
             "checkout_option": option,
-            "value": value
+            "value": value,
+            "send_to": sendTo
         });
     },
-    sendBeginCheckout: function(items, coupon, currency) {
+    sendBeginCheckout: function(items, coupon, currency, sendTo) {
         gtag('event', 'begin_checkout', {
             "currency" : currency,
             "items": items,
             "coupon": coupon,
+            "send_to": sendTo
         });
     },
-    sendCheckoutProgress: function(items, coupon, currency) {
+    sendCheckoutProgress: function(items, coupon, currency, sendTo) {
         gtag('event', 'checkout_progress', {
             "currency" : currency,
             "items": items,
             "coupon": coupon,
+            "send_to": sendTo
         });
     },
-    sendDiscountRemoved: function (items, coupon, currency) {
+    sendDiscountRemoved: function (items, coupon, currency, sendTo) {
         gtag('event', 'checkout_progress', {
             "currency" : currency,
             "items": items,
             "coupon": coupon,
+            "send_to": sendTo
         });
     },
-    sendViewList: function (items, currency) {
+    sendViewList: function (items, currency, sendTo) {
         gtag('event', 'view_item_list', {
             "currency" : currency,
             "items": items,
-            "send_to": window.mergado.GtagAndGads.send_to,
+            "send_to": sendTo
         });
-    }
-};
-
-/***********************************************************************************************************************
- * UTILITIES
- **********************************************************************************************************************/
-
-var m_cookieManagment = {
-    setCookie: function (cname, cvalue, exdays) {
-        var d = new Date();
-        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-        var expires = "expires=" + d.toUTCString();
-        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-    },
-    getCookie: function (cname) {
-        var name = cname + "=";
-        var ca = document.cookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) == ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return "";
     }
 };

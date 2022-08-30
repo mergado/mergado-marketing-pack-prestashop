@@ -1,6 +1,6 @@
 <?php
 
-use Mergado\Kelkoo\KelkooClass;
+use Mergado\includes\services\Kelkoo\KelkooService;
 
 $fields_form[0]['form'] = [
     'legend' => [
@@ -15,7 +15,7 @@ $fields_form[0]['form'] = [
 ];
 
 $fields_form[0]['form']['input'][] = [
-    'name' => KelkooClass::ACTIVE,
+    'name' => KelkooService::ACTIVE,
     'label' => $this->l('Module active', 'kelkoo'),
     'validation' => 'isBool',
     'cast' => 'intval',
@@ -38,25 +38,25 @@ $fields_form[0]['form']['input'][] = [
 ];
 
 $fields_form[0]['form']['input'][] = [
-    'name' => KelkooClass::COUNTRY,
+    'name' => KelkooService::COUNTRY,
     'label' => $this->l('Kelkoo country', 'kelkoo'),
     'type' => 'select',
     'options' => [
-        'query' => KelkooClass::COUNTRIES,
+        'query' => KelkooService::COUNTRIES,
         'id' => 'id_option',
         'name' => 'name'
     ]
 ];
 
 $fields_form[0]['form']['input'][] = [
-    'name' => KelkooClass::COM_ID,
+    'name' => KelkooService::COM_ID,
     'label' => $this->l('Kelkoo merchant id', 'kelkoo'),
     'type' => 'text',
     'visibility' => Shop::CONTEXT_ALL,
 ];
 
 $fields_form[0]['form']['input'][] = [
-    'name' => KelkooClass::CONVERSION_VAT_INCL,
+    'name' => KelkooService::CONVERSION_VAT_INCL,
     'label' => $this->l('With VAT', 'kelkoo'),
     'validation' => 'isBool',
     'cast' => 'intval',

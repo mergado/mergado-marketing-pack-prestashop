@@ -18,30 +18,18 @@ namespace Mergado\Google;
 
 use http\Exception\BadUrlException;
 use Mergado;
+use Mergado\includes\traits\SingletonTrait;
 use Mergado\Tools\LogClass;
 use Mergado\Tools\SettingsClass;
 use OrderStateCore;
 
+
 class GaRefundClass
 {
-    const ACTIVE = 'ga_refund_active';
-    const CODE = 'ga_refund_code';
+    use SingletonTrait;
     const STATUS = 'ga_refund_status';
 
-    private $active;
-    private $code;
-
-    public function isActive($shopId)
-    {
-        $active = $this->getActive($shopId);
-        $code = $this->getCode($shopId);
-
-        if ($active === SettingsClass::ENABLED && $code && $code !== '') {
-            return true;
-        } else {
-            return false;
-        }
-    }
+    protected function __constructor() { }
 
     public function isStatusActive($statusId, $shopId)
     {
@@ -58,42 +46,6 @@ class GaRefundClass
     /*******************************************************************************************************************
      * Get field value
      *******************************************************************************************************************/
-
-    /**
-     * @param $shopId
-     * @return false|string|null
-     */
-    public function getActive($shopId)
-    {
-        if (!is_null($this->active)) {
-            return $this->active;
-        }
-
-        $this->active = SettingsClass::getSettings(self::ACTIVE, $shopId);
-
-        return $this->active;
-    }
-
-    /**
-     * @param $shopId
-     * @return false|string|null
-     */
-    public function getCode($shopId)
-    {
-        if (!is_null($this->code)) {
-            return $this->code;
-        }
-
-        $code = SettingsClass::getSettings(self::CODE, $shopId);
-
-        if (substr( $code, 0, 3 ) !== "UA-") {
-            $this->code = 'UA-' . $code;
-        } else {
-            $this->code = $code;
-        }
-
-        return $this->code;
-    }
 
     /**
      * @param $statusId
@@ -137,9 +89,11 @@ class GaRefundClass
 
     private function createRefundUrl($products, $orderId, $shopId, $partial = false)
     {
+        $googleUniversalAnalyticsService = Mergado\includes\services\Google\GoogleUniversalAnalytics\GoogleUniversalAnalyticsService::getInstance();
+
         $data = [
             'v' => '1', // Version.
-            'tid' => $this->getCode($shopId), // Tracking ID / Property ID.
+            'tid' => $googleUniversalAnalyticsService->getCode(), // Tracking ID / Property ID.
             'cid' => '35009a79-1a05-49d7-b876-2b884d0f825b', // Anonymous Client ID
             't' => 'event', // Event hit type.
             'ec' => 'Ecommerce', // Event Category. Required.
@@ -163,29 +117,5 @@ class GaRefundClass
         $url .= http_build_query($data);
 
         return $url;
-    }
-
-    /*******************************************************************************************************************
-     * TOGGLE FIELDS JSON
-     ******************************************************************************************************************/
-
-    public static function getToggleFields()
-    {
-        global $cookie;
-        $orderStates = new OrderStateCore();
-        $states = $orderStates->getOrderStates($cookie->id_lang);
-
-        $fields = [self::CODE];
-        foreach ($states as $state) {
-            $fields[] = self::STATUS . $state['id_order_state'];
-        }
-
-        return [
-            self::ACTIVE => [
-                'fields' => [
-                    $fields
-                ]
-            ],
-        ];
     }
 }

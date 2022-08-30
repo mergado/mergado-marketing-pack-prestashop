@@ -34,6 +34,14 @@ if (!isset($fields_value['mergado_google_analytics_conversion_vat_incl'])) {
     $fields_value['mergado_google_analytics_conversion_vat_incl'] = 1;
 }
 
+if (!isset($fields_value['mmp-ga-ua-shipping-included'])) {
+    $fields_value['mmp-ga-ua-shipping-included'] = 0;
+}
+
+if (!isset($fields_value['mmp-ga-ua-vat-included'])) {
+    $fields_value['mmp-ga-ua-vat-included'] = 1;
+}
+
 //Fill in empty fields
 include __MERGADO_FORMS_DIR__ . '/helpers/helperFormEmptyFieldsFiller.php';
 

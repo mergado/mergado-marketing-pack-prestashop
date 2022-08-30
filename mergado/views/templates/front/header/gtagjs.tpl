@@ -14,9 +14,10 @@
 
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
-<script async="true" src="https://www.googletagmanager.com/gtag/js?id={$gtagMainCode}"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id={$gtagMainCode}"></script>
 <script>
     window.dataLayer = window.dataLayer || [];
+
     function gtag() {
         dataLayer.push(arguments);
     }
@@ -28,9 +29,15 @@
       'ad_storage': '{$gtagCookieSettings['ad_storage']}',
     });
 
-    {if isset($googleAnalyticsCode)}
-        gtag('config', '{$googleAnalyticsCode}');
+    {if isset($googleUniversalAnalyticsCode)}
+        gtag('config', '{$googleUniversalAnalyticsCode}');
+    {/if}
 
+    {if isset($googleAnalytics4Code)}
+        gtag('config', '{$googleAnalytics4Code}' {if $mergadoDebug}, { 'debug_mode': true } {/if});
+    {/if}
+
+    {if isset($googleAnalyticsCode)}
         window.mmp.cookies.sections.analytical.functions.gtagAnalytics = function () {
           gtag('consent', 'update', {
             'analytics_storage': 'granted'
@@ -38,19 +45,23 @@
         };
     {/if}
 
-    {if isset($gAdsConversionCode) && $gAdsRemarketingActive}
-        gtag('config', '{$gAdsConversionCode}');
-    {elseif isset($gAdsConversionCode)}
-        gtag('config', '{$gAdsConversionCode}', {literal}{'allow_ad_personalization_signals': false}{/literal});
+    {if isset($googleAdsConversionCode) && $googleAdsRemarketingActive}
+        {if $cookiesAdvertisementEnabled}
+            gtag('config', '{$googleAdsConversionCode}');
+        {else}
+            gtag('config', '{$googleAdsConversionCode}', {literal}{'allow_ad_personalization_signals': false}{/literal});
+        {/if}
+    {elseif isset($googleAdsConversionCode)}
+        gtag('config', '{$googleAdsConversionCode}', {literal}{'allow_ad_personalization_signals': false}{/literal});
     {/if}
 
-    {if isset($gAdsConversionCode)}
+    {if isset($googleAdsConversionCode)}
         window.mmp.cookies.sections.advertisement.functions.gtagAds = function () {
           gtag('consent', 'update', {
             'ad_storage': 'granted'
           });
 
-          gtag('config', '{$gAdsConversionCode}', {literal}{'allow_ad_personalization_signals': true}{/literal});
+          gtag('config', '{$googleAdsConversionCode}', {literal}{'allow_ad_personalization_signals': true}{/literal});
         };
     {/if}
 </script>

@@ -3,6 +3,15 @@
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/AbstractArukeresoFamilyService.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/AbstractArukeresoFamilyServiceIntegration.php';
 
+// Trait
+include_once _PS_MODULE_DIR_ . 'mergado/includes/traits/SingletonTrait.php';
+
+// Ga4 Objects
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleAnalytics4/objects/base/BaseGoogleAnalytics4EventObject.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleAnalytics4/objects/base/BaseGoogleAnalytics4ItemEventObject.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleAnalytics4/objects/base/BaseGoogleAnalytics4ItemsEventObject.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleAnalytics4/objects/GoogleAnalytics4RefundEventObject.php';
+
 // Services
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/Arukereso/ArukeresoService.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/Compari/CompariService.php';
@@ -14,12 +23,13 @@ include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Etarget/EtargetClass.p
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Facebook/FacebookClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Glami/GlamiClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GaRefundClass.php';
-include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleAdsClass.php';
-include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleAds/GoogleAdsService.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleUniversalAnalytics/GoogleUniversalAnalyticsService.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleAnalytics4/GoogleAnalytics4Service.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleReviews/GoogleReviewsClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleTagManagerClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Heureka/HeurekaClass.php';
-include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Kelkoo/KelkooClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Kelkoo/KelkooService.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/NajNakup/NajNakupClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Pricemania/PricemaniaClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Sklik/SklikClass.php';
@@ -33,6 +43,12 @@ include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/Aruker
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/Compari/CompariServiceIntegration.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/Pazaruvaj/PazaruvajServiceIntegration.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Biano/BianoStar/BianoStarServiceIntegration.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleAds/GoogleAdsServiceIntegration.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleUniversalAnalytics/GoogleUniversalAnalyticsServiceIntegration.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleAnalytics4/GoogleAnalytics4ServiceIntegration.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Kelkoo/KelkooServiceIntegration.php';
+
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/Gtag/GtagIntegrationHelper.php';
 
 // Tools
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/HelperClass.php';
@@ -50,7 +66,7 @@ include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/XML/XMLProductFeed.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/XML/XMLStaticFeed.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/XML/XMLStockFeed.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/XMLClass.php';
-include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/CookieClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/CookieService.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/NavigationClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/LanguagesClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/SupportClass.php';
@@ -61,8 +77,19 @@ include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/FeedQuery.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/AlertClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/JsonResponse.php';
 
+/**
+ * Helpers
+ */
+include_once _PS_MODULE_DIR_ . 'mergado/includes/helpers/CartHelper.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/helpers/ProductHelper.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/helpers/ControllerHelper.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/helpers/OrderConfirmationHelper.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/helpers/DebugHelper.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/helpers/RefererHelper.php';
+
 // Forms
 include_once _PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/pages/partials/support/form/SupportForm.php';
 
 // Main
 include_once _PS_MODULE_DIR_ . 'mergado/mergado.php';
+

@@ -1,8 +1,12 @@
 <?php
 
-namespace Mergado\Tools;
+namespace Mergado\includes\tools;
 
-class CookieClass {
+use Mergado;
+use Mergado\includes\traits\SingletonTrait;
+use Mergado\Tools\SettingsClass;
+
+class CookieService {
 
     // CookieLaw
     const COOKIE_LAW_ADVERTISEMENT = 'DmCookiesMarketing';
@@ -22,9 +26,11 @@ class CookieClass {
     private $analyticalName;
     private $functionalName;
 
-    public function __construct($multistoreShopId)
+    use SingletonTrait;
+
+    protected function __construct()
     {
-        $this->multistoreShopId = $multistoreShopId;
+        $this->multistoreShopId = Mergado::getShopId();
     }
 
     /**

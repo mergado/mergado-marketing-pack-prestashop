@@ -20,6 +20,7 @@ use CategoryCore;
 use ConfigurationCore;
 use ManufacturerCore;
 use Mergado;
+use Mergado\includes\traits\SingletonTrait;
 use Mergado\Tools\SettingsClass;
 
 class GoogleTagManagerClass
@@ -41,9 +42,11 @@ class GoogleTagManagerClass
     // Main settings variables
     private $multistoreShopId;
 
-    public function __construct($multistoreShopId)
+    use SingletonTrait;
+
+    protected function __construct()
     {
-        $this->multistoreShopId = $multistoreShopId;
+        $this->multistoreShopId = Mergado::getShopId();
     }
 
     /******************************************************************************************************************

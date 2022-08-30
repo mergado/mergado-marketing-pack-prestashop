@@ -21,12 +21,14 @@ use Mergado\Facebook\FacebookClass;
 use Mergado\Forms\SupportForm;
 use Mergado\Google\GaRefundClass;
 use Mergado\Google\GoogleReviewsClass;
-use Mergado\Google\GoogleAdsClass;
+use Mergado\includes\services\Google\GoogleAds\GoogleAdsService;
 use Mergado\Google\GoogleTagManagerClass;
 use Mergado\includes\services\ArukeresoFamily\Arukereso\ArukeresoService;
 use Mergado\includes\services\ArukeresoFamily\Compari\CompariService;
 use Mergado\includes\services\ArukeresoFamily\Pazaruvaj\PazaruvajService;
-use Mergado\Kelkoo\KelkooClass;
+use Mergado\includes\services\Google\GoogleAnalytics4\GoogleAnalytics4Service;
+use Mergado\includes\services\Google\GoogleUniversalAnalytics\GoogleUniversalAnalyticsService;
+use Mergado\includes\services\Kelkoo\KelkooService;
 use Mergado\NajNakup\NajNakupClass;
 use Mergado\Sklik\SklikClass;
 use Mergado\Tools\FeedQuery;
@@ -308,26 +310,17 @@ class AdminMergadoController extends \ModuleAdminController
 
         $oldFields = [
             // Google analytics - GTAGJS
-            SettingsClass::GOOGLE_GTAGJS['ACTIVE'] => [
+            GoogleUniversalAnalyticsService::ACTIVE => [
                 'fields' => [
-                    SettingsClass::GOOGLE_GTAGJS['CODE'],
-                    SettingsClass::GOOGLE_GTAGJS['TRACKING'],
-                    SettingsClass::GOOGLE_GTAGJS['ECOMMERCE'],
-                    SettingsClass::GOOGLE_GTAGJS['ECOMMERCE_ENHANCED'],
-                    SettingsClass::GOOGLE_GTAGJS['CONVERSION_VAT_INCL'],
+                    GoogleUniversalAnalyticsService::CODE,
+                    GoogleUniversalAnalyticsService::ECOMMERCE,
+                    GoogleUniversalAnalyticsService::ECOMMERCE_ENHANCED,
+                    GoogleUniversalAnalyticsService::CONVERSION_VAT_INCL,
                 ],
                 'sub-check' => [
-                    SettingsClass::GOOGLE_GTAGJS['TRACKING'] => [
-                    'fields' => [
-                        SettingsClass::GOOGLE_GTAGJS['ECOMMERCE'],
-                        SettingsClass::GOOGLE_GTAGJS['ECOMMERCE_ENHANCED'],
-                        ],
-                    ],
-                ],
-                'sub-check-two' => [
-                    SettingsClass::GOOGLE_GTAGJS['ECOMMERCE'] => [
+                    GoogleUniversalAnalyticsService::ECOMMERCE => [
                         'fields' => [
-                            SettingsClass::GOOGLE_GTAGJS['ECOMMERCE_ENHANCED'],
+                            GoogleUniversalAnalyticsService::ECOMMERCE_ENHANCED,
                         ],
                     ],
                 ]
@@ -399,19 +392,20 @@ class AdminMergadoController extends \ModuleAdminController
             $oldFields,
             FacebookClass::getToggleFields(),
             SklikClass::getToggleFields(),
-            KelkooClass::getToggleFields(),
+            KelkooService::getToggleFields(),
             BianoClass::getToggleFields($this->languages->getLanguages(true)),
             BianoStarService::getToggleFields($this->languages->getLanguages(true)),
             NajNakupClass::getToggleFields(),
             EtargetClass::getToggleFields(),
             GoogleReviewsClass::getToggleFields(),
-            GaRefundClass::getToggleFields(),
             ZboziClass::getToggleFields($this->languages->getLanguages(true)),
             ArukeresoService::getToggleFields($this->languages->getLanguages(true)),
             CompariService::getToggleFields($this->languages->getLanguages(true)),
             PazaruvajService::getToggleFields($this->languages->getLanguages(true)),
-            GoogleAdsClass::getToggleFields(),
-            GoogleTagManagerClass::getToggleFields()
+            GoogleAdsService::getToggleFields(),
+            GoogleTagManagerClass::getToggleFields(),
+            GoogleUniversalAnalyticsService::getToggleFields(),
+            GoogleAnalytics4Service::getToggleFields()
         );
 
         return json_encode($jsonMap, JSON_FORCE_OBJECT);

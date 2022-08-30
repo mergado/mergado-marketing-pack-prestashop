@@ -2,7 +2,7 @@
 <module>
 	<name>mergado</name>
 	<displayName><![CDATA[Mergado marketing pack]]></displayName>
-	<version><![CDATA[3.2.2]]></version>
+	<version><![CDATA[3.3.0]]></version>
 	<description><![CDATA[Mergado marketing pack module helps you to export your products information to Mergado services.]]></description>
 	<author><![CDATA[www.mergado.cz]]></author>
 	<tab><![CDATA[export]]></tab>

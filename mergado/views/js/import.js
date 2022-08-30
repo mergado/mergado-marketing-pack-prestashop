@@ -56,8 +56,6 @@ function importRecursive(feed)
     success: function (data) {
       $('.mmp-popup__loader').hide();
 
-      console.log(data);
-
       if (data) {
         var output = JSON.parse(data);
 

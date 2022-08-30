@@ -6,14 +6,15 @@ use Mergado\Facebook\FacebookClass;
 //use Mergado\Glami\GlamiPixelClass;
 //use Mergado\Glami\GlamiTopClass;
 use Mergado\Google\GaRefundClass;
-use Mergado\Google\GoogleAdsClass;
+use Mergado\includes\services\Google\GoogleAds\GoogleAdsService;
 use Mergado\Google\GoogleReviewsClass;
 use Mergado\Google\GoogleTagManagerClass;
 //use Mergado\Tools\Crons;
 use Mergado\includes\services\ArukeresoFamily\Arukereso\ArukeresoService;
 use Mergado\includes\services\ArukeresoFamily\Compari\CompariService;
 use Mergado\includes\services\ArukeresoFamily\Pazaruvaj\PazaruvajService;
-use Mergado\Kelkoo\KelkooClass;
+use Mergado\includes\services\Google\GoogleUniversalAnalytics\GoogleUniversalAnalyticsService;
+use Mergado\includes\services\Kelkoo\KelkooService;
 use Mergado\NajNakup\NajNakupClass;
 use Mergado\Sklik\SklikClass;
 use Mergado\Tools\ImportPricesClass;
@@ -32,16 +33,15 @@ class SupportClass {
         $etargetClass = new EtargetClass();
         $najnakupClass = new NajNakupClass();
         $bianoClass = new BianoClass();
-        $kelkoClass = new KelkooClass();
-        $googleAds = new GoogleAdsClass($shopId);
-        $googleTagManager = new GoogleTagManagerClass($shopId);
-        $googleReviewsClass = new GoogleReviewsClass($shopId);
+        $kelkoService = KelkooService::getInstance();
+        $googleAds = GoogleAdsService::getInstance();
+        $googleTagManager = GoogleTagManagerClass::getInstance();
+        $googleReviewsClass = GoogleReviewsClass::getInstance();
         $arukeresoService = new ArukeresoService();
         $compariService = new CompariService();
         $pazaruvajService = new PazaruvajService();
         $zboziClass = new ZboziClass($shopId);
         $facebookClass = new FacebookClass();
-        $gaRefundsClass = new GaRefundClass();
 
         $base = [
             'web_url' => [
@@ -63,8 +63,7 @@ class SupportClass {
         $adsystems = [
             'googleAds' => self::boolToActive($googleAds->getConversionsActive()),
             'googleAdsRemarketing' => self::boolToActive($googleAds->getRemarketingActive()),
-            'googleAnalytics' => self::boolToActive(SettingsClass::getSettings(SettingsClass::GOOGLE_GTAGJS['ACTIVE'], $shopId)),
-            'googleAnalyticsRefunds' => self::boolToActive($gaRefundsClass->getActive($shopId)),
+            'googleAnalytics' => self::boolToActive(SettingsClass::getSettings(GoogleUniversalAnalyticsService::ACTIVE, $shopId)),
             'googleTagManager' => self::boolToActive($googleTagManager->getActive()),
             'googleTagManagerEcommerce' => self::boolToActive($googleTagManager->getEcommerceActive()),
             'googleTagManagerEnhancedEcommerce' => self::boolToActive($googleTagManager->getEnhancedEcommerceActive()),
@@ -85,7 +84,7 @@ class SupportClass {
             'etarget' => self::boolToActive($etargetClass->getActive($shopId)),
             'najnakup' => self::boolToActive($najnakupClass->getActive($shopId)),
             'pricemania' => self::boolToActive(SettingsClass::getSettings(SettingsClass::PRICEMANIA['VERIFIED'], $shopId)),
-            'kelkoo' => self::boolToActive($kelkoClass->getActive($shopId)),
+            'kelkoo' => self::boolToActive($kelkoService->getActive($shopId)),
             'biano' => self::boolToActive($bianoClass->getActive($shopId)),
             'arukereso' => self::boolToActive($arukeresoService->getActive()),
             'arukeresoWidget' => self::boolToActive($arukeresoService->getWidgetActive()),

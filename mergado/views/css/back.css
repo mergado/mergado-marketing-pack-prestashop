@@ -1586,3 +1586,13 @@ button.mmp_btn__blue--small svg {
 #mergadoController #mmpabout h3 {
     background-color: transparent;
 }
+
+.label--beta {
+    background-color: #f7a000;
+    color: white;
+    padding: 1px 10px 3px;
+    border-radius: 4px;
+    line-height: 1;
+    margin-left: 15px;
+    font-size: 13px;
+}

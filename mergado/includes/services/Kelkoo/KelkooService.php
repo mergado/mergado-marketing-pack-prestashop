@@ -14,12 +14,13 @@
  * @license   LICENSE.txt
  */
 
-namespace Mergado\Kelkoo;
+namespace Mergado\includes\services\Kelkoo;
 
 use Mergado;
+use Mergado\includes\traits\SingletonTrait;
 use Mergado\Tools\SettingsClass;
 
-class KelkooClass
+class KelkooService
 {
     const ACTIVE = 'kelkoo_active';
     const COM_ID = 'kelkoo_merchant_id';
@@ -51,21 +52,25 @@ class KelkooClass
         ['id_option' => 22, 'name' => 'United States', 'type_code' => 'us'],
     ];
 
-
     private $active;
     private $comId;
     private $country;
     private $conversionVatIncluded;
 
-    public function __construct()
+    private $multistoreShopId;
+
+    use SingletonTrait;
+
+    protected function __construct()
     {
+        $this->multistoreShopId = Mergado::getShopId();
     }
 
-    public function isActive($shopId)
+    public function isActive()
     {
-        $kelkoo_active = $this->getActive($shopId);
-        $kelkoo_country = $this->getCountry($shopId);
-        $kelkoo_merchant_id = $this->getComId($shopId);
+        $kelkoo_active = $this->getActive();
+        $kelkoo_country = $this->getCountry();
+        $kelkoo_merchant_id = $this->getComId();
 
         if ($kelkoo_active === SettingsClass::ENABLED && $kelkoo_country && $kelkoo_country !== '' && $kelkoo_merchant_id && $kelkoo_merchant_id !== '') {
             return true;
@@ -76,12 +81,11 @@ class KelkooClass
 
     /**
      * Return active language options for Kelkoo
-     * @param $shopId
      * @return bool|mixed
      */
-    public function getActiveDomain($shopId)
+    public function getActiveDomain()
     {
-        $activeLangId = $this->getCountry($shopId);
+        $activeLangId = $this->getCountry();
 
         foreach(self::COUNTRIES as $item) {
             if($item['id_option'] === (int)$activeLangId) {
@@ -97,15 +101,14 @@ class KelkooClass
      * @param $orderId
      * @param $order
      * @param $products
-     * @param $shopId
      * @return array
      */
 
-    public function getOrderData($orderId, $order, $products, $shopId) {
+    public function getOrderData($orderId, $order, $products) {
         $productsKelkoo = [];
 
         // If VAT included or not
-        if ($this->getConversionVatIncluded($shopId)) {
+        if ($this->getConversionVatIncluded()) {
             $orderTotal = (float) $order->total_products_wt;
         } else {
             $orderTotal = (float) $order->total_products;
@@ -120,7 +123,7 @@ class KelkooClass
             ];
 
             // If VAT included or not
-            if ($this->getConversionVatIncluded($shopId)) {
+            if ($this->getConversionVatIncluded()) {
                 $productKelkoo['price'] = $product['unit_price_tax_incl'];
             } else {
                 $productKelkoo['price'] = $product['unit_price_tax_excl'];
@@ -134,8 +137,8 @@ class KelkooClass
             'productsJson' => json_encode($productsKelkoo),
             'sales' => $orderTotal,
             'orderId' => $orderId,
-            'country' => $this->getActiveDomain($shopId),
-            'merchantId' => $this->getComId($shopId),
+            'country' => $this->getActiveDomain(),
+            'merchantId' => $this->getComId(),
         ];
     }
 
@@ -144,61 +147,57 @@ class KelkooClass
      ******************************************************************************************************************/
 
     /**
-     * @param $shopId
      * @return false|string|null
      */
-    public function getActive($shopId)
+    public function getActive()
     {
         if (!is_null($this->active)) {
             return $this->active;
         }
 
-        $this->active = SettingsClass::getSettings(self::ACTIVE, $shopId);
+        $this->active = SettingsClass::getSettings(self::ACTIVE, $this->multistoreShopId);
 
         return $this->active;
     }
 
     /**
-     * @param $shopId
      * @return false|string|null
      */
-    public function getComId($shopId)
+    public function getComId()
     {
         if (!is_null($this->comId)) {
             return $this->comId;
         }
 
-        $this->comId = SettingsClass::getSettings(self::COM_ID, $shopId);
+        $this->comId = SettingsClass::getSettings(self::COM_ID, $this->multistoreShopId);
 
         return $this->comId;
     }
 
     /**
-     * @param $shopId
      * @return false|string|null
      */
-    public function getCountry($shopId)
+    public function getCountry()
     {
         if (!is_null($this->country)) {
             return $this->country;
         }
 
-        $this->country = SettingsClass::getSettings(self::COUNTRY, $shopId);
+        $this->country = SettingsClass::getSettings(self::COUNTRY, $this->multistoreShopId);
 
         return $this->country;
     }
 
     /**
-     * @param $shopId
      * @return false|string|null
      */
-    public function getConversionVatIncluded($shopId)
+    public function getConversionVatIncluded()
     {
         if (!is_null($this->conversionVatIncluded)) {
             return $this->conversionVatIncluded;
         }
 
-        $this->conversionVatIncluded = SettingsClass::getSettings(self::CONVERSION_VAT_INCL, $shopId);
+        $this->conversionVatIncluded = SettingsClass::getSettings(self::CONVERSION_VAT_INCL, $this->multistoreShopId);
 
         return $this->conversionVatIncluded;
     }
