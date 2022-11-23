@@ -3,8 +3,8 @@
 use Mergado\Google\GaRefundClass;
 use Mergado\includes\services\Google\GoogleAds\GoogleAdsService;
 use Mergado\Google\GoogleReviewsClass;
-use Mergado\Google\GoogleTagManagerClass;
 use Mergado\includes\services\Google\GoogleAnalytics4\GoogleAnalytics4Service;
+use Mergado\includes\services\Google\GoogleTagManager\GoogleTagManagerService;
 use Mergado\includes\services\Google\GoogleUniversalAnalytics\GoogleUniversalAnalyticsService;
 
 $fields_form[0]['form'] = [
@@ -359,6 +359,13 @@ This setting does not affect total revenue. The total revenue of the transaction
             'visibility' => Shop::CONTEXT_ALL,
         ],
         [
+            'name' => GoogleAnalytics4Service::REFUND_API_SECRET,
+            'label' => $this->module->l('Refunds - API Secret', 'google'),
+            'type' => 'text',
+            'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->module->l('You can create your API secret in Google Analytics 4 property > Admin > Data Streams".', 'google'),
+            'visibility' => Shop::CONTEXT_ALL,
+        ],
+        [
             'name' => 'mergado_fake_field',
             'label' => $this->module->l('Order refund status', 'google'),
             'type' => 'text',
@@ -416,7 +423,7 @@ $fields_form[3]['form'] = [
             'name' => 'id_shop'
         ],
         [
-            'name' => GoogleTagManagerClass::ACTIVE,
+            'name' => GoogleTagManagerService::ACTIVE,
             'label' => $this->module->l('Module active', 'google'),
             'validation' => 'isBool',
             'cast' => 'intval',
@@ -437,14 +444,14 @@ $fields_form[3]['form'] = [
             'visibility' => Shop::CONTEXT_ALL,
         ],
         [
-            'name' => GoogleTagManagerClass::CODE,
+            'name' => GoogleTagManagerService::CODE,
             'label' => $this->module->l('Google Tag Manager container ID', 'google'),
             'type' => 'text',
             'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->module->l('You can find your container ID in Tag Manager > Workspace. Near the top of the window, find your container ID, formatted as "GTM-XXXXXX".', 'google'),
             'visibility' => Shop::CONTEXT_ALL,
         ],
         [
-            'name' => GoogleTagManagerClass::ECOMMERCE_ACTIVE,
+            'name' => GoogleTagManagerService::ECOMMERCE_ACTIVE,
             'label' => $this->module->l('Ecommerce tracking', 'google'),
             'validation' => 'isBool',
             'cast' => 'intval',
@@ -466,7 +473,7 @@ $fields_form[3]['form'] = [
             'visibility' => Shop::CONTEXT_ALL,
         ],
         [
-            'name' => GoogleTagManagerClass::ECOMMERCE_ENHANCED_ACTIVE,
+            'name' => GoogleTagManagerService::ECOMMERCE_ENHANCED_ACTIVE,
             'label' => $this->module->l('Enhanced Ecommerce Tracking', 'google'),
             'validation' => 'isBool',
             'cast' => 'intval',
@@ -488,14 +495,14 @@ $fields_form[3]['form'] = [
             'visibility' => Shop::CONTEXT_ALL,
         ],
         [
-            'name' => GoogleTagManagerClass::VIEW_LIST_ITEMS_COUNT,
+            'name' => GoogleTagManagerService::VIEW_LIST_ITEMS_COUNT,
             'label' => $this->module->l('Max view_list_item', 'google'),
             'type' => 'text',
             'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->module->l('Set maximum of products sent in view_list_item event. Set 0 if you want to send all products on page.".', 'google'),
             'visibility' => Shop::CONTEXT_ALL,
         ],
         [
-            'name' => GoogleTagManagerClass::CONVERSION_VAT_INCL,
+            'name' => GoogleTagManagerService::CONVERSION_VAT_INCL,
             'label' => $this->module->l('Products prices with VAT', 'google'),
             'validation' => 'isBool',
             'cast' => 'intval',

@@ -27,7 +27,7 @@ class BaseFeed extends ObjectModel
     protected $loweredCountVariableName;
     protected $defaultCountVariableName;
 
-    protected $feedPrefix;
+    protected $feedCountVariableName;
 
     protected $tmpDir;
     protected $tmpShopDir;
@@ -38,7 +38,6 @@ class BaseFeed extends ObjectModel
     public function __construct(
         $name,
         $nameWithToken,
-        $feedPrefix,
         $optimizationVariableName,
         $loweredCountVariableName,
         $defaultCountVariableName,
@@ -46,17 +45,19 @@ class BaseFeed extends ObjectModel
         $tmpShopDir,
         $tmpOutputDir,
         $xmlOutputFile,
-        $xmlOutputDir
+        $xmlOutputDir,
+        $feedCountVariableName
     )
     {
         $this->name = $name;
         $this->nameWithToken = $nameWithToken;
-        $this->feedPrefix = $feedPrefix;
         $this->shopID = Mergado::getShopId();
 
         $this->optimizationVariableName = $optimizationVariableName;
         $this->loweredCountVariableName = $loweredCountVariableName;
         $this->defaultCountVariableName = $defaultCountVariableName;
+
+        $this->feedCountVariableName= $feedCountVariableName;
 
         $this->tmpDir = $tmpDir;
         $this->tmpShopDir = $tmpShopDir;
@@ -214,34 +215,37 @@ class BaseFeed extends ObjectModel
     public function getFeedPercentage()
     {
         $productsPerRun = $this->getProductsPerStep();
-        $currentStep = $this->getCurrentTempFilesCount();
 
+        $currentNumberOfFiles = $this->getCurrentTempFilesCount();
         $totalFiles = $this->getTotalFiles($productsPerRun);
 
         if ($totalFiles === 0) {
             return 0;
         }
 
-        return intval(round(($currentStep / ($totalFiles)) * 100));
+        return intval(round(($currentNumberOfFiles / ($totalFiles)) * 100));
     }
 
 
     private function getTotalFiles($productsPerRun)
     {
-        if($productsPerRun === 0) {
+        if ($productsPerRun === 0) {
             $totalFiles = 0;
         } else {
-            $xmlQuery = new XMLQuery();
-            $productsTotal = ceil(count($xmlQuery->productsToFlat(0, 0)));
-            $totalFiles = $productsTotal / $productsPerRun;
+            $totalFiles = SettingsClass::getSettings($this->feedCountVariableName, $this->shopID);
         }
 
-        // If float 0, return just INT 0
-        if ($totalFiles === 0.0) {
-            $totalFiles = 0;
+        // Just magic for loading
+        if ($totalFiles === false) {
+            $totalFiles = 100;
         }
 
         return $totalFiles;
+    }
+
+    public function updateFeedCount()
+    {
+        return SettingsClass::saveSetting($this->feedCountVariableName, $this->getCurrentTempFilesCount(), $this->shopID);
     }
 
     public function getLastFeedChangeTimestamp()
@@ -435,7 +439,7 @@ class BaseFeed extends ObjectModel
      */
     protected function showCongratulations() {
         $output = isset($_GET['mmp-alert-congratulations']) && $_GET['mmp-alert-congratulations'] === $this->name;
-        
+
         if ($output) {
             unset($_GET['mmp-alert-congratulations']);
         }

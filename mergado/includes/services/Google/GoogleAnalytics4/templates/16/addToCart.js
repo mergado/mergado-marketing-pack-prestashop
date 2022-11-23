@@ -66,34 +66,32 @@ document.addEventListener('DOMContentLoaded', function () {
     mmp_GA4_helpers.events.sendAddToCart(value, currency, itemIdMerged, itemVariantId, itemName, itemCategory, itemQuantity, itemPrice, itemDiscount);
   }
 
-  function addEvents(target) {
-    let itemQuantity;
-
-    if (target.closest('.product-add-to-cart').find('#quantity_wanted').length > 0) {
-      itemQuantity = target.closest('.product-add-to-cart').find('#quantity_wanted').val();
-    } else {
-      itemQuantity = 1;
-    }
-
-    const {
-      productJSON,
-      prices
-    } = mmp_GA4_helpers.functions.getProductObject('#mergado-product-informations.mergado-product-data[data-product]');
-
-    const {
-      itemDiscount,
-      currency,
-      itemIdMerged,
-      itemName,
-      itemPrice,
-      itemVariantId,
-      itemCategory
-    } = mmp_GA4_helpers.functions.getProductData(productJSON, prices);
-
-    const value = itemPrice * itemQuantity;
-
-    mmp_GA4_helpers.events.sendAddToCart(value, currency, itemIdMerged, itemVariantId, itemName, itemCategory, itemQuantity, itemPrice, itemDiscount);
-  }
-
-
+  // function addEvents(target) {
+  //   let itemQuantity;
+  //
+  //   if (target.closest('.product-add-to-cart').find('#quantity_wanted').length > 0) {
+  //     itemQuantity = target.closest('.product-add-to-cart').find('#quantity_wanted').val();
+  //   } else {
+  //     itemQuantity = 1;
+  //   }
+  //
+  //   const {
+  //     productJSON,
+  //     prices
+  //   } = mmp_GA4_helpers.functions.getProductObject('#mergado-product-informations.mergado-product-data[data-product]');
+  //
+  //   const {
+  //     itemDiscount,
+  //     currency,
+  //     itemIdMerged,
+  //     itemName,
+  //     itemPrice,
+  //     itemVariantId,
+  //     itemCategory
+  //   } = mmp_GA4_helpers.functions.getProductData(productJSON, prices);
+  //
+  //   const value = itemPrice * itemQuantity;
+  //
+  //   mmp_GA4_helpers.events.sendAddToCart(value, currency, itemIdMerged, itemVariantId, itemName, itemCategory, itemQuantity, itemPrice, itemDiscount);
+  // }
 })

@@ -38,6 +38,13 @@ include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 class XMLClass extends ObjectModel
 {
+    const FEED_COUNT = [
+        'PRODUCT' => 'feed-last-cron-product-count',
+        'CATEGORY' => 'feed-last-cron-category-run-count',
+        'STOCK' => 'feed-last-cron-stock-count',
+        'STATIC' => 'feed-last-cron-static-run-count',
+    ];
+
     // Input user - items per step
     const OPTIMIZATION = [
         'PRODUCT_FEED' => 'feed-form-products',

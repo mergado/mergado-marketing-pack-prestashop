@@ -23,7 +23,7 @@
                 'purchase': {$gtm_purchase_data nofilter},
             }
         });
-    {else}
+    {elseif $gtm_ecommerce}
         window.dataLayer.push({$gtm_transaction_data nofilter});
     {/if}
 </script>

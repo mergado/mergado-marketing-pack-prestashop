@@ -28,13 +28,15 @@ class BaseFeedMulti extends BaseFeed
     protected $currency;
     protected $langAndIsoName;
 
+    protected $feedCountVariableName;
+
     protected $tmpDir;
     protected $tmpShopDir;
     protected $tmpOutputDir;
     protected $xmlOutputDir;
     protected $xmlOutputFile;
 
-    public function __construct($name) {
+    public function __construct($name, $feedPrefix, $feedCountVariableName, $optimizationVariableName, $loweredCountVariableName, $defaultCountVariableName) {
 
         $this->name = $name;
         $this->nameWithToken = $this->getOutputXmlNameWithLangAndCurrency($this->name);
@@ -54,10 +56,17 @@ class BaseFeedMulti extends BaseFeed
 
         $this->xmlOutputFile = $this->xmlOutputDir . $this->nameWithToken . '.xml';
 
+        $this->feedPrefix = $feedPrefix;
+
+        $this->feedCountVariableName = $feedCountVariableName;
+
+        $this->optimizationVariableName = $optimizationVariableName;
+        $this->loweredCountVariableName = $loweredCountVariableName;
+        $this->defaultCountVariableName = $defaultCountVariableName;
+
         parent::__construct(
             $name,
             $this->nameWithToken,
-            $this->feedPrefix,
             $this->optimizationVariableName,
             $this->loweredCountVariableName,
             $this->defaultCountVariableName,
@@ -65,7 +74,8 @@ class BaseFeedMulti extends BaseFeed
             $this->tmpShopDir,
             $this->tmpOutputDir,
             $this->xmlOutputFile,
-            $this->xmlOutputDir
+            $this->xmlOutputDir,
+            $this->feedCountVariableName
         );
     }
 

@@ -154,6 +154,11 @@ class GoogleUniversalAnalyticsService
 
         $this->conversionVatIncluded = SettingsClass::getSettings(self::CONVERSION_VAT_INCL, $this->multistoreShopId);// TODO: default ON = 1
 
+        //Default with VAT
+        if ($this->conversionVatIncluded === false) {
+            return true;
+        }
+
         return $this->conversionVatIncluded;
     }
 

@@ -14,7 +14,8 @@
 
 // click on product
 document.addEventListener("DOMContentLoaded", function(event) {
-    if(typeof gtag !== 'undefined') {
+    if(typeof dataLayer !== 'undefined') {
+
         if($('body#product').length > 0) {
             var $_id, $_name, $_category, $_currency;
 
@@ -28,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     $_currency = prestashop.currency.iso_code
                 }
 
-                if(productJSON.id_product_attribute !== "" && productJSON.id_product_attribute !== "0") {
+                if(productJSON.id_product_attribute !== "" && productJSON.id_product_attribute !== '0') {
                     $_id = $_id + '-' + productJSON.id_product_attribute;
                 }
             } else {
@@ -43,28 +44,23 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     $_name = $('.modal-body h1').text();
                 }
 
-                if (baseBlock.find('#idCombination').length > 0 && baseBlock.find('#idCombination').val() !== '' && baseBlock.find('#idCombination').val() !== '0') {
+                if (baseBlock.find('#idCombination').length > 0) {
                     $_id = $_id + '-' + baseBlock.find('#idCombination').val();
                 }
             }
 
-            gtag('event', 'select_content', {
-                "content_type": "product",
-                "currency" : $_currency,
-                "items": [
-                    {
-                        "id": $_id,
-                        "name": $_name,
-                        // "list_name": "Search Results",
-                        // "brand": "Google",
-                        "category": $_category,
-                        // "variant": "Black",
-                        // "list_position": 1,
-                        // "quantity": 2,
-                        // "price": '2.0'
+            dataLayer.push({
+                'event': 'productClick',
+                'ecommerce': {
+                    'currencyCode': $_currency,
+                    'click': {
+                        'products': [{
+                            'name': $_name,
+                            'id': $_id,
+                            'category': $_category,
+                        }]
                     }
-                ],
-                "send_to": window.mergado.GtagAndGads.send_to,
+                }
             });
         }
     }

@@ -50,7 +50,7 @@ class LanguagesClass
         }
     }
 
-    //TODO: Remove unnecessary lang send to this function
+    //TODO: Remove unnecessary lang sent to this function
     public static function getLangIso($lang = null)
     {
         if ($lang === null) {

@@ -47,7 +47,11 @@ class XMLStaticFeed extends BaseFeedSimple
 
         parent::__construct(
             $this->name,
-            $this->nameWithToken
+            $this->nameWithToken,
+            XMLClass::FEED_COUNT['STATIC'],
+            XMLClass::OPTIMIZATION['STATIC_FEED'],
+            XMLClass::FEED_PRODUCTS_USER['STATIC'],
+            XMLClass::DEFAULT_ITEMS_STEP['STATIC_FEED']
         );
     }
 
@@ -99,7 +103,7 @@ class XMLStaticFeed extends BaseFeedSimple
 
             $xmlQuery = new XMLQuery();
             $export_out_of_stock_other = SettingsClass::getSettings(SettingsClass::EXPORT['DENIED_PRODUCTS_OTHER'], $this->shopID);
-            $products = $xmlQuery->productsToFlat(0, 0, intval(Configuration::get('PS_LANG_DEFAULT')), $export_out_of_stock_other);
+            $products = $xmlQuery->productsToFlat($start, $productsPerStep, intval(Configuration::get('PS_LANG_DEFAULT')), $export_out_of_stock_other);
 
             // Step generating
             if ($this->isPartial($productsPerStep, $products)) {
@@ -127,6 +131,7 @@ class XMLStaticFeed extends BaseFeedSimple
 
                 // Merge XML
             } else {
+                $this->updateFeedCount();
                 $this->mergeTemporaryFiles();
                 $this->unlockFeed();
 

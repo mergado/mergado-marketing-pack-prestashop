@@ -27,7 +27,7 @@ include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleAds/Googl
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleUniversalAnalytics/GoogleUniversalAnalyticsService.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleAnalytics4/GoogleAnalytics4Service.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleReviews/GoogleReviewsClass.php';
-include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleTagManagerClass.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleTagManager/GoogleTagManagerService.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Heureka/HeurekaClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Kelkoo/KelkooService.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/NajNakup/NajNakupClass.php';
@@ -47,6 +47,7 @@ include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleAds/Googl
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleUniversalAnalytics/GoogleUniversalAnalyticsServiceIntegration.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleAnalytics4/GoogleAnalytics4ServiceIntegration.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Kelkoo/KelkooServiceIntegration.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/GoogleTagManager/GoogleTagManagerServiceIntegration.php';
 
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/Google/Gtag/GtagIntegrationHelper.php';
 

@@ -67,7 +67,7 @@
 .mergado__news {
     font-size: 9px;
     position: absolute;
-    bottom: -2px;
+    bottom: -3px;
     left: 50%;
     transform: translateX(-50%);
     animation-duration: 500ms;
@@ -177,4 +177,33 @@
     to {
         color: grey;
     }
+}
+
+/* Fixes */
+.component.mergado-component {
+    height: 100%;
+    margin-right: 0.3125rem;
+    margin-left: 0.3125rem;
+    display: flex;
+}
+
+.component.mergado-component ul {
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.component.mergado-component ul li {
+    list-style-type: none;
+}
+
+.component.mergado-component ul li a {
+    display: flex;
+}
+
+.component.mergado-component .dropdown-toggle:not(.dropdown-toggle-split)::after {
+    display: none;
+}
+
+.component.mergado-component .mergado__news {
+    bottom: -1px;
 }

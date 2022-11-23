@@ -13,17 +13,13 @@ include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 class BaseFeedSimple extends BaseFeed
 {
-    protected $feedPrefix;
-
-    protected $currencyIso;
-    protected $langIso;
-
     protected $language;
     protected $shopID;
     protected $name;
     protected $nameWithToken;
     protected $currency;
-    protected $langAndIsoName;
+
+    protected $feedCountVariableName;
 
     protected $tmpDir;
     protected $tmpShopDir;
@@ -31,7 +27,7 @@ class BaseFeedSimple extends BaseFeed
     protected $xmlOutputFile;
     protected $xmlOutputDir;
 
-    public function __construct($name, $nameWithToken) {
+    public function __construct($name, $nameWithToken, $feedCountVariableName, $optimizationVariableName, $loweredCountVariableName, $defaultCountVariableName) {
         $this->nameWithToken = $nameWithToken;
         $this->shopID = Mergado::getShopId();
 
@@ -42,10 +38,15 @@ class BaseFeedSimple extends BaseFeed
 
         $this->xmlOutputFile = $this->xmlOutputDir . $this->nameWithToken . '.xml';
 
+        $this->feedCountVariableName = $feedCountVariableName;
+
+        $this->optimizationVariableName = $optimizationVariableName;
+        $this->loweredCountVariableName = $loweredCountVariableName;
+        $this->defaultCountVariableName = $defaultCountVariableName;
+
         parent::__construct(
             $name,
             $this->nameWithToken,
-            $this->feedPrefix,
             $this->optimizationVariableName,
             $this->loweredCountVariableName,
             $this->defaultCountVariableName,
@@ -53,7 +54,8 @@ class BaseFeedSimple extends BaseFeed
             $this->tmpShopDir,
             $this->tmpOutputDir,
             $this->xmlOutputFile,
-            $this->xmlOutputDir
+            $this->xmlOutputDir,
+            $this->feedCountVariableName
         );
     }
 

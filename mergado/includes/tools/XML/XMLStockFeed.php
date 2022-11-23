@@ -52,7 +52,11 @@ class XMLStockFeed extends BaseFeedSimple
 
         parent::__construct(
             $this->name,
-            $this->nameWithToken
+            $this->nameWithToken,
+            XMLClass::FEED_COUNT['STOCK'],
+            XMLClass::OPTIMIZATION['STOCK_FEED'],
+            XMLClass::FEED_PRODUCTS_USER['STOCK'],
+            XMLClass::DEFAULT_ITEMS_STEP['STOCK_FEED']
         );
     }
 
@@ -128,6 +132,7 @@ class XMLStockFeed extends BaseFeedSimple
 
             // Merge XML
             } else {
+                $this->updateFeedCount();
                 $this->mergeTemporaryFiles();
                 $this->unlockFeed();
 

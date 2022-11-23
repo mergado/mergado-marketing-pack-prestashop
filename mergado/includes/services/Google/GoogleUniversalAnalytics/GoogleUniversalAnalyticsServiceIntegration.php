@@ -8,6 +8,7 @@ use CurrencyCore;
 use ManufacturerCore;
 use Mergado;
 use Mergado\includes\services\Google\GoogleAds\GoogleAdsService;
+use Mergado\includes\services\Google\Gtag\GtagIntegrationHelper;
 use Mergado\includes\traits\SingletonTrait;
 use Mergado\Tools\HelperClass;
 
@@ -51,11 +52,6 @@ class GoogleUniversalAnalyticsServiceIntegration
 
         $currency = new CurrencyCore($order->id_currency);
         $withVat = $this->googleUniversalAnalyticsService->getConversionVatIncluded();
-
-        // Default is with vat
-        if ($withVat === false) {
-            $withVat = true;
-        }
 
         $data['transaction_id'] = "$orderId";
         $data['affiliation'] = ConfigurationCore::get('PS_SHOP_NAME');
@@ -124,7 +120,7 @@ class GoogleUniversalAnalyticsServiceIntegration
 
                 if(strpos($_SERVER["HTTP_REFERER"], $shopUrl) !== false) {
                     if($this->googleUniversalAnalyticsService->isActiveEnhancedEcommerce()) {
-                        $context->controller->addJS($path . GoogleUniversalAnalyticsService::TEMPLATES_PATH . 'gtagProductClick.js');
+                        $context->controller->addJS($path . GtagIntegrationHelper::TEMPLATES_PATH . 'productClick.js');
                     }
                 }
             }

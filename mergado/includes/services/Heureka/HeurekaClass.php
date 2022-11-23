@@ -38,7 +38,6 @@ class HeurekaClass
      * @param $apiKey
      * @param $order
      * @param $lang
-     * @throws Exception
      */
     public static function heurekaVerify($apiKey, $order, $lang)
     {
@@ -91,30 +90,33 @@ class HeurekaClass
      *
      * @param $url
      * @return string
-     * @throws Exception
      */
     private static function sendRequest($url)
     {
-        $parsed = parse_url($url);
-        $fp = fsockopen($parsed['host'], 80, $errno, $errstr, 5);
+        try {
+            $parsed = parse_url($url);
+            $fp = fsockopen($parsed['host'], 80, $errno, $errstr, 5);
 
-        if (!$fp) {
-            LogClass::log("Heureka verify ERROR: " . json_encode(['errNo' => $errno, 'errStr' => $errstr]));
-            throw new Exception($errstr . ' (' . $errno . ')');
-        } else {
-            $return = '';
-            $out = 'GET ' . $parsed['path'] . '?' . $parsed['query'] . " HTTP/1.1\r\n" .
-                'Host: ' . $parsed['host'] . "\r\n" .
-                "Connection: Close\r\n\r\n";
-            fputs($fp, $out);
-            while (!feof($fp)) {
-                $return .= fgets($fp, 128);
+            if (!$fp) {
+                LogClass::log("Heureka verify ERROR: " . json_encode(['errNo' => $errno, 'errStr' => $errstr]));
+                throw new Exception($errstr . ' (' . $errno . ')');
+            } else {
+                $return = '';
+                $out = 'GET ' . $parsed['path'] . '?' . $parsed['query'] . " HTTP/1.1\r\n" .
+                    'Host: ' . $parsed['host'] . "\r\n" .
+                    "Connection: Close\r\n\r\n";
+                fputs($fp, $out);
+                while (!feof($fp)) {
+                    $return .= fgets($fp, 128);
+                }
+                fclose($fp);
+                $returnParsed = explode("\r\n\r\n", $return);
+
+                LogClass::log("Heureka verify RETURN: " . json_encode(['return' => $returnParsed]));
+                return empty($returnParsed[1]) ? '' : trim($returnParsed[1]);
             }
-            fclose($fp);
-            $returnParsed = explode("\r\n\r\n", $return);
-
-            LogClass::log("Heureka verify RETURN: " . json_encode(['return' => $returnParsed]));
-            return empty($returnParsed[1]) ? '' : trim($returnParsed[1]);
+        } catch (Exception $e) {
+            LogClass::log("Heureka verify ERROR: " . json_encode(['exception' => $e->getMessage()]));
         }
     }
 }

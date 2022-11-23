@@ -22,11 +22,11 @@ use Mergado\Forms\SupportForm;
 use Mergado\Google\GaRefundClass;
 use Mergado\Google\GoogleReviewsClass;
 use Mergado\includes\services\Google\GoogleAds\GoogleAdsService;
-use Mergado\Google\GoogleTagManagerClass;
 use Mergado\includes\services\ArukeresoFamily\Arukereso\ArukeresoService;
 use Mergado\includes\services\ArukeresoFamily\Compari\CompariService;
 use Mergado\includes\services\ArukeresoFamily\Pazaruvaj\PazaruvajService;
 use Mergado\includes\services\Google\GoogleAnalytics4\GoogleAnalytics4Service;
+use Mergado\includes\services\Google\GoogleTagManager\GoogleTagManagerService;
 use Mergado\includes\services\Google\GoogleUniversalAnalytics\GoogleUniversalAnalyticsService;
 use Mergado\includes\services\Kelkoo\KelkooService;
 use Mergado\NajNakup\NajNakupClass;
@@ -403,7 +403,7 @@ class AdminMergadoController extends \ModuleAdminController
             CompariService::getToggleFields($this->languages->getLanguages(true)),
             PazaruvajService::getToggleFields($this->languages->getLanguages(true)),
             GoogleAdsService::getToggleFields(),
-            GoogleTagManagerClass::getToggleFields(),
+            GoogleTagManagerService::getToggleFields(),
             GoogleUniversalAnalyticsService::getToggleFields(),
             GoogleAnalytics4Service::getToggleFields()
         );
@@ -517,7 +517,7 @@ class AdminMergadoController extends \ModuleAdminController
             include_once __MERGADO_DIR__ . '/includes/api/Wizard.php';
 
             // Import prices
-            include_once __MERGADO_DIR__ . '/includes/api/importPrices.php';
+            include_once __MERGADO_DIR__ . '/includes/api/ImportPrices.php';
 
             // News
             include_once __MERGADO_DIR__ . '/includes/api/News.php';

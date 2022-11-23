@@ -58,14 +58,13 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '3.3.0',
+        'VERSION' => '3.3.1',
         'PHP_MIN_VERSION' => 7.1
     ];
 
     public $googleAdsService;
     public $googleUniversalAnalyticsService;
     public $googleAnalytics4Service;
-    public $GoogleTagManagerClass;
     public $cookieService;
 
     public $bianoStarServiceIntegration;
@@ -75,6 +74,7 @@ class Mergado extends Module
     public $googleAdsServiceIntegration;
     public $googleUniversalAnalyticsServiceIntegration;
     public $googleAnalytics4ServiceIntegration;
+    public $googleTagManagerServiceIntegration;
     public $kelkooServiceIntegration;
 
     public $gtagIntegrationHelper;
@@ -114,8 +114,6 @@ class Mergado extends Module
         $this->googleAdsService = Mergado\includes\services\Google\GoogleAds\GoogleAdsService::getInstance();
         $this->googleAnalytics4Service = Mergado\includes\services\Google\GoogleAnalytics4\GoogleAnalytics4Service::getInstance();
 
-        $this->GoogleTagManagerClass = Mergado\Google\GoogleTagManagerClass::getInstance();
-
         $this->cookieService = \Mergado\includes\tools\CookieService::getInstance();
 
         $this->bianoStarServiceIntegration = new \Mergado\includes\services\Biano\BianoStar\BianoStarServiceIntegration();
@@ -125,6 +123,7 @@ class Mergado extends Module
         $this->googleAdsServiceIntegration = \Mergado\includes\services\Google\GoogleAds\GoogleAdsServiceIntegration::getInstance();
         $this->googleUniversalAnalyticsServiceIntegration = \Mergado\includes\services\Google\GoogleUniversalAnalytics\GoogleUniversalAnalyticsServiceIntegration::getInstance();
         $this->googleAnalytics4ServiceIntegration = \Mergado\includes\services\Google\GoogleAnalytics4\GoogleAnalytics4ServiceIntegration::getInstance();
+        $this->googleTagManagerServiceIntegration = \Mergado\includes\services\Google\GoogleTagManager\GoogleTagManagerServiceIntegration::getInstance();
         $this->kelkooServiceIntegration = \Mergado\includes\services\Kelkoo\KelkooServiceIntegration::getInstance();
 
         $this->gtagIntegrationHelper = \Mergado\includes\services\Google\Gtag\GtagIntegrationHelper::getInstance();
@@ -157,6 +156,7 @@ class Mergado extends Module
             && $this->registerHook('displayAfterBodyOpeningTag') // only for PS 1.7
             && $this->registerHook('displayBeforeBodyClosingTag') // only for PS 1.7
             && $this->registerHook('actionOrderStatusUpdate') // For google refund
+            && $this->registerHook('actionAdminShopControllerSaveAfter')
 //            && $this->registerHook('actionProductCancel') // For google refund
             && $this->registerHook('extraCarrier')
             && $this->registerHook('displayBeforeCarrier')
@@ -261,17 +261,11 @@ class Mergado extends Module
 
 
     public function hookDisplayAfterBodyOpeningTag() {
-        if(_PS_VERSION_ >= self::PS_V_17) { // Just check cause of custom hook in ps16
-            if($this->GoogleTagManagerClass->isActive()):
-                $code = $this->GoogleTagManagerClass->getCode();
-                ?>
-                <!-- Google Tag Manager (noscript) -->
-                    <noscript><iframe src="//www.googletagmanager.com/ns.html?id=<?= $code ?>"
-                    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-                <!-- End Google Tag Manager (noscript) -->
-            <?php
-            endif;
-        }
+        $display = "";
+
+        $display .= $this->googleTagManagerServiceIntegration->insertDefaultBodyCode();
+
+        return $display;
     }
 
     public function hookDisplayProductAdditionalInfo($product) {
@@ -379,7 +373,6 @@ class Mergado extends Module
             $this->context->controller->addJS($this->_path . 'views/vendors/yesno/src/index.js?v=' . MERGADO::MERGADO['VERSION'], false);
             $this->context->controller->addJS($this->_path . 'views/js/wizard.js?v=' . MERGADO::MERGADO['VERSION'], false);
             $this->context->controller->addJS($this->_path . 'views/js/alerts.js?v=' . MERGADO::MERGADO['VERSION'], false);
-            $this->context->controller->addJS($this->_path . 'views/js/iframe.js?v=' . MERGADO::MERGADO['VERSION'], false);
             $this->context->controller->addJS($this->_path . 'views/js/import.js?v=' . MERGADO::MERGADO['VERSION'], false);
             $this->context->controller->addJS($this->_path . 'views/vendors/iframe-resizer/js/iframeResizer.min.js?v=' . MERGADO::MERGADO['VERSION'], false);
             $this->context->controller->addJS($this->_path . 'views/js/iframe-resizer.js?v=' . MERGADO::MERGADO['VERSION'], false);
@@ -505,7 +498,6 @@ class Mergado extends Module
     /**
      * Verified by users.
      * @param $params
-     * @throws Exception
      */
     public function hookActionValidateOrder($params)
     {
@@ -661,17 +653,8 @@ class Mergado extends Module
             $display .= $this->display(__FILE__, $GoogleReviewsClass->getBadgeTemplatePath());
         }
 
-        if (_PS_VERSION_ < self::PS_V_17) { // 16
-            if ($this->GoogleTagManagerClass->isActive()) {
-                $this->smarty->assign(
-                    array(
-                        'googleTagManagerCode' => $this->GoogleTagManagerClass->getCode(),
-                    )
-                );
-
-                $display .= $this->display(__FILE__, '/views/templates/front/footer/googleTagManager.tpl');
-            }
-        }
+        // GTM
+        $display .= $this->googleTagManagerServiceIntegration->insertDefaultBodyCode();
 
         return $display;
     }
@@ -680,38 +663,23 @@ class Mergado extends Module
         //Data for checkout in ps 1.7 ..
 
         if(_PS_VERSION_ > self::PS_V_16) {
-            $langId = (int)ContextCore::getContext()->language->id;
-
             $cart = $params['cart'];
             $cartProducts = $cart->getProducts(true);
 
-            $exportProducts = array();
-
-            foreach ($cartProducts as $i => $product) {
-                $category = new CategoryCore((int)$product['id_category_default'], (int)$langId);
-                $manufacturer = new ManufacturerCore($product['id_manufacturer'], (int)$langId);
-                $variant = Mergado\Tools\HelperClass::getProductAttributeName($product['id_product_attribute'], (int)$langId);
-
-                $exportProducts[] = array(
-                    "id" => \Mergado\Tools\HelperClass::getProductId($product),
-                    "name" => $product['name'],
-                    "brand" => $manufacturer->name,
-                    "category" => $category->name,
-                    "variant" => $variant,
-                    "list_position" => $i,
-                    "quantity" => $product['cart_quantity'],
-                    "price" => (string)($product['total_wt'] / $product['cart_quantity']),
-                );
-            }
+            $productData = \Mergado\includes\helpers\CartHelper::getOldCartProductData($cartProducts);
 
             if (_PS_VERSION_ < self::PS_V_17) {
                 $this->smarty->assign(array(
-                    'data' => htmlspecialchars(json_encode($exportProducts, JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
+                    'data' => htmlspecialchars(json_encode($productData['default'], JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
+                    'dataWithVat' => htmlspecialchars(json_encode($productData['withVat'], JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
+                    'dataWithoutVat' => htmlspecialchars(json_encode($productData['withoutVat'], JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
                     'cart_id' => $cart->id,
                 ));
             } else {
                 $this->smarty->assign(array(
-                    'data' => json_encode($exportProducts, JSON_NUMERIC_CHECK),
+                    'data' => json_encode($productData['default'], JSON_NUMERIC_CHECK),
+                    'dataWithVat' => json_encode($productData['withVat'], JSON_NUMERIC_CHECK),
+                    'dataWithoutVat' => json_encode($productData['withoutVat'], JSON_NUMERIC_CHECK),
                     'cart_id' => $cart->id,
                 ));
             }
@@ -744,33 +712,20 @@ class Mergado extends Module
             $cart = $params['cart'];
             $cartProducts = $cart->getProducts(true);
 
-            $exportProducts = array();
-
-            foreach ($cartProducts as $i => $product) {
-                $category = new CategoryCore((int)$product['id_category_default'], (int)$langId);
-                $manufacturer = new ManufacturerCore($product['id_manufacturer'], (int)$langId);
-                $variant = Mergado\Tools\HelperClass::getProductAttributeName($product['id_product_attribute'], (int)$langId);
-
-                $exportProducts[] = array(
-                    "id" => \Mergado\Tools\HelperClass::getProductId($product),
-                    "name" => $product['name'],
-                    "brand" => $manufacturer->name,
-                    "category" => $category->name,
-                    "variant" => $variant,
-                    "list_position" => $i,
-                    "quantity" => $product['cart_quantity'],
-                    "price" => (string)($product['total_wt'] / $product['cart_quantity']),
-                );
-            }
+            $productData = \Mergado\includes\helpers\CartHelper::getOldCartProductData($cartProducts);
 
             if (_PS_VERSION_ < self::PS_V_17) {
                 $this->smarty->assign(array(
-                    'data' => htmlspecialchars(json_encode($exportProducts, JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
+                    'data' => htmlspecialchars(json_encode($productData['default'], JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
+                    'dataWithVat' => htmlspecialchars(json_encode($productData['withVat'], JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
+                    'dataWithoutVat' => htmlspecialchars(json_encode($productData['withoutVat'], JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
                     'cart_id' => $cart->id,
                 ));
             } else {
                 $this->smarty->assign(array(
-                    'data' => json_encode($exportProducts, JSON_NUMERIC_CHECK),
+                    'data' => json_encode($productData['default'], JSON_NUMERIC_CHECK),
+                    'dataWithVat' => json_encode($productData['withVat'], JSON_NUMERIC_CHECK),
+                    'dataWithoutVat' => json_encode($productData['withoutVat'], JSON_NUMERIC_CHECK),
                     'cart_id' => $cart->id,
                 ));
             }
@@ -900,57 +855,11 @@ class Mergado extends Module
         $this->googleAnalytics4ServiceIntegration->cartEvents($this->context, $this->_path);
 
         //Google Tag Manager
-        //If user come from my url === clicked on product url
-        if(isset($_SERVER["HTTP_REFERER"])) {
-            if($_SERVER["HTTP_REFERER"]) {
-                global $smarty;
+        $display .= $this->googleTagManagerServiceIntegration->insertDefaultCode($this, $this->smarty, $this->context, $this->_path);
+        $this->googleTagManagerServiceIntegration->insertDefaultHelpers($this->context, $this->_path);
+        $this->googleTagManagerServiceIntegration->userClickedProduct($this->context, $this->_path);
 
-                if(_PS_VERSION_ < self::PS_V_17) {
-                    $shopUrl = $smarty->tpl_vars['base_dir']->value;
-                } else {
-                    $shopUrl = $smarty->tpl_vars['urls']->value['shop_domain_url'];
-                }
-
-                if(strpos($_SERVER["HTTP_REFERER"], $shopUrl) !== false) {
-                    if ($this->GoogleTagManagerClass->isEnhancedEcommerceActive()) {
-                        $this->context->controller->addJS($this->_path . 'views/js/gtmProductClick.js');
-                    }
-                }
-            }
-        }
-
-        //Google Tag Manager
-        if ($this->GoogleTagManagerClass->isActive()) {
-            if (Tools::getValue('controller') === 'orderconfirmation') {
-                $orderId = Tools::getValue('id_order');
-                $order = new Order($orderId);
-                $currency = new CurrencyCore($order->id_currency);
-
-                $this->smarty->assign(array(
-                    'gtm_ecommerceEnhanced' => $this->GoogleTagManagerClass->isEnhancedEcommerceActive(),
-                    'gtm_purchase_data' => $this->GoogleTagManagerClass->getPurchaseData($orderId, $order, (int)$this->context->language->id),
-                    'gtm_transaction_data' => $this->GoogleTagManagerClass->getTransactionData($orderId, $order, (int)$this->context->language->id),
-                    'gtm_currencyCode' => $currency->iso_code,
-                ));
-
-                $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/gtm.tpl');
-            }
-
-            //Google Tag Manager - ecommerce enhanced
-            if ($this->GoogleTagManagerClass->isEnhancedEcommerceActive()) {
-                $jsDef = array_merge(array(
-                    'GoogleTagManager' => array('maxViewListItems' => $this->GoogleTagManagerClass->getViewListItemsCount()),
-                ), $jsDef);
-
-                $this->context->controller->addJS($this->_path . 'views/js/gtm.js');
-            }
-
-            $this->smarty->assign(array(
-                'gtm_analytics_id' => $this->GoogleTagManagerClass->getCode(),
-            ));
-
-            $display .= $this->display(__FILE__, '/views/templates/front/header/gtm.tpl');
-        }
+        $display .= $this->googleTagManagerServiceIntegration->orderConfirmation($this, $this->smarty,$this->context, $this->_path);
 
         //BIANO
         $bianoClass = new \Mergado\includes\services\Biano\Biano\BianoClass();
@@ -1175,11 +1084,21 @@ class Mergado extends Module
      */
     public function hookActionOrderStatusUpdate($params)
     {
+        $this->shopId = self::getShopId(); // Not set somehow
+
         $GaRefundClass = \Mergado\Google\GaRefundClass::getInstance();
 
         $order = new OrderCore(ToolsCore::getValue('id_order'));
         $orderId = $order->id;
         $orderStateId = Tools::getValue('id_order_state');
+
+        if (!$orderStateId) {
+            $orderStateId = $params['newOrderStatus']->id;
+        }
+
+        if (!$orderId) {
+            $orderId = $params['id_order'];
+        }
 
         if ($this->googleUniversalAnalyticsService->isActiveEcommerce()) {
             if ($GaRefundClass->isStatusActive($orderStateId, $this->shopId)) {
@@ -1200,7 +1119,7 @@ class Mergado extends Module
             }
         }
 
-        $this->googleAnalytics4ServiceIntegration->sendRefundOrderFull($orderId, $orderStateId);
+        $this->googleAnalytics4ServiceIntegration->sendRefundOrderFull($this->context, $orderId, $orderStateId);
     }
 
     // 1.7.6
@@ -1231,7 +1150,7 @@ class Mergado extends Module
             $GaRefundClass->sendRefundCode($products, $orderId, $this->shopId, true);
         }
 
-        $this->googleAnalytics4ServiceIntegration->sendRefundOrderPartial($orderProducts, $orderId, $orderStateId, $orderCancelQuantity);
+        $this->googleAnalytics4ServiceIntegration->sendRefundOrderPartial($this->context, $orderProducts, $orderId, $orderStateId, $orderCancelQuantity);
     }
 
     /**
@@ -1413,38 +1332,23 @@ class Mergado extends Module
 
         //For checkout in ps 1.6
         if(_PS_VERSION_ < self::PS_V_17) {
-            $langId = (int)ContextCore::getContext()->language->id;
-
             $cart = $params['cart'];
             $cartProducts = $cart->getProducts(true);
 
-            $exportProducts = array();
-
-            foreach ($cartProducts as $i => $product) {
-                $category = new CategoryCore((int)$product['id_category_default'], (int)$langId);
-                $manufacturer = new ManufacturerCore($product['id_manufacturer'], (int)$langId);
-                $variant = Mergado\Tools\HelperClass::getProductAttributeName($product['id_product_attribute'], (int)$langId);
-
-                $exportProducts[] = array(
-                    "id" => \Mergado\Tools\HelperClass::getProductId($product),
-                    "name" => $product['name'],
-                    "brand" => $manufacturer->name,
-                    "category" => $category->name,
-                    "variant" => $variant,
-                    "list_position" => $i,
-                    "quantity" => $product['cart_quantity'],
-                    "price" => (string) ($product['total_wt'] / $product['cart_quantity']),
-                );
-            }
+            $productData = \Mergado\includes\helpers\CartHelper::getOldCartProductData($cartProducts);
 
             if (_PS_VERSION_ < self::PS_V_17) {
                 $this->smarty->assign(array(
-                    'data' => htmlspecialchars(json_encode($exportProducts, JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
+                    'data' => htmlspecialchars(json_encode($productData['default'], JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
+                    'dataWithVat' => htmlspecialchars(json_encode($productData['withVat'], JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
+                    'dataWithoutVat' => htmlspecialchars(json_encode($productData['withoutVat'], JSON_NUMERIC_CHECK), ENT_QUOTES, 'UTF-8'),
                     'cart_id' => $cart->id,
                 ));
             } else {
                 $this->smarty->assign(array(
-                    'data' => json_encode($exportProducts, JSON_NUMERIC_CHECK),
+                    'data' => json_encode($productData['default'], JSON_NUMERIC_CHECK),
+                    'dataWithVat' => json_encode($productData['withVat'], JSON_NUMERIC_CHECK),
+                    'dataWithoutVat' => json_encode($productData['withoutVat'], JSON_NUMERIC_CHECK),
                     'cart_id' => $cart->id,
                 ));
             }
@@ -1604,8 +1508,25 @@ class Mergado extends Module
                     'id_shop' => $id,
                 ));
             }
+
+            // Set export to both enabled for all shops
+            Mergado\Tools\SettingsClass::saveSetting(\Mergado\Tools\SettingsClass::EXPORT['BOTH'], 'on', $id);
         }
 
         return true;
+    }
+
+    /**
+     * Form add new mutlistore shop saved
+     *
+     * @param $data
+     * @return void
+     */
+    public function hookActionAdminShopControllerSaveAfter($data)
+    {
+        if(Tools::getValue('submitAddshop') !== false && Tools::getValue('submitAddshop') === '1') {
+            $shopId = Tools::getValue('id_shop');
+            Mergado\Tools\SettingsClass::saveSetting(\Mergado\Tools\SettingsClass::EXPORT['BOTH'], 'on', $shopId);
+        }
     }
 }

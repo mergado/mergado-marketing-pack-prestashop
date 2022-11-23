@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let value = orderData.total_paid_tax_incl;
     const tax = Math.round((orderData.total_paid_tax_incl - orderData.total_paid_tax_excl + Number.EPSILON) * 100) / 100;
     let shipping = orderData.total_shipping_tax_incl;
-    const currency = orderData.currency.iso_code;
+    const currency = orderData.currency;
     const coupon = orderData.coupons;
 
     if (!mergado_GA4_settings.withVat) {
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const productCoupon = '';
 
       const productObject = {
-        'item_id': item.merged,
+        'item_id': item.id_merged,
         'item_name': item.name,
         'item_category': item.category_name,
         'quantity': item.quantity,

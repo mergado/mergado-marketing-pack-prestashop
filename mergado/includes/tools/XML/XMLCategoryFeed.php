@@ -41,7 +41,12 @@ class XMLCategoryFeed extends BaseFeedMulti
     public function __construct($name)
     {
         parent::__construct(
-            $name
+            $name,
+            self::FEED_PREFIX,
+            XMLClass::FEED_COUNT['CATEGORY'],
+            XMLClass::OPTIMIZATION['CATEGORY_FEED'],
+            XMLClass::FEED_PRODUCTS_USER['CATEGORY'],
+            XMLClass::DEFAULT_ITEMS_STEP['CATEGORY_FEED']
         );
     }
 
@@ -124,6 +129,7 @@ class XMLCategoryFeed extends BaseFeedMulti
 
             // Merge XML
             } else {
+                $this->updateFeedCount();
                 $this->mergeTemporaryFiles();
                 $this->unlockFeed();
 

@@ -20,6 +20,8 @@ class GtagIntegrationHelper
     protected $googleAnalytics4ServiceIntegration;
     protected $cookieService;
 
+    const TEMPLATES_PATH = 'includes/services/Google/Gtag/templates/';
+
     use SingletonTrait;
 
     protected function __construct()
@@ -108,19 +110,21 @@ class GtagIntegrationHelper
     private function addHeaderJs($context, $path)
     {
         MediaCore::addJsDef(
-            array (
-                'mmp_gads' => array(
+            [
+                'mergado_GAds_settings' => [
                     'remarketingActive' => $this->googleAdsService->isRemarketingActive(),
                     'remarketingType' => $this->googleAdsService->getRemarketingTypeForTemplate(),
-                    'sendTo' => $this->googleAdsService->getConversionsCode()
-                ),
-                'mmp_gua' => array(
+                    'sendTo' => $this->googleAdsService->getConversionsCode(),
+                ],
+                'mergado_GUA_settings' => [
                     'enhancedActive' => $this->googleUniversalAnalyticsService->isActiveEnhancedEcommerce(),
+                    'withVat' => $this->googleUniversalAnalyticsService->getConversionVatIncluded(),
                     'sendTo' => $this->googleUniversalAnalyticsService->getCode(),
-                ),
-            )
+                ],
+            ]
         );
 
+        $context->controller->addJS($path . 'includes/services/Google/GoogleUniversalAnalytics/helpers/helpers.js');
         $context->controller->addJS($path . 'includes/services/Google/Gtag/templates/gtag.js');
     }
 }

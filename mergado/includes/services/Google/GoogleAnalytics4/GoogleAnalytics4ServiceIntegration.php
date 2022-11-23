@@ -221,17 +221,17 @@ class GoogleAnalytics4ServiceIntegration
         }
     }
 
-    public function sendRefundOrderPartial($products, $orderId, $orderStateId, $cancelQuantities)
+    public function sendRefundOrderPartial($context, $products, $orderId, $orderStateId, $cancelQuantities)
     {
         if ($this->googleAnalytics4Service->isRefundActive() && $this->googleAnalytics4Service->isRefundStatusActive($orderStateId)) {
             $order = new OrderCore($orderId);
 
             // Check if order has full refund status already ... and don't send it again
-            $orderHistory = $order->getHistory($this->context->language->id);
+            $orderHistory = $order->getHistory($context->language->id);
             $hasRefundedStatus = false;
 
             foreach($orderHistory as $history) {
-                if ($this->googleAnalytics4Service->isRefundStatusActive($history)) {
+                if ($this->googleAnalytics4Service->isRefundStatusActive($history['id_order_state'])) {
                     $hasRefundedStatus = true;
                 }
             }
@@ -256,22 +256,22 @@ class GoogleAnalytics4ServiceIntegration
                     ->setItems($eventObjectItems)
                     ->setSendTo($this->sendTo);
 
-                $this->sendRefundCode($refundObject);
+                $this->sendRefundCode($refundObject, $order->id);
             }
         }
     }
 
-    public function sendRefundOrderFull($orderId, $orderStateId)
+    public function sendRefundOrderFull($context, $orderId, $orderStateId)
     {
         if ($this->googleAnalytics4Service->isRefundActive() && $this->googleAnalytics4Service->isRefundStatusActive($orderStateId)) {
             $order = new OrderCore($orderId);
 
             // Check if order has full refund status already ... and don't send it again
-            $orderHistory = $order->getHistory($this->context->language->id);
+            $orderHistory = $order->getHistory($context->language->id);
             $hasRefundedStatus = false;
 
             foreach($orderHistory as $history) {
-                if ($this->googleAnalytics4Service->isRefundStatusActive($history)) {
+                if ($this->googleAnalytics4Service->isRefundStatusActive($history['id_order_state'])) {
                     $hasRefundedStatus = true;
                 }
             }
@@ -282,12 +282,12 @@ class GoogleAnalytics4ServiceIntegration
                     ->setTransactionId($order->id)
                     ->setSendTo($this->sendTo);
 
-                $this->sendRefundCode($refundObject);
+                $this->sendRefundCode($refundObject, $order->id);
             }
         }
     }
 
-    public function sendRefundCode($refundObject)
+    public function sendRefundCode($refundObject, $orderId)
     {
         $ch = curl_init();
         $url = GoogleAnalytics4Service::REFUND_URL;
@@ -308,21 +308,20 @@ class GoogleAnalytics4ServiceIntegration
             CURLOPT_URL => $url
         ));
 
-        $response = curl_exec($ch);
+        curl_exec($ch);
         $errorCount = curl_errno($ch);
         $error = curl_error($ch);
+        $info = curl_getinfo($ch);
 
         curl_close($ch);
 
-        if ($response === false || $errorCount > 0) {
-            LogClass::log('Mergado log [GA4]: Error refund - ' . $error);
+        // Normal 204 .. debug endpoint 200
+        if ($info['http_code'] == 204 || $info['http_code'] == 200 && $errorCount <= 0) {
+            LogClass::log('Mergado log [GA4]: Refund successful - order ' . $orderId . ' - Request info: ' . json_encode($info));
             return true;
         } else {
-            $decoded_response = json_decode($response, true);
-
-            if ((int)($decoded_response["status"] / 100) === 2) {
-                return true;
-            }
+            LogClass::log('Mergado log [GA4]: Error refund - order ' . $orderId . ' - Error: ' . $error);
+            return true;
         }
     }
 

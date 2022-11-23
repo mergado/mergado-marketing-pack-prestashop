@@ -1,29 +1,11 @@
 <?php
 
-/**
- * NOTICE OF LICENSE.
- *
- * This file is licenced under the Software License Agreement.
- * With the purchase or the installation of the software in your application
- * you accept the licence agreement.
- *
- * You must not modify, adapt or create derivative works of this source code
- *
- * @author    www.mergado.cz
- * @copyright 2016 Mergado technologies, s. r. o.
- * @license   LICENSE.txt
- */
+namespace Mergado\includes\services\Google\GoogleTagManager;
 
-namespace Mergado\Google;
-
-use CategoryCore;
-use ConfigurationCore;
-use ManufacturerCore;
-use Mergado;
 use Mergado\includes\traits\SingletonTrait;
 use Mergado\Tools\SettingsClass;
 
-class GoogleTagManagerClass
+class GoogleTagManagerService
 {
     const ACTIVE = 'mergado_google_tag_manager_active';
     const CODE = 'mergado_google_tag_manager_code';
@@ -32,6 +14,9 @@ class GoogleTagManagerClass
     const CONVERSION_VAT_INCL = 'mergado_google_tag_manager_conversion_vat_incl';
     const VIEW_LIST_ITEMS_COUNT = 'mergado_google_tag_manager_view_list_items_count';
 
+    const TEMPLATES_PATH = 'includes/services/Google/GoogleTagManager/templates/';
+    const HELPERS_PATH = 'includes/services/Google/GoogleTagManager/helpers/';
+
     private $active;
     private $code;
     private $ecommerceActive;
@@ -39,14 +24,13 @@ class GoogleTagManagerClass
     private $conversionVatIncluded;
     private $viewListItemsCount;
 
-    // Main settings variables
     private $multistoreShopId;
 
     use SingletonTrait;
 
     protected function __construct()
     {
-        $this->multistoreShopId = Mergado::getShopId();
+        $this->multistoreShopId = \Mergado::getShopId();
     }
 
     /******************************************************************************************************************
@@ -169,15 +153,20 @@ class GoogleTagManagerClass
     }
 
     /**
-     * @return mixed
+     * @return false|string|null
      */
-    public function getConversionVatIncluded()
+    public function getConversionVatIncluded() : bool
     {
         if (!is_null($this->conversionVatIncluded)) {
             return $this->conversionVatIncluded;
         }
 
         $this->conversionVatIncluded = SettingsClass::getSettings(self::CONVERSION_VAT_INCL, $this->multistoreShopId);
+
+        // Default value is true
+        if ($this->conversionVatIncluded === false) {
+            $this->conversionVatIncluded = true;
+        }
 
         return $this->conversionVatIncluded;
     }
@@ -228,133 +217,5 @@ class GoogleTagManagerClass
                 ]
             ],
         ];
-    }
-
-    /**
-     * @param $orderId
-     * @param $order
-     * @param $langId
-     * @return false|string
-     */
-    public function getPurchaseData($orderId, $order, $langId)
-    {
-        $data = [];
-        $products = $order->getProducts();
-
-        $withVat = $this->getConversionVatIncluded();
-
-        // Default is with vat
-        if ($withVat === false) {
-            $withVat = true;
-        }
-
-        $data['actionField']['id'] = "$orderId";
-        $data['actionField']['affiliation'] = ConfigurationCore::get('PS_SHOP_NAME');
-        $data['actionField']['revenue'] = (string) $order->total_paid;
-        $data['actionField']['tax'] = (string) ($order->total_paid_tax_incl - $order->total_paid_tax_excl);
-        $data['actionField']['shipping'] = (string) $order->total_shipping_tax_excl;
-        $data['actionField']['coupon'] = '';
-
-        $cartRules = [];
-        foreach($order->getCartRules() as $item) {
-            $cartRules[] = $item['name'];
-        }
-
-        if($cartRules !== []) {
-            $data['actionField']['coupon'] = join(', ', $cartRules);
-        }
-
-        $productData = [];
-
-        foreach ($products as $product) {
-
-            $category = new CategoryCore((int)$product['id_category_default'], (int)$langId);
-            $manufacturer = new ManufacturerCore($product['id_manufacturer'], (int)$langId);
-            $productVariant = Mergado\Tools\HelperClass::getProductAttributeName($product['product_attribute_id'], $langId);
-
-            if ($product['product_attribute_id'] && $product['product_attribute_id'] !== '' && $product['product_attribute_id'] !== '0') {
-                $idProduct = $product['product_id'] . '-' . $product['product_attribute_id'];
-            } else {
-                $idProduct = $product['product_id'];
-            }
-
-            $product_item = [
-                "name" => $product['product_name'],
-                "id" => $idProduct,
-                "brand" => $manufacturer->name,
-                "category" => $category->name,
-                "variant" => $productVariant,
-                "quantity" => (int) $product['product_quantity'],
-            ];
-
-            // If VAT included or not
-            if ($withVat) {
-                $product_item['price'] = (string) $product['unit_price_tax_incl'];
-            } else {
-                $product_item['price'] = (string) $product['unit_price_tax_excl'];
-            }
-
-            $productData[] = $product_item;
-        }
-
-        $data['products'] = $productData;
-
-        return json_encode($data, JSON_NUMERIC_CHECK);
-    }
-
-    /**
-     * @param $orderId
-     * @param $order
-     * @param $langId
-     * @return false|string
-     */
-    public function getTransactionData($orderId, $order, $langId)
-    {
-        $data = [];
-        $products = $order->getProducts();
-        $withVat = $this->getConversionVatIncluded();
-
-        // Default is with vat
-        if ($withVat === false) {
-            $withVat = true;
-        }
-
-        $data['transactionId'] = "$orderId";
-        $data['transactionAffiliation'] = ConfigurationCore::get('PS_SHOP_NAME');
-        $data['transactionTotal'] = (string) $order->total_paid;
-        $data['transactionTax'] = number_format((float) $order->total_paid_tax_incl - $order->total_paid_tax_excl, 2);
-        $data['transactionShipping'] = (string) $order->total_shipping_tax_excl;
-
-        $productData = [];
-
-        foreach ($products as $product) {
-            $category = new CategoryCore((int)$product['id_category_default'], (int)$langId);
-
-            if ($product['product_attribute_id'] && $product['product_attribute_id'] !== '' && $product['product_attribute_id'] !== '0') {
-                $idProduct = $product['product_id'] . '-' . $product['product_attribute_id'];
-            } else {
-                $idProduct = $product['product_id'];
-            }
-
-            $product_item = [
-                "name" => $product['product_name'],
-                "sku" => (string) $idProduct,
-                "category" => $category->name,
-                "quantity" => (int) $product['product_quantity'],
-            ];
-
-            // If VAT included or not
-            if ($withVat) {
-                $product_item['price'] = number_format((float) $product['unit_price_tax_incl'], 2);
-            } else {
-                $product_item['price'] = number_format((float) $product['unit_price_tax_excl'], 2);
-            }
-
-            $productData[] = $product_item;
-        }
-
-        $data['transactionProducts'] = $productData;
-
-        return json_encode($data, JSON_NUMERIC_CHECK);
     }
 }

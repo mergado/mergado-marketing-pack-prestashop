@@ -35,7 +35,7 @@ class GaRefundClass
     {
         $active = $this->getStatus($statusId, $shopId);
 
-        if ($active === SettingsClass::ENABLED) {
+        if ($active == SettingsClass::ENABLED) {
             return true;
         } else {
             return false;
@@ -66,24 +66,22 @@ class GaRefundClass
             CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_TIMEOUT => 15,
             CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13',
-            CURLOPT_URL => $this->createRefundUrl($products,$orderId, $shopId, $partial),
+            CURLOPT_URL => $this->createRefundUrl($products, $orderId, $shopId, $partial),
         ]);
 
-        $response = curl_exec($ch);
+        curl_exec($ch);
         $errorCount = curl_errno($ch);
         $error = curl_error($ch);
+        $info = curl_getinfo($ch);
 
         curl_close($ch);
 
-        if ($response === false || $errorCount > 0) {
-            LogClass::log('Google refund error - ' . $error);
+        if ($info['http_code'] == 200 && $errorCount <= 0) {
+            LogClass::log('Mergado log [GUA]: Refund successful - order ' . $orderId . ' - Request info: ' . json_encode($info));
             return true;
         } else {
-            $decoded_response = json_decode($response, true);
-
-            if ((int)($decoded_response["status"] / 100) === 2) {
-                return true;
-            }
+            LogClass::log('Mergado log [GUA]: Error refund - order ' . $orderId . ' - Error: ' . $error);
+            return true;
         }
     }
 

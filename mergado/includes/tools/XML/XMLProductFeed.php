@@ -37,7 +37,12 @@ class XMLProductFeed extends BaseFeedMulti
     public function __construct($name)
     {
         parent::__construct(
-            $name
+            $name,
+            self::FEED_PREFIX,
+            XMLClass::FEED_COUNT['PRODUCT'],
+            XMLClass::OPTIMIZATION['PRODUCT_FEED'],
+            XMLClass::FEED_PRODUCTS_USER['PRODUCT'],
+            XMLClass::DEFAULT_ITEMS_STEP['PRODUCT_FEED']
         );
     }
 
@@ -51,7 +56,6 @@ class XMLProductFeed extends BaseFeedMulti
      */
     public function generateXmlAjax($force = false, $firstRun = false)
     {
-
         try {
             $result = parent::generateXmlAjax($force, $firstRun);
 
@@ -93,14 +97,8 @@ class XMLProductFeed extends BaseFeedMulti
             }
 
             $xmlQuery = new XMLQuery($this->currency);
-            $productListTotal = $xmlQuery->productsToFlat(0, 0, $this->language->id, $export_out_of_stock);
+            $productList = $xmlQuery->productsToFlat($start, $productsPerStep, $this->language->id, $export_out_of_stock);
 
-            // Get only products we need
-            if ($productsPerStep !== 0 && count($productListTotal) > $productsPerStep) {
-                $productList = array_slice($productListTotal, $start, $productsPerStep);
-            } else {
-                $productList = $productListTotal;
-            }
 
             // Step generating
             if ($this->isPartial($productsPerStep, $productList)) {
@@ -128,6 +126,7 @@ class XMLProductFeed extends BaseFeedMulti
 
                 // Merge XML
             } else {
+                $this->updateFeedCount();
                 $this->mergeTemporaryFiles();
                 $this->unlockFeed();
 

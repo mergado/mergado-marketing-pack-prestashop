@@ -86,7 +86,14 @@ var m_GTM = {
                 $_id = $_id + '-' + $(this).attr('data-id-product-attribute');
             }
 
-            m_GTM_events.sendAddToCart($_id, $_name, $_category, $_price, $_currency, $_quantity);
+            const dataItem = element.closest('li').find('.mergado-product-list-item-data[data-product]');
+
+            if (dataItem.length > 0) {
+                const productData = JSON.parse(dataItem.attr('data-product'));
+                $_price = mmp_GTM_helpers.functions.getProductPrice(productData);
+            }
+
+            mmp_GTM_helpers.events.sendAddToCart($_id, $_name, $_category, $_price, $_currency, $_quantity);
         });
 
         //PS 1.6
@@ -104,7 +111,13 @@ var m_GTM = {
                 $_id = $_id + '-' + buyBlock.find('#idCombination').val();
             }
 
-            m_GTM_events.sendAddToCart($_id, $_name, $_category, $_price, $_currency, $_quantity)
+            const productData = mmp_GTM_helpers.functions.getProductObjectAttribute($_id);
+
+            if (productData) {
+                $_price = productData.prices.price;
+            }
+
+            mmp_GTM_helpers.events.sendAddToCart($_id, $_name, $_category, $_price, $_currency, $_quantity)
         });
     },
     initAddToCartPs17: function () {
@@ -122,11 +135,14 @@ var m_GTM = {
                 $_quantity = 1;
             }
 
+            // VAT changes
+            let productData = mmp_GTM_helpers.functions.getProductObject('#mergado-product-informations.mergado-product-data[data-product]');
+
             if ($('#product-details[data-product]').length > 0) {
                 var productJSON = JSON.parse($('#product-details[data-product]').attr('data-product'));
                 $_id = productJSON.id;
                 $_name = productJSON.name;
-                $_price = productJSON.price_amount;
+                $_price = productData.prices.price;
                 $_category = productJSON.category_name;
                 $_currency = prestashop.currency.iso_code;
 
@@ -147,7 +163,8 @@ var m_GTM = {
                 }
 
                 $_name = $('h1[itemprop="name"]').text();
-                $_price = $('.product-price').find('[itemprop="price"]').attr('content');
+                // $_price = $('.product-price').find('[itemprop="price"]').attr('content');
+                $_price = productData.prices.price;
                 $_category = '';
                 $_currency = prestashop.currency.iso_code;
 
@@ -156,7 +173,7 @@ var m_GTM = {
                 }
             }
 
-            m_GTM_events.sendAddToCart($_id, $_name, $_category, $_price, $_currency, $_quantity);
+            mmp_GTM_helpers.events.sendAddToCart($_id, $_name, $_category, $_price, $_currency, $_quantity);
         }
     },
     initRemoveFromCartPs16: function() {
@@ -172,7 +189,7 @@ var m_GTM = {
                 $_id += "-" + $_ipa;
             }
 
-            m_GTM_events.sendRemoveFromCart($_id, $_currency);
+            mmp_GTM_helpers.events.sendRemoveFromCart($_id, $_currency);
         });
     },
     initRemoveFromCartPs17: function() {
@@ -188,7 +205,7 @@ var m_GTM = {
                 $_id += "-" + $_ipa;
             }
 
-            m_GTM_events.sendRemoveFromCart($_id, $_currency);
+            mmp_GTM_helpers.events.sendRemoveFromCart($_id, $_currency);
         });
     },
     initDetailViewed: function() {
@@ -221,7 +238,7 @@ var m_GTM = {
             }
         }
 
-        m_GTM_events.sendViewItem($_id, $_name, $_category, $_currency);
+        mmp_GTM_helpers.events.sendViewItem($_id, $_name, $_category, $_currency);
     },
     initPaymentSetPs16: function () {
         //PS 1.6
@@ -231,7 +248,7 @@ var m_GTM = {
             $('.payment_module a').on('click', function () {
                 var value = $(this).attr('title');
 
-                m_GTM_events.sendCheckoutOptionSelected(4, value);
+                mmp_GTM_helpers.events.sendCheckoutOptionSelected(4, value);
             });
         }
 
@@ -239,11 +256,11 @@ var m_GTM = {
         if($('body#order-opc').length > 0) {
             $('.payment_module a').on('click', function () {
                 var value = $(this).attr('title');
-                var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+                var items = mmp_GTM_helpers.functions.getMscdData();
                 var $_currency = currency.iso_code;
 
-                m_GTM_events.sendCheckoutProgress(3, items, $_currency);
-                m_GTM_events.sendCheckoutOptionSelected(3, value);
+                mmp_GTM_helpers.events.sendCheckoutProgress(3, items, $_currency);
+                mmp_GTM_helpers.events.sendCheckoutOptionSelected(3, value);
             });
         }
     },
@@ -254,7 +271,7 @@ var m_GTM = {
             var value = $(this).attr('id');
             var label = $('label[for="' + value + '"] span').text();
 
-            m_GTM_events.sendCheckoutOptionSelected(4, label);
+            mmp_GTM_helpers.events.sendCheckoutOptionSelected(4, label);
         });
     },
     initCarrierSetPs16: function () {
@@ -268,7 +285,7 @@ var m_GTM = {
 
                     var value = $(this).val().replace(',', '');
 
-                    m_GTM_events.sendCheckoutOptionSelected(4, value);
+                    mmp_GTM_helpers.events.sendCheckoutOptionSelected(4, value);
 
                     setTimeout(function () {
                         lock = false;
@@ -285,12 +302,12 @@ var m_GTM = {
                 if(!lock) {
                     lock = true;
                     var value = $(this).val().replace(',', '');
-                    var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+                    var items = mmp_GTM_helpers.functions.getMscdData();
                     var $_currency = currency.iso_code;
 
                     //Cant get text so sending carrier value
-                    m_GTM_events.sendCheckoutProgress(2, items, $_currency);
-                    m_GTM_events.sendCheckoutOptionSelected(2, value);
+                    mmp_GTM_helpers.events.sendCheckoutProgress(2, items, $_currency);
+                    mmp_GTM_helpers.events.sendCheckoutOptionSelected(2, value);
 
                     setTimeout(function () {
                         lock = false;
@@ -305,101 +322,101 @@ var m_GTM = {
             var value = $(this).attr('id');
             var label = $('label[for="' + value + '"]').find('.carrier-name').text();
 
-            m_GTM_events.sendCheckoutOptionSelected(3, label);
+            mmp_GTM_helpers.events.sendCheckoutOptionSelected(3, label);
         });
     },
     initCheckoutStarted16: function () {
         $('body#order .cart_navigation .standard-checkout').on('click', function () {
             if (typeof $(this).attr('name') == 'undefined' || $(this).attr('name') === '') {
-                var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+                var items = mmp_GTM_helpers.functions.getMscdData();
                 var $_currency = currency.iso_code;
 
-                m_GTM_events.sendCheckoutProgress(1, items, $_currency)
+                mmp_GTM_helpers.events.sendCheckoutProgress(1, items, $_currency)
             }
         });
 
         //OnePageCheckout
         if($('body#order-opc').length > 0) {
-            var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var items = mmp_GTM_helpers.functions.getMscdData();
             var $_currency = currency.iso_code;
 
-            m_GTM_events.sendCheckoutProgress(1, items, $_currency)
+            mmp_GTM_helpers.events.sendCheckoutProgress(1, items, $_currency)
         }
     },
     initCheckoutLoginStepPs16: function () {
         if($('body#authentication').length > 0) {
-            var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var items = mmp_GTM_helpers.functions.getMscdData();
             var $_currency = currency.iso_code;
 
-            m_GTM_events.sendCheckoutProgress(2, items, $_currency);
+            mmp_GTM_helpers.events.sendCheckoutProgress(2, items, $_currency);
         }
     },
     initCheckoutAddressStepPs16: function () {
         if($('body#order [name="processAddress"]').length > 0) {
-            var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var items = mmp_GTM_helpers.functions.getMscdData();
             var $_currency = currency.iso_code;
 
-            m_GTM_events.sendCheckoutProgress(3, items, $_currency);
+            mmp_GTM_helpers.events.sendCheckoutProgress(3, items, $_currency);
         }
     },
     initCheckoutDeliveryStepPs16: function () {
         if($('body#order [name="processCarrier"]').length > 0) {
-            var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var items = mmp_GTM_helpers.functions.getMscdData();
             var $_currency = currency.iso_code;
 
-            m_GTM_events.sendCheckoutProgress(4, items, $_currency);
+            mmp_GTM_helpers.events.sendCheckoutProgress(4, items, $_currency);
         }
     },
     initCheckoutPaymentStepPs16: function () {
         if($('body#order .payment_module a').length > 0) {
-            var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var items = mmp_GTM_helpers.functions.getMscdData();
             var $_currency = currency.iso_code;
 
-            m_GTM_events.sendCheckoutProgress(5, items, $_currency);
+            mmp_GTM_helpers.events.sendCheckoutProgress(5, items, $_currency);
         }
     },
     initCheckoutReviewStepPs16: function () {
         //Multistep
         $('body#order .payment_module a').on('click', function () {
-            var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var items = mmp_GTM_helpers.functions.getMscdData();
             var $_currency = currency.iso_code;
 
-            m_GTM_events.sendCheckoutProgress(4, items, $_currency);
+            mmp_GTM_helpers.events.sendCheckoutProgress(4, items, $_currency);
         });
 
         //One page checkout payment/review page before confirm order
         $('body#order-opc #opc_payment_methods a').on('click', function () {
-            var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var items = mmp_GTM_helpers.functions.getMscdData();
             var $_currency = currency.iso_code;
 
-            m_GTM_events.sendCheckoutProgress(4, items, $_currency)
+            mmp_GTM_helpers.events.sendCheckoutProgress(4, items, $_currency)
         });
     },
     initCheckoutStarted17: function () {
-            var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var items = mmp_GTM_helpers.functions.getMscdData();
             var currency = prestashop.currency.iso_code;
-            m_GTM_events.sendCheckoutProgress(1, items, currency)
+            mmp_GTM_helpers.events.sendCheckoutProgress(1, items, currency)
     },
     initCheckoutAddressStep17: function () {
         if($('#checkout-addresses-step').hasClass('-current') || $('#checkout-addresses-step').hasClass('js-currenct-step')) {
-            var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var items = mmp_GTM_helpers.functions.getMscdData();
             var currency = prestashop.currency.iso_code;
 
-            m_GTM_events.sendCheckoutProgress(2, items, currency)
+            mmp_GTM_helpers.events.sendCheckoutProgress(2, items, currency)
         }
     },
     initCheckoutDeliveryStep17: function () {
         if($('#checkout-delivery-step').hasClass('-current') || $('#checkout-delivery-step').hasClass('js-currenct-step')) {
-            var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var items = mmp_GTM_helpers.functions.getMscdData();
             var currency = prestashop.currency.iso_code;
-            m_GTM_events.sendCheckoutProgress(3, items, currency)
+            mmp_GTM_helpers.events.sendCheckoutProgress(3, items, currency)
         }
     },
     initCheckoutPaymentStep17: function () {
         if($('#checkout-payment-step').hasClass('-current') || $('#checkout-payment-step').hasClass('js-currenct-step')) {
-            var items = JSON.parse($('[data-mscd]').attr('data-mscd'));
+            var items = mmp_GTM_helpers.functions.getMscdData();
             var currency = prestashop.currency.iso_code;
-            m_GTM_events.sendCheckoutProgress(4, items, currency)
+            mmp_GTM_helpers.events.sendCheckoutProgress(4, items, currency)
         }
     },
     initViewListPs16: function () {
@@ -408,7 +425,7 @@ var m_GTM = {
 
         if(products.length > 0) {
             var items = getProductsData(products);
-            m_GTM_events.sendViewList(currency, items);
+            mmp_GTM_helpers.events.sendViewList(currency, items);
         }
 
         $(document).ajaxComplete(function() {
@@ -417,7 +434,7 @@ var m_GTM = {
             var currency = $('[itemprop="priceCurrency"]').attr('content');
 
             if(items !== newProducts && currentProducts.length > 0) {
-                m_GTM_events.sendViewList(currency, newProducts);
+                mmp_GTM_helpers.events.sendViewList(currency, newProducts);
             }
         });
 
@@ -452,12 +469,12 @@ var m_GTM = {
                     item['list'] = 'Overview';
                 }
 
-                item['variant'] = id_attr;
+                item['variant'] = id_attr.attr('data-id-product-attribute');
                 item['position'] = key;
 
                 items.push(item);
 
-                if ((key + 1) == window.mergado.GoogleTagManager.maxViewListItems) {
+                if ((key + 1) == window.mergado_GTM_settings.maxViewListItems) {
                     return false;
                 }
             });
@@ -472,15 +489,15 @@ var m_GTM = {
 
             if(products.length > 0) {
                 var items = getProductsData(products);
-                m_GTM_events.sendViewList(currency, items);
+                mmp_GTM_helpers.events.sendViewList(currency, items);
             }
 
-            $(document).ajaxComplete(function() {
+            prestashop.on('updateProductList', function (e) {
                 var currentProducts = $('.product-miniature[data-id-product]');
                 var newProducts = getProductsData(currentProducts)
 
-                if(items !== newProducts && currentProducts.length > 0) {
-                    m_GTM_events.sendViewList(currency, items);
+                if (items !== newProducts && currentProducts.length > 0) {
+                    mmp_GTM_helpers.events.sendViewList(currency, items);
                 }
             });
 
@@ -520,7 +537,7 @@ var m_GTM = {
 
                     items.push(item);
 
-                    if ((key + 1) == window.mergado.GoogleTagManager.maxViewListItems) {
+                    if ((key + 1) == window.mergado_GTM_settings.maxViewListItems) {
                         return false;
                     }
                 });
@@ -529,89 +546,6 @@ var m_GTM = {
             }
         }
     },
-};
-
-/***********************************************************************************************************************
- * GTM FUNCTIONS
- **********************************************************************************************************************/
-
-var m_GTM_events = {
-    sendAddToCart: function (id, name, category, price, currency, quantity) {
-        dataLayer.push({
-            'event': 'addToCart',
-            'ecommerce': {
-                'currencyCode': currency,
-                'add': {
-                    'products': [{
-                        'name': name,
-                        'id': id,
-                        'price': price,
-                        'category': category,
-                        'quantity': quantity
-                    }]
-                }
-            }
-        });
-    },
-    sendRemoveFromCart: function(id, currency) {
-        dataLayer.push({
-            'event': 'removeFromCart',
-            'ecommerce': {
-                'currencyCode': currency,
-                'remove': {
-                    'products': [{
-                        'id': id,
-                    }]
-                }
-            }
-        });
-    },
-    sendViewItem: function(id, name, category, currency) {
-        dataLayer.push({
-            'event': 'viewItem',
-            'ecommerce': {
-            'currencyCode': currency,
-                'detail': {
-                    'products': [{
-                        'name': name,
-                        'id': id,
-                        'category': category
-                    }]
-                }
-            }
-        });
-    },
-    sendCheckoutOptionSelected: function (step, value) {
-        dataLayer.push({
-            'event': 'checkoutOption',
-            'ecommerce': {
-                'checkout_option': {
-                    'actionField': {'step': step, 'option': value}
-                }
-            }
-        });
-    },
-    sendCheckoutProgress: function(step, items, currency) {
-        dataLayer.push({
-            'event': 'checkout',
-            'ecommerce': {
-                'currencyCode': currency,
-                'checkout': {
-                    'actionField': {'step': step},
-                    'products': items
-                }
-            }
-        });
-    },
-    sendViewList: function (currency, items) {
-        dataLayer.push({
-            'event': 'view_item_list',
-            'ecommerce': {
-                'currencyCode': currency,
-                'impressions': items
-            }
-        });
-    }
 };
 
 // PS 1.7 - start on document ready when jQuery is already loaded

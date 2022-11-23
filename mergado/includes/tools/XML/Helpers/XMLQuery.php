@@ -128,6 +128,7 @@ class XMLQuery extends ObjectModel
             }
 
             $base = $this->productBase($product, $lang, $export_cost, $export_out_of_stock);
+
             if (array_key_exists('item_id', $base)) {
                 $flatProductList[] = $base;
             } else {

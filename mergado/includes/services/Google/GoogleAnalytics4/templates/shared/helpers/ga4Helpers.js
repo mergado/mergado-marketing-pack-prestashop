@@ -160,7 +160,7 @@ var mmp_GA4_helpers = {
     },
     sendPurchase: function (transactionId, value, tax, shipping, currency, items, coupon) {
       const eventObject = {
-        'transaction_id': transactionId,
+        'transaction_id': transactionId.toString(),
         'value': value,
         'tax': tax,
         'shipping': shipping,

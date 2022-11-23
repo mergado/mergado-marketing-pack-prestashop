@@ -6,7 +6,9 @@ use CartCore;
 use CategoryCore;
 use ContextCore;
 use LinkCore;
+use ManufacturerCore;
 use MediaCore;
+use Mergado\Tools\HelperClass;
 use ProductCore;
 
 class CartHelper
@@ -175,5 +177,72 @@ class CartHelper
         MediaCore::addJsDef(['mergado_shipping_data' => [
             'carriers' => $carriers
         ]]);
+    }
+
+    /**
+     * TODO REMAKE THIS WHOLE PROCESS
+     */
+    public static function getOldCartProductData($cartProducts)
+    {
+        $langId = (int)ContextCore::getContext()->language->id;
+
+        $exportProducts = [];
+
+        $cartProductsWithVat = [];
+        $cartProductsWithoutVat = [];
+
+        foreach ($cartProducts as $i => $product) {
+            $category = new CategoryCore((int)$product['id_category_default'], (int)$langId);
+            $manufacturer = new ManufacturerCore($product['id_manufacturer'], (int)$langId);
+            $variant = HelperClass::getProductAttributeName($product['id_product_attribute'], (int)$langId);
+
+            $productData = [
+                "id" => \Mergado\Tools\HelperClass::getProductId($product),
+                "name" => $product['name'],
+                "brand" => $manufacturer->name,
+                "category" => $category->name,
+                "variant" => $variant,
+                "list_position" => $i,
+                "quantity" => $product['cart_quantity'],
+                "price" => (string) ($product['total_wt'] / $product['cart_quantity']),
+            ];
+
+            $exportProducts[] = $productData;
+
+            if (isset($product['price_with_reduction_with_tax'])) {
+                $productData['price'] = $product['price_with_reduction']; // PS 1.7
+            } else {
+                // PS 1.6
+                $productData['price'] = ProductCore::getPriceStatic(
+                    (int)$product['id_product'],
+                    true,
+                    $product['id_product_attribute'],
+                    2,
+                    null,
+                    false,
+                    true
+                );
+            }
+            $cartProductsWithVat[] = $productData;
+
+            if (isset($product['price_with_reduction_without_tax'])) {
+                $productData['price'] = $product['price_with_reduction_without_tax']; // PS 1.7
+            } else {
+                // PS 1.6
+                $productData['price'] = ProductCore::getPriceStatic(
+                    (int)$product['id_product'],
+                    false,
+                    $product['id_product_attribute'],
+                    2,
+                    null,
+                    false,
+                    true
+                );
+            }
+
+            $cartProductsWithoutVat[] = $productData;
+        }
+
+        return ['default' => $exportProducts, 'withVat' => $cartProductsWithVat, 'withoutVat' => $cartProductsWithoutVat];
     }
 }
