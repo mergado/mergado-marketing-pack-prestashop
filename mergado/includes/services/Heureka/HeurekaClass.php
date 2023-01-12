@@ -38,8 +38,10 @@ class HeurekaClass
      * @param $apiKey
      * @param $order
      * @param $lang
+     * @param $sendWithItems
+     * @throws \PrestaShopException
      */
-    public static function heurekaVerify($apiKey, $order, $lang)
+    public static function heurekaVerify($apiKey, $order, $lang, $sendWithItems)
     {
         $url = null;
 
@@ -47,6 +49,7 @@ class HeurekaClass
 
         //If order by euros - then in SK
         if($currencyIso == 'EUR') {
+
             $url = HeurekaClass::HEUREKA_URL_SK;
         }
 
@@ -59,21 +62,24 @@ class HeurekaClass
         $url .= '&email=' . urlencode($order['customer']->email);
 
         $cart = new Cart($order['cart']->id, Language::getIdByIso($lang));
-        $products = $cart->getProducts();
 
-        foreach ($products as $product) {
-            $exactName = $product['name'];
+        if ($sendWithItems) {
+            $products = $cart->getProducts();
 
-            if (array_key_exists('attributes_small', $product) && $product['attributes_small'] != '') {
-                $tmpName = array_reverse(explode(', ', $product['attributes_small']));
-                $exactName .= ': ' . implode(' ', $tmpName);
-            }
+            foreach ($products as $product) {
+                $exactName = $product['name'];
 
-            $url .= '&produkt[]=' . urlencode($exactName);
-            if ($product['id_product_attribute'] === SettingsClass::DISABLED) {
-                $url .= '&itemId[]=' . urlencode($product['id_product']);
-            } else {
-                $url .= '&itemId[]=' . urlencode($product['id_product'] . '-' . $product['id_product_attribute']);
+                if (array_key_exists('attributes_small', $product) && $product['attributes_small'] != '') {
+                    $tmpName = array_reverse(explode(', ', $product['attributes_small']));
+                    $exactName .= ': ' . implode(' ', $tmpName);
+                }
+
+                $url .= '&produkt[]=' . urlencode($exactName);
+                if ($product['id_product_attribute'] === SettingsClass::DISABLED) {
+                    $url .= '&itemId[]=' . urlencode($product['id_product']);
+                } else {
+                    $url .= '&itemId[]=' . urlencode($product['id_product'] . '-' . $product['id_product_attribute']);
+                }
             }
         }
 
@@ -81,7 +87,7 @@ class HeurekaClass
             $url .= '&orderid=' . urlencode($order['order']->id);
         }
 
-        LogClass::log("Heureka verify Order ID: " . $order['cart']->id);
+        LogClass::log("Heureka verify Order ID: " . $order['cart']->id . " - url - " . $url);
         self::sendRequest($url);
     }
 
@@ -112,7 +118,7 @@ class HeurekaClass
                 fclose($fp);
                 $returnParsed = explode("\r\n\r\n", $return);
 
-                LogClass::log("Heureka verify RETURN: " . json_encode(['return' => $returnParsed]));
+                LogClass::log("Heureka verify RETURNED: " . json_encode(['return' => $returnParsed]));
                 return empty($returnParsed[1]) ? '' : trim($returnParsed[1]);
             }
         } catch (Exception $e) {

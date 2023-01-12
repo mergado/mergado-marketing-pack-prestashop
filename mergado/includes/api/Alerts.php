@@ -1,8 +1,8 @@
 <?php
 
 if ($_POST['action'] === 'ajax_disable_alert') {
-    $alertName = isset($_POST['name']) ? $_POST['name'] : '';
-    $feedName = isset($_POST['feed']) ? $_POST['feed'] : '';
+    $alertName = $_POST['name'] ?? '';
+    $feedName = $_POST['feed'] ?? '';
 
     $alertClass = new AlertClass();
     $alertClass->setAlertDisabled($feedName, $alertName);
@@ -10,7 +10,7 @@ if ($_POST['action'] === 'ajax_disable_alert') {
 }
 
 if ($_POST['action'] === 'ajax_disable_section') {
-    $sectionName = isset($_POST['section']) ? $_POST['section'] : '';
+    $sectionName = $_POST['section'] ?? '';
 
     if ($sectionName !== '') {
         $alertClass = new AlertClass();
@@ -22,8 +22,8 @@ if ($_POST['action'] === 'ajax_disable_section') {
 }
 
 if ($_POST['action'] === 'ajax_add_alert') {
-    $alertName = isset($_POST['name']) ? $_POST['name'] : '';
-    $feedName = isset($_POST['feed']) ? $_POST['feed'] : '';
+    $alertName = $_POST['name'] ?? '';
+    $feedName = $_POST['feed'] ?? '';
 
     if ($alertName !== '' && $feedName !== '') {
         $alertClass = new AlertClass();

@@ -13,8 +13,8 @@
 *}
 
 <script type="text/javascript">
-    var heureka_widget_enable_mobile = {(trim($showMobile) === '') ? 0 : $showMobile};
-    var heureka_widget_hide_width = {(trim($minWidth) === '') ? 0 : $minWidth};
+    {*var heureka_widget_enable_mobile = {(trim($showMobile) === '') ? 0 : $showMobile};*}
+    {*var heureka_widget_hide_width = {(trim($minWidth) === '') ? 0 : $minWidth};*}
     var heureka_widget_active = true;
 
     var widgetId = '{$widgetId}';

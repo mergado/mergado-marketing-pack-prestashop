@@ -290,8 +290,8 @@ class XMLQuery extends ObjectModel
 
                 // If no discount don't create elements
                 if ($discount_price_novat == $price_novat) {
-                    $discount_price_vat = '';
-                    $discount_price_novat = '';
+                    $discount_price_vat = null;
+                    $discount_price_novat = null;
                 }
 
                 $cost = null;
@@ -444,8 +444,8 @@ class XMLQuery extends ObjectModel
 
                 // If no discount don't create elements
                 if ($discount_price_novat == $price_novat) {
-                    $discount_price_vat = '';
-                    $discount_price_novat = '';
+                    $discount_price_vat = null;
+                    $discount_price_novat = null;
                 }
 
                 $cost = null;

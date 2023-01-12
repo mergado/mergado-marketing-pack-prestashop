@@ -58,7 +58,8 @@ class Mergado extends Module
         'MODULE_NAME' => 'mergado',
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
-        'VERSION' => '3.3.1',
+        'TABLE_ORDERS_NAME' => 'mergado_orders',
+        'VERSION' => '3.4.1',
         'PHP_MIN_VERSION' => 7.1
     ];
 
@@ -78,7 +79,6 @@ class Mergado extends Module
     public $kelkooServiceIntegration;
 
     public $gtagIntegrationHelper;
-
 
     public function __construct()
     {
@@ -108,25 +108,29 @@ class Mergado extends Module
 
         $this->confirmUninstall = $this->l('Are you sure to uninstall Mergado marketing pack module?');
 
-        $this->ps_versions_compliancy = array('min' => self::PS_V_16, 'max' => '1.7.9.99');
+        $this->ps_versions_compliancy = array('min' => self::PS_V_16, 'max' => '8.9.99');
 
-        $this->googleUniversalAnalyticsService = Mergado\includes\services\Google\GoogleUniversalAnalytics\googleUniversalAnalyticsService::getInstance();
-        $this->googleAdsService = Mergado\includes\services\Google\GoogleAds\GoogleAdsService::getInstance();
-        $this->googleAnalytics4Service = Mergado\includes\services\Google\GoogleAnalytics4\GoogleAnalytics4Service::getInstance();
+        try {
+            $this->googleUniversalAnalyticsService = Mergado\includes\services\Google\GoogleUniversalAnalytics\googleUniversalAnalyticsService::getInstance();
+            $this->googleAdsService = Mergado\includes\services\Google\GoogleAds\GoogleAdsService::getInstance();
+            $this->googleAnalytics4Service = Mergado\includes\services\Google\GoogleAnalytics4\GoogleAnalytics4Service::getInstance();
 
-        $this->cookieService = \Mergado\includes\tools\CookieService::getInstance();
+            $this->cookieService = \Mergado\includes\tools\CookieService::getInstance();
 
-        $this->bianoStarServiceIntegration = new \Mergado\includes\services\Biano\BianoStar\BianoStarServiceIntegration();
-        $this->arukeresoServiceIntegration = new \Mergado\includes\services\ArukeresoFamily\Arukereso\ArukeresoServiceIntegration();
-        $this->compariServiceIntegration = new \Mergado\includes\services\ArukeresoFamily\Compari\CompariServiceIntegration();
-        $this->pazaruvajServiceIntegration = new \Mergado\includes\services\ArukeresoFamily\Pazaruvaj\PazaruvajServiceIntegration();
-        $this->googleAdsServiceIntegration = \Mergado\includes\services\Google\GoogleAds\GoogleAdsServiceIntegration::getInstance();
-        $this->googleUniversalAnalyticsServiceIntegration = \Mergado\includes\services\Google\GoogleUniversalAnalytics\GoogleUniversalAnalyticsServiceIntegration::getInstance();
-        $this->googleAnalytics4ServiceIntegration = \Mergado\includes\services\Google\GoogleAnalytics4\GoogleAnalytics4ServiceIntegration::getInstance();
-        $this->googleTagManagerServiceIntegration = \Mergado\includes\services\Google\GoogleTagManager\GoogleTagManagerServiceIntegration::getInstance();
-        $this->kelkooServiceIntegration = \Mergado\includes\services\Kelkoo\KelkooServiceIntegration::getInstance();
+            $this->bianoStarServiceIntegration = new \Mergado\includes\services\Biano\BianoStar\BianoStarServiceIntegration();
+            $this->arukeresoServiceIntegration = new \Mergado\includes\services\ArukeresoFamily\Arukereso\ArukeresoServiceIntegration();
+            $this->compariServiceIntegration = new \Mergado\includes\services\ArukeresoFamily\Compari\CompariServiceIntegration();
+            $this->pazaruvajServiceIntegration = new \Mergado\includes\services\ArukeresoFamily\Pazaruvaj\PazaruvajServiceIntegration();
+            $this->googleAdsServiceIntegration = \Mergado\includes\services\Google\GoogleAds\GoogleAdsServiceIntegration::getInstance();
+            $this->googleUniversalAnalyticsServiceIntegration = \Mergado\includes\services\Google\GoogleUniversalAnalytics\GoogleUniversalAnalyticsServiceIntegration::getInstance();
+            $this->googleAnalytics4ServiceIntegration = \Mergado\includes\services\Google\GoogleAnalytics4\GoogleAnalytics4ServiceIntegration::getInstance();
+            $this->googleTagManagerServiceIntegration = \Mergado\includes\services\Google\GoogleTagManager\GoogleTagManagerServiceIntegration::getInstance();
+            $this->kelkooServiceIntegration = \Mergado\includes\services\Kelkoo\KelkooServiceIntegration::getInstance();
 
-        $this->gtagIntegrationHelper = \Mergado\includes\services\Google\Gtag\GtagIntegrationHelper::getInstance();
+            $this->gtagIntegrationHelper = \Mergado\includes\services\Google\Gtag\GtagIntegrationHelper::getInstance();
+        } catch (Exception $e) {
+            Mergado\Tools\LogClass::log('Mergado log: Error in mergado.php constructor ' . $e->getMessage());
+        }
     }
 
     /**
@@ -141,20 +145,20 @@ class Mergado extends Module
 
         return parent::install()
             && $this->installUpdates()
-            && $this->registerHook('backOfficeHeader')
+            && $this->registerHook('displayBackOfficeHeader')
             && $this->registerHook('actionValidateOrder')
             && $this->registerHook('orderConfirmation')
             && $this->registerHook('displayFooter')
 //            && $this->registerHook('displayProductFooter') // Probably not used
             && $this->registerHook('displayFooterProduct')
             && $this->registerHook('displayShoppingCart')
-            && $this->registerHook('displayShoppingCartFooter')
+//            && $this->registerHook('displayShoppingCartFooter')
             && $this->registerHook('displayProductPriceBlock')
             && $this->registerHook('displayHeader')
             && $this->registerHook('displayOrderConfirmation')
             && $this->registerHook('displayProductAdditionalInfo')
             && $this->registerHook('displayAfterBodyOpeningTag') // only for PS 1.7
-            && $this->registerHook('displayBeforeBodyClosingTag') // only for PS 1.7
+//            && $this->registerHook('displayBeforeBodyClosingTag') // only for PS 1.7
             && $this->registerHook('actionOrderStatusUpdate') // For google refund
             && $this->registerHook('actionAdminShopControllerSaveAfter')
 //            && $this->registerHook('actionProductCancel') // For google refund
@@ -180,6 +184,7 @@ class Mergado extends Module
         include __DIR__ . "/sql/update-2.3.0.php";
         include __DIR__ . "/sql/update-3.0.0.php";
         include __DIR__ . "/sql/update-3.1.0.php";
+        include __DIR__ . "/sql/update-3.4.1.php";
 
         return true;
     }
@@ -363,7 +368,7 @@ class Mergado extends Module
     /**
      * Add the CSS & JavaScript files you want to be loaded in the BO.
      */
-    public function hookBackOfficeHeader()
+    public function hookDisplayBackOfficeHeader()
     {
         $this->shopId = self::getShopId();
 
@@ -484,7 +489,7 @@ class Mergado extends Module
         /**
          * Only for PS 1.7
          */
-        if ($params['type'] === 'before_price') {
+        if ($params['type'] === 'before_price' && _PS_VERSION_ > Mergado::PS_V_16) {
             echo \Mergado\includes\helpers\ProductHelper::insertProductData($params, 'mergado-product-list-item-data');
         }
 
@@ -514,7 +519,14 @@ class Mergado extends Module
                 $verifiedCzCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_CODE_CZ'], $this->shopID);
 
                 if ($verifiedCzCode && $verifiedCzCode !== '') {
-                    Mergado\Heureka\HeurekaClass::heurekaVerify($verifiedCzCode, $params, self::LANG_CS);
+                    $sendWithItems = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_WITH_ITEMS_CZ'], $this->shopID);
+
+                    // Default true
+                    if ($sendWithItems === false) {
+                        $sendWithItems = true;
+                    }
+
+                    Mergado\Heureka\HeurekaClass::heurekaVerify($verifiedCzCode, $params, self::LANG_CS, $sendWithItems);
                 }
             }
 
@@ -522,7 +534,14 @@ class Mergado extends Module
                 $verifiedCzCode = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_CODE_SK'], $this->shopID);
 
                 if ($verifiedCzCode && $verifiedCzCode !== '') {
-                    Mergado\Heureka\HeurekaClass::heurekaVerify($verifiedCzCode, $params, self::LANG_SK);
+                    $sendWithItems = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['VERIFIED_WITH_ITEMS_SK'], $this->shopID);
+
+                    // Default true
+                    if ($sendWithItems === false) {
+                        $sendWithItems = true;
+                    }
+
+                    Mergado\Heureka\HeurekaClass::heurekaVerify($verifiedCzCode, $params, self::LANG_SK, $sendWithItems);
                 }
             }
         }
@@ -580,16 +599,16 @@ class Mergado extends Module
 
             if ($widgetId !== '') {
                 $position = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_POSITION_' . $langIso], $this->shopID);
-                $minWidth = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_SCREEN_WIDTH_' . $langIso], $this->shopID);
-                $showMobile = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_MOBILE_' . $langIso], $this->shopID);
+//                $minWidth = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_SCREEN_WIDTH_' . $langIso], $this->shopID);
+//                $showMobile = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_MOBILE_' . $langIso], $this->shopID);
                 $marginTop = Mergado\Tools\SettingsClass::getSettings(Mergado\Tools\SettingsClass::HEUREKA['WIDGET_TOP_MARGIN_' . $langIso], $this->shopID);
 
                 $this->smarty->assign(array(
                     'widgetId' => $widgetId,
                     'marginTop' => $marginTop,
-                    'minWidth' => $minWidth,
+//                    'minWidth' => $minWidth,
+//                    'showMobile' => $showMobile,
                     'position' => $position,
-                    'showMobile' => $showMobile,
                     'langIso' => strtolower($langIso),
                 ));
 
@@ -1264,12 +1283,16 @@ class Mergado extends Module
         $display .= $this->kelkooServiceIntegration->orderConfirmation($this, $this->smarty, $this->_path, $orderId, $order, $orderProducts);
 
         //GoogleAds, Google universal analytics - Remove when universal analytics die and move to Google ADS
-        if ($this->googleAdsService->isRemarketingActive() || $this->googleUniversalAnalyticsService->isActiveEcommerce()) {
-            $this->smarty->assign(array(
-                'gtag_purchase_data' => $this->googleUniversalAnalyticsServiceIntegration->getPurchaseData($orderId, $order, $orderProducts, (int)$context->language->id, $this->shopID)
-            ));
+        if (!OrderClass::isOrderCompleted($orderId, $this->shopId)) {
+            if ($this->googleAdsService->isRemarketingActive() || $this->googleUniversalAnalyticsService->isActiveEcommerce()) {
+                $this->smarty->assign(array(
+                    'gtag_purchase_data' => $this->googleUniversalAnalyticsServiceIntegration->getPurchaseData($orderId, $order, $orderProducts, (int)$context->language->id, $this->shopID)
+                ));
 
-            $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/gtagjs.tpl');
+                $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/gtagjs.tpl');
+            }
+
+            OrderClass::setOrderCompleted($orderId, $this->shopId);
         }
 
         //Biano

@@ -35,6 +35,8 @@ class SettingsClass
         'VERIFIED_SK' => 'mergado_heureka_overeno_zakazniky_sk',
         'VERIFIED_CODE_CZ' => 'mergado_heureka_overeno_zakazniky_kod_cz',
         'VERIFIED_CODE_SK' => 'mergado_heureka_overeno_zakazniky_kod_sk',
+        'VERIFIED_WITH_ITEMS_CZ' => 'mergado_heureka_overeno_zakazniky_with_items_cz',
+        'VERIFIED_WITH_ITEMS_SK' => 'mergado_heureka_overeno_zakazniky_with_items_sk',
         'WIDGET_CZ' => 'mergado_heureka_widget_cz',
         'WIDGET_SK' => 'mergado_heureka_widget_sk',
         'WIDGET_ID_CZ' => 'mergado_heureka_widget_id_cz',
@@ -170,7 +172,6 @@ class SettingsClass
      *
      * @param $key
      * @param $shopId
-     * @return false|string|null
      */
     public static function getSettings($key, $shopId)
     {

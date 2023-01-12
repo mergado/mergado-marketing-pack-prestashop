@@ -66,7 +66,7 @@ class MergadoAjaxModuleFrontController extends ModuleFrontController
         }
 
         // Classic json response
-        $json = Tools::jsonEncode($response);
+        $json = json_encode($response);
         echo $json;
         die;
     }

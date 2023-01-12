@@ -18,11 +18,14 @@ namespace Mergado\Tools\XML;
 
 use DateTime;
 use ConfigurationCore as Configuration;
+use Exception;
 use JsonResponse;
 use Mergado\Tools\CronRunningException;
 use Mergado\Tools\LogClass;
 use Mergado\Tools\SettingsClass;
 use Mergado\Tools\XMLClass;
+use PrestaShopDatabaseException;
+use PrestaShopException;
 use ToolsCore;
 use TranslateCore;
 use XMLWriter;
@@ -40,6 +43,10 @@ class XMLStaticFeed extends BaseFeedSimple
     protected $name;
     protected $nameWithToken;
 
+    /**
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
     public function __construct()
     {
         $this->name = 'static_feed';
@@ -62,6 +69,7 @@ class XMLStaticFeed extends BaseFeedSimple
     /**
      * @param false $force
      * @param false $firstRun
+     * @throws Exception
      */
     public function generateXmlAjax($force = false, $firstRun = false)
     {

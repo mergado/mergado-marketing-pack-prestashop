@@ -23,7 +23,7 @@
             {literal}merchantInfo: [{ country:kelkoo_country, merchantId:kelkoo_merchant_id }],{/literal}
             orderValue: '{$kelkooData['sales']}',
             orderId: '{$kelkooData['orderId']}',
-            basket: {$kelkooData['productsJson']}
+            basket: {$kelkooData['productsJson'] nofilter}
         };
         (function() {
             var s = document.createElement('script');

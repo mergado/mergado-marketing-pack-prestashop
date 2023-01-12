@@ -48,6 +48,28 @@ $fields_form[0]['form'] = [
             'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->module->l('You can find your store key in the Heureka account administration under Verified customers > Settings and questionnaire data > Secret Key for verified customers.', 'heureka')
         ],
         [
+            'name' => SettingsClass::HEUREKA['VERIFIED_WITH_ITEMS_CZ'],
+            'label' => $this->module->l('Send items', 'heureka'),
+            'validation' => 'isBool',
+            'cast' => 'intval',
+            'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
+            'class' => 'switch15',
+            'values' => [
+                [
+                    'id' => 'heureka_send_items_cz_active_on',
+                    'value' => 1,
+                    'label' => $this->module->l('Yes')
+                ],
+                [
+                    'id' => 'heureka_send_items_cz_active_off',
+                    'value' => 0,
+                    'label' => $this->module->l('No')
+                ]
+            ],
+            'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->module->l('Choose whether the items  will be sent in questionnaire email.', 'heureka'),
+            'visibility' => Shop::CONTEXT_ALL,
+        ],
+        [
             'name' => 'mergado_fake_field',
             'label' => $this->module->l('Text of the customer\'s consent to sending the questionnaire', 'heureka'),
             'type' => 'text',
@@ -114,7 +136,6 @@ $fields_form[0]['form'] = [
 ];
 
 // Heureka.cz - COVNERSIONS
-
 $fields_form[1]['form'] = [
     'legend' => [
         'title' => $this->module->l('Heureka.cz : Conversions tracking', 'heureka'),
@@ -179,7 +200,6 @@ $fields_form[1]['form'] = [
 ];
 
 // Heureka.sk - VERIFIED
-
 $fields_form[2]['form'] = [
     'legend' => [
         'title' => $this->module->l('Heureka.sk : Verified by customers', 'heureka'),
@@ -213,6 +233,28 @@ $fields_form[2]['form'] = [
             'type' => 'text',
             'visibility' => Shop::CONTEXT_ALL,
             'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->module->l('You can find your store key in the Heureka account administration under Verified customers > Settings and questionnaire data > Secret Key for verified customers.', 'heureka')
+        ],
+        [
+            'name' => SettingsClass::HEUREKA['VERIFIED_WITH_ITEMS_SK'],
+            'label' => $this->module->l('Send items', 'heureka'),
+            'validation' => 'isBool',
+            'cast' => 'intval',
+            'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
+            'class' => 'switch15',
+            'values' => [
+                [
+                    'id' => 'heureka_send_items_sk_active_on',
+                    'value' => 1,
+                    'label' => $this->module->l('Yes')
+                ],
+                [
+                    'id' => 'heureka_send_items_sk_active_off',
+                    'value' => 0,
+                    'label' => $this->module->l('No')
+                ]
+            ],
+            'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->module->l('Choose whether the items  will be sent in questionnaire email.', 'heureka'),
+            'visibility' => Shop::CONTEXT_ALL,
         ],
         [
             'name' => SettingsClass::HEUREKA['WIDGET_SK'],

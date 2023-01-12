@@ -42,6 +42,10 @@ class LogClass
         $folder = _PS_MODULE_DIR_ . Mergado::MERGADO['MODULE_NAME'] . '/log/';
         $file = 'log_' . $token . '.txt';
 
+        if (!$token) {
+            $file = 'log.txt';
+        }
+
         if (file_exists($folder)) {
             if (file_exists($folder . $file)) {
                 return $folder . $file;

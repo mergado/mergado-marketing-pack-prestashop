@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * NOTICE OF LICENSE.
@@ -35,6 +36,11 @@ class KelkooServiceIntegration
         $this->shopId = Mergado::getShopId();
     }
 
+    /**
+     * @param $module
+     * @param $path
+     * @return mixed|string
+     */
     public function insertKelkooHeader($module, $path)
     {
         if ($this->cookieService->advertismentEnabled()) {
@@ -46,6 +52,15 @@ class KelkooServiceIntegration
         return '';
     }
 
+    /**
+     * @param $module
+     * @param $smarty
+     * @param $path
+     * @param $orderId
+     * @param $order
+     * @param $orderProducts
+     * @return mixed|string
+     */
     public function orderConfirmation($module, $smarty, $path, $orderId, $order, $orderProducts)
     {
         if ($this->kelkooService->isActive()) {

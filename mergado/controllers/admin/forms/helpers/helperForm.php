@@ -26,6 +26,18 @@ if (!isset($fields_value['mergado_heureka_conversion_vat_incl_sk'])) {
     $fields_value['mergado_heureka_conversion_vat_incl_sk'] = 1;
 }
 
+if (!isset($fields_value['mergado_heureka_overeno_zakazniky_with_items_cz'])) {
+    $fields_value['mergado_heureka_overeno_zakazniky_with_items_cz'] = 1;
+}
+
+if (!isset($fields_value['mergado_heureka_overeno_zakazniky_with_items_sk'])) {
+    $fields_value['mergado_heureka_overeno_zakazniky_with_items_sk'] = 1;
+}
+
+if (!isset($fields_value['mergado_heureka_conversion_vat_incl_sk'])) {
+    $fields_value['mergado_heureka_conversion_vat_incl_sk'] = 1;
+}
+
 if (!isset($fields_value['mergado_google_tag_manager_conversion_vat_incl'])) {
     $fields_value['mergado_google_tag_manager_conversion_vat_incl'] = 1;
 }
@@ -41,6 +53,7 @@ if (!isset($fields_value['mmp-ga-ua-shipping-included'])) {
 if (!isset($fields_value['mmp-ga-ua-vat-included'])) {
     $fields_value['mmp-ga-ua-vat-included'] = 1;
 }
+
 
 //Fill in empty fields
 include __MERGADO_FORMS_DIR__ . '/helpers/helperFormEmptyFieldsFiller.php';

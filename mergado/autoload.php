@@ -77,6 +77,7 @@ include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/UrlManager.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/FeedQuery.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/AlertClass.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/JsonResponse.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/tools/OrderClass.php';
 
 /**
  * Helpers

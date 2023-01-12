@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /**
  * NOTICE OF LICENSE.
@@ -66,7 +67,10 @@ class KelkooService
         $this->multistoreShopId = Mergado::getShopId();
     }
 
-    public function isActive()
+    /**
+     * @return bool
+     */
+    public function isActive() : bool
     {
         $kelkoo_active = $this->getActive();
         $kelkoo_country = $this->getCountry();
@@ -81,7 +85,7 @@ class KelkooService
 
     /**
      * Return active language options for Kelkoo
-     * @return bool|mixed
+     * @return false|mixed
      */
     public function getActiveDomain()
     {
@@ -104,7 +108,7 @@ class KelkooService
      * @return array
      */
 
-    public function getOrderData($orderId, $order, $products) {
+    public function getOrderData($orderId, $order, $products) : array {
         $productsKelkoo = [];
 
         // If VAT included or not
@@ -160,6 +164,7 @@ class KelkooService
         return $this->active;
     }
 
+
     /**
      * @return false|string|null
      */
@@ -206,7 +211,10 @@ class KelkooService
      * TOGGLE FIELDS JSON
      ******************************************************************************************************************/
 
-    public static function getToggleFields()
+    /**
+     * @return string[][][]
+     */
+    public static function getToggleFields() : array
     {
         return [
             self::ACTIVE => [

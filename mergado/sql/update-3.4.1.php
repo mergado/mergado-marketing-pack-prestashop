@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE.
  *
@@ -13,14 +14,10 @@
  *  @license   LICENSE.txt
  */
 
-$sql = [];
+$sql = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'mergado_orders` (
+    `id_order` int(11),
+    `id_shop` int(11),
+    `completed` TINYINT(1) NOT NULL
+) ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;';
 
-$sql[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'mergado`';
-$sql[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'mergado_news`';
-$sql[] = 'DROP TABLE IF EXISTS `'._DB_PREFIX_.'mergado_orders`';
-
-foreach ($sql as $query) {
-    if (Db::getInstance()->execute($query) == false) {
-        return false;
-    }
-}
+Db::getInstance()->execute($sql);
