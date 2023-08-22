@@ -42,7 +42,7 @@ $fields_form[0]['form'] = [
         [
             'name' => SklikClass::CONVERSIONS_CODE,
             'label' => $this->module->l('Sklik conversion code', 'seznam'),
-            'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->module->l('You can find the code in Sklik → Tools → Conversion Tracking → Conversion Detail / Create New Conversion. The code is in the generated HTML conversion code after: src = "// c.imedia.cz/checkConversion?c=CONVERSION CODE', 'seznam'),
+            'desc' => '<span class="mmp-tag mmp-tag--question"></span>' . $this->module->l('You can find the code in Sklik → Tools → Conversion Tracking → Conversion Detail / Create New Conversion. The code is in the generated HTML conversion code after: id: ', 'seznam'),
             'type' => 'text',
             'visibility' => Shop::CONTEXT_ALL,
         ],

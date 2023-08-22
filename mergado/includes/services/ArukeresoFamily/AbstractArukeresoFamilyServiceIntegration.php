@@ -73,7 +73,7 @@ abstract class AbstractArukeresoFamilyServiceIntegration
 
             try {
                 /** Provide your own WebAPI key. You can find your WebAPI key on your partner portal. */
-                $Client = new TrustedShop($this->service->getWebApiKey());
+                $Client = new TrustedShop($this->service->getWebApiKey(), $this->service::SERVICE_URL_SEND);
 
                 /** Provide the e-mail address of your customer. You can retrieve the e-amil address from the webshop engine. */
                 $Client->SetEmail($customer->email);

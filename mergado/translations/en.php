@@ -175,7 +175,7 @@ $_MODULE['<{mergado}prestashop>seznam_9e7ce6546c82e3a74dbdd4d9c8e4aab8'] = 'Skli
 $_MODULE['<{mergado}prestashop>seznam_93cba07454f06a4a960172bbd6e2a435'] = 'Yes';
 $_MODULE['<{mergado}prestashop>seznam_bafd7322c6e97d25b6299b5d6fe8920b'] = 'No';
 $_MODULE['<{mergado}prestashop>seznam_bccef3bb2d1c878595184a3faeb706e0'] = 'Sklik conversion code';
-$_MODULE['<{mergado}prestashop>seznam_9143b312c222ffcef688a790392c5475'] = 'You can find the code in Sklik → Tools → Conversion Tracking → Conversion Detail / Create New Conversion. The code is in the generated HTML conversion code after: src = \"// c.imedia.cz/checkConversion?c=CONVERSION CODE';
+$_MODULE['<{mergado}prestashop>seznam_9143b312c222ffcef688a790392c5475'] = 'You can find the code in Sklik → Tools → Conversion Tracking → Conversion Detail / Create New Conversion. The code is in the generated HTML conversion code after: id: ';
 $_MODULE['<{mergado}prestashop>seznam_3563e1af826abe905e4c4dcf4f8b88e5'] = 'Sklik conversion value	';
 $_MODULE['<{mergado}prestashop>seznam_7c2789b72502d6f76c2d6f089f492ef4'] = 'Leave blank to fill the order value automatically. Total price excluding VAT and shipping is calculated.';
 $_MODULE['<{mergado}prestashop>seznam_02eb2868d3d7148f44f0a5069e6885e3'] = 'Sklik conversions with VAT?';

@@ -14,16 +14,16 @@
 
 {if $sklikData['active'] === '1' && $sklikData['conversionCode'] && $sklikData['conversionCode'] !== ''}
     <!-- Měřicí kód Sklik.cz -->
-    <script type="text/javascript">
-        var seznam_cId = '{$sklikData['conversionCode']}';
-        var seznam_value = {$sklikData['conversionValue']};
-        var rc = rc || {'{}'};
-        rc.consent = {$sklikConsent};
+    <script type="text/javascript" src="https://c.seznam.cz/js/rc.js"></script>
+    <script>
+      var conversionConf = {
+        id: {$sklikData['conversionCode']},
+        value: {$sklikData['conversionValue']},
+        consent: {$sklikConsent}
+      };
 
-        window.mmp.cookies.sections.advertisement.functions.sklikRetargeting = function () {
-          rc.consent = 1;
-        };
+      if (window.rc && window.rc.conversionHit) {
+        window.rc.conversionHit(conversionConf);
+      }
     </script>
-
-    <script type="text/javascript" src="https://www.seznam.cz/rs/static/rc.js" async></script>
 {/if}

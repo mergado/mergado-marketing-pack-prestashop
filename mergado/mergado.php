@@ -59,7 +59,7 @@ class Mergado extends Module
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
         'TABLE_ORDERS_NAME' => 'mergado_orders',
-        'VERSION' => '3.4.1',
+        'VERSION' => '3.4.2',
         'PHP_MIN_VERSION' => 7.1
     ];
 
@@ -824,8 +824,8 @@ class Mergado extends Module
 
             $this->smarty->assign(array(
                 'glami_pixel_category' => $category,
-                'glami_pixel_productIds' => json_encode($products['ids']),
-                'glami_pixel_productNames' => json_encode($products['name'])
+                'glami_pixel_productIds' => isset($products['ids']) ? json_encode($products['ids']) : json_encode($products),
+                'glami_pixel_productNames' => isset($products['name']) ? json_encode($products['name']) : json_encode($products)
             ));
         }
 
@@ -849,6 +849,8 @@ class Mergado extends Module
                 ));
 
                 $display .= $this->display(__FILE__, '/views/templates/front/header/glami.tpl');
+
+                $this->context->controller->addJS($this->_path . 'views/js/glami.js');
             }
         }
 
@@ -916,10 +918,9 @@ class Mergado extends Module
             ));
 
             $display .= $this->display(__FILE__, '/views/templates/front/footer/partials/fbpixel.tpl');
-        }
 
-        $this->context->controller->addJS($this->_path . 'views/js/glami.js');
-        $this->context->controller->addJS($this->_path . 'views/js/fbpixel.js');
+            $this->context->controller->addJS($this->_path . 'views/js/fbpixel.js');
+        }
 
         //Add checkbox for heureka
         if (_PS_VERSION_ >= self::PS_V_17) {
@@ -1219,9 +1220,9 @@ class Mergado extends Module
         ));
 
         // Heureka conversions
-        $cart = new CartCore($orderCartId);
-        $cartCz = new CartCore($orderCartId, LanguageCore::getIdByIso(self::LANG_CS));
-        $cartSk = new CartCore($orderCartId, LanguageCore::getIdByIso(self::LANG_SK));
+        $cart = new Cart($orderCartId);
+        $cartCz = new Cart($orderCartId, LanguageCore::getIdByIso(self::LANG_CS));
+        $cartSk = new Cart($orderCartId, LanguageCore::getIdByIso(self::LANG_SK));
 
         if ($cartCz && $options['heurekaCzActive']) {
             $heurekaCzProducts = $this->getOrderConfirmationHeurekaProducts($cartCz->getProducts(), Mergado\Tools\LanguagesClass::getLangIso(strtoupper(self::LANG_CS)));
@@ -1292,6 +1293,13 @@ class Mergado extends Module
                 $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/gtagjs.tpl');
             }
 
+
+            // GoogleAds
+            $display .= $this->googleAdsServiceIntegration->conversion($orderId, $orderTotal, $orderCurrency['iso_code'], $this, $this->smarty, $this->_path);
+
+            // GA4
+            $this->googleAnalytics4ServiceIntegration->purchase($this->context, $this->_path);
+
             OrderClass::setOrderCompleted($orderId, $this->shopId);
         }
 
@@ -1324,12 +1332,6 @@ class Mergado extends Module
 
             $display .= $this->display(__FILE__, $GoogleReviewsClass->getOptInTemplatePath());
         }
-
-        // GoogleAds
-        $display .= $this->googleAdsServiceIntegration->conversion($orderId, $orderTotal, $orderCurrency['iso_code'], $this, $this->smarty, $this->_path);
-
-        // GA4
-        $this->googleAnalytics4ServiceIntegration->purchase($this->context, $this->_path);
 
         // All smarty assign merged and assigned
         $data = array_merge($baseData + $specialData + array('PS_VERSION' => _PS_VERSION_));

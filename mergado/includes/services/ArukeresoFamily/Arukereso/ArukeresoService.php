@@ -39,5 +39,7 @@ class ArukeresoService extends AbstractArukeresoFamilyService
     const WIDGET_APPEARANCE_TYPE = 'arukereso-widget-appearance-type';
 
     const TEMPLATES_PATH = 'includes/services/ArukeresoFamily/Arukereso/templates/';
+
+    const SERVICE_URL_SEND = 'https://www.arukereso.hu/'; // it is used!
 }
 

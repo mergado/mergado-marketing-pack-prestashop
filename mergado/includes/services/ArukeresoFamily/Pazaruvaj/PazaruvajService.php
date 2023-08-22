@@ -39,5 +39,7 @@ class PazaruvajService extends AbstractArukeresoFamilyService
     const WIDGET_APPEARANCE_TYPE = 'mmp-pazaruvaj-widget-appearance-type';
 
     const TEMPLATES_PATH = 'includes/services/ArukeresoFamily/Pazaruvaj/templates/';
+
+    const SERVICE_URL_SEND = 'https://www.pazaruvaj.com/'; // it is used!
 }
 

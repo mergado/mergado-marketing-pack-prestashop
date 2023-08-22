@@ -21,7 +21,7 @@ use Exception;
 use Mergado;
 use Mergado\Tools\LogClass;
 use LanguageCore as Language;
-use CartCore as Cart;
+use Cart;
 use Mergado\Tools\SettingsClass;
 
 class HeurekaClass

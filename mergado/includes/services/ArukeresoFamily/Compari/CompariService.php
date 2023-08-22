@@ -39,5 +39,7 @@ class CompariService extends AbstractArukeresoFamilyService
     const WIDGET_APPEARANCE_TYPE = 'mmp-compari-widget-appearance-type';
 
     const TEMPLATES_PATH = 'includes/services/ArukeresoFamily/Compari/templates/';
+
+    const SERVICE_URL_SEND = 'https://www.compari.ro/'; // it is used!
 }
 
