@@ -132,6 +132,14 @@ var mmp_GUA_helpers = {
         return {productJSON, price};
       }
     },
+    getProductObjectFromTarget(target, selector) {
+      let productJSON, prices;
+
+      productJSON = JSON.parse($(target).find(selector).attr('data-product'));
+      prices = mmp_GUA_helpers.functions.getProductPrice(productJSON);
+
+      return {productJSON, prices};
+    },
     getMscdData()
     {
       if (mergado_GUA_settings.withVat) {

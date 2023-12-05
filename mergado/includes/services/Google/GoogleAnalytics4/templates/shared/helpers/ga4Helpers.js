@@ -220,6 +220,14 @@ var mmp_GA4_helpers = {
 
       return productObject;
     },
+    getProductObjectFromTarget(target, selector) {
+      let productJSON, prices;
+
+      productJSON = JSON.parse($(target).find(selector).attr('data-product'));
+      prices = mmp_GA4_helpers.functions.getProductPrices(productJSON);
+
+      return {productJSON, prices};
+    },
     getProductObject(selector) {
       let productJSON, prices;
 

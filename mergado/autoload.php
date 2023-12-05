@@ -1,4 +1,8 @@
 <?php
+
+// Exceptions
+include_once _PS_MODULE_DIR_ . 'mergado/includes/exceptions/InvalidXmlException.php';
+
 // Abstract
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/AbstractArukeresoFamilyService.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/services/ArukeresoFamily/AbstractArukeresoFamilyServiceIntegration.php';
@@ -94,4 +98,3 @@ include_once _PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/pages/part
 
 // Main
 include_once _PS_MODULE_DIR_ . 'mergado/mergado.php';
-

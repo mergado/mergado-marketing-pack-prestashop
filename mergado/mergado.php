@@ -59,7 +59,7 @@ class Mergado extends Module
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
         'TABLE_ORDERS_NAME' => 'mergado_orders',
-        'VERSION' => '3.4.2',
+        'VERSION' => '3.4.3',
         'PHP_MIN_VERSION' => 7.1
     ];
 
@@ -612,7 +612,7 @@ class Mergado extends Module
                     'langIso' => strtolower($langIso),
                 ));
 
-                $display .= $this->display(__FILE__, '/views/templates/front/footer/partials/heureka_widget.tpl');
+                $display .= $this->display(__FILE__, 'views/templates/front/footer/partials/heureka_widget.tpl');
             }
         }
 
@@ -624,7 +624,7 @@ class Mergado extends Module
                 'seznam_consent_advertisement' => (int) $this->cookieService->advertismentEnabled()
             ));
 
-            $display .= $this->display(__FILE__, '/views/templates/front/footer/partials/sklik.tpl');
+            $display .= $this->display(__FILE__, 'views/templates/front/footer/partials/sklik.tpl');
         }
 
 
@@ -636,7 +636,7 @@ class Mergado extends Module
                     'etargetData' => $etargetClass->getData($this->shopID),
                 ));
 
-                $display .= $this->display(__FILE__, '/views/templates/front/footer/partials/etarget.tpl');
+                $display .= $this->display(__FILE__, 'views/templates/front/footer/partials/etarget.tpl');
             }
         }
 
@@ -645,7 +645,7 @@ class Mergado extends Module
             'currencySign' => $currency->sign,
         ));
 
-        $display .= $this->display(__FILE__, '/views/templates/front/footer/base.tpl');
+        $display .= $this->display(__FILE__, 'views/templates/front/footer/base.tpl');
 
         $display .= $this->cartDataPs16($params);
 
@@ -717,7 +717,7 @@ class Mergado extends Module
                 'coupons' => join(', ', $discounts),
             ));
 
-            return $this->display(__FILE__, '/views/templates/front/shoppingCart/cart_data.tpl');
+            return $this->display(__FILE__, 'views/templates/front/shoppingCart/cart_data.tpl');
         }
 
         return false;
@@ -759,7 +759,7 @@ class Mergado extends Module
                 'coupons' => join(', ', $discounts),
             ));
 
-            return $this->display(__FILE__, '/views/templates/front/shoppingCart/cart_data.tpl');
+            return $this->display(__FILE__, 'views/templates/front/shoppingCart/cart_data.tpl');
         }
     }
 
@@ -848,7 +848,7 @@ class Mergado extends Module
                     'glami_lang' => strtolower($lang)
                 ));
 
-                $display .= $this->display(__FILE__, '/views/templates/front/header/glami.tpl');
+                $display .= $this->display(__FILE__, 'views/templates/front/header/glami.tpl');
 
                 $this->context->controller->addJS($this->_path . 'views/js/glami.js');
             }
@@ -917,7 +917,7 @@ class Mergado extends Module
                 'fbPixel_advertisement_consent' => $this->cookieService->advertismentEnabled()
             ));
 
-            $display .= $this->display(__FILE__, '/views/templates/front/footer/partials/fbpixel.tpl');
+            $display .= $this->display(__FILE__, 'views/templates/front/footer/partials/fbpixel.tpl');
 
             $this->context->controller->addJS($this->_path . 'views/js/fbpixel.js');
         }
@@ -1055,7 +1055,7 @@ class Mergado extends Module
 
                 $this->context->controller->addJS($this->_path . 'views/js/orderOPC/heureka.js');
 
-                $display .= $this->display(__FILE__, '/views/templates/front/orderCarrier/heureka.tpl');
+                $display .= $this->display(__FILE__, 'views/templates/front/orderCarrier/heureka.tpl');
             }
         }
 
@@ -1079,7 +1079,7 @@ class Mergado extends Module
 
                 $this->context->controller->addJS($this->_path . 'views/js/orderOPC/zbozi.js');
 
-                $display .= $this->display(__FILE__, '/views/templates/front/orderCarrier/zbozi.tpl');
+                $display .= $this->display(__FILE__, 'views/templates/front/orderCarrier/zbozi.tpl');
             }
         }
 
@@ -1266,7 +1266,7 @@ class Mergado extends Module
                 'fbPixelData' => $facebookClass->getFbPixelData($params, $cart->getProducts(), $this->shopID),
             ));
 
-            $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/fbpixel.tpl');
+            $display .= $this->display(__FILE__, 'views/templates/front/orderConfirmation/partials/fbpixel.tpl');
         }
 
         //Sklik
@@ -1277,7 +1277,7 @@ class Mergado extends Module
                 'sklikConsent' => (bool) $this->cookieService->advertismentEnabled()
             ));
 
-            $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/sklik.tpl');
+            $display .= $this->display(__FILE__, 'views/templates/front/orderConfirmation/partials/sklik.tpl');
         }
 
         //Kelkoo
@@ -1290,7 +1290,7 @@ class Mergado extends Module
                     'gtag_purchase_data' => $this->googleUniversalAnalyticsServiceIntegration->getPurchaseData($orderId, $order, $orderProducts, (int)$context->language->id, $this->shopID)
                 ));
 
-                $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/gtagjs.tpl');
+                $display .= $this->display(__FILE__, 'views/templates/front/orderConfirmation/partials/gtagjs.tpl');
             }
 
 
@@ -1311,7 +1311,7 @@ class Mergado extends Module
                     'bianoPurchaseData' => $bianoClass->getPurchaseData($orderId, $order, $orderCustomer->email, $orderProducts, $this->shopID, $this->context->cookie->__get(\Mergado\includes\services\Biano\BianoStar\BianoStarService::CONSENT_NAME)),
                 ));
 
-                $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/partials/biano.tpl');
+                $display .= $this->display(__FILE__, 'views/templates/front/orderConfirmation/partials/biano.tpl');
             }
         }
 
@@ -1339,7 +1339,7 @@ class Mergado extends Module
 
         Mergado\Tools\LogClass::log("Order confirmation:\n" . json_encode($data) . "\n");
 
-        $display .= $this->display(__FILE__, '/views/templates/front/orderConfirmation/base.tpl');
+        $display .= $this->display(__FILE__, 'views/templates/front/orderConfirmation/base.tpl');
         return $display;
     }
 
@@ -1388,7 +1388,7 @@ class Mergado extends Module
                 'coupons' => join(', ', $discounts),
             ));
 
-            $display .= $this->display(__FILE__, '/views/templates/front/shoppingCart/cart_data.tpl');
+            $display .= $this->display(__FILE__, 'views/templates/front/shoppingCart/cart_data.tpl');
 
             return $display;
         }

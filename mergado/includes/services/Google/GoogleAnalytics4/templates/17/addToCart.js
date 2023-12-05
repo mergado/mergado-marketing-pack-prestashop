@@ -29,22 +29,32 @@ document.addEventListener('DOMContentLoaded', function () {
       itemQuantity = 1;
     }
 
-    const {
-      productJSON,
-      prices
-    } = mmp_GA4_helpers.functions.getProductObject('#mergado-product-informations.mergado-product-data[data-product]');
+    let productJSON, prices;
 
-    const {
-      itemDiscount,
-      currency,
-      itemIdMerged,
-      itemName,
-      itemPrice,
-      itemVariantId,
-      itemCategory
-    } = mmp_GA4_helpers.functions.getProductData(productJSON, prices);
-    const value = itemPrice * itemQuantity;
+    // Normal PS 1.7 data
+    let productData = mmp_GA4_helpers.functions.getProductObject('#mergado-product-informations.mergado-product-data[data-product]')
 
-    mmp_GA4_helpers.events.sendAddToCart(value, currency, itemIdMerged, itemVariantId, itemName, itemCategory, itemQuantity, itemPrice, itemDiscount);
+    if (!productData) {
+      // If someone modified PS 1.7 and added add to cart on product list page
+      productData = mmp_GA4_helpers.functions.getProductObjectFromTarget($(target).closest('.product-item'), '#mergado-product-informations.mergado-product-list-item-data[data-product]');
+    }
+
+    productJSON = productData.productJSON;
+    prices = productData.prices;
+
+    if (productJSON && prices) {
+      const {
+        itemDiscount,
+        currency,
+        itemIdMerged,
+        itemName,
+        itemPrice,
+        itemVariantId,
+        itemCategory
+      } = mmp_GA4_helpers.functions.getProductData(productJSON, prices);
+      const value = itemPrice * itemQuantity;
+
+      mmp_GA4_helpers.events.sendAddToCart(value, currency, itemIdMerged, itemVariantId, itemName, itemCategory, itemQuantity, itemPrice, itemDiscount);
+    }
   }
 })

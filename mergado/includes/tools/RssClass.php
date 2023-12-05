@@ -18,8 +18,9 @@ namespace Mergado\Tools;
 use DateTime;
 use Exception;
 use Mergado;
+use PrestaShopDatabaseException;
 use SimpleXMLElement;
-use Symfony\Component\Config\Util\Exception\InvalidXmlException;
+use Mergado\exceptions\InvalidXmlException;
 
 include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
@@ -87,8 +88,8 @@ class RssClass
      *
      * @param $lang
      * @return void
-     * @throws \PrestaShopDatabaseException
-     * @throws Exception
+     * @throws PrestaShopDatabaseException
+     * @throws Exception | Mergado\exceptions\InvalidXmlException
      */
     private function saveFeed($lang)
     {
@@ -128,6 +129,7 @@ class RssClass
      * - do not use file_get_contents (not working on HTTPS in php 5.6)
      * @param $lang
      * @return array
+     * @throws Exception | Mergado\exceptions\InvalidXmlException
      */
 
     private function downloadFeed($lang)
@@ -165,7 +167,7 @@ class RssClass
                 $data[] = $item;
             }
         } catch (Exception $ex) {
-            throw new InvalidXmlException($ex);
+            throw new Mergado\exceptions\InvalidXmlException($ex);
         }
 
         return $data;
