@@ -11,18 +11,41 @@
 *  @copyright 2016 Mergado technologies, s. r. o.
 *  @license   LICENSE.txt
 *}
-
 {if $seznam_retargeting_id != ''}
-    <script text='text/javascript'>
-        /* <![CDATA[ */
-        var seznam_retargeting_id = {$seznam_retargeting_id};
-        var rc = rc || {'{}'};
-        rc.consent = {$seznam_consent_advertisement};
-        /* ]]> */
+    <script src="https://c.seznam.cz/js/rc.js"></script>
 
-        window.mmp.cookies.sections.advertisement.functions.sklikRetargeting = function () {
-          rc.consent = 1;
-        };
+    <script>
+      if (typeof identities === 'undefined') {
+          {literal}
+        let identities = {};
+          {/literal}
+
+          {if $customerData['email'] !== null }
+        identities.eid = "{$customerData['email']}";
+          {/if}
+          {if $customerData['phone'] !== null}
+        identities.tid = "{$customerData['phone']}";
+          {/if}
+
+        window.sznIVA.IS.updateIdentities(identities);
+      }
     </script>
-    <script type='text/javascript' src='//c.imedia.cz/js/retargeting.js'></script>
+
+    <script>
+      var sklikRetargetingConf = {
+        rtgId: {$seznam_retargeting_id},
+        consent: {$seznam_consent_advertisement},
+      };
+
+      if (window.rc && window.rc.retargetingHit) {
+        window.rc.retargetingHit(sklikRetargetingConf);
+      }
+    </script>
+
+    <!-- Update consent on accept -->
+    <script>
+      window.mmp.cookies.sections.advertisement.functions.sklikRetargeting = function () {
+        sklikRetargetingConf.consent = 1;
+      };
+    </script>
 {/if}

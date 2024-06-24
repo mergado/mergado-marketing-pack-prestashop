@@ -135,6 +135,14 @@ var mmp_GTM_helpers = {
         return {productJSON, prices};
       }
     },
+    getProductObjectFromTarget(target, selector) {
+      let productJSON, prices;
+
+      productJSON = JSON.parse($(target).find(selector).attr('data-product'));
+      prices = mmp_GTM_helpers.functions.getProductPrices(productJSON);
+
+      return {productJSON, prices};
+    },
     getProductObjectAttribute(mergedId) {
       let productJSON, prices;
 

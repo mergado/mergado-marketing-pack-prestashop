@@ -43,6 +43,71 @@ $fields_form[0]['form'] = [
             'visibility' => Shop::CONTEXT_ALL,
         ],
         [
+            'name' => GoogleAdsService::ENHANCED_CONVERSION_ACTIVE,
+            'label' => $this->module->l('GoogleAds enhanced conversions', 'google'),
+            'validation' => 'isBool',
+            'cast' => 'intval',
+            'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
+            'class' => 'switch15',
+            'values' => [
+                [
+                    'id' => 'mergado_adwords_enhanced_conversion_on',
+                    'value' => 1,
+                    'label' => $this->module->l('Yes')
+                ],
+                [
+                    'id' => 'mergado_adwords_enhanced_conversion_off',
+                    'value' => 0,
+                    'label' => $this->module->l('No')
+                ]
+            ],
+            'visibility' => Shop::CONTEXT_ALL,
+        ],
+        [
+            'name' => GoogleAdsService::CONVERSIONS_SHIPPING_PRICE_INCLUDED,
+            'label' => $this->module->l('Conversion value with shipping price', 'google'),
+            'validation' => 'isBool',
+            'cast' => 'intval',
+            'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
+            'class' => 'switch15',
+            'values' => [
+                [
+                    'id' => 'gads_shipping_on',
+                    'value' => 1,
+                    'label' => $this->module->l('Yes')
+                ],
+                [
+                    'id' => 'gads_shipping_off',
+                    'value' => 0,
+                    'label' => $this->module->l('No')
+                ]
+            ],
+            'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->module->l('Choose whether the value of purchase will be with or without shipping.', 'google'),
+            'visibility' => Shop::CONTEXT_ALL,
+        ],
+        [
+            'name' => GoogleAdsService::CONVERSIONS_VAT_INCLUDED,
+            'label' => $this->module->l('Products prices with VAT', 'google'),
+            'validation' => 'isBool',
+            'cast' => 'intval',
+            'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
+            'class' => 'switch15',
+            'values' => [
+                [
+                    'id' => 'gads_active_on',
+                    'value' => 1,
+                    'label' => $this->module->l('Yes')
+                ],
+                [
+                    'id' => 'gads_active_off',
+                    'value' => 0,
+                    'label' => $this->module->l('No')
+                ]
+            ],
+            'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->module->l('Choose whether the price of the products will be sent with or without VAT.', 'google'),
+            'visibility' => Shop::CONTEXT_ALL,
+        ],
+        [
             'name' => GoogleAdsService::REMARKETING_ACTIVE,
             'label' => $this->module->l('GoogleAds remarketing', 'google'),
             'validation' => 'isBool',
@@ -488,6 +553,28 @@ $fields_form[3]['form'] = [
                 ],
                 [
                     'id' => 'mergado_google_tag_manager_enchanced_ecommerce_off',
+                    'value' => 0,
+                    'label' => $this->module->l('No')
+                ]
+            ],
+            'visibility' => Shop::CONTEXT_ALL,
+        ],
+        [
+            'name' => GoogleTagManagerService::SEND_CUSTOMER_DATA_ACTIVE,
+            'label' => $this->module->l('Send customer data gtag event', 'google'),
+            'validation' => 'isBool',
+            'cast' => 'intval',
+            'type' => (version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0) ? 'radio' : 'switch',
+            'class' => 'switch15',
+            'desc' => '<span class="mmp-tag mmp-tag--info"></span>' . $this->module->l('Event gtag(\'set\', \'user_data\', {...}) will be automatically sent, when some service that use gtag wil be active in GTM.', 'google'),
+            'values' => [
+                [
+                    'id' => 'mergado_google_tag_manager_send_user_data_on',
+                    'value' => 1,
+                    'label' => $this->module->l('Yes')
+                ],
+                [
+                    'id' => 'mergado_google_tag_manager_send_user_data_off',
                     'value' => 0,
                     'label' => $this->module->l('No')
                 ]

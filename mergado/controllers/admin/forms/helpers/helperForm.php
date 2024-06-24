@@ -54,6 +54,14 @@ if (!isset($fields_value['mmp-ga-ua-vat-included'])) {
     $fields_value['mmp-ga-ua-vat-included'] = 1;
 }
 
+if (!isset($fields_value[\Mergado\includes\services\Google\GoogleAds\GoogleAdsService::CONVERSIONS_VAT_INCLUDED])) {
+    $fields_value[\Mergado\includes\services\Google\GoogleAds\GoogleAdsService::CONVERSIONS_VAT_INCLUDED] = 0;
+}
+
+if (!isset($fields_value[\Mergado\includes\services\Google\GoogleAds\GoogleAdsService::CONVERSIONS_SHIPPING_PRICE_INCLUDED])) {
+    $fields_value[\Mergado\includes\services\Google\GoogleAds\GoogleAdsService::CONVERSIONS_SHIPPING_PRICE_INCLUDED] = 0;
+}
+
 
 //Fill in empty fields
 include __MERGADO_FORMS_DIR__ . '/helpers/helperFormEmptyFieldsFiller.php';

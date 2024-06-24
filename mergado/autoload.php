@@ -92,6 +92,7 @@ include_once _PS_MODULE_DIR_ . 'mergado/includes/helpers/ControllerHelper.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/helpers/OrderConfirmationHelper.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/helpers/DebugHelper.php';
 include_once _PS_MODULE_DIR_ . 'mergado/includes/helpers/RefererHelper.php';
+include_once _PS_MODULE_DIR_ . 'mergado/includes/helpers/CustomerHelper.php';
 
 // Forms
 include_once _PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/pages/partials/support/form/SupportForm.php';

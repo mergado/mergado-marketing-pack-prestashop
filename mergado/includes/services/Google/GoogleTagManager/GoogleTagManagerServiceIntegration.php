@@ -9,6 +9,7 @@ use ManufacturerCore;
 use MediaCore;
 use Mergado;
 use Mergado\includes\helpers\ControllerHelper;
+use Mergado\includes\helpers\CustomerHelper;
 use Mergado\includes\traits\SingletonTrait;
 use Mergado\Tools\HelperClass;
 use Order;
@@ -53,9 +54,17 @@ class GoogleTagManagerServiceIntegration
     {
         // Default code
         if ($this->googleTagManagerService->isActive()) {
+
+            $customerData = $this->getCustomerData(Tools::getValue('id_order'));
+
             $smarty->assign(array(
                 'gtm_analytics_id' => $this->googleTagManagerService->getCode(),
+                'gtm_enhanced_conversions_active' => $this->googleTagManagerService->isEnhancedEcommerceActive(),
+                'gtm_set_customer_data_for_gtag_services' => $this->googleTagManagerService->isSendCustomerDataActive(),
+                'user_data_gtag' => count($customerData['gtag']) > 0 ? json_encode($customerData['gtag']) : false,
+                'user_data_gtm' => count($customerData['gtm']) > 0 ? json_encode($customerData['gtm']) : false,
             ));
+
             return $module->display($path, GoogleTagManagerService::TEMPLATES_PATH . 'defaultCode.tpl');
         }
 
@@ -122,7 +131,7 @@ class GoogleTagManagerServiceIntegration
                 'gtm_ecommerceEnhanced' => $this->googleTagManagerService->isEnhancedEcommerceActive(),
                 'gtm_purchase_data' => $this->getPurchaseData($orderId, $order, (int)$context->language->id),
                 'gtm_transaction_data' => $this->getTransactionData($orderId, $order, (int)$context->language->id),
-                'gtm_currencyCode' => $currency->iso_code,
+                'gtm_currencyCode' => $currency->iso_code
             ));
 
             return $module->display($path, GoogleTagManagerService::TEMPLATES_PATH . 'orderConfirmation.tpl');
@@ -254,5 +263,29 @@ class GoogleTagManagerServiceIntegration
         $data['transactionProducts'] = $productData;
 
         return json_encode($data, JSON_NUMERIC_CHECK);
+    }
+
+    private function getCustomerData($orderId = null): array
+    {
+        if ($this->googleTagManagerService->isEnhancedEcommerceActive()) {
+            if (ControllerHelper::isOrderConfirmation()) {
+                $customerData = CustomerHelper::getInstance()->getCustomerInfoOnOrderPage($orderId);
+            } else {
+                $customerData = CustomerHelper::getInstance()->getCustomerInfo();
+            }
+
+            $customerDataGtm = $customerData;
+
+            // Has different key than GTAG
+            if(isset($customerDataGtm['phone'])) {
+                $customerDataGtm['phone_number'] = $customerDataGtm['phone'];
+                unset($customerDataGtm['phone']);
+            }
+        } else {
+            $customerData = [];
+            $customerDataGtm = [];
+        }
+
+        return ['gtag' => $customerData , 'gtm' => $customerDataGtm];
     }
 }

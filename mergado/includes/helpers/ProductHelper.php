@@ -147,6 +147,36 @@ class ProductHelper
 
     protected static function getPS17ProductData($productData, $currency)
     {
+        if (isset($productData['price_without_reduction_without_tax'])) {
+            $productData['price_without_reduction_without_tax'] = ProductCore::getPriceStatic(
+                (int)$productData['id_product'],
+                false,
+                $productData['id_product_attribute'],
+                2,
+                null,
+                false,
+                false
+            );
+        }
+
+        if (isset($productData['reduction_without_tax'])) {
+            $productData['reduction_without_tax'] = ProductCore::getPriceStatic(
+                (int)$productData['id_product'],
+                false,
+                $productData['id_product_attribute'],
+                2,
+                null,
+                true,
+                true,
+                1,
+                true,
+                null,
+                null,
+                null,
+                $specific_prices
+            );
+        }
+
         return [
             'name' => $productData['name'],
             'id' => $productData['id_product'],

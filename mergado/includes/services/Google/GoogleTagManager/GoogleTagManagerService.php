@@ -11,6 +11,7 @@ class GoogleTagManagerService
     const CODE = 'mergado_google_tag_manager_code';
     const ECOMMERCE_ACTIVE = 'mergado_google_tag_manager_ecommerce';
     const ECOMMERCE_ENHANCED_ACTIVE = 'mergado_google_tag_manager_ecommerce_enhanced';
+    const SEND_CUSTOMER_DATA_ACTIVE = 'mergado_google_tag_manager_send_customer_data_active';
     const CONVERSION_VAT_INCL = 'mergado_google_tag_manager_conversion_vat_incl';
     const VIEW_LIST_ITEMS_COUNT = 'mergado_google_tag_manager_view_list_items_count';
 
@@ -23,6 +24,7 @@ class GoogleTagManagerService
     private $enhancedEcommerceActive;
     private $conversionVatIncluded;
     private $viewListItemsCount;
+    private $sendCustomerDataActive;
 
     private $multistoreShopId;
 
@@ -83,6 +85,16 @@ class GoogleTagManagerService
         } else {
             return false;
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSendCustomerDataActive(): bool
+    {
+        $active = $this->getSendCustomerDataActive();
+
+        return $active === SettingsClass::ENABLED && $this->isEnhancedEcommerceActive();
     }
 
 
@@ -153,6 +165,20 @@ class GoogleTagManagerService
     }
 
     /**
+     * @return mixed
+     */
+    public function getSendCustomerDataActive()
+    {
+        if (!is_null($this->sendCustomerDataActive)) {
+            return $this->sendCustomerDataActive;
+        }
+
+        $this->sendCustomerDataActive = SettingsClass::getSettings(self::SEND_CUSTOMER_DATA_ACTIVE, $this->multistoreShopId);
+
+        return $this->sendCustomerDataActive;
+    }
+
+    /**
      * @return false|string|null
      */
     public function getConversionVatIncluded() : bool
@@ -213,8 +239,15 @@ class GoogleTagManagerService
                         'fields' => [
                             self::ECOMMERCE_ENHANCED_ACTIVE,
                         ],
+                        'sub-check' => [
+                            self::ECOMMERCE_ENHANCED_ACTIVE => [
+                                'fields' => [
+                                    self::SEND_CUSTOMER_DATA_ACTIVE,
+                                ],
+                            ],
+                        ]
                     ],
-                ]
+                ],
             ],
         ];
     }

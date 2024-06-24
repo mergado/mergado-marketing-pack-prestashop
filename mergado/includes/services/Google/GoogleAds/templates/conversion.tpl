@@ -15,7 +15,20 @@
     <script>
         gtag('event', 'conversion', {
             'send_to': '{$gads_sendTo}',
-            'value': {$gads_value},
+            'value':
+            {if $gads_withVat}
+                {if $gads_withShipping}
+                    mergado_order_data.total_products_wt + mergado_order_data.total_shipping_tax_incl
+                {else}
+                    mergado_order_data.total_products_wt
+                {/if}
+            {else}
+                {if $gads_withShipping}
+                  mergado_order_data.total_products + mergado_order_data.total_shipping_tax_excl
+                {else}
+                  mergado_order_data.total_products
+                {/if}
+            {/if},
             'currency': '{$gads_currency}',
             'transaction_id': '{$gads_transactionId}',
         });

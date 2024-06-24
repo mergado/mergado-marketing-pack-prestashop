@@ -23,10 +23,13 @@ use Mergado\Tools\SettingsClass;
 class GoogleAdsService
 {
     const CONVERSIONS_ACTIVE = 'mergado_adwords_conversion';
+    const ENHANCED_CONVERSION_ACTIVE = 'mmp-google-gads-enhanced-conversions-active';
     const REMARKETING_ACTIVE = 'adwords_remarketing';
     const REMARKETING_TYPE = 'mergado_adwords_remarketing_type';
     const CONVERSIONS_CODE = 'mergado_adwords_conversion_code';
     const CONVERSIONS_LABEL = 'mergado_adwords_conversion_label';
+    const CONVERSIONS_VAT_INCLUDED = 'mergado_adwords_conversion_vat_included';
+    const CONVERSIONS_SHIPPING_PRICE_INCLUDED = 'mergado_adwords_shipping_price_included';
 
     const TEMPLATES_PATH = 'includes/services/Google/GoogleAds/templates/';
 
@@ -36,10 +39,13 @@ class GoogleAdsService
     ];
 
     private $conversionsActive;
+    private $enhancedConversionsActive;
     private $remarketingActive;
     private $remarketingType;
     private $conversionsCode;
     private $conversionsLabel;
+    private $conversionVatIncluded;
+    private $shippingPriceIncluded;
 
     // Main settings variables
     private $multistoreShopId;
@@ -74,6 +80,20 @@ class GoogleAdsService
     /**
      * @return bool
      */
+    public function isEnhancedConversionsActive()
+    {
+        $active = $this->getEnhancedConversionsActive();
+
+        if ($this->isConversionsActive() && $active === SettingsClass::ENABLED) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @return bool
+     */
     public function isRemarketingActive()
     {
         $active = $this->getRemarketingActive();
@@ -84,6 +104,16 @@ class GoogleAdsService
         } else {
             return false;
         }
+    }
+
+    public function isConversionWithVat(): bool
+    {
+        return $this->getConversionVatIncluded() == 1;
+    }
+
+    public function isConversionShippingPriceIncluded(): bool
+    {
+        return $this->getConversionShippingPriceIncluded() == 1;
     }
 
     /*******************************************************************************************************************
@@ -102,6 +132,20 @@ class GoogleAdsService
         $this->conversionsActive = SettingsClass::getSettings(self::CONVERSIONS_ACTIVE, $this->multistoreShopId);
 
         return $this->conversionsActive;
+    }
+
+    /**
+     * @return false|string|null
+     */
+    public function getEnhancedConversionsActive()
+    {
+        if (!is_null($this->enhancedConversionsActive)) {
+            return $this->enhancedConversionsActive;
+        }
+
+        $this->enhancedConversionsActive = SettingsClass::getSettings(self::ENHANCED_CONVERSION_ACTIVE, $this->multistoreShopId);
+
+        return $this->enhancedConversionsActive;
     }
 
     /**
@@ -176,6 +220,34 @@ class GoogleAdsService
         return self::REMARKETING_TYPES[$this->getRemarketingType()]['value'];
     }
 
+    /**
+     * @return boolean
+     */
+    public function getConversionVatIncluded()
+    {
+        if ( ! is_null( $this->conversionVatIncluded ) ) {
+            return $this->conversionVatIncluded;
+        }
+
+        $this->conversionVatIncluded = SettingsClass::getSettings(self::CONVERSIONS_VAT_INCLUDED, $this->multistoreShopId);
+
+        return $this->conversionVatIncluded;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getConversionShippingPriceIncluded()
+    {
+        if ( ! is_null( $this->shippingPriceIncluded ) ) {
+            return $this->shippingPriceIncluded;
+        }
+
+        $this->shippingPriceIncluded = SettingsClass::getSettings(self::CONVERSIONS_SHIPPING_PRICE_INCLUDED, $this->multistoreShopId);
+
+        return $this->shippingPriceIncluded;
+    }
+
     /*******************************************************************************************************************
      * TOGGLE FIELDS JSON
      ******************************************************************************************************************/
@@ -188,7 +260,10 @@ class GoogleAdsService
         return [
             self::CONVERSIONS_ACTIVE => [
                 'fields' => [
+                    self::ENHANCED_CONVERSION_ACTIVE,
                     self::CONVERSIONS_LABEL,
+                    self::CONVERSIONS_VAT_INCLUDED,
+                    self::CONVERSIONS_SHIPPING_PRICE_INCLUDED
                 ]
             ],
         ];

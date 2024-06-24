@@ -27,6 +27,8 @@
     gtag('consent', 'default', {
       'analytics_storage': '{$gtagCookieSettings['analytics_storage']}',
       'ad_storage': '{$gtagCookieSettings['ad_storage']}',
+      'ad_user_data': '{$gtagCookieSettings['ad_storage']}',
+      'ad_personalization': '{$gtagCookieSettings['ad_storage']}',
     });
 
     {if isset($googleUniversalAnalyticsCode)}
@@ -58,7 +60,9 @@
     {if isset($googleAdsConversionCode)}
         window.mmp.cookies.sections.advertisement.functions.gtagAds = function () {
           gtag('consent', 'update', {
-            'ad_storage': 'granted'
+            'ad_storage': 'granted',
+            'ad_user_data': 'granted',
+            'ad_personalization': 'granted',
           });
 
           gtag('config', '{$googleAdsConversionCode}', {literal}{'allow_ad_personalization_signals': true}{/literal});

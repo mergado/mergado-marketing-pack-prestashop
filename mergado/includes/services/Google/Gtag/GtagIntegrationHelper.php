@@ -3,6 +3,8 @@
 namespace Mergado\includes\services\Google\Gtag;
 
 use MediaCore;
+use Mergado\includes\helpers\ControllerHelper;
+use Mergado\includes\helpers\CustomerHelper;
 use Mergado\includes\services\Google\GoogleAds\GoogleAdsService;
 use Mergado\includes\services\Google\GoogleAnalytics4\GoogleAnalytics4Service;
 use Mergado\includes\services\Google\GoogleAnalytics4\GoogleAnalytics4ServiceIntegration;
@@ -27,9 +29,9 @@ class GtagIntegrationHelper
     protected function __construct()
     {
         $this->googleUniversalAnalyticsService = GoogleUniversalAnalyticsService::getInstance();
-        $this->googleUniversalAnalyticsServiceIntegration = GoogleUniversalAnalyticsServiceIntegration::getInstance();
-        $this->googleAdsService = GoogleAdsService::getInstance();
         $this->googleAnalytics4Service = GoogleAnalytics4Service::getInstance();
+        $this->googleAdsService = GoogleAdsService::getInstance();
+        $this->googleUniversalAnalyticsServiceIntegration = GoogleUniversalAnalyticsServiceIntegration::getInstance();
         $this->googleAnalytics4ServiceIntegration = GoogleAnalytics4ServiceIntegration::getInstance();
         $this->cookieService = CookieService::getInstance();
     }
@@ -85,16 +87,30 @@ class GtagIntegrationHelper
         }
 
         if (isset($gtagMainCode) && $gtagMainCode !== '') {
+            if (ControllerHelper::isOrderConfirmation()) {
+                $customerData = CustomerHelper::getInstance()->getCustomerInfoOnOrderPage($context->controller->id_order);
+            } else {
+                $customerData = CustomerHelper::getInstance()->getCustomerInfo();
+            }
+
+            $universalAnalyticsEnhancedEcommerceActive = $this->googleUniversalAnalyticsService->isActiveEnhancedEcommerce();
+            $analytics4EnhancedEcommerceActive = $this->googleAnalytics4Service->isActiveEcommerce();
+            $adsEnhancedEcommerceActive = $this->googleAdsService->isEnhancedConversionsActive();
+
             $templateVariables = [
+                'universalAnalyticsEnhancedEcommerceActive' => $universalAnalyticsEnhancedEcommerceActive,
+                'analytics4EnhancedEcommerceActive' => $analytics4EnhancedEcommerceActive,
+                'adsEnhancedEcommerceActive' => $adsEnhancedEcommerceActive,
                 'gtagMainCode' => $gtagMainCode,
                 'mergadoDebug' => MERGADO_DEBUG,
                 'googleAdsConversionCode' => isset($googleAdsConversionCode) && $googleAdsConversionCode !== '' ? $googleAdsConversionCode : false,
                 'googleUniversalAnalyticsCode' => isset($gtagAnalyticsCode) && $gtagAnalyticsCode !== '' ? $gtagAnalyticsCode : false,
                 'googleAnalytics4Code' => isset($gtagAnalytics4Code) && $gtagAnalytics4Code !== '' ? $gtagAnalytics4Code : false,
+                'googleAdsRemarketingActive' => $googleAdsRemarketingActive,
+                'customerData' => count($customerData) > 0 ? json_encode($customerData) : false,
+                'cookiesAdvertisementEnabled' => $this->cookieService->advertismentEnabled(),
                 'analyticalStorage' => $analyticalStorage,
                 'advertisementStorage' => $advertisementStorage,
-                'googleAdsRemarketingActive' => $googleAdsRemarketingActive,
-                'cookiesAdvertisementEnabled' => $this->cookieService->advertismentEnabled(),
             ];
 
             $smarty->assign($templateVariables);

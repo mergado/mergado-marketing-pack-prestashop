@@ -16,6 +16,9 @@
 
 // Do not use USE statements because of PS 1.6.1.12 - error during installation
 
+use Mergado\includes\helpers\ControllerHelper;
+use Mergado\includes\helpers\CustomerHelper;
+
 define( '__MERGADO_DIR__', _PS_MODULE_DIR_ . 'mergado' );
 define( '__MERGADO_FORMS_DIR__', _PS_MODULE_DIR_ . 'mergado/controllers/admin/forms/');
 define( '__MERGADO_ALERT_DIR__', _PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/pages/partials/components/alerts/');
@@ -59,7 +62,7 @@ class Mergado extends Module
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
         'TABLE_ORDERS_NAME' => 'mergado_orders',
-        'VERSION' => '3.4.3',
+        'VERSION' => '3.4.4',
         'PHP_MIN_VERSION' => 7.1
     ];
 
@@ -619,7 +622,15 @@ class Mergado extends Module
         //Sklik retargeting - GDPR inside code
         $sklikClass = new \Mergado\Sklik\SklikClass();
         if ($sklikClass->isRetargetingActive($this->shopID)) {
+
+            if (ControllerHelper::isOrderConfirmation()) {
+                $customerData = CustomerHelper::getInstance()->getCustomerInfoOnOrderPage($this->context->controller->id_order);
+            } else {
+                $customerData = CustomerHelper::getInstance()->getCustomerInfo();
+            }
+
             $this->smarty->assign(array(
+                'customerData' => count($customerData) > 0 ? $customerData : false,
                 'seznam_retargeting_id' => $sklikClass->getRetargetingId($this->shopID),
                 'seznam_consent_advertisement' => (int) $this->cookieService->advertismentEnabled()
             ));
@@ -1272,7 +1283,15 @@ class Mergado extends Module
         //Sklik
         $sklikClass = new \Mergado\Sklik\SklikClass();
         if ($sklikClass->isConversionsActive($this->shopID)) {
+
+            if (ControllerHelper::isOrderConfirmation()) {
+                $customerData = CustomerHelper::getInstance()->getCustomerInfoOnOrderPage($context->controller->id_order);
+            } else {
+                $customerData = CustomerHelper::getInstance()->getCustomerInfo();
+            }
+
             $this->smarty->assign(array(
+                'customerData' => count($customerData) > 0 ? $customerData : false,
                 'sklikData' => $sklikClass->getConversionsData($order, $this->shopId),
                 'sklikConsent' => (bool) $this->cookieService->advertismentEnabled()
             ));
@@ -1295,7 +1314,7 @@ class Mergado extends Module
 
 
             // GoogleAds
-            $display .= $this->googleAdsServiceIntegration->conversion($orderId, $orderTotal, $orderCurrency['iso_code'], $this, $this->smarty, $this->_path);
+            $display .= $this->googleAdsServiceIntegration->conversion($orderId, $orderCurrency['iso_code'], $this, $this->smarty, $this->_path);
 
             // GA4
             $this->googleAnalytics4ServiceIntegration->purchase($this->context, $this->_path);

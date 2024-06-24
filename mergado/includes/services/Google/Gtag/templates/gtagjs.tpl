@@ -27,6 +27,8 @@
     gtag('consent', 'default', {
       'analytics_storage': '{$analyticalStorage}',
       'ad_storage': '{$advertisementStorage}',
+      'ad_user_data': '{$advertisementStorage}',
+      'ad_personalization': '{$advertisementStorage}',
     });
 
     {if $googleUniversalAnalyticsCode}
@@ -48,20 +50,46 @@
     {/if}
 
     {if $googleAnalytics4Code || googleUniversalAnalyticsCode}
-    window.mmp.cookies.sections.analytical.functions.gtagAnalytics = function () {
-      gtag('consent', 'update', {
-        'analytics_storage': 'granted'
-      });
-    };
+        window.mmp.cookies.sections.analytical.functions.gtagAnalytics = function () {
+          gtag('consent', 'update', {
+            'analytics_storage': 'granted'
+          });
+        };
     {/if}
 
     {if $googleAdsConversionCode}
         window.mmp.cookies.sections.advertisement.functions.gtagAds = function () {
           gtag('consent', 'update', {
-            'ad_storage': 'granted'
+            'ad_storage': 'granted',
+            'ad_user_data': 'granted',
+            'ad_personalization': 'granted',
           });
 
           gtag('config', '{$googleAdsConversionCode}', {literal}{'allow_ad_personalization_signals': true}{/literal});
         };
+    {/if}
+
+    {if $universalAnalyticsEnhancedEcommerceActive}
+        gtag('config','{$googleUniversalAnalyticsCode}', {literal}{'allow_enhanced_conversions': true}{/literal});
+
+        {if $customerData}
+            gtag('config', '{$googleUniversalAnalyticsCode}', {$customerData nofilter});
+        {/if}
+    {/if}
+
+    {if $analytics4EnhancedEcommerceActive}
+        gtag('config','{$googleAnalytics4Code}', {literal}{'allow_enhanced_conversions': true}{/literal});
+
+        {if $customerData}
+            gtag('config', '{$googleAnalytics4Code}', {$customerData nofilter});
+        {/if}
+    {/if}
+
+    {if $adsEnhancedEcommerceActive}
+        gtag('config','{$googleAdsConversionCode}', {literal}{'allow_enhanced_conversions': true}{/literal});
+
+        {if $customerData}
+            gtag('config', '{$googleAdsConversionCode}', {$customerData nofilter});
+        {/if}
     {/if}
 </script>

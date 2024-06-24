@@ -138,6 +138,11 @@ var m_GTM = {
             // VAT changes
             let productData = mmp_GTM_helpers.functions.getProductObject('#mergado-product-informations.mergado-product-data[data-product]');
 
+            if (!productData) {
+                // If someone modified PS 1.7 and added add to cart on product list page
+                productData = mmp_GTM_helpers.functions.getProductObjectFromTarget($(target).closest('.product-item, .product-miniature'), '#mergado-product-informations.mergado-product-list-item-data[data-product]');
+            }
+
             if ($('#product-details[data-product]').length > 0) {
                 var productJSON = JSON.parse($('#product-details[data-product]').attr('data-product'));
                 $_id = productJSON.id;

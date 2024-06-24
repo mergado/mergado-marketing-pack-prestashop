@@ -14,16 +14,34 @@
 
 {if $sklikData['active'] === '1' && $sklikData['conversionCode'] && $sklikData['conversionCode'] !== ''}
     <!-- Měřicí kód Sklik.cz -->
-    <script type="text/javascript" src="https://c.seznam.cz/js/rc.js"></script>
+    <script src="https://c.seznam.cz/js/rc.js"></script>
+
     <script>
-      var conversionConf = {
+      if (typeof identities === 'undefined') {
+        {literal}
+            let identities = {};
+        {/literal}
+
+        {if $customerData['email'] !== null }
+          identities.eid = "{$customerData['email']}";
+        {/if}
+        {if $customerData['phone'] !== null}
+          identities.tid = "{$customerData['phone']}";
+        {/if}
+
+        window.sznIVA.IS.updateIdentities(identities);
+      }
+    </script>
+
+    <script>
+      var sklikConversionConf = {
         id: {$sklikData['conversionCode']},
         value: {$sklikData['conversionValue']},
         consent: {$sklikConsent}
       };
 
       if (window.rc && window.rc.conversionHit) {
-        window.rc.conversionHit(conversionConf);
+        window.rc.conversionHit(sklikConversionConf);
       }
     </script>
 {/if}
