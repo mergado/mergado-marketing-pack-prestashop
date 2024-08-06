@@ -62,7 +62,7 @@ class Mergado extends Module
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
         'TABLE_ORDERS_NAME' => 'mergado_orders',
-        'VERSION' => '3.4.4',
+        'VERSION' => '3.4.5',
         'PHP_MIN_VERSION' => 7.1
     ];
 
