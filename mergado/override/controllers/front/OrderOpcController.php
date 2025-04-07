@@ -24,14 +24,15 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-use Mergado\includes\services\Biano\BianoStar\BianoStarService;
-use Mergado\Heureka\HeurekaClass;
-use Mergado\includes\services\ArukeresoFamily\Arukereso\ArukeresoService;
-use Mergado\includes\services\ArukeresoFamily\Compari\CompariService;
-use Mergado\includes\services\ArukeresoFamily\Pazaruvaj\PazaruvajService;
-use Mergado\Zbozi\ZboziClass;
+use Mergado\Helper\PrestashopVersionHelper;
+use Mergado\Service\External\Biano\BianoStar\BianoStarService;
+use Mergado\Service\External\Heureka\HeurekaServiceIntegration;
+use Mergado\Service\External\ArukeresoFamily\Arukereso\ArukeresoService;
+use Mergado\Service\External\ArukeresoFamily\Compari\CompariService;
+use Mergado\Service\External\ArukeresoFamily\Pazaruvaj\PazaruvajService;
+use Mergado\Service\External\Zbozi\ZboziService;
 
-include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
+include_once _PS_MODULE_DIR_ . 'mergado/vendor/autoload.php';
 
 class OrderOpcController extends OrderOpcControllerCore
 {
@@ -43,23 +44,20 @@ class OrderOpcController extends OrderOpcControllerCore
     public function init()
     {
 
-        if (_PS_VERSION_ < 1.7) {
-            if (Tools::isSubmit('ajax')) {
-                if (Tools::isSubmit('method')) {
-                    $this->setConsentCookie(HeurekaClass::SERVICE_NAME, HeurekaClass::CONSENT_NAME);
-                    $this->setConsentCookie(ZboziClass::SERVICE_NAME, ZboziClass::CONSENT_NAME);
-                    $this->setConsentCookie(ArukeresoService::SERVICE_NAME, ArukeresoService::CONSENT_NAME);
-                    $this->setConsentCookie(CompariService::SERVICE_NAME, CompariService::CONSENT_NAME);
-                    $this->setConsentCookie(PazaruvajService::SERVICE_NAME, PazaruvajService::CONSENT_NAME);
-                    $this->setConsentCookie(BianoStarService::SERVICE_NAME, BianoStarService::CONSENT_NAME);
-                }
-            }
+        if (PrestashopVersionHelper::is16AndLower() && Tools::isSubmit('ajax') && Tools::isSubmit('method')) {
+            $this->setConsentCookie(HeurekaServiceIntegration::SERVICE_NAME, HeurekaServiceIntegration::CONSENT_NAME);
+            $this->setConsentCookie(ZboziService::SERVICE_NAME, ZboziService::CONSENT_NAME);
+            $this->setConsentCookie(ArukeresoService::SERVICE_NAME, ArukeresoService::CONSENT_NAME);
+            $this->setConsentCookie(CompariService::SERVICE_NAME, CompariService::CONSENT_NAME);
+            $this->setConsentCookie(PazaruvajService::SERVICE_NAME, PazaruvajService::CONSENT_NAME);
+            $this->setConsentCookie(BianoStarService::SERVICE_NAME, BianoStarService::CONSENT_NAME);
         }
 
         parent::init();
     }
 
-    public function setConsentCookie($serviceName, $consentName) {
+    public function setConsentCookie($serviceName, $consentName): void
+    {
         if (Tools::getValue('method') === $serviceName . 'Consent') {
             if (Tools::getValue($serviceName . 'Data') == '1') {
                 $this->context->cookie->__set($consentName, '1');
@@ -67,8 +65,7 @@ class OrderOpcController extends OrderOpcControllerCore
                 $this->context->cookie->__set($consentName, '0');
             }
 
-            unset($_POST['ajax']);
-            unset($_GET['ajax']);
+            unset($_POST['ajax'], $_GET['ajax']);
         }
     }
 }

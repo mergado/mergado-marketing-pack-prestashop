@@ -11,7 +11,7 @@
  *
  *  @author    www.mergado.cz
  *  @copyright 2016 Mergado technologies, s. r. o.
- *  @license   LICENSE.txt
+ *  @license   license.txt
  */
 
 $sql = 'CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'mergado_orders` (

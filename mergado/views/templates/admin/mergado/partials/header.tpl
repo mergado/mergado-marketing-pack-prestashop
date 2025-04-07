@@ -47,7 +47,7 @@
         <h1>
             <a href="https://pack.mergado.{$mmp['domains']['pack']|strtolower}/?utm_source=mp&utm_medium=logo&utm_campaign=mergado_pack">
                 <img class="header-logo-mmp"
-                     src="{$mmp['url']['module']|escape:'htmlall':'UTF-8'}views/img/mergado_pack_logo_white.svg"
+                     src="{$mmp['url']['module']|escape:'htmlall':'UTF-8'}/views/img/mergado_pack_logo_white.svg"
                      alt="Mergado marketing pack"/>
             </a>
         </h1>
@@ -58,7 +58,7 @@
                    href="https://mergado.{$mmp['domains']['mergado']|strtolower}/?utm_source=mp&utm_medium=logo&utm_campaign=mergado"
                    title="{l s='Mergado' mod='mergado'}" target="_blank">
                     <img class="header-logo-mergado"
-                         src="{$mmp['url']['module']|escape:'htmlall':'UTF-8'}views/img/mergado_logo.png"
+                         src="{$mmp['url']['module']|escape:'htmlall':'UTF-8'}/views/img/mergado_logo.png"
                          alt="{l s='Mergado Marketing Pack' mod='mergado'}"/>
                 </a>
             </li>
@@ -133,8 +133,8 @@
             </ul>
         </div>
 
-        {*        {if $mmp['news']['unreadedTopNews'}*}
-        {*            {foreach $mmp['news']['unreadedTopNews'] as $item}*}
+        {*        {if $mmp['news']['unreadTopNews'}*}
+        {*            {foreach $mmp['news']['unreadTopNews'] as $item}*}
         {*                <div class="alert alert-info">*}
         {*                    <strong>*}
         {*                        <a href="#" class="text-info mergado" data-page-link="7">*}
@@ -149,14 +149,14 @@
 
 {*     NEWS     *}
 {if isset($smarty.get.page) && $smarty.get.page !== 'info' && $smarty.get.page !== 'news' && $smarty.get.page}
-    {if $mmp['news']['unreadedNews'] && !$mmp['hideNews']}
+    {if $mmp['news']['unreadNews'] && !$mmp['hideNews']}
         <div class="panel">
             <div class="mergado-updated-notice news">
 
                 <div class="mmp-news__holder">
-                    {if $mmp['news']['unreadedUpdates']}
+                    {if $mmp['news']['unreadUpdates']}
                         <div style="border-right: 1px solid #ddd; padding-right: 20px; margin-right: 20px;">
-                            {foreach from=$mmp['news']['unreadedUpdates'] item=item}
+                            {foreach from=$mmp['news']['unreadUpdates'] item=item}
                                 <div class="mmp-news__item mmp-news__itemUpdate">
                                     <div class="mmp-news__itemUpdateContent">
                                         <a href="#" data-page-link="7" class="mergado-link">
@@ -181,7 +181,7 @@
                         </div>
                     {/if}
                     <div>
-                        {foreach from=$mmp['news']['unreadedNews'] item=item}
+                        {foreach from=$mmp['news']['unreadNews'] item=item}
                             <div class="mmp-news__item">
                                 <a href="#" data-page-link="7" class="mergado-link">
                                     <p class="mmp-news__title">{$item['title']}</p>

@@ -16,7 +16,7 @@
     <div id="mmpabout">
         <h3>{l s='CONNECT YOUR ONLINE STORE TO THE E-COMMERCE WORLD' mod='mergado'}</h3>
 
-        <img src="{$mmp['url']['module']|escape:'htmlall':'UTF-8'}views/img/info.svg" alt="">
+        <img src="{$mmp['url']['module']|escape:'htmlall':'UTF-8'}/views/img/info.svg" alt="">
 
         <div class="mmpabout__content">
             <div class="mmpabout__left">

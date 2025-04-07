@@ -9,8 +9,7 @@
  *
  * You must not modify, adapt or create derivative works of this source code
  *
- *  @author    www.mergado.cz
- *  @copyright 2016 Mergado technologies, s. r. o.
+
  *  @license   LICENSE.txt
  */
 $sql = [];

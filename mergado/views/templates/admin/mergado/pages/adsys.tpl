@@ -15,21 +15,22 @@
 <div class="mergado-page" data-page="6" data-toggle-fields-json={$mmp['toggleFieldsJSON']}>
     <div class="rowmer">
         <div class="col-content mmp-tabs--horizontal
-            {if version_compare(_PS_VERSION_, Mergado::PS_V_16) > 0}
+            {if $prestashopVersionHelper::is17AndHigher()}
                 ps17
             {/if}">
             <ul class="mmp-tabs mmp-tabs__menu">
-                {if version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0}
+                {if $prestashopVersionHelper::is16AndLower()}
                     {foreach $mmp['pageContent']['adsys'] as $key => $tab}
                         <li class="{if isset($tab['active']) && $tab['active']}active{/if}">
                             <a href="#" data-mmp-tab-button="{$key}">
-                        {if isset($tab['icon']) && $tab['icon'] !== ''}
-                            <svg class="mmp_icon">
-                                <use xlink:href="{$mmp['images']['baseMmpImageUrl']}{$tab['icon']}"></use>
-                            </svg>
-                        {/if}
+                                {if isset($tab['icon']) && $tab['icon'] !== ''}
+                                    <svg class="mmp_icon">
+                                        <use xlink:href="{$mmp['images']['baseMmpImageUrl']}{$tab['icon']}"></use>
+                                    </svg>
+                                {/if}
 
-                            {$tab['title']}
+                                {$tab['title']}
+                                <div class="mmp-tabs__active-count"></div>
                             </a>
                         </li>
                     {/foreach}
@@ -42,7 +43,7 @@
                                         <use xlink:href="{$mmp['images']['baseMmpImageUrl']}{$tab['icon']}"></use>
                                     </svg>
                                 {/if}
-                                    {$tab['title']}
+                                {$tab['title']}
                             </a>
                         </li>
                     {/foreach}
@@ -50,7 +51,7 @@
             </ul>
 
             <div class="mmp-tabs mmp-tabs__content">
-                {if version_compare(_PS_VERSION_, Mergado::PS_V_16) < 0}
+                {if $prestashopVersionHelper::is16AndLower()}
                     {foreach $mmp['pageContent']['adsys'] as $key => $tab}
                         <div class="mmp-tabs__tab {if isset($tab['active']) && $tab['active']}active{/if}"
                              data-mmp-tab="{$key}">

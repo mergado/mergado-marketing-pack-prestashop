@@ -1,0 +1,70 @@
+/**
+ * NOTICE OF LICENSE.
+ *
+ * This file is licenced under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the licence agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code
+ *
+ *  @author    www.mergado.cz
+ *  @copyright 2016 Mergado technologies, s. r. o.
+ *  @license   license.txt
+ */
+
+/* The container */
+.mmp_radio {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 0 !important;
+    cursor: pointer;
+    font-size: 15px;
+    user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.mmp_radio input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Create a custom radio button */
+.mmp_radio__checkmark {
+    display: block;
+    position: relative;
+    height: 20px;
+    width: 20px;
+    background-color: white;
+    border-radius: 100%;
+    border: 1px solid black;
+}
+
+/* On mouse-over, add a grey background color */
+.mmp_radio:hover input ~ .mmp_radio__checkmark {
+    background-color: #efefef;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.mmp_radio__checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.mmp_radio input:checked ~ .mmp_radio__checkmark:after {
+    display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.mmp_radio .mmp_radio__checkmark:after {
+    top: 5px;
+    left: 5px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: black;
+}

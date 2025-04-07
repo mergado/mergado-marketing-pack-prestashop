@@ -11,7 +11,7 @@
  *
  *  @author    www.mergado.cz
  *  @copyright 2016 Mergado technologies, s. r. o.
- *  @license   LICENSE.txt
+ *  @license   license.txt
  */
 
 $sql = "INSERT INTO `" . _DB_PREFIX_ . "mergado` (`key`, `value`) VALUES ('mergado_zbozi_advanced_konverze', '0') ";

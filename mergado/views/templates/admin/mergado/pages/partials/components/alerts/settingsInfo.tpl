@@ -6,7 +6,7 @@ value=['alertName' => 'settingsInfo',
 	'closable' => true,
 	'closableAll' => true]}
 
-{if !$alertClass->isAlertDisabled($alertData['feedName'], $alertDefaultData['alertName']) && !$alertClass->isSectionDisabled($alertData['alertSection'])}
+{if !$alertService->isAlertDisabled($alertData['feedName'], $alertDefaultData['alertName']) && !$alertService->isSectionDisabled($alertData['alertSection'])}
 	{assign var=url value=$mmp['dirs']['alertDir']|cat:"template/alert.tpl"}
 	{include file=$url}
 {/if}

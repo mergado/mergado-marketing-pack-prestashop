@@ -10,18 +10,17 @@
  *
  *  @author    www.mergado.cz
  *  @copyright 2016 Mergado technologies, s. r. o.
- *  @license   LICENSE.txt
+ *  @license   license.txt
  */
 
 namespace Mergado;
 
 use Mergado;
-use Mergado\Tools\ImportPricesClass;
+use Mergado\Service\ProductPriceImportService;
 use Tools;
 use Module;
 
 require_once '../../config/config.inc.php';
-include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
 
 if (isset($argv) && $argv != null) {
     $token = $argv[1];
@@ -38,13 +37,13 @@ if (isset($argv) && $argv != null) {
     }
 }
 
-$pricesClass = new ImportPricesClass();
-$status = $pricesClass->importPrices();
+$productPriceImportService = ProductPriceImportService::getInstance();
+$result = $productPriceImportService->importPrices();
 
-if ($status) {
+if ($result) {
     echo '<div style="height: 16px; width: 16px; border-radius: 100%; background: green;display:inline-block;margin-right:4px;"></div>Prices imported successfully';
-    die();
 } else {
     echo '<div style="height: 16px; width: 16px; border-radius: 100%; background: red;display:inline-block;margin-right:4px;"></div> Error occured';
-    die();
 }
+
+die();

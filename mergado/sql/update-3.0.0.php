@@ -11,37 +11,42 @@
  *
  *  @author    www.mergado.cz
  *  @copyright 2016 Mergado technologies, s. r. o.
- *  @license   LICENSE.txt
+ *  @license   license.txt
  */
 
-use Mergado\Tools\XMLClass;
+use Mergado\Manager\DatabaseManager;
+use Mergado\Service\Feed\CategoryFeed;
+use Mergado\Service\Feed\ProductFeed;
+use Mergado\Service\Feed\StaticFeed;
+use Mergado\Service\Feed\StockFeed;
+use Mergado\Service\ProductPriceImportService;
 
-$active_shops = ShopCore::getShops(true);
+$active_shops = Shop::getShops(true);
 
 $shopId = 0;
 
 foreach ($active_shops as $item) {
     $shopId = $item['id_shop'];
 
-    Mergado\Tools\SettingsClass::saveSetting(XMLClass::DEFAULT_ITEMS_STEP['PRODUCT_FEED'], 1500, $shopId);
-    Mergado\Tools\SettingsClass::saveSetting(XMLClass::DEFAULT_ITEMS_STEP['CATEGORY_FEED'], 3000, $shopId);
-    Mergado\Tools\SettingsClass::saveSetting(XMLClass::DEFAULT_ITEMS_STEP['STOCK_FEED'], 5000, $shopId);
-    Mergado\Tools\SettingsClass::saveSetting(XMLClass::DEFAULT_ITEMS_STEP['STATIC_FEED'], 5000, $shopId);
-    Mergado\Tools\SettingsClass::saveSetting(XMLClass::DEFAULT_ITEMS_STEP['IMPORT_FEED'], 3000, $shopId);
+    DatabaseManager::saveSetting(ProductFeed::DEFAULT_ITEM_COUNT_PER_STEP_DB_NAME, 1500, $shopId);
+    DatabaseManager::saveSetting(CategoryFeed::DEFAULT_ITEM_COUNT_PER_STEP_DB_NAME, 3000, $shopId);
+    DatabaseManager::saveSetting(StockFeed::DEFAULT_ITEM_COUNT_PER_STEP_DB_NAME, 5000, $shopId);
+    DatabaseManager::saveSetting(StaticFeed::DEFAULT_ITEM_COUNT_PER_STEP_DB_NAME, 5000, $shopId);
+    DatabaseManager::saveSetting(ProductPriceImportService::DEFAULT_ITEM_COUNT_PER_STEP_DB_NAME, 3000, $shopId);
 
     if (glob(_PS_MODULE_DIR_ . 'mergado/xml/' . $shopId . '/mergado_feed*.xml')) {
-        Mergado\Tools\SettingsClass::saveSetting(XMLClass::WIZARD['FINISHED_PRODUCT'], 1, $shopId);
+        DatabaseManager::saveSetting(ProductFeed::WIZARD_FINISHED_DB_NAME, 1, $shopId);
     }
 
     if (glob(_PS_MODULE_DIR_ . 'mergado/xml/' . $shopId . '/category_mergado_feed*.xml')) {
-        Mergado\Tools\SettingsClass::saveSetting(XMLClass::WIZARD['FINISHED_CATEGORY'], 1, $shopId);
+        DatabaseManager::saveSetting(CategoryFeed::WIZARD_FINISHED_DB_NAME, 1, $shopId);
     }
 
     if (glob(_PS_MODULE_DIR_ . 'mergado/xml/' . $shopId . '/stock*.xml')) {
-        Mergado\Tools\SettingsClass::saveSetting(XMLClass::WIZARD['FINISHED_STOCK'], 1, $shopId);
+        DatabaseManager::saveSetting(StockFeed::WIZARD_FINISHED_DB_NAME, 1, $shopId);
     }
 
     if (glob(_PS_MODULE_DIR_ . 'mergado/xml/' . $shopId . '/static_feed*.xml')) {
-        Mergado\Tools\SettingsClass::saveSetting(XMLClass::WIZARD['FINISHED_STATIC'], 1, $shopId);
+        DatabaseManager::saveSetting(StaticFeed::WIZARD_FINISHED_DB_NAME, 1, $shopId);
     }
 }
