@@ -11,16 +11,18 @@
  *
  *  @author    www.mergado.cz
  *  @copyright 2016 Mergado technologies, s. r. o.
- *  @license   LICENSE.txt
+ *  @license   license.txt
  */
 
-$active_shops = ShopCore::getShops(true);
+use Mergado\Manager\DatabaseManager;
+
+$active_shops = Shop::getShops(true);
 
 $shopId = 0;
-$cz_active = Mergado\Tools\SettingsClass::getSettings('top_glami-form-active-lang-CZ', $shopId);
+$cz_active = DatabaseManager::getSettingsFromCache('top_glami-form-active-lang-CZ', false, $shopId);
 
 if($cz_active == 1) {
-    $cz_code = Mergado\Tools\SettingsClass::getSettings('glami_top_code-CZ', $shopId);
+    $cz_code = DatabaseManager::getSettingsFromCache('glami_top_code-CZ', '',$shopId);
 
     //Add activated CZ
     $sql = "INSERT INTO `" . _DB_PREFIX_ . "mergado` (`id_shop`, `key`, `value`) VALUES ('" . $shopId . "', 'glami_top_selection', '1')";
@@ -34,10 +36,10 @@ if($cz_active == 1) {
 foreach ($active_shops as $item) {
     $shopId = $item['id_shop'];
 
-    $cz_active = Mergado\Tools\SettingsClass::getSettings('top_glami-form-active-lang-CZ', $shopId);
+    $cz_active = DatabaseManager::getSettingsFromCache('top_glami-form-active-lang-CZ', false, $shopId);
 
     if($cz_active == 1) {
-        $cz_code = Mergado\Tools\SettingsClass::getSettings('glami_top_code-CZ', $shopId);
+        $cz_code = DatabaseManager::getSettingsFromCache('glami_top_code-CZ', '', $shopId);
 
         //Add activated CZ
         $sql = "INSERT INTO `" . _DB_PREFIX_ . "mergado` (`id_shop`, `key`, `value`) VALUES ('" . $shopId . "', 'glami_top_selection', '1')";

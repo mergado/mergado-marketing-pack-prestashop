@@ -11,7 +11,7 @@
  *
  *  @author    www.mergado.cz
  *  @copyright 2016 Mergado technologies, s. r. o.
- *  @license   LICENSE.txt
+ *  @license   license.txt
  */
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -22,7 +22,7 @@ if (!defined('_PS_VERSION_')) {
  * usefull when you modify your database, or register a new hook ...
  * Don't forget to create one file per version.
  */
-function upgrade_module_1_5_5($module) {    
+function upgrade_module_1_5_5($module) {
     Tools::clearCache();
     return $module->registerHook('displayProductFooter') && $module->registerHook('displayShoppingCartFooter');
 }

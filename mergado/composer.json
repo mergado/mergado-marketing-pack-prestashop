@@ -1,0 +1,16 @@
+{
+  "name": "mergado/mergado-marketing-pack-prestashop",
+  "require": {
+    "php": ">=7.1",
+    "ext-json": "*",
+    "ext-curl": "*",
+    "ext-simplexml": "*",
+    "ext-xmlwriter": "*",
+    "ext-libxml": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Mergado\\" : "src/"
+    }
+  }
+}

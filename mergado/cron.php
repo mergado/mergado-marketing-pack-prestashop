@@ -10,19 +10,18 @@
  *
  *  @author    www.mergado.cz
  *  @copyright 2016 Mergado technologies, s. r. o.
- *  @license   LICENSE.txt
+ *  @license   license.txt
  */
 
 namespace Mergado;
 
 use Mergado;
-use Mergado\Tools\XMLClass;
-use Tools;
+use Mergado\Manager\FeedGeneratorManager;
 use Module;
+use Tools;
 
 require_once '../../config/config.inc.php';
-include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
-
+include_once _PS_MODULE_DIR_ . 'mergado/mergado.php';
 
 $feed = null;
 
@@ -46,11 +45,9 @@ if (isset($argv) && $argv != null) {
     $feed = Tools::getValue('feed');
 }
 
-$mergado = new XMLClass();
-if ($mergado->generateFeed($feed)) {
+if (FeedGeneratorManager::generateFeed($feed)) {
     echo '<div style="height: 16px; width: 16px; border-radius: 100%; background: green;display:inline-block;margin-right:4px;"></div> Feed generated';
-    die();
 } else {
     echo '<div style="height: 16px; width: 16px; border-radius: 100%; background: red;display:inline-block;margin-right:4px;"></div> Error occured';
-    die();
 }
+die();

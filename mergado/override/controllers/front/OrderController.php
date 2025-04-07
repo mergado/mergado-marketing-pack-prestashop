@@ -24,14 +24,15 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-use Mergado\includes\services\Biano\BianoStar\BianoStarService;
-use Mergado\Heureka\HeurekaClass;
-use Mergado\includes\services\ArukeresoFamily\Arukereso\ArukeresoService;
-use Mergado\includes\services\ArukeresoFamily\Compari\CompariService;
-use Mergado\includes\services\ArukeresoFamily\Pazaruvaj\PazaruvajService;
-use Mergado\Zbozi\ZboziClass;
+use Mergado\Helper\PrestashopVersionHelper;
+use Mergado\Service\External\Biano\BianoStar\BianoStarService;
+use Mergado\Service\External\Heureka\HeurekaServiceIntegration;
+use Mergado\Service\External\ArukeresoFamily\Arukereso\ArukeresoService;
+use Mergado\Service\External\ArukeresoFamily\Compari\CompariService;
+use Mergado\Service\External\ArukeresoFamily\Pazaruvaj\PazaruvajService;
+use Mergado\Service\External\Zbozi\ZboziService;
 
-include_once _PS_MODULE_DIR_ . 'mergado/autoload.php';
+include_once _PS_MODULE_DIR_ . 'mergado/vendor/autoload.php';
 
 class OrderController extends OrderControllerCore
 {
@@ -42,9 +43,9 @@ class OrderController extends OrderControllerCore
     public function init()
     {
 
-        if (_PS_VERSION_ < 1.7) {
-             $this->setConsentCookie(HeurekaClass::SERVICE_NAME, HeurekaClass::CONSENT_NAME);
-             $this->setConsentCookie(ZboziClass::SERVICE_NAME, ZboziClass::CONSENT_NAME);
+        if (PrestashopVersionHelper::is16AndLower()) {
+             $this->setConsentCookie(HeurekaServiceIntegration::SERVICE_NAME, HeurekaServiceIntegration::CONSENT_NAME);
+             $this->setConsentCookie(ZboziService::SERVICE_NAME, ZboziService::CONSENT_NAME);
              $this->setConsentCookie(ArukeresoService::SERVICE_NAME, ArukeresoService::CONSENT_NAME);
              $this->setConsentCookie(CompariService::SERVICE_NAME, CompariService::CONSENT_NAME);
              $this->setConsentCookie(PazaruvajService::SERVICE_NAME, PazaruvajService::CONSENT_NAME);
@@ -54,8 +55,9 @@ class OrderController extends OrderControllerCore
         parent::init();
     }
 
-    public function setConsentCookie($serviceName, $consentName) {
-        if (Tools::getValue($serviceName . '_consent') == 'on') {
+    public function setConsentCookie($serviceName, $consentName): bool
+    {
+        if (Tools::getValue($serviceName . '_consent') === 'on') {
             $this->context->cookie->__set($consentName, '1');
         } else {
             $this->context->cookie->__set($consentName, '0');

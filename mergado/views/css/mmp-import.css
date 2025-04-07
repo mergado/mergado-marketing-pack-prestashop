@@ -1,0 +1,62 @@
+/**
+ * NOTICE OF LICENSE.
+ *
+ * This file is licenced under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the licence agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code
+ *
+ *  @author    www.mergado.cz
+ *  @copyright 2016 Mergado technologies, s. r. o.
+ *  @license   license.txt
+ */
+
+.mmp_import {
+    box-sizing: border-box;
+    width: 800px;
+    max-width: 100%;
+}
+
+.mmp_mt-30 {
+    margin-top: 30px;
+}
+
+.priceImportLabel {
+    padding: 9px 0 4px;
+    display: block;
+    width: 100%;
+}
+
+.priceImportLabel > span {
+    color: var(--mmp-grey);
+    font-size: 12px;
+}
+
+.priceImportLabel svg {
+    height: 15px;
+    width: 15px;
+    fill: white;
+    margin-right: 7px;
+}
+
+.priceImport__copy svg {
+    margin-right: 10px;
+}
+
+.priceImportLabel__bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.priceImportLabel input {
+    height: 30px;
+    display: block;
+    line-height: 30px;
+    min-height: unset;
+    flex-grow: 1;
+    max-width: 100%;
+    font-size: 12px;
+    font-weight: 400;
+}

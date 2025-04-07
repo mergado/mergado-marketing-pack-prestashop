@@ -11,7 +11,7 @@
  *
  *  @author    www.mergado.cz
  *  @copyright 2016 Mergado technologies, s. r. o.
- *  @license   LICENSE.txt
+ *  @license   license.txt
  */
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -23,8 +23,8 @@ if (!defined('_PS_VERSION_')) {
  * Don't forget to create one file per version.
  */
 function upgrade_module_1_1_3($module) {
-    
+
     $module->uninstallOverrides();
-    
+
     return $module->registerHook('displayFooter');
 }

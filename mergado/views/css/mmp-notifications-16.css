@@ -1,0 +1,156 @@
+/**
+ * NOTICE OF LICENSE
+ *
+ * This file is licenced under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the licence agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code
+ *
+ *  @author    www.mergado.cz
+ *  @copyright 2016 Mergado technologies, s. r. o.
+ *  @license   license.txt
+ */
+
+#mergado_notif .notifs_badge:empty {
+    display: none !important;
+}
+
+#mergado_notif .notifs_badge {
+    display: inline-block;
+    position: absolute;
+    top: 3px;
+    right: -3px;
+    color: #fff;
+    background: #25b9d7;
+    font-size: .625rem;
+    line-height: 1;
+    padding: 0.2rem 0.325rem;
+    border-radius: 1rem;
+    border: 0.05rem solid #fff;
+}
+
+#mergado_notif .notifs {
+    padding: 11px 13px !important;
+    position: static;
+}
+
+#mergado_notif .notifs img {
+    display: block;
+    max-width: 100% !important;
+}
+
+#mergado_notif .notifs img:hover,
+#mergado_notif .notifs img:focus {
+    opacity: 0.8;
+}
+
+#mergado_notif .mergado_notifs,
+#mergado_notif .no_notifs {
+    display: block;
+    padding: 15px;
+    border-bottom: solid 1px #ccc;
+}
+
+#mergado_notif .notifs_panel .notifs_panel_header h3 {
+    border-bottom: none !important;
+    padding: 0 !important;
+    font-size: 16px !important;
+}
+
+#mergado_notif .no_notifs {
+color: #999;
+}
+
+
+.mergado_notifs .mergado__read_more {
+text-align: right;
+border-bottom: 0 !important;
+}
+
+.mergado__news {
+position: absolute;
+bottom: 1px;
+right: 50%;
+transform: translateX(50%);
+font-size: 0.5rem;
+animation-duration: 800ms;
+animation-name: mergado_colors;
+animation-iteration-count: infinite;
+animation-direction: alternate;
+}
+
+.dropdown.open .mergado__news {
+z-index: 50;
+}
+
+#mergado_notif #list_customer_messages_notif {
+overflow-y: auto;
+max-height: 250px;
+}
+
+#mergado_notif .notifs_panel_footer {
+border-top: 1px solid #cccccc;
+}
+
+#mergado_notif .no_notifs {
+border-bottom: 0 !important;
+}
+
+@media only screen and (min-width: 768px) {
+#mergadoController .mergado_card__header {
+display: flex;
+flex-wrap: nowrap;
+}
+}
+
+@keyframes mergado_colors {
+from {
+color: yellow;
+}
+to {
+color: white;
+}
+}
+
+
+/*PS 17*/
+
+#mergado_logoimage {
+    width: 20px;
+    height: auto;
+}
+
+#mergado_notif .notifs_panel_header {
+    font-size: 14px;
+    padding: 5px 15px 10px 15px;
+}
+
+#mergado_notif .notifs_dropdown {
+    top: 18px !important;
+    transform: translate3d(-222px, 20px, 0px) !important;
+    min-width: 250px;
+}
+
+#mergado_notif h3 {
+    margin: 0;
+    font-weight: bold;
+}
+
+#mergado_notif #list_customer_messages_notif {
+    border-top: .125rem solid #eee;
+    padding: 0;
+    margin-top: -.0625rem;
+    background: #f2f4f5;
+}
+
+#mergado_notif .panel-footer {
+    margin: 0 !important;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+}
+
+

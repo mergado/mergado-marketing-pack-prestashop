@@ -6,7 +6,7 @@ value=['alertName' => 'generation_failed',
 	'closable' => true,
 	'closableAll' => false]}
 
-{if !$alertClass->isAlertDisabled($alertData['feedName'], $alertDefaultData['alertName'])}
+{if !$alertService->isAlertDisabled($alertData['feedName'], $alertDefaultData['alertName'])}
 	{assign var=url value=$mmp['dirs']['alertDir']|cat:"template/alert.tpl"}
 	{include file=$url}
 {/if}

@@ -11,7 +11,7 @@
  *
  *  @author    www.mergado.cz
  *  @copyright 2016 Mergado technologies, s. r. o.
- *  @license   LICENSE.txt
+ *  @license   license.txt
  */
 
 $sql = "ALTER TABLE `" . _DB_PREFIX_ . "mergado_news` ADD `link` varchar(255) NOT NULL AFTER `category`";

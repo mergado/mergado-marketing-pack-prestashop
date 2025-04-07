@@ -45,6 +45,4 @@
             {include file='./pages/support.tpl'}
         {/if}
     {/if}
-
-    {include file='./partials/footer.tpl'}
 </div>

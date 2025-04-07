@@ -1,3 +1,17 @@
+/**
+ * NOTICE OF LICENSE.
+ *
+ * This file is licenced under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the licence agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code
+ *
+ *  @author    www.mergado.cz
+ *  @copyright 2016 Mergado technologies, s. r. o.
+ *  @license   license.txt
+ */
+
 /* MERGADO TABS */
 .mmp-tabs.mmp-tabs__menu {
   display: flex;
@@ -203,4 +217,19 @@
   top: 0;
   left: -1px;
   z-index: 1000;
+}
+
+.mmp-tabs--horizontal .mmp-tabs__active-count[data-count-active="true"] {
+  background-color: #24a8b7;
+  color: white;
+  /*border-radius: 100%;*/
+  width: 16px;
+  height: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 2px;
 }
