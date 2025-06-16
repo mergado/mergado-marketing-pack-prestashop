@@ -129,7 +129,7 @@ class FeedQuery
         return $flatProductList;
     }
 
-    public function productBase($item, $lang, $currency, $export_cost = true, $export_out_of_stock = false): array
+    public function productBase($item, $lang, $currency, $export_cost = true, $export_out_of_stock = false): ?array
     {
         if ($currency !== null) {
             $currencyId = $currency->id;

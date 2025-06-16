@@ -114,7 +114,7 @@ class BaseFeedMulti extends BaseFeed
 
             $innerLoop = 0;
             foreach ($xml as $item) {
-                if ($loop != 0 && (preg_match('/^mergado.prestashop/', $item[0]) || ($innerLoop == 0 || $innerLoop == 1))) {
+                if ($loop != 0 && (preg_match('/^mergado.prestashop/', (string)$item[0]) || ($innerLoop == 0 || $innerLoop == 1))) {
                     $innerLoop++;
                 } else {
                     $innerLoop++;
