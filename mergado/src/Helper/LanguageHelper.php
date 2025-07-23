@@ -53,9 +53,13 @@ class LanguageHelper
         return self::getDomain(self::MERGADO_TO_DOMAIN);
     }
 
-    public static function getLang(): string
+    public static function getLang($langIso = null): string
     {
-        $lang = self::getLangIso();
+        if ($langIso === null) {
+            $lang = self::getLangIso();
+        } else {
+            $lang = $langIso;
+        }
 
         //I can do this fix, because noone sending 'cs' in lowercase
         $lang = strtoupper($lang);

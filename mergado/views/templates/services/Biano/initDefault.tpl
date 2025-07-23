@@ -19,7 +19,7 @@
     debug: false
   };
 
-  const bianoLang = '{$langCode|lower}';
+  const bianoDomain = '{$domain}';
 
   {literal}
   !function (b, i, a, n, o, p, x, s) {
@@ -36,7 +36,7 @@
     s = 'script';
     p = i.createElement(s);
     p.async = !0;
-    p.src = 'https://' + (n ? 'pixel.biano.' + bianoLang : 'bianopixel.com') +
+    p.src = 'https://' + (n ? 'pixel.biano.' + bianoDomain : 'bianopixel.com') +
       '/' + (a.debug ? 'debug' : 'min') + '/pixel.js';
     x = i.getElementsByTagName(s)[0];
     x.parentNode.insertBefore(p, x);

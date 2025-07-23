@@ -78,28 +78,28 @@ class BianoForm extends AbstractAdSystemsForm
         foreach (Language::getLanguages(true) as $key => $lang) {
             $langName = LanguageHelper::getLang(strtoupper($lang['iso_code']));
 
-            $fields_form[0]['form']['input'][] = [
-                'name' => BianoService::getActiveLangFieldName($langName),
-                'label' => $langName,
-                'validation' => 'isBool',
-                'cast' => 'intval',
-                'type' => 'switch',
-                'values' => [
-                    [
-                        'id' => 'biano_active_on',
-                        'value' => 1,
-                        'label' => $translateFunction('Yes')
+            if (array_key_exists($langName, BianoService::LANG_OPTIONS)) {
+                $fields_form[0]['form']['input'][] = [
+                    'name' => BianoService::getActiveLangFieldName($langName),
+                    'label' => $langName,
+                    'validation' => 'isBool',
+                    'cast' => 'intval',
+                    'type' => 'switch',
+                    'values' => [
+                        [
+                            'id' => 'biano_active_on',
+                            'value' => 1,
+                            'label' => $translateFunction('Yes')
+                        ],
+                        [
+                            'id' => 'biano_active_off',
+                            'value' => 0,
+                            'label' => $translateFunction('No')
+                        ]
                     ],
-                    [
-                        'id' => 'biano_active_off',
-                        'value' => 0,
-                        'label' => $translateFunction('No')
-                    ]
-                ],
-                'visibility' => Shop::CONTEXT_ALL,
-            ];
+                    'visibility' => Shop::CONTEXT_ALL,
+                ];
 
-            if(in_array($langName, BianoService::LANG_OPTIONS)) {
                 $fields_form[0]['form']['input'][] = [
                     'name' => BianoService::getMerchantIdFieldName($langName),
                     'label' => $translateFunction('Merchant ID', 'biano') . ' ' . $langName,

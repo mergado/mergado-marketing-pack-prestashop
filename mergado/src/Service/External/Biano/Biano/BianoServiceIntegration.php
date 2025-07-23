@@ -89,13 +89,13 @@ class BianoServiceIntegration extends AbstractBaseService
                 'merchantId' => $this->bianoService->getMerchantId($this->lang),
             ));
 
-            if (in_array($this->lang, BianoService::LANG_OPTIONS)) {
+            if (array_key_exists($this->lang, BianoService::LANG_OPTIONS)) {
                 $display .= SmartyTemplateLoader::render(
                     $module,
                     self::TEMPLATES_PATH . 'initDefault.tpl',
                     $smarty,
                     [
-                        'langCode' => $this->lang,
+                        'domain' => BianoService::LANG_OPTIONS[$this->lang],
                     ]
                 );
             } else {

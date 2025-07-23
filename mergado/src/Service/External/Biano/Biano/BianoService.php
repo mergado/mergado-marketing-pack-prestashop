@@ -29,7 +29,18 @@ class BianoService extends AbstractBaseService
     public const FIELD_MERCHANT_ID = 'biano_merchant_id';
     public const FIELD_ACTIVE_LANG = 'biano-form-active-lang';
     public const FIELD_CONVERSION_VAT_INCl = 'biano_conversion_vat_incl';
-    public const LANG_OPTIONS = ['CZ', 'SK', 'RO', 'NL', 'HU'];
+    public const LANG_OPTIONS = [
+        'CZ' => 'cz',
+        'SK' => 'sk',
+        'RO' => 'ro',
+        'NL' => 'nl',
+        'HU' => 'hu',
+        'BG' => 'bg',
+        'GR' => 'gr',
+        'PL' => 'com/pl',
+        'IT' => 'it',
+        'PT' => 'pt',
+    ];
 
     /*******************************************************************************************************************
      * BIANO ACTIVATION
