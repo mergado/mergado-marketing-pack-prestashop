@@ -400,12 +400,7 @@ class ProductPriceImportService extends AbstractBaseService
 
     public function getCronUrl(): string
     {
-        if (Shop::isFeatureActive()) {
-            return UrlHelper::getShopModuleUrl() . '/importPrices.php?' .
-                '&token=' . Tools::substr(Tools::encrypt('mergado/importPrices'), 0, 10);
-        }
-
         return UrlHelper::getShopModuleUrl() . '/importPrices.php?' .
-            '&token=' . Tools::substr(Tools::encrypt('mergado/importPrices'), 0, 10);
+            '&token=' . Tools::substr(Mergado\Helper\EncryptionHelper::encrypt('mergado/importPrices'), 0, 10);
     }
 }

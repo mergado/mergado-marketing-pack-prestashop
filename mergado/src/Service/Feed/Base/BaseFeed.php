@@ -181,7 +181,7 @@ class BaseFeed
     public function getCronUrl(): string
     {
         return UrlHelper::getShopModuleUrl() . '/cron.php?feed=' . $this->name .
-            '&token=' . Tools::substr(Tools::encrypt('mergado/cron'), 0, 10);
+            '&token=' . Tools::substr(Mergado\Helper\EncryptionHelper::encrypt('mergado/cron'), 0, 10);
     }
 
     /*******************************************************************************************************************

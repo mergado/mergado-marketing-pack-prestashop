@@ -115,7 +115,7 @@ class HeurekaForm extends AbstractAdSystemsForm
                     'name' => 'mergado_fake_field',
                     'label' => $translateFunction('Text of the customer\'s consent to sending the questionnaire', 'heureka'),
                     'type' => 'text',
-                    'class' => 'mff-d-none',
+                    'class' => 'mff-d-hidden',
                     'visibility' => Shop::CONTEXT_ALL,
                     'desc' => '<a href="#consent-text" class="mmp_btn__blue mmp_btn__blue--small" style="font-style: normal;">' . $translateFunction('Edit consent text', 'heureka') . '</a>',
                 ],

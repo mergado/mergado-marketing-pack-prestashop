@@ -38,6 +38,9 @@
     --mmp-status--warning: #ffcc00;
 }
 
+body.adminmergado #content.bootstrap a[href]:not(.breadcrumb a,.dropdown-menu a,table a,[class*=btn],[class*=dropdown],[class*=list-group-item],[class*=kpi-container],[class*=nav-link]) {
+    text-decoration: none;
+}
 
 body.adminmergado {
     color: black;
@@ -250,7 +253,7 @@ body.adminmergado {
     margin-right: 5px;
     padding: 8px 16px;
     text-decoration: none;
-    color: white;
+    color: white !important;
     border: 2px solid white;
     border-radius: 6px;
     outline: none;
@@ -259,7 +262,7 @@ body.adminmergado {
 .mmp-nav-links li a:hover,
 .mmp-nav-links li a:focus,
 .mmp-nav-links li a:active {
-    color: black;
+    color: black !important;
     outline: none;
     background-color: white;
     box-shadow: none;
@@ -268,7 +271,7 @@ body.adminmergado {
 
 .mmp-nav-links li a.active {
     font-weight: 700;
-    color: black;
+    color: black !important;
     background-color: white;
 }
 
@@ -289,7 +292,7 @@ h2 {
     text-decoration: none;
     text-transform: uppercase;
     color: #fff;
-    border-radius: 14px;
+    border-radius: 14px !important;
     background-color: #067834;
 }
 
@@ -803,7 +806,10 @@ h2 {
 [name="mergado_fake_field"],
 .mff-d-none,
 #mergado_fake_field {
-    display: none !important;
+    display: block !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    padding: 0 !important;
 }
 
 .mmp-tag--field {

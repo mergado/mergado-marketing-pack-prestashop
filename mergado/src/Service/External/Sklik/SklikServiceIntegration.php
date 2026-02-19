@@ -109,7 +109,7 @@ class SklikServiceIntegration extends AbstractBaseService
                 [
                     'customerData' => count($customerData) > 0 ? $customerData : false,
                     'sklikData' => $this->getConversionsData($order),
-                    'sklikConsent' => (bool)$this->cookieService->advertismentEnabled()
+                    'sklikConsent' => (int)$this->cookieService->advertismentEnabled()
                 ]
             );
         } catch (Throwable $e) {

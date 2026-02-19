@@ -540,4 +540,19 @@ class AdminMergadoController extends \ModuleAdminController
             return $this->module->l($string, $specific);
         };
     }
+
+    /**
+     * Translation wrapper for compatibility across PS 1.6 - 9.0
+     * Maps $this->l() in the controller to the module's translation system.
+     */
+    protected function l($string, $class = null, $addslashes = false, $htmlentities = true)
+    {
+        // If running on PS 1.7+, use the modern translation interface if available
+        if (method_exists($this->module, 'l')) {
+            return $this->module->l($string, 'adminmergado');
+        }
+
+        // PS 1.6 Fallback
+        return parent::l($string, $class, $addslashes, $htmlentities);
+    }
 }

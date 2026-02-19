@@ -26,12 +26,12 @@ if (isset($argv) && $argv != null) {
     $token = $argv[1];
     $token = str_replace('--token=', '', $token);
 
-    if (Tools::substr(Tools::encrypt('mergado/importPrices'), 0, 10) != $token || !Module::isInstalled(Mergado::MERGADO['MODULE_NAME'])) {
+    if (Tools::substr(Mergado\Helper\EncryptionHelper::encrypt('mergado/importPrices'), 0, 10) != $token || !Module::isInstalled(Mergado::MERGADO['MODULE_NAME'])) {
         die('Bad token');
     }
 } else {
     /* Kontrola bezpečnostního tokenu */
-    if (Tools::substr(Tools::encrypt('mergado/importPrices'), 0, 10) != Tools::getValue('token')
+    if (Tools::substr(Mergado\Helper\EncryptionHelper::encrypt('mergado/importPrices'), 0, 10) != Tools::getValue('token')
             || !Module::isInstalled(Mergado::MERGADO['MODULE_NAME'])) {
         die('Bad token');
     }

@@ -40,16 +40,16 @@ class OrderController extends OrderControllerCore
      * Initialize order controller
      * @see FrontController::init()
      */
-    public function init()
+    public function init(): void
     {
 
         if (PrestashopVersionHelper::is16AndLower()) {
-             $this->setConsentCookie(HeurekaServiceIntegration::SERVICE_NAME, HeurekaServiceIntegration::CONSENT_NAME);
-             $this->setConsentCookie(ZboziService::SERVICE_NAME, ZboziService::CONSENT_NAME);
-             $this->setConsentCookie(ArukeresoService::SERVICE_NAME, ArukeresoService::CONSENT_NAME);
-             $this->setConsentCookie(CompariService::SERVICE_NAME, CompariService::CONSENT_NAME);
-             $this->setConsentCookie(PazaruvajService::SERVICE_NAME, PazaruvajService::CONSENT_NAME);
-             $this->setConsentCookie(BianoStarService::SERVICE_NAME, BianoStarService::CONSENT_NAME);
+            $this->setConsentCookie(HeurekaServiceIntegration::SERVICE_NAME, HeurekaServiceIntegration::CONSENT_NAME);
+            $this->setConsentCookie(ZboziService::SERVICE_NAME, ZboziService::CONSENT_NAME);
+            $this->setConsentCookie(ArukeresoService::SERVICE_NAME, ArukeresoService::CONSENT_NAME);
+            $this->setConsentCookie(CompariService::SERVICE_NAME, CompariService::CONSENT_NAME);
+            $this->setConsentCookie(PazaruvajService::SERVICE_NAME, PazaruvajService::CONSENT_NAME);
+            $this->setConsentCookie(BianoStarService::SERVICE_NAME, BianoStarService::CONSENT_NAME);
         }
 
         parent::init();

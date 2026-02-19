@@ -122,7 +122,16 @@ function mergadoInsertOnBackOfficeDOM(html)
         $('#header_notifs_icon_wrapper').append(html);
     } else if (0 < $('#notification').length) {
         // PrestaShop 1.7 - Default theme
-        $(html).insertAfter('#notification');
+
+        // 9+
+        if (admin_mergado_place_badge_after) {
+
+            const htmlWithWrapper = '<ul class="header-list component">' + html + '</ul>';
+
+            $(htmlWithWrapper).insertAfter('.header-list.component');
+        } else {
+            $(html).insertAfter('#notification');
+        }
     } else if (0 < $('.notification-center').length) {
         // PrestaShop 1.7 - New theme
         $('.mergado-component').remove();

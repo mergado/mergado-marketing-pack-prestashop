@@ -46,4 +46,9 @@ class PrestashopVersionHelper
     {
         return (bool)version_compare(_PS_VERSION_, self::VERSION_17, '>=');
     }
+
+    public static function is9AndHigher(): bool
+    {
+        return (bool)version_compare(_PS_VERSION_, '9.0', '>=');
+    }
 }

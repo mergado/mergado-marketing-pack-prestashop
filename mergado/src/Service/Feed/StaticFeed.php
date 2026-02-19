@@ -20,6 +20,7 @@ use Configuration;
 use DateTime;
 use Exception;
 use Mergado\Exception\CronRunningException;
+use Mergado\Helper\EncryptionHelper;
 use Mergado\Manager\DatabaseManager;
 use Mergado\Service\LogService;
 use Mergado\Service\SettingsService;
@@ -217,7 +218,7 @@ class StaticFeed extends BaseFeedSimple
 
     public function getOutputXmlName(): string
     {
-        return $this->name . '_' . Tools::getAdminTokenLite('AdminModules');
+        return $this->name . '_' . Tools::substr(EncryptionHelper::encrypt('static' . Configuration::get('PS_SHOP_NAME')), 1, 11);
     }
 
     /*******************************************************************************************************************

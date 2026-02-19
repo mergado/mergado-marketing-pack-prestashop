@@ -29,7 +29,7 @@ if (isset($argv) && $argv != null) {
     $token = $argv[1];
     $token = str_replace('--token=', '', $token);
 
-    if (Tools::substr(Tools::encrypt('mergado/cron'), 0, 10) != $token || !Module::isInstalled(Mergado::MERGADO['MODULE_NAME'])) {
+    if (Tools::substr(Mergado\Helper\EncryptionHelper::encrypt('mergado/cron'), 0, 10) != $token || !Module::isInstalled(Mergado::MERGADO['MODULE_NAME'])) {
         die('Bad token');
     }
 
@@ -37,7 +37,7 @@ if (isset($argv) && $argv != null) {
     $feed = str_replace('--feed=', '', $feed);
 } else {
     /* Kontrola bezpečnostního tokenu */
-    if (Tools::substr(Tools::encrypt('mergado/cron'), 0, 10) != Tools::getValue('token')
+    if (Tools::substr(Mergado\Helper\EncryptionHelper::encrypt('mergado/cron'), 0, 10) != Tools::getValue('token')
             || !Module::isInstalled(Mergado::MERGADO['MODULE_NAME'])) {
         die('Bad token');
     }

@@ -40,7 +40,7 @@ class ZboziServiceIntegration extends AbstractBaseService
     private $cookieService;
 
     public const TEMPLATES_PATH = 'views/templates/services/Zbozi/';
-    public const JS_PATH = 'views/js/services/Sklik/';
+    public const JS_PATH = 'views/js/services/Zbozi/';
 
     protected function __construct()
     {

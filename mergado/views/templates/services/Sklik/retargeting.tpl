@@ -20,10 +20,10 @@
         let identities = {};
           {/literal}
 
-          {if $customerData['email'] !== null }
+          {if $customerData && isset($customerData['email']) && $customerData['email'] !== null }
         identities.eid = "{$customerData['email']}";
           {/if}
-          {if $customerData['phone'] !== null}
+          {if $customerData && isset($customerData['phone']) && $customerData['phone'] !== null}
         identities.tid = "{$customerData['phone']}";
           {/if}
 

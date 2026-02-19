@@ -16,6 +16,8 @@
 
 // Do not use USE statements because of PS 1.6.1.12 - error during installation
 
+use Mergado\Helper\PrestashopVersionHelper;
+
 define('__MERGADO_DIR__', _PS_MODULE_DIR_ . 'mergado');
 define('__MERGADO_FORMS_DIR__', _PS_MODULE_DIR_ . 'mergado/controllers/admin/forms/');
 define('__MERGADO_ALERT_DIR__', _PS_MODULE_DIR_ . 'mergado/views/templates/admin/mergado/pages/partials/components/alerts/');
@@ -53,7 +55,7 @@ class Mergado extends Module
         'TABLE_NAME' => 'mergado',
         'TABLE_NEWS_NAME' => 'mergado_news',
         'TABLE_ORDERS_NAME' => 'mergado_orders',
-        'VERSION' => '4.1.0',
+        'VERSION' => '4.2.0',
         'PHP_MIN_VERSION' => 7.1
     ];
 
@@ -183,7 +185,7 @@ class Mergado extends Module
 
         $this->confirmUninstall = $this->l('Are you sure to uninstall Mergado marketing pack module?');
 
-        $this->ps_versions_compliancy = array('min' => Mergado\Helper\PrestashopVersionHelper::VERSION_16, 'max' => '8.9.99');
+        $this->ps_versions_compliancy = array('min' => Mergado\Helper\PrestashopVersionHelper::VERSION_16, 'max' => '9.9.99');
 
         try {
             $this->controllerHelper = Mergado\Helper\ControllerHelper::getInstance();
@@ -239,6 +241,8 @@ class Mergado extends Module
 
         $this->addTab();
 
+        $this->prepareVersionOverrides();
+
         return parent::install()
             && $this->installUpdates()
             && $this->registerHook('displayBackOfficeHeader')
@@ -267,8 +271,43 @@ class Mergado extends Module
         include __DIR__ . '/sql/uninstall.php';
 
         $this->removeTab();
+        $this->removeOverridesOnUninstall();
 
         return parent::uninstall();
+    }
+
+    public function prepareVersionOverrides()
+    {
+        $sourceBase = _PS_MODULE_DIR_ . $this->name . '/override_versions/';
+        $destFile   = _PS_MODULE_DIR_ . $this->name . '/override/controllers/front/OrderController.php';
+
+        // 2. Select version
+        if (PrestashopVersionHelper::is9AndHigher()) {
+            $sourceFile = $sourceBase . 'ps9/OrderController.php';
+        } else {
+            $sourceFile = $sourceBase . 'default/OrderController.php';
+        }
+
+        // 3. Copy the file manually
+        // We do this manually because parent::install() only copies files
+        // located in the standard /override/ folder, which we are leaving empty.
+        if (file_exists($sourceFile)) {
+            // Ensure destination dir exists
+            if (!is_dir(dirname($destFile))) {
+                mkdir(dirname($destFile), 0777, true);
+            }
+            copy($sourceFile, $destFile);
+        }
+    }
+
+    public function removeOverridesOnUninstall()
+    {
+        // Remove the manual override
+        $overrideFile = _PS_ROOT_DIR_ . '/override/controllers/front/OrderController.php';
+
+        if (file_exists($overrideFile)) {
+            unlink($overrideFile);
+        }
     }
 
     public function installUpdates(): bool
@@ -378,70 +417,130 @@ class Mergado extends Module
                 return '';
             }
 
+            $outputHtml = '';
+            $version = MERGADO::MERGADO['VERSION'];
+            $jsToLoad = [];
+            $cssToLoad = [];
+
+            // 1. Define assets based on the controller
             if (Tools::getValue('controller') === $this->controllerClass) {
-                $this->context->controller->addJquery();
-                $this->context->controller->addJS($this->_path . 'views/js/admin/back.js?v=' . MERGADO::MERGADO['VERSION'], false);
-                $this->context->controller->addJS($this->_path . 'views/vendors/yesno/src/index.js?v=' . MERGADO::MERGADO['VERSION'], false);
-                $this->context->controller->addJS($this->_path . 'views/js/admin/wizard.js?v=' . MERGADO::MERGADO['VERSION'], false);
-                $this->context->controller->addJS($this->_path . 'views/js/admin/alerts.js?v=' . MERGADO::MERGADO['VERSION'], false);
-                $this->context->controller->addJS($this->_path . 'views/js/admin/import.js?v=' . MERGADO::MERGADO['VERSION'], false);
-                $this->context->controller->addJS($this->_path . 'views/vendors/iframe-resizer/js/iframeResizer.min.js?v=' . MERGADO::MERGADO['VERSION'], false);
-                $this->context->controller->addJS($this->_path . 'views/js/admin/iframe-resizer.js?v=' . MERGADO::MERGADO['VERSION'], false);
-                $this->context->controller->addCSS($this->_path . 'views/css/mmp-base.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
-                $this->context->controller->addCSS($this->_path . 'views/css/mmp-tabs.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
-                $this->context->controller->addCSS($this->_path . 'views/css/mmp-news.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
-                $this->context->controller->addCSS($this->_path . 'views/css/mmp-news-header.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
-                $this->context->controller->addCSS($this->_path . 'views/css/mmp-wizard.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
-                $this->context->controller->addCSS($this->_path . 'views/css/mmp-settings.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
-                $this->context->controller->addCSS($this->_path . 'views/css/mmp-import.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
-                $this->context->controller->addCSS($this->_path . 'views/vendors/yesno/src/index.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
-                $this->context->controller->addCSS($this->_path . 'views/css/mmp-wizard-dialog.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
-                $this->context->controller->addCSS($this->_path . 'views/css/mmp-wizard-radio.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
-                $this->context->controller->addCSS($this->_path . 'views/css/mmp-alert.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
+                // Ensure jQuery is loaded (using safe helper)
+                $this->safeAddJquery();
+
+                $jsToLoad = [
+                    $this->_path . 'views/js/admin/back.js',
+                    $this->_path . 'views/vendors/yesno/src/index.js',
+                    $this->_path . 'views/js/admin/wizard.js',
+                    $this->_path . 'views/js/admin/alerts.js',
+                    $this->_path . 'views/js/admin/import.js',
+                    $this->_path . 'views/vendors/iframe-resizer/js/iframeResizer.min.js',
+                    $this->_path . 'views/js/admin/iframe-resizer.js',
+                ];
+
+                $cssToLoad = [
+                    $this->_path . 'views/css/mmp-base.css',
+                    $this->_path . 'views/css/mmp-tabs.css',
+                    $this->_path . 'views/css/mmp-news.css',
+                    $this->_path . 'views/css/mmp-news-header.css',
+                    $this->_path . 'views/css/mmp-wizard.css',
+                    $this->_path . 'views/css/mmp-settings.css',
+                    $this->_path . 'views/css/mmp-import.css',
+                    $this->_path . 'views/vendors/yesno/src/index.css',
+                    $this->_path . 'views/css/mmp-wizard-dialog.css',
+                    $this->_path . 'views/css/mmp-wizard-radio.css',
+                    $this->_path . 'views/css/mmp-alert.css',
+                ];
             } else {
-                $this->context->controller->addJquery();
+                $this->safeAddJquery();
             }
 
-            $this->context->controller->addJS($this->_path . 'views/js/admin/notifications.js?v=' . MERGADO::MERGADO['VERSION'], false);
+            // 2. Global assets (Notifications)
+            $jsToLoad[] = $this->_path . 'views/js/admin/notifications.js';
 
-            if (Mergado\Helper\PrestashopVersionHelper::is16AndLower()) {
-                $this->context->controller->addCSS($this->_path . 'views/css/mmp-notifications-16.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
+            // 3. Version-Specific Logic using your Helper
+            if (PrestashopVersionHelper::is16AndLower()) {
+                $cssToLoad[] = $this->_path . 'views/css/mmp-notifications-16.css';
+            } else if (PrestashopVersionHelper::is9AndHigher()) {
+                $cssToLoad[] = $this->_path . 'views/css/mmp-notifications-9.css';
             } else {
-                $this->context->controller->addCSS($this->_path . 'views/css/mmp-notifications-17.css?v=' . MERGADO::MERGADO['VERSION'], 'all', null, false);
+                // This covers 1.7, 8.x
+                $cssToLoad[] = $this->_path . 'views/css/mmp-notifications-17.css';
             }
 
+            // 4. LOAD ASSETS (The Universal Fix)
+            // We use method_exists because even in PS 9, some pages might support addCSS
+            // while others (Symfony pages) do not. This covers ALL cases.
+
+            // -- Process JS --
+            foreach ($jsToLoad as $jsFile) {
+                $fileWithVersion = $jsFile . '?v=' . $version;
+                if ($this->context->controller && method_exists($this->context->controller, 'addJS')) {
+                    $this->context->controller->addJS($fileWithVersion, false);
+                } else {
+                    // Fallback for PS 9 / Symfony pages
+                    $outputHtml .= '<script type="text/javascript" src="' . $fileWithVersion . '"></script>';
+                }
+            }
+
+            // -- Process CSS --
+            foreach ($cssToLoad as $cssFile) {
+                $fileWithVersion = $cssFile . '?v=' . $version;
+                if ($this->context->controller && method_exists($this->context->controller, 'addCSS')) {
+                    $this->context->controller->addCSS($fileWithVersion, 'all', null, false);
+                } else {
+                    // Fallback for PS 9 / Symfony pages
+                    $outputHtml .= '<link rel="stylesheet" href="' . $fileWithVersion . '" type="text/css" media="all" />';
+                }
+            }
+
+            // 5. Prepare JavaScript Variables
             $lang = Mergado\Helper\LanguageHelper::getLang();
-            $this->smarty->assign(array(
-                'langCode' => $lang,
-            ));
+            $this->smarty->assign(['langCode' => $lang]);
 
             $logoPath = '"' . __PS_BASE_URI__ . "modules/" . self::MERGADO["MODULE_NAME"] . '/logo.gif"';
 
-            return '<script>
-                    var admin_mergado_ajax_url = ' . (string)json_encode($this->context->link->getAdminLink('AdminMergado')) . ';
-                    var admin_mergado_show_more_message = "' . $this->l('Show all messages') . '";
-                    var admin_mergado_read_more = "' . $this->l('Read more') . '";
-                    var admin_mergado_show_messages = "' . $this->l('Mergado messages') . '";
-                    var admin_mergado_news = "' . $this->l('NEWS') . '";
-                    var admin_mergado_no_new = "' . $this->l('No new messages.') . '";
-                    var admin_mergado_all_messages_url = ' . (string)json_encode($this->context->link->getAdminLink('AdminMergado')) . ';
-                    var admin_mergado_all_messages_id_tab = "news";
-                    
-                    var admin_mergado_prices_imported = "' . $this->l('Prices successfully imported.') . '";
-                    var admin_mergado_back_running = "' . $this->l('Error generate XML. Selected cron already running.') . '";
-                    var admin_mergado_back_merged = "' . $this->l('File merged and ready for review in XML feeds section!') . '";
-                    var admin_mergado_back_success = "' . $this->l('File successfully generated.') . '";
-                    var admin_mergado_back_error = "' . $this->l('Mergado feed generate ERROR. Try to change number of temporary files and repeat the process.') . '";
-                    var admin_mergado_back_process = "' . $this->l('Generating') . '";
-                    
-                    var psv_new = ' . (int)Mergado\Helper\PrestashopVersionHelper::is17AndHigher() . ';
-                    var m_logoPath = ' . $logoPath . ';
-                </script>';
+            // Use helper for JS variable too
+            $psvNew = (int)PrestashopVersionHelper::is17AndHigher();
+
+            $scriptBlock = '<script>
+            var admin_mergado_ajax_url = ' . (string)json_encode($this->context->link->getAdminLink('AdminMergado')) . ';
+            var admin_mergado_show_more_message = "' . $this->l('Show all messages') . '";
+            var admin_mergado_read_more = "' . $this->l('Read more') . '";
+            var admin_mergado_show_messages = "' . $this->l('Mergado messages') . '";
+            var admin_mergado_news = "' . $this->l('NEWS') . '";
+            var admin_mergado_no_new = "' . $this->l('No new messages.') . '";
+            var admin_mergado_all_messages_url = ' . (string)json_encode($this->context->link->getAdminLink('AdminMergado')) . ';
+            var admin_mergado_all_messages_id_tab = "news";
+            
+            var admin_mergado_prices_imported = "' . $this->l('Prices successfully imported.') . '";
+            var admin_mergado_back_running = "' . $this->l('Error generate XML. Selected cron already running.') . '";
+            var admin_mergado_back_merged = "' . $this->l('File merged and ready for review in XML feeds section!') . '";
+            var admin_mergado_back_success = "' . $this->l('File successfully generated.') . '";
+            var admin_mergado_back_error = "' . $this->l('Mergado feed generate ERROR. Try to change number of temporary files and repeat the process.') . '";
+            var admin_mergado_back_process = "' . $this->l('Generating') . '";
+            
+            var psv_new = ' . $psvNew . ';
+            var admin_mergado_place_badge_after = ' . (int) PrestashopVersionHelper::is9AndHigher() . ';
+            var m_logoPath = ' . $logoPath . ';
+        </script>';
+
+            return $outputHtml . $scriptBlock;
+
         } catch (Throwable $e) {
             $this->logger->error($e->getMessage(), ['exception' => $e]);
         }
 
         return '';
+    }
+
+    /**
+     * Safe jQuery loader
+     */
+    private function safeAddJquery()
+    {
+        if ($this->context->controller && method_exists($this->context->controller, 'addJquery')) {
+            $this->context->controller->addJquery();
+        }
     }
 
     public function hookDisplayFooterProduct($params) : string
