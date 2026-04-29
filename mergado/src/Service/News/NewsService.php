@@ -154,11 +154,11 @@ class NewsService extends AbstractBaseService
     {
         return Db::getInstance()->insert(Mergado::MERGADO['TABLE_NEWS_NAME'], [
             'title' => pSQL((string) $item['title']),
-            'description' => pSQL(str_replace(']]>','', str_replace('<![CDATA[', '', $item['description'])), true),
+            'description' => pSQL(str_replace(']]>','', str_replace('<![CDATA[', '', (string) $item['description'])), true),
             'category' => (string) $item['category'],
             'pubDate' => $date->format(self::DATE_FORMAT),
             'language' => $lang,
-            'link' => pSQL(str_replace(']]>','', str_replace('<![CDATA[', '', $item['link']))),
+            'link' => pSQL(str_replace(']]>','', str_replace('<![CDATA[', '', (string) $item['link']))),
             'shown' => 0,
         ]);
     }

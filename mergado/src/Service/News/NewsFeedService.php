@@ -106,29 +106,34 @@ class NewsFeedService extends AbstractBaseService
         $downloadedNews = $this->downloadFeed($lang);
 
         foreach ($downloadedNews as $article) {
-            $itemAr = (array)$article;
-            $article = array_change_key_case($itemAr, CASE_LOWER);
+            try {
+                $itemAr = (array)$article;
+                $article = array_change_key_case($itemAr, CASE_LOWER);
 
-            $articlePubDate = new DateTime((string)$article['pubdate']);
-            $save = true;
+                $articlePubDate = new DateTime((string)$article['pubdate']);
+                $save = true;
 
-            // Check if article is in database already
-            if (count($newsInDatabase) > 0) {
-                foreach ($newsInDatabase as $existingArticle) {
+                // Check if article is in database already
+                if (count($newsInDatabase) > 0) {
+                    foreach ($newsInDatabase as $existingArticle) {
 
-                    // Fix different APIs ( one with time and second only date ) => Compare only based on date and title
-                    $existingArticlePubDate = new DateTime($existingArticle['pubDate']);
-                    $existingArticlePubDate = $existingArticlePubDate->format(NewsService::DATE_COMPARE_FORMAT);
+                        // Fix different APIs ( one with time and second only date ) => Compare only based on date and title
+                        $existingArticlePubDate = new DateTime($existingArticle['pubDate']);
+                        $existingArticlePubDate = $existingArticlePubDate->format(NewsService::DATE_COMPARE_FORMAT);
 
-                    if ((string)$article['title'] === $existingArticle['title'] && $articlePubDate->format(NewsService::DATE_COMPARE_FORMAT) === $existingArticlePubDate) {
-                        $save = false;
-                        break;
+                        if ((string)$article['title'] === $existingArticle['title'] && $articlePubDate->format(NewsService::DATE_COMPARE_FORMAT) === $existingArticlePubDate) {
+                            $save = false;
+                            break;
+                        }
                     }
                 }
-            }
 
-            if ($save) {
-                $this->newsService->saveArticleByLang($article, $articlePubDate, $lang);
+                if ($save) {
+                    $this->newsService->saveArticleByLang($article, $articlePubDate, $lang);
+                }
+            } catch (\Throwable $e) {
+                $this->logger->error('RSS - Failed to process article', ['exception' => $e]);
+                continue;
             }
         }
     }
